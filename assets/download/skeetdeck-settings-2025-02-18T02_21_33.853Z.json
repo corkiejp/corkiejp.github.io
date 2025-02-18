@@ -1,0 +1,132 @@
+{
+  "$version": 1,
+  "decks": [
+    {
+      "id": "3lig6ifwjgs46",
+      "name": "Personal",
+      "emoji": "⭐",
+      "panes": [
+        {
+          "type": "home",
+          "id": "3lig6ifwjgtla",
+          "title": null,
+          "size": null,
+          "uid": "did:plc:lgjvdkqeeutvf7zj6wow3jro",
+          "showReplies": "follows",
+          "showReposts": true,
+          "showQuotes": true
+        },
+        {
+          "type": "notifications",
+          "id": "3lig6ifwjgunn",
+          "title": null,
+          "size": null,
+          "uid": "did:plc:lgjvdkqeeutvf7zj6wow3jro",
+          "exclusions": []
+        },
+        {
+          "type": "profile",
+          "id": "3lig6ifwjgvmc",
+          "title": null,
+          "size": null,
+          "uid": "did:plc:lgjvdkqeeutvf7zj6wow3jro",
+          "profile": {
+            "did": "did:plc:lgjvdkqeeutvf7zj6wow3jro",
+            "handle": "corkiejp.posts.fyi"
+          },
+          "tabs": {
+            "visible": true,
+            "cursor": "likes"
+          }
+        },
+        {
+          "type": "feed",
+          "id": "3lig6s5czp24j",
+          "title": null,
+          "size": null,
+          "uid": "did:plc:lgjvdkqeeutvf7zj6wow3jro",
+          "feed": {
+            "uri": "at://did:plc:wznfuvseucf4lvg57pz56udl/app.bsky.feed.generator/eusky",
+            "name": "EU stuff"
+          },
+          "showReplies": true,
+          "showReposts": true,
+          "showQuotes": true,
+          "infoVisible": true
+        },
+        {
+          "type": "home",
+          "id": "3lig73fqzhcks",
+          "title": null,
+          "size": null,
+          "uid": "did:plc:qxlh6bohvep3taqhmtpipx4b",
+          "showReplies": "follows",
+          "showReposts": true,
+          "showQuotes": true
+        },
+        {
+          "type": "notifications",
+          "id": "3lig742rwnscs",
+          "title": null,
+          "size": null,
+          "uid": "did:plc:qxlh6bohvep3taqhmtpipx4b",
+          "exclusions": []
+        },
+        {
+          "type": "profile",
+          "id": "3lig76rxs2ccy",
+          "title": null,
+          "size": null,
+          "uid": "did:plc:qxlh6bohvep3taqhmtpipx4b",
+          "profile": {
+            "did": "did:plc:qxlh6bohvep3taqhmtpipx4b",
+            "handle": "corkiejp.github.io"
+          },
+          "tabs": {
+            "visible": true,
+            "cursor": "posts"
+          }
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "defaultPaneSize": "md",
+    "defaultReplyGate": "everyone",
+    "profileMediaGrid": true,
+    "theme": "auto",
+    "threadedReplies": false
+  },
+  "a11y": {
+    "warnNoMediaAlt": true
+  },
+  "moderation": {
+    "hideReposts": [],
+    "keywords": [],
+    "global": {
+      "prefs": {}
+    },
+    "services": [
+      {
+        "did": "did:plc:ar7c4by46qjdydhdevvrndac",
+        "profile": {
+          "handle": "moderation.bsky.app",
+          "displayName": "Bluesky Moderation Service"
+        },
+        "redact": true,
+        "prefs": {}
+      }
+    ],
+    "tempMutes": []
+  },
+  "language": {
+    "allowUnspecified": true,
+    "defaultPostLanguage": "system",
+    "languages": [],
+    "useSystemLanguages": true
+  },
+  "translation": {
+    "exclusions": [],
+    "to": "system"
+  }
+}
