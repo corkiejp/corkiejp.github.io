@@ -223,7 +223,15 @@ document.getElementById('collection').value = collection;
           card.innerHTML = `
             <div><strong>Text:</strong> ${text ? text : '<em>No text</em>'}</div>
             <div><strong>Record AT URI:</strong> <code>${atUri}</code></div>
-            ${innerUri ? `<div><strong>Record Value URI:</strong> <a href="${innerUri}" target="_blank" rel="noopener">${innerUri}</a></div>` : ''}
+${innerUri ? `
+  <div>
+    <strong>Record Value URI:</strong>
+    <a href="${innerUri}" target="_blank" rel="noopener">${innerUri}</a>
+    <br>
+    <a href="https://blue.mackuba.eu/skythread/?q=${innerUri}" target="_blank" rel="noopener">View this URI in SkyThread</a>
+  </div>
+` : ''}
+
             ${urlField ? `<div><strong>URL:</strong> <a href="${urlField}" target="_blank" rel="noopener">${name}</a></div>` : ''}
             ${textUrls.length > 0 ? `
               <div><strong>Links found in text:</strong>
