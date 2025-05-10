@@ -1,0 +1,210 @@
+<!doctype html>
+<html class="no-js" lang="en">
+
+    <head>
+        <!-- meta data -->
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+        <!--font-family-->
+		<link href="https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700,800,900&amp;subset=devanagari,latin-ext" rel="stylesheet">
+        
+        <!-- title of site -->
+        <title>WIP | ATProto PDS Records!</title>
+
+        <!-- For favicon png -->
+		<link rel="shortcut icon" type="image/icon" href="assets/logo/favicon.png"/>
+       
+        <!--font-awesome.min.css-->
+        <link rel="stylesheet" href="assets/css/font-awesome.min.css">
+
+		<!--flat icon css-->
+		<link rel="stylesheet" href="assets/css/flaticon.css">
+
+		<!--animate.css-->
+        <link rel="stylesheet" href="assets/css/animate.css">
+
+        <!--owl.carousel.css-->
+        <link rel="stylesheet" href="assets/css/owl.carousel.min.css">
+		<link rel="stylesheet" href="assets/css/owl.theme.default.min.css">
+		
+        <!--bootstrap.min.css-->
+        <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+		
+		<!-- bootsnav -->
+		<link rel="stylesheet" href="assets/css/bootsnav.css" >	
+        
+        <!--style.css-->
+        <link rel="stylesheet" href="assets/css/style.css">
+        
+        <!--responsive.css-->
+        <link rel="stylesheet" href="assets/css/responsive.css">
+		
+
+        
+        <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+		
+        <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+			<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+		<base target="_parent">
+    </head>
+	
+	<body>
+		<!--[if lte IE 9]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+        <![endif]-->
+		
+<!-- top-area Start -->
+		<header class="top-area">
+			<div class="header-area">
+				<!-- Start Navigation -->
+			    <nav class="navbar navbar-default bootsnav navbar-fixed dark no-background">
+
+			        <div class="container">
+
+			            <!-- Start Header Navigation -->
+			            <div class="navbar-header">
+			                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-menu">
+			                    <i class="fa fa-bars"></i>
+			                </button>
+			                <a class="navbar-brand" href="corkiejp.html">corkiejp</a>
+			            </div><!--/.navbar-header-->
+			            <!-- End Header Navigation -->
+
+			            <!-- Collect the nav links, forms, and other content for toggling -->
+			            <div class="collapse navbar-collapse menu-ui-design" id="navbar-menu">
+			                <ul class="nav navbar-nav navbar-right" data-in="fadeInDown" data-out="fadeOutUp">
+			                <li class=" smooth-menu active"></li>
+								<li class="embed-link"><a href="#" onclick="changeContent('./Skywriter-Threads/Page by Nicolò Ribaudo _ @nicr.dev.html'); return false;">Handle Blog</a></li>
+								
+								<li class="embed-link"><a href="#" onclick="changeContent('./Skywriter-Threads/Learned Skills by John O Connell {alt for corkiejp.bsky.social} _ @corkiejp.github.io.html'); return false;">Learned Skills</a></li>								
+								<li class="embed-link"><a href="#" onclick="changeContent('https://skywriter.blue/pages/did:plc:qxlh6bohvep3taqhmtpipx4b/post/3lexdcj4akk2k'); return false;">Private DNS</a></li>
+								<li class="embed-link"><a href="#" onclick="changeContent('https://skywriter.blue/pages/did:plc:lgjvdkqeeutvf7zj6wow3jro/post/3lipvp6g3sc2n'); return false;">'Hate Speech Bill'</a></li>
+															
+								
+								<li class="nav-link"><a href="./Bluesky_Papers_ac.html"  target="_parent">Papers</a></li>
+								<li class="embed-link"><a href="#" onclick="event.preventDefault();">{More in dropdown}</a></li>
+						
+			                </ul><!--/.nav -->
+			            </div><!-- /.navbar-collapse -->
+			        </div><!--/.container-->
+			    </nav><!--/nav!
+			    <!-- End Navigation -->
+			</div><!--/.header-area-->
+
+
+		</header><!-- /.top-area-->
+		<!-- top-area End -->
+	
+
+
+		<!--about start -->
+		<section id="mysocials" class="about">
+			<div class="container">
+				<div class="about-content">
+ Click on 'Corkiejp' above to return to main page. <br>
+ <b>Note: -</b> Above menus will be changed in future!<br>
+ <br><br>
+ 
+ 
+ 
+ <br>
+ <h2> Work in progress of embedding of PDS records!</h2>
+ From: - a.bookmark.on.my.pds <br>
+   
+
+<br>
+<script>
+const repo = 'did:plc:qxlh6bohvep3taqhmtpipx4b';
+const collection = 'a.bookmark.on.my.pds';
+const url = `https://bsky.social/xrpc/com.atproto.repo.listRecords?repo=${repo}&collection=${collection}&limit=50`;
+
+fetch(url)
+  .then(res => res.json())
+  .then(data => {
+    console.log(data.records);
+  })
+  .catch(err => {
+    console.error('Error:', err);
+  });
+</script>
+<div id="records"></div>
+
+<script>
+fetch(url)
+  .then(res => res.json())
+  .then(data => {
+    const container = document.getElementById('records');
+    data.records.forEach(record => {
+      container.innerHTML += `<p>${JSON.stringify(record.value)}</p><br>`;
+    });
+  });
+</script>
+
+
+
+
+<br><br>
+<small><strong>Disclaimer:</strong> The above script displays external content. </small>
+	
+
+</div>
+				
+				</div>
+			</div>
+		</section><!--/.about-->
+		<!--about end -->
+
+	
+
+	
+
+	
+		
+		<!-- Include all js compiled plugins (below), or include individual files as needed -->
+
+		<script src="assets/js/jquery.js"></script>
+		  
+        
+        <!--modernizr.min.js-->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+		
+		<!--bootstrap.min.js-->
+        <script src="assets/js/bootstrap.min.js"></script>
+		
+		<!-- bootsnav js -->
+		<script src="assets/js/bootsnav.js"></script>
+		
+		<!-- jquery.sticky.js -->
+		<script src="assets/js/jquery.sticky.js"></script>
+		
+		<!-- for progress bar start-->
+
+		<!-- progressbar js -->
+		<script src="assets/js/progressbar.js"></script>
+
+		<!-- appear js -->
+		<script src="assets/js/jquery.appear.js"></script>
+
+		<!-- for progress bar end -->
+
+		<!--owl.carousel.js-->
+        <script src="assets/js/owl.carousel.min.js"></script>
+
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+		
+        
+        <!--Custom JS-->
+        <script src="assets/js/custom.js"></script>
+
+
+        
+    </body>
+	
+</html>
