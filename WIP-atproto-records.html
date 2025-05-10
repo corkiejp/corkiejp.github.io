@@ -122,7 +122,7 @@
 <script>
 const repo = 'did:plc:qxlh6bohvep3taqhmtpipx4b';
 const collection = 'a.bookmark.on.my.pds';
-const url = `https://bsky.social/xrpc/com.atproto.repo.listRecords?repo=${repo}&collection=${collection}&limit=50`;
+const url = `https://bsky.social/xrpc/com.atproto.repo.listRecords?repo=${repo}&collection=${collection}&limit=100`;
 
 fetch(url)
   .then(res => res.json())
@@ -135,16 +135,101 @@ fetch(url)
 </script>
 <div id="records"></div>
 
+
+<style>
+.record-card {
+  border: 1px solid #e1e1e1;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+  background: white;
+}
+
+.record-meta {
+  color: #666;
+  font-size: 0.9em;
+  margin-bottom: 0.5rem;
+}
+
+.record-content {
+  margin: 0.5rem 0;
+}
+</style>
+
+
+
+<div id="records"></div>
 <script>
+// Converts an AT URI (for a post) to a bsky.app web URL
+function atUriToBskyAppUrl(atUri) {
+  const regex = /^at:\/\/([^/]+)\/app\.bsky\.feed\.post\/([^/]+)$/;
+  const match = atUri.match(regex);
+  if (!match) return null;
+  const did = match[1];
+  const rkey = match[2];
+  return `https://bsky.app/profile/${did}/post/${rkey}`;
+}
+
+// Extract URLs from a text field
+function extractUrls(text) {
+  return text.match(/https?:\/\/[^\s]+/g) || [];
+}
+
 fetch(url)
   .then(res => res.json())
   .then(data => {
     const container = document.getElementById('records');
+    if (!data.records || data.records.length === 0) {
+      container.innerHTML = "<p>No records found.</p>";
+      return;
+    }
     data.records.forEach(record => {
-      container.innerHTML += `<p>${JSON.stringify(record.value)}</p><br>`;
+      const value = record.value || {};
+      const text = value.text || '';
+      const atUri = record.uri;
+      const bskyAppUrl = atUriToBskyAppUrl(atUri);
+
+      // Option 1: URLs in a dedicated field (bookmark-style)
+      const namedLinks = [];
+      if (value.url) {
+        // Use name/title if present, else show the URL
+        const linkName = value.name || value.title || value.url;
+        namedLinks.push({ url: value.url, name: linkName });
+      }
+
+      // Option 2: URLs found in text field
+      const textUrls = extractUrls(text).map(url => ({ url, name: url }));
+
+      // Combine all links
+      const allLinks = [...namedLinks, ...textUrls];
+
+      // Render
+      const card = document.createElement('div');
+      card.className = 'record-card';
+      card.style = "border:1px solid #ccc; margin:1em 0; padding:1em; border-radius:8px; background:#fafbfc;";
+
+      card.innerHTML = `
+        <div><strong>Text:</strong> ${text ? text : '<em>No text</em>'}</div>
+        <div><strong>AT URI:</strong> <code>${atUri}</code>
+          ${bskyAppUrl ? `<br><a href="${bskyAppUrl}" target="_blank">View on bsky.app</a>` : ''}
+        </div>
+        ${allLinks.length > 0 ? `
+          <div><strong>Links:</strong>
+            <ul>
+              ${allLinks.map(link => `<li><a href="${link.url}" target="_blank" rel="noopener">${link.name}</a></li>`).join('')}
+            </ul>
+          </div>
+        ` : ''}
+      `;
+      container.appendChild(card);
     });
   });
 </script>
+
+
+
+
+
 
 
 
