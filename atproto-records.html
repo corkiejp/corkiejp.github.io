@@ -12,7 +12,7 @@
 		<link href="https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700,800,900&amp;subset=devanagari,latin-ext" rel="stylesheet">
         
         <!-- title of site -->
-        <title>WIP | ATProto PDS Records!</title>
+        <title>ATProto PDS Records!</title>
 
         <!-- For favicon png -->
 		<link rel="shortcut icon" type="image/icon" href="assets/logo/favicon.png"/>
@@ -41,6 +41,11 @@
         
         <!--responsive.css-->
         <link rel="stylesheet" href="assets/css/responsive.css">
+		
+		  <style>
+    body { font-family: sans-serif; }
+    .record-card { border:1px solid #ccc; margin:1em 0; padding:1em; border-radius:8px; background:#fafbfc; }
+  </style>
 		
 
         
@@ -80,15 +85,13 @@
 			            <div class="collapse navbar-collapse menu-ui-design" id="navbar-menu">
 			                <ul class="nav navbar-nav navbar-right" data-in="fadeInDown" data-out="fadeOutUp">
 			                <li class=" smooth-menu active"></li>
-								<li class="embed-link"><a href="#" onclick="changeContent('./Skywriter-Threads/Page by Nicolò Ribaudo _ @nicr.dev.html'); return false;">Handle Blog</a></li>
-								
-								<li class="embed-link"><a href="#" onclick="changeContent('./Skywriter-Threads/Learned Skills by John O Connell {alt for corkiejp.bsky.social} _ @corkiejp.github.io.html'); return false;">Learned Skills</a></li>								
-								<li class="embed-link"><a href="#" onclick="changeContent('https://skywriter.blue/pages/did:plc:qxlh6bohvep3taqhmtpipx4b/post/3lexdcj4akk2k'); return false;">Private DNS</a></li>
-								<li class="embed-link"><a href="#" onclick="changeContent('https://skywriter.blue/pages/did:plc:lgjvdkqeeutvf7zj6wow3jro/post/3lipvp6g3sc2n'); return false;">'Hate Speech Bill'</a></li>
+								<li class="nav-link"><a href="./atproto-records.html"  target="_parent">Reset to default Parms</a></li>
+								<li class="nav-link"><a href="./ATProtoRecordViewer.html"  target="_parent">ATProto Record Viewer ~ no site style</a></li>
+								<li class="nav-link"><a href="https://pdsls.dev/at://did:plc:qxlh6bohvep3taqhmtpipx4b/a.bookmark.on.my.pds"  target="_blank">Bookmarks on my PDS</a></li>
 															
 								
 								<li class="nav-link"><a href="./Bluesky_Papers_ac.html"  target="_parent">Papers</a></li>
-								<li class="embed-link"><a href="#" onclick="event.preventDefault();">{More in dropdown}</a></li>
+
 						
 			                </ul><!--/.nav -->
 			            </div><!-- /.navbar-collapse -->
@@ -108,32 +111,9 @@
 			<div class="container">
 				<div class="about-content">
  Click on 'Corkiejp' above to return to main page. <br>
- <b>Note: -</b> Above menus will be changed in future!<br>
- <br><br>
- 
- 
- 
- <br>
- <h2>No longer a  Work in progress of embedding of PDS records! Redirecting to new page!</h2>
- 
-   
+ (Pass parameters to html file with e.g., ?repo=did:plc:exampledid&collection=app.bsky.feed.post).
+<br><br>
 
-<br>
-<script>
-const repo = 'did:plc:qxlh6bohvep3taqhmtpipx4b';
-const collection = 'a.bookmark.on.my.pds';
-const url = `https://bsky.social/xrpc/com.atproto.repo.listRecords?repo=${repo}&collection=${collection}&limit=100`;
-
-fetch(url)
-  .then(res => res.json())
-  .then(data => {
-    console.log(data.records);
-  })
-  .catch(err => {
-    console.error('Error:', err);
-  });
-</script>
-<div id="records"></div>
 
 
 <style>
@@ -154,60 +134,126 @@ fetch(url)
 .record-content {
   margin: 0.5rem 0;
 }
+    form {
+      display: flex;
+      gap: 1em;
+      flex-wrap: wrap;
+      margin-bottom: 2em;
+      align-items: flex-end;
+      justify-content: center;
+    }
+	 button {
+      padding: 0.7em 1.5em;
+      background: #0074d9;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 1em;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #005fa3;
+    }
 </style>
 
 
 
-<div id="records"></div>
-<script>
-// Helper: Extract URLs from plain text
-function extractUrls(text) {
-  return text.match(/https?:\/\/[^\s]+/g) || [];
-}
 
-fetch(url)
-  .then(res => res.json())
-  .then(data => {
-    const container = document.getElementById('records');
-    if (!data.records || data.records.length === 0) {
-      container.innerHTML = "<p>No records found.</p>";
-      return;
+
+  <form id="queryForm">
+    <label>
+      Repo (DID or handle):<br>
+      <input type="text" id="repo" name="repo" value="did:plc:exampledid" required>
+    </label><br><br>
+    <label>
+      Collection (NSID):<br>
+      <input type="text" id="collection" name="collection" value="app.bsky.feed.post" required>
+    </label><br><br>
+    <button type="submit">Fetch Records</button>
+  </form>
+
+  <div id="records"></div>
+
+  <script>
+// Define your defaults
+const DEFAULT_REPO = 'corkiejp.github.io';
+const DEFAULT_COLLECTION = 'a.bookmark.on.my.pds';
+
+// Get URL parameters with fallback to defaults
+const params = new URLSearchParams(window.location.search);
+const repo = params.get('repo') || DEFAULT_REPO;
+const collection = params.get('collection') || DEFAULT_COLLECTION;
+
+// Autofill form fields with either URL or default values
+document.getElementById('repo').value = repo;
+document.getElementById('collection').value = collection;
+
+
+    // Helper: Extract URLs from text
+    function extractUrls(text) {
+      return text.match(/https?:\/\/[^\s]+/g) || [];
     }
-    data.records.forEach(record => {
-      const value = record.value || {};
-      const text = value.text || '';
-      const atUri = record.uri; // The record's own AT URI
 
-      // Check for uri/url fields inside the record's value
-      const innerUri = value.uri;
-      const url = value.url;
-      const name = value.name || value.title || url || innerUri || '';
+    // Fetch and display records
+    async function fetchAndDisplayRecords(repo, collection) {
+      const url = `https://bsky.social/xrpc/com.atproto.repo.listRecords?repo=${encodeURIComponent(repo)}&collection=${encodeURIComponent(collection)}&limit=100`;
+      const container = document.getElementById('records');
+      container.innerHTML = "<em>Loading...</em>";
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        if (!data.records || data.records.length === 0) {
+          container.innerHTML = "<p>No records found.</p>";
+          return;
+        }
+        container.innerHTML = "";
+        data.records.forEach(record => {
+          const value = record.value || {};
+          const text = value.text || '';
+          const atUri = record.uri;
+          const innerUri = value.uri;
+          const urlField = value.url;
+          const name = value.name || value.title || urlField || innerUri || '';
+          const textUrls = extractUrls(text);
 
-      // Extract any URLs from the text field
-      const textUrls = extractUrls(text);
+          const card = document.createElement('div');
+          card.className = 'record-card';
+          card.innerHTML = `
+            <div><strong>Text:</strong> ${text ? text : '<em>No text</em>'}</div>
+            <div><strong>Record AT URI:</strong> <code>${atUri}</code></div>
+            ${innerUri ? `<div><strong>Record Value URI:</strong> <a href="${innerUri}" target="_blank" rel="noopener">${innerUri}</a></div>` : ''}
+            ${urlField ? `<div><strong>URL:</strong> <a href="${urlField}" target="_blank" rel="noopener">${name}</a></div>` : ''}
+            ${textUrls.length > 0 ? `
+              <div><strong>Links found in text:</strong>
+                <ul>
+                  ${textUrls.map(turl => `<li><a href="${turl}" target="_blank" rel="noopener">${turl}</a></li>`).join('')}
+                </ul>
+              </div>
+            ` : ''}
+          `;
+          container.appendChild(card);
+        });
+      } catch (err) {
+        container.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
+      }
+    }
 
-      // Render the card
-      const card = document.createElement('div');
-      card.className = 'record-card';
-      card.style = "border:1px solid #ccc; margin:1em 0; padding:1em; border-radius:8px; background:#fafbfc;";
-
-      card.innerHTML = `
-        <div><strong>Text:</strong> ${text ? text : '<em>No text</em>'}</div>
-        <div><strong>Record AT URI:</strong> <code>${atUri}</code></div>
-        ${innerUri ? `<div><strong>Record Value URI:</strong> <a href="${innerUri}" target="_blank" rel="noopener">${innerUri}</a></div>` : ''}
-        ${url ? `<div><strong>URL:</strong> <a href="${url}" target="_blank" rel="noopener">${name}</a></div>` : ''}
-        ${textUrls.length > 0 ? `
-          <div><strong>Links found in text:</strong>
-            <ul>
-              ${textUrls.map(turl => `<li><a href="${turl}" target="_blank" rel="noopener">${turl}</a></li>`).join('')}
-            </ul>
-          </div>
-        ` : ''}
-      `;
-      container.appendChild(card);
+    // Form handler
+    document.getElementById('queryForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const repo = document.getElementById('repo').value.trim();
+      const collection = document.getElementById('collection').value.trim();
+      fetchAndDisplayRecords(repo, collection);
     });
-  });
-</script>
+
+
+	
+	// Auto-fetch on page load with either URL or default values
+fetchAndDisplayRecords(repo, collection);
+
+  </script>
 
 
 
@@ -229,42 +275,7 @@ fetch(url)
 
 	
 
-				<script> 
-		(function () { 
-
-			// Ideal time in seconds 
-			const idleDurationSecs = 15; 
-
-			// Redirect idle users to this URL 
-			const redirectUrl =  
-				'http://corkiejp.github.io/atproto-records.html'; 
-			
-			// Variable to hold the timeout 
-			let idleTimeout; 
-
-			const resetIdleTimeout = function () { 
-
-				// Clears the existing timeout 
-				if (idleTimeout) 
-					clearTimeout(idleTimeout); 
-
-				// Set a new idle timeout to load the 
-				// redirectUrl after idleDurationSecs 
-				idleTimeout = setTimeout(() => location.href 
-					= redirectUrl, idleDurationSecs * 1000); 
-			}; 
-
-			// Init on page load 
-			resetIdleTimeout(); 
-
-			// Reset the idle timeout on any of 
-			// the events listed below 
-			['click', 'touchstart', 'mousemove'] 
-				.forEach(evt => document.addEventListener( 
-					evt, resetIdleTimeout, false) 
-			); 
-		})(); 
-	</script> 
+	
 
 	
 		
