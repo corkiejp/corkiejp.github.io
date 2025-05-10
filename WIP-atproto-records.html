@@ -160,17 +160,7 @@ fetch(url)
 
 <div id="records"></div>
 <script>
-// Converts an AT URI (for a post) to a bsky.app web URL
-function atUriToBskyAppUrl(atUri) {
-  const regex = /^at:\/\/([^/]+)\/app\.bsky\.feed\.post\/([^/]+)$/;
-  const match = atUri.match(regex);
-  if (!match) return null;
-  const did = match[1];
-  const rkey = match[2];
-  return `https://bsky.app/profile/${did}/post/${rkey}`;
-}
-
-// Extract URLs from a text field
+// Helper: Extract URLs from plain text
 function extractUrls(text) {
   return text.match(/https?:\/\/[^\s]+/g) || [];
 }
@@ -186,37 +176,30 @@ fetch(url)
     data.records.forEach(record => {
       const value = record.value || {};
       const text = value.text || '';
-      const atUri = record.uri;
-      const bskyAppUrl = atUriToBskyAppUrl(atUri);
+      const atUri = record.uri; // The record's own AT URI
 
-      // Option 1: URLs in a dedicated field (bookmark-style)
-      const namedLinks = [];
-      if (value.url) {
-        // Use name/title if present, else show the URL
-        const linkName = value.name || value.title || value.url;
-        namedLinks.push({ url: value.url, name: linkName });
-      }
+      // Check for uri/url fields inside the record's value
+      const innerUri = value.uri;
+      const url = value.url;
+      const name = value.name || value.title || url || innerUri || '';
 
-      // Option 2: URLs found in text field
-      const textUrls = extractUrls(text).map(url => ({ url, name: url }));
+      // Extract any URLs from the text field
+      const textUrls = extractUrls(text);
 
-      // Combine all links
-      const allLinks = [...namedLinks, ...textUrls];
-
-      // Render
+      // Render the card
       const card = document.createElement('div');
       card.className = 'record-card';
       card.style = "border:1px solid #ccc; margin:1em 0; padding:1em; border-radius:8px; background:#fafbfc;";
 
       card.innerHTML = `
         <div><strong>Text:</strong> ${text ? text : '<em>No text</em>'}</div>
-        <div><strong>AT URI:</strong> <code>${atUri}</code>
-          ${bskyAppUrl ? `<br><a href="${bskyAppUrl}" target="_blank">View on bsky.app</a>` : ''}
-        </div>
-        ${allLinks.length > 0 ? `
-          <div><strong>Links:</strong>
+        <div><strong>Record AT URI:</strong> <code>${atUri}</code></div>
+        ${innerUri ? `<div><strong>Record Value URI:</strong> <a href="${innerUri}" target="_blank" rel="noopener">${innerUri}</a></div>` : ''}
+        ${url ? `<div><strong>URL:</strong> <a href="${url}" target="_blank" rel="noopener">${name}</a></div>` : ''}
+        ${textUrls.length > 0 ? `
+          <div><strong>Links found in text:</strong>
             <ul>
-              ${allLinks.map(link => `<li><a href="${link.url}" target="_blank" rel="noopener">${link.name}</a></li>`).join('')}
+              ${textUrls.map(turl => `<li><a href="${turl}" target="_blank" rel="noopener">${turl}</a></li>`).join('')}
             </ul>
           </div>
         ` : ''}
@@ -225,7 +208,6 @@ fetch(url)
     });
   });
 </script>
-
 
 
 
