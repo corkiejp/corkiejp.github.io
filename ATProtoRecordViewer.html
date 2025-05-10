@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ATProto Record Viewer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f5f6fa;
+      margin: 0;
+      padding: 2em 0;
+    }
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      padding: 2em;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-top: 0;
+    }
+    form {
+      display: flex;
+      gap: 1em;
+      flex-wrap: wrap;
+      margin-bottom: 2em;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    label {
+      flex: 1 1 250px;
+      display: flex;
+      flex-direction: column;
+      font-weight: 500;
+      color: #444;
+    }
+    input[type="text"] {
+      padding: 0.5em;
+      border: 1px solid #bbb;
+      border-radius: 6px;
+      font-size: 1em;
+      margin-top: 0.3em;
+    }
+    button {
+      padding: 0.7em 1.5em;
+      background: #0074d9;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 1em;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #005fa3;
+    }
+    #records {
+      margin-top: 2em;
+    }
+    .record-card {
+      border: 1px solid #e1e4ea;
+      border-radius: 8px;
+      background: #fafbfc;
+      padding: 1em 1.2em;
+      margin-bottom: 1.5em;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    .record-card code {
+      background: #f1f1f1;
+      padding: 0.1em 0.3em;
+      border-radius: 4px;
+      font-size: 0.95em;
+    }
+    .record-card ul {
+      margin: 0.5em 0 0 1em;
+      padding: 0;
+    }
+    .record-card li {
+      margin-bottom: 0.2em;
+      font-size: 0.98em;
+    }
+    .record-card a {
+      color: #0074d9;
+      text-decoration: none;
+      word-break: break-all;
+    }
+    .record-card a:hover {
+      text-decoration: underline;
+    }
+    @media (max-width: 600px) {
+      .container { padding: 1em; }
+      form { flex-direction: column; gap: 0.5em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ATProto Record Viewer</h1>
+    <form id="queryForm">
+      <label>
+        Repo (DID or handle)
+        <input type="text" id="repo" name="repo" required>
+      </label>
+      <label>
+        Collection (NSID)
+        <input type="text" id="collection" name="collection" required>
+      </label>
+      <button type="submit">Fetch Records</button>
+    </form>
+    <div id="records"></div>
+  </div>
+  <script>
+    // --- Default values ---
+    const DEFAULT_REPO = 'did:plc:ewvi7nxzyoun6zhxrhs64oiz'; // Jay Graber's public repo
+    const DEFAULT_COLLECTION = 'app.bsky.feed.post';
+
+    // --- Get URL parameters with fallback to defaults ---
+    const params = new URLSearchParams(window.location.search);
+    const repo = params.get('repo') || DEFAULT_REPO;
+    const collection = params.get('collection') || DEFAULT_COLLECTION;
+
+    // --- Autofill form fields with either URL or default values ---
+    document.getElementById('repo').value = repo;
+    document.getElementById('collection').value = collection;
+
+    // --- Helper: Extract URLs from plain text ---
+    function extractUrls(text) {
+      return text && typeof text === 'string'
+        ? text.match(/https?:\/\/[^\s]+/g) || []
+        : [];
+    }
+
+    // --- Fetch and display records ---
+    async function fetchAndDisplayRecords(repo, collection) {
+      const url = `https://bsky.social/xrpc/com.atproto.repo.listRecords?repo=${encodeURIComponent(repo)}&collection=${encodeURIComponent(collection)}&limit=100`;
+      const container = document.getElementById('records');
+      container.innerHTML = "<em>Loading...</em>";
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
+        const data = await res.json();
+        if (!data.records || data.records.length === 0) {
+          container.innerHTML = "<p>No records found.</p>";
+          return;
+        }
+        container.innerHTML = "";
+        data.records.forEach(record => {
+          const value = record.value || {};
+          const text = value.text || '';
+          const atUri = record.uri;
+          const innerUri = value.uri;
+          const urlField = value.url;
+          const name = value.name || value.title || urlField || innerUri || '';
+          const textUrls = extractUrls(text);
+
+          const card = document.createElement('div');
+          card.className = 'record-card';
+          card.innerHTML = `
+            <div><strong>Text:</strong> ${text ? text : '<em>No text</em>'}</div>
+            <div><strong>Record AT URI:</strong> <code>${atUri}</code></div>
+            ${innerUri ? `<div><strong>Record Value URI:</strong> <a href="${innerUri}" target="_blank" rel="noopener">${innerUri}</a></div>` : ''}
+            ${urlField ? `<div><strong>URL:</strong> <a href="${urlField}" target="_blank" rel="noopener">${name}</a></div>` : ''}
+            ${textUrls.length > 0 ? `
+              <div><strong>Links found in text:</strong>
+                <ul>
+                  ${textUrls.map(turl => `<li><a href="${turl}" target="_blank" rel="noopener">${turl}</a></li>`).join('')}
+                </ul>
+              </div>
+            ` : ''}
+          `;
+          container.appendChild(card);
+        });
+      } catch (err) {
+        container.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
+      }
+    }
+
+    // --- Form handler ---
+    document.getElementById('queryForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const repo = document.getElementById('repo').value.trim();
+      const collection = document.getElementById('collection').value.trim();
+      fetchAndDisplayRecords(repo, collection);
+    });
+
+    // --- Auto-fetch on page load with either URL or default values ---
+    fetchAndDisplayRecords(repo, collection);
+  </script>
+</body>
+</html>
