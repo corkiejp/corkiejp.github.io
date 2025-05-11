@@ -218,11 +218,17 @@ document.getElementById('collection').value = collection;
           const name = value.name || value.title || urlField || innerUri || '';
           const textUrls = extractUrls(text);
 
-          const card = document.createElement('div');
-          card.className = 'record-card';
-          card.innerHTML = `
-            <div><strong>Text:</strong> ${text ? text : '<em>No text</em>'}</div>
-            <div><strong>Record AT URI:</strong> <code>${atUri}</code></div>
+const atpToolsUrl = `https://atp.tools/${atUri}`;
+
+  const card = document.createElement('div');
+  card.className = 'record-card';
+  card.innerHTML = `
+    <div><strong>Text:</strong> ${text ? text : '<em>No text</em>'}</div>
+    <div>
+      <strong>Record AT URI:</strong> <code>${atUri}</code>
+      <br>
+      <a href="${atpToolsUrl}" target="_blank" rel="noopener">View in atp.tools</a>
+    </div>
 ${innerUri ? `
   <div>
     <strong>Record Value URI:</strong>
@@ -232,17 +238,22 @@ ${innerUri ? `
   </div>
 ` : ''}
 
-            ${urlField ? `<div><strong>URL:</strong> <a href="${urlField}" target="_blank" rel="noopener">${name}</a></div>` : ''}
-            ${textUrls.length > 0 ? `
-              <div><strong>Links found in text:</strong>
-                <ul>
-                  ${textUrls.map(turl => `<li><a href="${turl}" target="_blank" rel="noopener">${turl}</a></li>`).join('')}
-                </ul>
-              </div>
-            ` : ''}
-          `;
-          container.appendChild(card);
-        });
+    ${urlField ? `<div><strong>URL:</strong> <a href="${urlField}" target="_blank" rel="noopener">${name}</a></div>` : ''}
+    ${textUrls.length > 0 ? `
+      <div><strong>Links found in text:</strong>
+        <ul>
+          ${textUrls.map(turl => `<li><a href="${turl}" target="_blank" rel="noopener">${turl}</a></li>`).join('')}
+        </ul>
+      </div>
+    ` : ''}
+  `;
+  container.appendChild(card);
+});
+		
+		
+		
+		
+
       } catch (err) {
         container.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
       }
