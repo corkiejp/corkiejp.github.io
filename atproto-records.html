@@ -111,7 +111,8 @@
 			<div class="container">
 				<div class="about-content">
  Click on 'Corkiejp' above to return to main page. <br>
- (Pass parameters to html file with e.g., ?repo=did:plc:exampledid&collection=app.bsky.feed.post).
+ (Pass parameters to html file with e.g., ?repo=did:plc:exampledid&collection=app.bsky.feed.post).<br>
+ Deep links are provide below to atp.Tools and SkyThread for your convenience!
 <br><br>
 
 
@@ -219,6 +220,7 @@ document.getElementById('collection').value = collection;
           const textUrls = extractUrls(text);
 
 const atpToolsUrl = `https://atp.tools/${atUri}`;
+const skythreadUrl = `https://blue.mackuba.eu/skythread/?q=${atUri}`;
 
   const card = document.createElement('div');
   card.className = 'record-card';
@@ -227,7 +229,7 @@ const atpToolsUrl = `https://atp.tools/${atUri}`;
     <div>
       <strong>Record AT URI:</strong> <code>${atUri}</code>
       <br>
-      <a href="${atpToolsUrl}" target="_blank" rel="noopener">View in atp.tools</a>
+      <a href="${atpToolsUrl}" target="_blank" rel="noopener">View in atp.tools</a> , <a href="${skythreadUrl}" target="_blank" rel="noopener">View in SkyThread</a>
     </div>
 ${innerUri ? `
   <div>

@@ -102,7 +102,8 @@
 <body>
   <div class="container">
     <h1>ATProto Record Viewer</h1>
-	<p>(Pass parameters to html file with e.g., ?repo=did:plc:exampledid&collection=app.bsky.feed.post).</p>
+	<p>(Pass parameters to html file with e.g., ?repo=did:plc:exampledid&collection=app.bsky.feed.post).<br>
+ Deep links are provide below to atp.Tools and SkyThread for your convenience!</p>
     <form id="queryForm">
       <label>
         Repo (DID or handle)
@@ -163,6 +164,7 @@ data.records.forEach(record => {
 
 
 const atpToolsUrl = `https://atp.tools/${atUri}`;
+const skythreadUrl = `https://blue.mackuba.eu/skythread/?q=${atUri}`;
 
   const card = document.createElement('div');
   card.className = 'record-card';
@@ -171,7 +173,7 @@ const atpToolsUrl = `https://atp.tools/${atUri}`;
     <div>
       <strong>Record AT URI:</strong> <code>${atUri}</code>
       <br>
-      <a href="${atpToolsUrl}" target="_blank" rel="noopener">View in atp.tools</a>
+      <a href="${atpToolsUrl}" target="_blank" rel="noopener">View in atp.tools</a> , <a href="${skythreadUrl}" target="_blank" rel="noopener">View in SkyThread</a>
     </div>
 ${innerUri ? `
   <div>
