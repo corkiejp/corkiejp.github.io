@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>ATProto Record Viewer (Multi-PDS)</title>
+    <title>ATProto Record Viewer (Multi-PDS)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body { font-family: system-ui, sans-serif; background: #f5f6fa; margin: 0; padding: 2em 0; }
@@ -20,14 +20,20 @@
     .record-card li { margin-bottom: 0.2em; font-size: 0.98em; }
     .record-card a { color: #0074d9; text-decoration: none; word-break: break-all; }
     .record-card a:hover { text-decoration: underline; }
+    .embed-images { display: flex; gap: 8px; margin: 0.5em 0; }
+    .embed-images img { max-width: 100px; max-height: 100px; border-radius: 6px; border: 1px solid #ccc; }
+    .embed-linkcard { display:flex; align-items:center; border:1px solid #ddd; border-radius:8px; padding:8px; margin:0.5em 0; background:#f7f7fa; }
+    .embed-linkcard img { width:60px; height:60px; object-fit:cover; border-radius:6px; margin-right:10px; }
+    .embed-linkcard-title { font-weight:bold; color:#0074d9; text-decoration:none; }
+    .embed-linkcard-desc { font-size:0.96em; color:#555; }
     @media (max-width: 600px) { .container { padding: 1em; } form { flex-direction: column; gap: 0.5em; } }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>ATProto Record Viewer (Multi-PDS)</h1>
-		<p>(Pass parameters to html file with e.g., ?pds=nameofpds&repo=did:plc:exampledid&collection=app.bsky.feed.post).<br>
- Deep links are provide below to atp.Tools and SkyThread for your convenience!</p>
+	<p>(Pass parameters to html file with e.g., ?pds=nameofpds&repo=did:plc:exampledid&collection=app.bsky.feed.post).<br>
+ Deep links are provide below to atp.Tools, SkyThread & pdsls for your convenience!</p>
     <form id="queryForm">
       <label>
         PDS Host
@@ -48,7 +54,7 @@
   <script>
     // --- Default values ---
     const DEFAULT_PDS = 'bsky.social';
-    const DEFAULT_REPO = 'corkiejp.github.io'; // Example public repo
+    const DEFAULT_REPO = 'did:plc:ewvi7nxzyoun6zhxrhs64oiz'; // Example public repo
     const DEFAULT_COLLECTION = 'app.bsky.feed.post';
 
     // --- Get URL parameters with fallback to defaults ---
@@ -69,9 +75,46 @@
         : [];
     }
 
+    // --- Helper: Render embed images and safe link cards ---
+    function renderEmbed(value) {
+      let embedHtml = '';
+      if (!value.embed) return embedHtml;
+
+      // Handle images
+      if (Array.isArray(value.embed.images)) {
+        embedHtml += `<div class="embed-images">`;
+        value.embed.images.forEach(img => {
+          const thumb = img.thumb || img.fullsize;
+          if (thumb) {
+            embedHtml += `<a href="${img.fullsize || thumb}" target="_blank" rel="noopener">
+                            <img src="${thumb}" alt="image">
+                          </a>`;
+          }
+        });
+        embedHtml += `</div>`;
+      }
+
+      // Handle rich link card with safe thumbnail rendering
+      if (value.embed.external) {
+        const ext = value.embed.external;
+        const hasValidThumb = typeof ext.thumb === 'string' && /^https?:\/\//.test(ext.thumb);
+        embedHtml += `
+          <div class="embed-linkcard">
+            ${hasValidThumb ? `<img src="${ext.thumb}" alt="link thumbnail" onerror="this.style.display='none';">` : ''}
+            <div style="flex:1;">
+              <a href="${ext.uri}" target="_blank" rel="noopener" class="embed-linkcard-title">${ext.title || ext.uri}</a>
+              <div class="embed-linkcard-desc">${ext.description || ''}</div>
+            </div>
+          </div>
+        `;
+      }
+
+      return embedHtml;
+    }
+
     // --- Fetch and display records ---
     async function fetchAndDisplayRecords(pds, repo, collection) {
-      const url = `https://${pds}/xrpc/com.atproto.repo.listRecords?repo=${encodeURIComponent(repo)}&collection=${encodeURIComponent(collection)}&limit=50`;
+      const url = `https://${pds}/xrpc/com.atproto.repo.listRecords?repo=${encodeURIComponent(repo)}&collection=${encodeURIComponent(collection)}&limit=100`;
       const container = document.getElementById('records');
       container.innerHTML = "<em>Loading...</em>";
       try {
@@ -92,24 +135,38 @@
           const name = value.name || value.title || urlField || innerUri || '';
           const textUrls = extractUrls(text);
 
-          // SkyThread & atptools URLs
+          // SkyThread, atptools & pdslsdev urls URLs
+		  const postview = `./BlueskyPostViewer.html?uri=${atUri}&pds=${pds}`;		  
 		  const pdslsdevUrl = `https://pdsls.dev/${atUri}`;
 		  const atpToolsUrl = `https://atp.tools/${atUri}`;
           const skythreadAtUri = `https://blue.mackuba.eu/skythread/?q=${atUri}`;
           const skythreadInnerUri = innerUri ? `https://blue.mackuba.eu/skythread/?q=${innerUri}` : null;
+		  
+
+
+          // Embed HTML
+          const embedHtml = renderEmbed(value);
 
           // Build card
           const card = document.createElement('div');
           card.className = 'record-card';
           card.innerHTML = `
             <div><strong>Text:</strong> ${text ? text : '<em>No text</em>'}</div>
+            ${embedHtml}
             <div>
               <strong>Record AT URI:</strong> <code>${atUri}</code>
               <br>
 			  View in 
+			  <a href="${postview}" target="_blank" rel="noopener">Post viewer</a> ,			  
 			  <a href="${atpToolsUrl}" target="_blank" rel="noopener">atp.tools</a> , 
 			  <a href="${skythreadAtUri}" target="_blank" rel="noopener">SkyThread</a> or
 			  <a href="${pdslsdevUrl}" target="_blank" rel="noopener">pdsls.dev</a>
+			  
+			  
+		  
+			  
+			  
+			  
             </div>
             ${innerUri ? `
               <div>

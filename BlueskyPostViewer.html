@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>WIP | Bluesky Post Viewer (Any PDS, Link Cards)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, sans-serif; background: #f5f6fa; margin: 0; padding: 2em 0; }
+    .container { max-width: 700px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding: 2em; }
+    h1 { text-align: center; }
+    .record-card { border: 1px solid #e1e4ea; border-radius: 8px; background: #fafbfc; padding: 1em 1.2em; margin-bottom: 1.5em; }
+    .embed-images { display: flex; gap: 8px; margin: 0.5em 0; flex-wrap: wrap; }
+    .embed-images img { max-width: 120px; max-height: 120px; width: auto; height: auto; border-radius: 6px; border: 1px solid #ccc; }
+    .image-placeholder { display: inline-block; width: 120px; height: 120px; background: #eee; color: #aaa; border: 1px solid #ccc; border-radius: 6px; text-align: center; line-height: 120px; font-size: 0.9em; margin-right: 8px; }
+    .embed-linkcard { display: flex; align-items: center; border: 1px solid #ddd; border-radius: 8px; padding: 8px; margin: 0.5em 0; background: #f7f7fa; }
+    .embed-linkcard img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; margin-right: 10px; }
+    .embed-linkcard-title { font-weight: bold; color: #0074d9; text-decoration: none; }
+    .embed-linkcard-desc { font-size: 0.96em; color: #555; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>WIP | Bluesky Post Viewer (Any PDS, Link Cards)</h1>
+	<p>Accepts uri (AT URI), pds (PDS host), and cdn (CDN host) as URL parameters</p>
+    <div id="record"></div>
+  </div>
+  <script>
+    function parseAtUri(uri) {
+      uri = uri.trim();
+      const match = uri.match(/^at:\/\/([^\/]+)\/([^\/]+)\/([^\/]+)$/);
+      if (!match) return null;
+      return { repo: match[1], collection: match[2], rkey: match[3] };
+    }
+
+    function renderEmbed(embed, atUri, cdnBase) {
+      if (!embed) return '';
+      let html = '';
+
+      // Images
+      if (Array.isArray(embed.images)) {
+        const atUriParts = atUri.replace(/^at:\/\//, '').split('/');
+        const atUriCdn = atUriParts.slice(0, 3).join('/');
+        html += '<div class="embed-images">';
+        embed.images.forEach((img, idx) => {
+          const imgUrl = `${cdnBase}/img/feed_fullsize/plain/${atUriCdn}/${idx}`;
+          html += `<a href="${imgUrl}" target="_blank" rel="noopener">
+                    <img src="${imgUrl}" alt="${img.alt || 'image'}"
+                      onerror="this.style.display='none';this.parentNode.insertAdjacentHTML('beforeend', '<span class=&quot;image-placeholder&quot;>Image unavailable</span>');" />
+                  </a>`;
+        });
+        html += '</div>';
+      }
+
+      // Link card (external embed)
+      if (embed.external) {
+        const ext = embed.external;
+        const hasThumb = typeof ext.thumb === 'string' && /^https?:\/\//.test(ext.thumb);
+        html += `
+          <div class="embed-linkcard">
+            ${hasThumb ? `<img src="${ext.thumb}" alt="link thumbnail" onerror="this.style.display='none';" />` : ''}
+            <div style="flex:1;">
+              <a href="${ext.uri}" target="_blank" rel="noopener" class="embed-linkcard-title">${ext.title || ext.uri}</a>
+              <div class="embed-linkcard-desc">${ext.description || ''}</div>
+            </div>
+          </div>
+        `;
+      }
+      return html;
+    }
+
+    async function fetchAndDisplayPost(atUri, pdsHost, cdnBase) {
+      const container = document.getElementById('record');
+      container.innerHTML = '<em>Loading...</em>';
+      const parsed = parseAtUri(atUri);
+      if (!parsed) {
+        container.innerHTML = '<p style="color:red;">Invalid AT URI format.</p>';
+        return;
+      }
+      const { repo, collection, rkey } = parsed;
+      try {
+        const url = `https://${pdsHost}/xrpc/com.atproto.repo.getRecord?repo=${encodeURIComponent(repo)}&collection=${encodeURIComponent(collection)}&rkey=${encodeURIComponent(rkey)}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
+        const data = await res.json();
+        const value = data.value || {};
+        const text = value.text || '';
+        const embedHtml = renderEmbed(value.embed, atUri, cdnBase);
+        const card = document.createElement('div');
+        card.className = 'record-card';
+        card.innerHTML = `
+          <div><strong>Text:</strong> ${text ? text : '<em>No text</em>'}</div>
+          ${embedHtml}
+          <div><strong>Record AT URI:</strong> <code>${atUri}</code></div>
+        `;
+        container.innerHTML = '';
+        container.appendChild(card);
+      } catch (err) {
+        container.innerHTML = `<p style="color:red;">${err.message}</p>`;
+      }
+    }
+
+    function getParam(name, fallback) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name) || fallback;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const atUri = getParam('uri');
+      const pdsHost = getParam('pds', 'bsky.social');
+      const cdnBase = getParam('cdn', 'https://cdn.bsky.app');
+      if (atUri) {
+        fetchAndDisplayPost(atUri, pdsHost, cdnBase);
+      } else {
+        document.getElementById('record').innerHTML = '<p>Please provide an AT URI as the "uri" URL parameter.</p>';
+      }
+    });
+  </script>
+</body>
+</html>
