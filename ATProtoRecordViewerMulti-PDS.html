@@ -149,51 +149,76 @@
           const skythreadAtUri = `https://blue.mackuba.eu/skythread/?q=${atUri}`;
           const skythreadInnerUri = innerUri ? `https://blue.mackuba.eu/skythread/?q=${innerUri}` : null;
 		  
+		  
+function atUriToBskyAppUrl(atUri) {
+  const regex = /^at:\/\/([^/]+)\/([^/]+)\/([^/]+)$/;
+  const match = atUri.match(regex);
+  if (!match) return null; // Invalid AT URI format
+
+  const did = match[1];
+  const collection = match[2];
+  const rkey = match[3];
+
+  if (collection === 'app.bsky.feed.post') {
+    return `https://bsky.app/profile/${did}/post/${rkey}`;
+  }
+  return null; // Not a post record
+}
+
+const bskyUrl = atUriToBskyAppUrl(atUri);
+
+		  
+		  
 
 
           // Embed HTML
           const embedHtml = renderEmbed(value);
 
           // Build card
-          const card = document.createElement('div');
-          card.className = 'record-card';
-          card.innerHTML = `
-            <div><strong>Text:</strong> ${text ? text : '<em>No text</em>'}</div>
-            ${embedHtml}
-          ${createdAt ? `<div><strong>Created:</strong> ${createdAt}</div>` : ''}			
-            <div>
-              <strong>Record AT URI:</strong> <code>${atUri}</code>
-              <br>
-			  View in 
-			  <a href="${postview}" target="_blank" rel="noopener">Post viewer</a> ,			  
-			  <a href="${atpToolsUrl}" target="_blank" rel="noopener">atp.tools</a> , 
-			  <a href="${skythreadAtUri}" target="_blank" rel="noopener">SkyThread</a> or
-			  <a href="${pdslsdevUrl}" target="_blank" rel="noopener">pdsls.dev</a>
-			  
-			  
-		  
-			  
-			  
-			  
-            </div>
-            ${innerUri ? `
-              <div>
-                <strong>Record Value URI:</strong>
-                <a href="${innerUri}" target="_blank" rel="noopener">${innerUri}</a>
-                <br>
-                ${skythreadInnerUri ? `<a href="${skythreadInnerUri}" target="_blank" rel="noopener">View this URI in SkyThread</a>` : ''}
-              </div>
-            ` : ''}
-            ${urlField ? `<div><strong>URL:</strong> <a href="${urlField}" target="_blank" rel="noopener">${name}</a></div>` : ''}
-            ${textUrls.length > 0 ? `
-              <div><strong>Links found in text:</strong>
-                <ul>
-                  ${textUrls.map(turl => `<li><a href="${turl}" target="_blank" rel="noopener">${turl}</a></li>`).join('')}
-                </ul>
-              </div>
-            ` : ''}
-          `;
-          container.appendChild(card);
+// Assume bskyUrl is already defined for this record
+let bskyLinkHtml = '';
+if (bskyUrl != null) {
+  bskyLinkHtml = `<a href="${bskyUrl}" target="_blank" rel="noopener">bsky.app</a>, <a href="${skythreadAtUri}" target="_blank" rel="noopener">SkyThread</a>,`;
+}
+
+const card = document.createElement('div');
+card.className = 'record-card';
+card.innerHTML = `
+  <div><strong>Text:</strong> ${text ? text : '<em>No text</em>'}</div>
+  ${embedHtml}
+  ${createdAt ? `<div><strong>Created:</strong> ${createdAt}</div>` : ''}			
+  <div>
+    <strong>Record AT URI:</strong> <code>${atUri}</code>
+    <br><small>
+      View in 
+      <a href="${postview}" target="_blank" rel="noopener">Post viewer</a>,	
+ ${bskyLinkHtml} 	  
+      <a href="${atpToolsUrl}" target="_blank" rel="noopener">atp.tools</a>, 
+ or
+      <a href="${pdslsdevUrl}" target="_blank" rel="noopener">pdsls.dev</a>
+      <br>
+    </small>
+  </div>
+  ${innerUri ? `
+    <div>
+      <strong>Record Value URI:</strong>
+      <a href="${innerUri}" target="_blank" rel="noopener">${innerUri}</a>
+      <br>
+      ${skythreadInnerUri ? `<a href="${skythreadInnerUri}" target="_blank" rel="noopener">View this URI in SkyThread</a>` : ''}
+    </div>
+  ` : ''}
+  ${urlField ? `<div><strong>URL:</strong> <a href="${urlField}" target="_blank" rel="noopener">${name}</a></div>` : ''}
+  ${textUrls.length > 0 ? `
+    <div><strong>Links found in text:</strong>
+      <ul>
+        ${textUrls.map(turl => `<li><a href="${turl}" target="_blank" rel="noopener">${turl}</a></li>`).join('')}
+      </ul>
+    </div>
+  ` : ''}
+`;
+
+container.appendChild(card);
+
         });
       } catch (err) {
         container.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
