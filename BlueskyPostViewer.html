@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>WIP | Bluesky Post Viewer (Any PDS, Link Cards)</title>
+  <title>Bluesky Post Viewer (With Timestamps)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body { font-family: system-ui, sans-serif; background: #f5f6fa; margin: 0; padding: 2em 0; }
@@ -20,7 +20,7 @@
 </head>
 <body>
   <div class="container">
-    <h1>WIP | Bluesky Post Viewer (Any PDS, Link Cards)</h1>
+    <h1>WIP | Bluesky Post Viewer (With Timestamps)</h1>
 	<p>Accepts uri (AT URI), pds (PDS host), and cdn (CDN host) as URL parameters</p>
     <div id="record"></div>
   </div>
@@ -30,6 +30,12 @@
       const match = uri.match(/^at:\/\/([^\/]+)\/([^\/]+)\/([^\/]+)$/);
       if (!match) return null;
       return { repo: match[1], collection: match[2], rkey: match[3] };
+    }
+
+    function formatDateTime(isoString) {
+      if (!isoString) return '';
+      const date = new Date(isoString);
+      return date.toLocaleString();
     }
 
     function renderEmbed(embed, atUri, cdnBase) {
@@ -84,12 +90,14 @@
         const data = await res.json();
         const value = data.value || {};
         const text = value.text || '';
+        const createdAt = value.createdAt ? formatDateTime(value.createdAt) : '';
         const embedHtml = renderEmbed(value.embed, atUri, cdnBase);
         const card = document.createElement('div');
         card.className = 'record-card';
         card.innerHTML = `
           <div><strong>Text:</strong> ${text ? text : '<em>No text</em>'}</div>
           ${embedHtml}
+          ${createdAt ? `<div><strong>Created:</strong> ${createdAt}</div>` : ''}
           <div><strong>Record AT URI:</strong> <code>${atUri}</code></div>
         `;
         container.innerHTML = '';

@@ -74,6 +74,12 @@
         ? text.match(/https?:\/\/[^\s]+/g) || []
         : [];
     }
+	
+    function formatDateTime(isoString) {
+      if (!isoString) return '';
+      const date = new Date(isoString);
+      return date.toLocaleString();
+    }	
 
     // --- Helper: Render embed images and safe link cards ---
     function renderEmbed(value) {
@@ -134,6 +140,7 @@
           const urlField = value.url;
           const name = value.name || value.title || urlField || innerUri || '';
           const textUrls = extractUrls(text);
+		  const createdAt = value.createdAt ? formatDateTime(value.createdAt) : '';
 
           // SkyThread, atptools & pdslsdev urls URLs
 		  const postview = `./BlueskyPostViewer.html?uri=${atUri}&pds=${pds}`;		  
@@ -153,6 +160,7 @@
           card.innerHTML = `
             <div><strong>Text:</strong> ${text ? text : '<em>No text</em>'}</div>
             ${embedHtml}
+          ${createdAt ? `<div><strong>Created:</strong> ${createdAt}</div>` : ''}			
             <div>
               <strong>Record AT URI:</strong> <code>${atUri}</code>
               <br>
