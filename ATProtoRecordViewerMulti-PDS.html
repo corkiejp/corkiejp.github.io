@@ -150,22 +150,47 @@
           const skythreadInnerUri = innerUri ? `https://blue.mackuba.eu/skythread/?q=${innerUri}` : null;
 		  
 		  
-function atUriToBskyAppUrl(atUri) {
+function atUriToUrls(atUri) {
   const regex = /^at:\/\/([^/]+)\/([^/]+)\/([^/]+)$/;
   const match = atUri.match(regex);
-  if (!match) return null; // Invalid AT URI format
+  if (!match) return null;
 
   const did = match[1];
   const collection = match[2];
   const rkey = match[3];
 
-  if (collection === 'app.bsky.feed.post') {
-    return `https://bsky.app/profile/${did}/post/${rkey}`;
-  }
-  return null; // Not a post record
+  // Build URLs
+  const bskyUrl = (collection === 'app.bsky.feed.post')
+    ? `https://bsky.app/profile/${did}/post/${rkey}`
+    : null;
+  const clearskyHistoryUrl = `https://clearsky.app/${did}/history`;
+
+  return {
+    did,
+    collection,
+    rkey,
+    bskyUrl,
+    clearskyHistoryUrl
+  };
 }
 
-const bskyUrl = atUriToBskyAppUrl(atUri);
+const urls = atUriToUrls(atUri);
+
+if (urls) {
+  // Access each URL as a property of the object
+  const bskyUrl = urls.bskyUrl;
+  const clearskyHistoryUrl = urls.clearskyHistoryUrl;
+
+  // Example: display both links
+  console.log(bskyUrl);
+  console.log(clearskyHistoryUrl);
+}
+
+const { bskyUrl, clearskyHistoryUrl } = atUriToUrls(atUri) || {};
+if (bskyUrl != null) {
+  // Now you can use bskyUrl directly
+  console.log(bskyUrl);
+}
 
 		  
 		  
@@ -178,7 +203,11 @@ const bskyUrl = atUriToBskyAppUrl(atUri);
 // Assume bskyUrl is already defined for this record
 let bskyLinkHtml = '';
 if (bskyUrl != null) {
-  bskyLinkHtml = `<a href="${bskyUrl}" target="_blank" rel="noopener">bsky.app</a>, <a href="${skythreadAtUri}" target="_blank" rel="noopener">SkyThread</a>,`;
+  bskyLinkHtml = `<a href="${bskyUrl}" target="_blank" rel="noopener">bsky.app</a>, 
+  
+<a href="${clearskyHistoryUrl}" target="_blank" rel="noopener">Look up did on clearsky</a>, 
+  
+  <a href="${skythreadAtUri}" target="_blank" rel="noopener">SkyThread</a>,`;
 }
 
 const card = document.createElement('div');
@@ -190,11 +219,10 @@ card.innerHTML = `
   <div>
     <strong>Record AT URI:</strong> <code>${atUri}</code>
     <br><small>
-      View in 
-      <a href="${postview}" target="_blank" rel="noopener">Post viewer</a>,	
- ${bskyLinkHtml} 	  
+      Options: - 
+	   ${bskyLinkHtml} 	  
+      <a href="${postview}" target="_blank" rel="noopener">Post viewer</a>,		  
       <a href="${atpToolsUrl}" target="_blank" rel="noopener">atp.tools</a>, 
- or
       <a href="${pdslsdevUrl}" target="_blank" rel="noopener">pdsls.dev</a>
       <br>
     </small>
