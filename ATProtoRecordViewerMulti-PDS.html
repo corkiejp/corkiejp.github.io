@@ -203,7 +203,8 @@ if (bskyUrl != null) {
 // Assume bskyUrl is already defined for this record
 let bskyLinkHtml = '';
 if (bskyUrl != null) {
-  bskyLinkHtml = `<a href="${bskyUrl}" target="_blank" rel="noopener">bsky.app</a>, 
+  bskyLinkHtml = `<a href="${bskyUrl}" target="_blank" rel="noopener">bsky.app</a>,
+   <a href="${postview}" target="_blank" rel="noopener">Post viewer</a>,	
   
 <a href="${clearskyHistoryUrl}" target="_blank" rel="noopener">Look up did on clearsky</a>, 
   
@@ -220,8 +221,7 @@ card.innerHTML = `
     <strong>Record AT URI:</strong> <code>${atUri}</code>
     <br><small>
       Options: - 
-	   ${bskyLinkHtml} 	  
-      <a href="${postview}" target="_blank" rel="noopener">Post viewer</a>,		  
+	   ${bskyLinkHtml} 	  	  
       <a href="${atpToolsUrl}" target="_blank" rel="noopener">atp.tools</a>, 
       <a href="${pdslsdevUrl}" target="_blank" rel="noopener">pdsls.dev</a>
       <br>
