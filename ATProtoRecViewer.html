@@ -1,0 +1,524 @@
+<!doctype html>
+<html class="no-js" lang="en">
+
+    <head>
+        <!-- meta data -->
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+		
+        <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+        <!--font-family-->
+		<link href="https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700,800,900&amp;subset=devanagari,latin-ext" rel="stylesheet">
+        
+        <!-- title of site -->
+        <title>ATProto Record Viewer</title>
+
+        <!-- For favicon png -->
+		<link rel="shortcut icon" type="image/icon" href="assets/logo/favicon.png"/>
+       
+        <!--font-awesome.min.css-->
+        <link rel="stylesheet" href="assets/css/font-awesome.min.css">
+
+		<!--flat icon css-->
+		<link rel="stylesheet" href="assets/css/flaticon.css">
+
+		<!--animate.css-->
+        <link rel="stylesheet" href="assets/css/animate.css">
+
+        <!--owl.carousel.css-->
+        <link rel="stylesheet" href="assets/css/owl.carousel.min.css">
+		<link rel="stylesheet" href="assets/css/owl.theme.default.min.css">
+		
+        <!--bootstrap.min.css-->
+        <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+		
+		<!-- bootsnav -->
+		<link rel="stylesheet" href="assets/css/bootsnav.css" >	
+        
+        <!--style.css-->
+        <link rel="stylesheet" href="assets/css/style.css">
+        
+        <!--responsive.css-->
+        <link rel="stylesheet" href="assets/css/responsive.css">
+		
+		  <style>
+    body { font-family: sans-serif; }
+    .record-card { border:1px solid #ccc; margin:1em 0; padding:1em; border-radius:8px; background:#fafbfc; }
+	
+  </style>
+		
+  <style>
+    
+ 
+    #records { margin-top: 2em; }
+    .record-card { border: 1px solid #e1e4ea; border-radius: 8px; background: #fafbfc; padding: 1em 1.2em; margin-bottom: 1.5em; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
+    .record-card code { background: #f1f1f1; padding: 0.1em 0.3em; border-radius: 4px; font-size: 0.95em; }
+    .record-card ul { margin: 0.5em 0 0 1em; padding: 0; }
+    .record-card li { margin-bottom: 0.2em; font-size: 0.98em; }
+    .record-card a { color: #0074d9; text-decoration: none; word-break: break-all; }
+    .record-card a:hover { text-decoration: underline; }
+    .embed-images { display: flex; gap: 8px; margin: 0.5em 0; }
+    .embed-images img { max-width: 100px; max-height: 100px; border-radius: 6px; border: 1px solid #ccc; }
+    .embed-linkcard { display:flex; align-items:center; border:1px solid #ddd; border-radius:8px; padding:8px; margin:0.5em 0; background:#f7f7fa; }
+    .embed-linkcard img { width:60px; height:60px; object-fit:cover; border-radius:6px; margin-right:10px; }
+    .embed-linkcard-title { font-weight:bold; color:#0074d9; text-decoration:none; }
+    .embed-linkcard-desc { font-size:0.96em; color:#555; }
+    @media (max-width: 600px) { .container { padding: 1em; } form { flex-direction: column; gap: 0.5em; } }
+	
+
+.copy-at-uri-btn {
+  margin-left: 8px;
+  padding: 2px 6px;
+  font-size: 0.9em;
+  cursor: pointer;
+}
+
+
+.record-card {
+  border: 1px solid #e1e1e1;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+  background: white;
+}
+
+.record-meta {
+  color: #666;
+  font-size: 0.9em;
+  margin-bottom: 0.5rem;
+}
+
+.record-content {
+  margin: 0.5rem 0;
+}
+    form {
+      display: flex;
+      gap: 1em;
+      flex-wrap: wrap;
+      margin-bottom: 2em;
+      align-items: flex-end;
+      justify-content: center;
+    }
+	 button {
+      padding: 0.7em 1.5em;
+      background: #0074d9;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 1em;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #005fa3;
+    }
+</style>
+
+	
+  </style>
+        
+        <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+		
+        <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+			<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+		<base target="_parent">
+    </head>
+	
+	<body>
+		<!--[if lte IE 9]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+        <![endif]-->
+		
+<!-- top-area Start -->
+		<header class="top-area">
+			<div class="header-area">
+				<!-- Start Navigation -->
+			    <nav class="navbar navbar-default bootsnav navbar-fixed dark no-background">
+
+			        <div class="container">
+
+			            <!-- Start Header Navigation -->
+			            <div class="navbar-header">
+			                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-menu">
+			                    <i class="fa fa-bars"></i>
+			                </button>
+			                <a class="navbar-brand" href="corkiejp.html">corkiejp</a>
+			            </div><!--/.navbar-header-->
+			            <!-- End Header Navigation -->
+
+			            <!-- Collect the nav links, forms, and other content for toggling -->
+			            <div class="collapse navbar-collapse menu-ui-design" id="navbar-menu">
+			                <ul class="nav navbar-nav navbar-right" data-in="fadeInDown" data-out="fadeOutUp">
+			                <li class=" smooth-menu active"></li>
+								<li class="nav-link"><a href="./ATProtoRecViewer.html"  target="_parent">Reset to default Parms</a></li>
+								<li class="nav-link"><a href="./ATProtoRecordViewerMulti-PDS.html"  target="_parent">ATProto Record Viewer ~ no site style</a></li>
+								<li class="nav-link"><a href=".//ATProtoRecViewer.html?repo=corkiejp.github.io&collection=a.bookmark.on.my.pds"  target="_parent">Bookmarks on my PDS</a></li>
+															
+								
+								<li class="nav-link"><a href="./Bluesky_Papers_ac.html"  target="_parent">Papers</a></li>
+
+						
+			                </ul><!--/.nav -->
+			            </div><!-- /.navbar-collapse -->
+			        </div><!--/.container-->
+			    </nav><!--/nav!
+			    <!-- End Navigation -->
+			</div><!--/.header-area-->
+
+
+		</header><!-- /.top-area-->
+		<!-- top-area End -->
+	
+
+
+		<!--about start -->
+		<section id="mysocials" class="about">
+			<div class="container">
+				<div class="about-content">
+ Click on 'Corkiejp' above to return to main page. <br>
+ (Pass parameters to html file with e.g., ?repo=did:plc:exampledid&collection=app.bsky.feed.post).<br>
+ Deep links are provide below to atp.Tools and SkyThread for your convenience!<br>
+ 
+<br><br>
+
+<div class="container">
+    <h1>ATProto Record Viewer (Multi-PDS)</h1>
+	<p>(Pass parameters to html file with e.g., ?pds=nameofpds&repo=did:plc:exampledid&collection=app.bsky.feed.post).<br>
+ Deep links are provide below to atp.Tools, SkyThread & pdsls for your convenience!</p><br><br>
+    <form id="queryForm">
+	    <ul>
+      <li>
+      <label>
+        PDS Host
+        <input type="text" id="pds" name="pds" required>
+      </label>
+	  </li>
+	 
+      <li>
+      <label>
+        Repo (DID or handle)
+        <input type="text" id="repo" name="repo" required>
+      </label>
+	   </li>
+      <li>
+      <label>
+        Collection (NSID)
+        <input type="text" id="collection" name="collection" required>
+      </label>
+	  </li>
+      <li>
+      <button type="submit">Fetch Records</button>
+	  </li>
+	  </ul>
+    </form>
+    <div id="records"></div>
+  </div>
+  <script>
+    // --- Default values ---
+    const DEFAULT_PDS = 'bsky.social';
+    const DEFAULT_REPO = 'corkiejp.github.io'; // Example public repo
+    const DEFAULT_COLLECTION = 'app.bsky.feed.post';
+
+    // --- Get URL parameters with fallback to defaults ---
+    const params = new URLSearchParams(window.location.search);
+    const pds = params.get('pds') || DEFAULT_PDS;
+    const repo = params.get('repo') || DEFAULT_REPO;
+    const collection = params.get('collection') || DEFAULT_COLLECTION;
+
+    // --- Autofill form fields with either URL or default values ---
+    document.getElementById('pds').value = pds;
+    document.getElementById('repo').value = repo;
+    document.getElementById('collection').value = collection;
+
+    // --- Helper: Extract URLs from plain text ---
+    function extractUrls(text) {
+      return text && typeof text === 'string'
+        ? text.match(/https?:\/\/[^\s]+/g) || []
+        : [];
+    }
+	
+    function formatDateTime(isoString) {
+      if (!isoString) return '';
+      const date = new Date(isoString);
+      return date.toLocaleString();
+    }	
+
+    // --- Helper: Render embed images and safe link cards ---
+    function renderEmbed(value) {
+      let embedHtml = '';
+      if (!value.embed) return embedHtml;
+
+      // Handle images
+      if (Array.isArray(value.embed.images)) {
+        embedHtml += `<div class="embed-images">`;
+        value.embed.images.forEach(img => {
+          const thumb = img.thumb || img.fullsize;
+          if (thumb) {
+            embedHtml += `<a href="${img.fullsize || thumb}" target="_blank" rel="noopener">
+                            <img src="${thumb}" alt="image">
+                          </a>`;
+          }
+        });
+        embedHtml += `</div>`;
+      }
+
+      // Handle rich link card with safe thumbnail rendering
+      if (value.embed.external) {
+        const ext = value.embed.external;
+        const hasValidThumb = typeof ext.thumb === 'string' && /^https?:\/\//.test(ext.thumb);
+        embedHtml += `
+          <div class="embed-linkcard">
+            ${hasValidThumb ? `<img src="${ext.thumb}" alt="link thumbnail" onerror="this.style.display='none';">` : ''}
+            <div style="flex:1;">
+              <a href="${ext.uri}" target="_blank" rel="noopener" class="embed-linkcard-title">${ext.title || ext.uri}</a>
+              <div class="embed-linkcard-desc">${ext.description || ''}</div>
+            </div>
+          </div>
+        `;
+      }
+
+      return embedHtml;
+    }
+
+    // --- Fetch and display records ---
+    async function fetchAndDisplayRecords(pds, repo, collection) {
+      const url = `https://${pds}/xrpc/com.atproto.repo.listRecords?repo=${encodeURIComponent(repo)}&collection=${encodeURIComponent(collection)}&limit=100`;
+      const container = document.getElementById('records');
+      container.innerHTML = "<em>Loading...</em>";
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
+        const data = await res.json();
+        if (!data.records || data.records.length === 0) {
+          container.innerHTML = "<p>No records found.</p>";
+          return;
+        }
+        container.innerHTML = "";
+        data.records.forEach(record => {
+          const value = record.value || {};
+          const text = value.text || '';
+          const atUri = record.uri;
+          const innerUri = value.uri;
+          const urlField = value.url;
+          const name = value.name || value.title || urlField || innerUri || '';
+          const textUrls = extractUrls(text);
+		  const createdAt = value.createdAt ? formatDateTime(value.createdAt) : '';
+
+          // SkyThread, atptools & pdslsdev urls URLs
+		  const postview = `./BlueskyPostViewer.html?uri=${atUri}&pds=${pds}`;		  
+		  const pdslsdevUrl = `https://pdsls.dev/${atUri}`;
+		  const atpToolsUrl = `https://atp.tools/${atUri}`;
+          const skythreadAtUri = `https://blue.mackuba.eu/skythread/?q=${atUri}`;
+          const skythreadInnerUri = innerUri ? `https://blue.mackuba.eu/skythread/?q=${innerUri}` : null;
+		  
+		  
+function atUriToUrls(atUri) {
+  const regex = /^at:\/\/([^/]+)\/([^/]+)\/([^/]+)$/;
+  const match = atUri.match(regex);
+  if (!match) return null;
+
+  const did = match[1];
+  const collection = match[2];
+  const rkey = match[3];
+
+  // Build URLs
+  const bskyUrl = (collection === 'app.bsky.feed.post')
+    ? `https://bsky.app/profile/${did}/post/${rkey}`
+    : null;
+  const clearskyHistoryUrl = `https://clearsky.app/${did}/history`;
+
+  return {
+    did,
+    collection,
+    rkey,
+    bskyUrl,
+    clearskyHistoryUrl
+  };
+}
+
+const urls = atUriToUrls(atUri);
+
+if (urls) {
+  // Access each URL as a property of the object
+  const bskyUrl = urls.bskyUrl;
+  const clearskyHistoryUrl = urls.clearskyHistoryUrl;
+
+  // Example: display both links
+  console.log(bskyUrl);
+  console.log(clearskyHistoryUrl);
+}
+
+const { bskyUrl, clearskyHistoryUrl } = atUriToUrls(atUri) || {};
+if (bskyUrl != null) {
+  // Now you can use bskyUrl directly
+  console.log(bskyUrl);
+}
+
+		  
+		  
+
+
+          // Embed HTML
+          const embedHtml = renderEmbed(value);
+
+          // Build card
+// Assume bskyUrl is already defined for this record
+let bskyLinkHtml = '';
+if (bskyUrl != null) {
+  bskyLinkHtml = `<a href="${bskyUrl}" target="_blank" rel="noopener">bsky.app</a>,
+   <a href="${postview}" target="_blank" rel="noopener">Post viewer</a>,	
+  
+<a href="${clearskyHistoryUrl}" target="_blank" rel="noopener">Look up did on clearsky</a>, 
+  
+  <a href="${skythreadAtUri}" target="_blank" rel="noopener">SkyThread</a>,`;
+}
+
+const card = document.createElement('div');
+card.className = 'record-card';
+card.innerHTML = `
+  <div><strong>Text:</strong> ${text ? text : '<em>No text</em>'}</div>
+  ${embedHtml}
+  ${createdAt ? `<div><strong>Created:</strong> ${createdAt}</div>` : ''}		
+
+<div>
+  <strong>Record AT URI:</strong>
+  <code class="at-uri">${atUri}</code>
+  <button class="copy-at-uri-btn" type="button" title="Copy AT URI">Copy</button>
+  <span class="copy-feedback" style="display:none; color:green; margin-left:8px;">Copied!</span>
+  <br><small>
+    Options: - 
+    ${bskyLinkHtml}
+    <a href="${atpToolsUrl}" target="_blank" rel="noopener">atp.tools</a>, 
+    <a href="${pdslsdevUrl}" target="_blank" rel="noopener">pdsls.dev</a>
+    <br>
+  </small>
+</div>
+
+  
+  ${innerUri ? `
+    <div>
+      <strong>Record Value URI:</strong>
+      <a href="${innerUri}" target="_blank" rel="noopener">${innerUri}</a>
+      <br>
+      ${skythreadInnerUri ? `<a href="${skythreadInnerUri}" target="_blank" rel="noopener">View this URI in SkyThread</a>` : ''}
+    </div>
+  ` : ''}
+  ${urlField ? `<div><strong>URL:</strong> <a href="${urlField}" target="_blank" rel="noopener">${name}</a></div>` : ''}
+  ${textUrls.length > 0 ? `
+    <div><strong>Links found in text:</strong>
+      <ul>
+        ${textUrls.map(turl => `<li><a href="${turl}" target="_blank" rel="noopener">${turl}</a></li>`).join('')}
+      </ul>
+    </div>
+  ` : ''}
+`;
+
+container.appendChild(card);
+
+const copyBtn = card.querySelector('.copy-at-uri-btn');
+const atUriElem = card.querySelector('.at-uri');
+const feedback = card.querySelector('.copy-feedback');
+
+if (copyBtn && atUriElem && feedback) {
+  copyBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(atUriElem.textContent).then(() => {
+      feedback.style.display = 'inline';
+      setTimeout(() => { feedback.style.display = 'none'; }, 1200);
+    });
+  });
+}
+
+
+        });
+      } catch (err) {
+        container.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
+      }
+    }
+
+    // --- Form handler ---
+    document.getElementById('queryForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const pds = document.getElementById('pds').value.trim();
+      const repo = document.getElementById('repo').value.trim();
+      const collection = document.getElementById('collection').value.trim();
+      fetchAndDisplayRecords(pds, repo, collection);
+    });
+
+    // --- Auto-fetch on page load with either URL or default values ---
+    fetchAndDisplayRecords(pds, repo, collection);
+  </script>
+
+
+
+
+
+
+
+
+
+
+<br><br>
+<small><strong>Disclaimer:</strong> The above script displays external content. </small>
+	
+
+</div>
+				
+				</div>
+			</div>
+		</section><!--/.about-->
+		<!--about end -->
+
+	
+
+	
+
+	
+		
+		<!-- Include all js compiled plugins (below), or include individual files as needed -->
+
+		<script src="assets/js/jquery.js"></script>
+		  
+        
+        <!--modernizr.min.js-->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+		
+		<!--bootstrap.min.js-->
+        <script src="assets/js/bootstrap.min.js"></script>
+		
+		<!-- bootsnav js -->
+		<script src="assets/js/bootsnav.js"></script>
+		
+		<!-- jquery.sticky.js -->
+		<script src="assets/js/jquery.sticky.js"></script>
+		
+		<!-- for progress bar start-->
+
+		<!-- progressbar js -->
+		<script src="assets/js/progressbar.js"></script>
+
+		<!-- appear js -->
+		<script src="assets/js/jquery.appear.js"></script>
+
+		<!-- for progress bar end -->
+
+		<!--owl.carousel.js-->
+        <script src="assets/js/owl.carousel.min.js"></script>
+
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+		
+        
+        <!--Custom JS-->
+        <script src="assets/js/custom.js"></script>
+
+
+        
+    </body>
+	
+</html>
