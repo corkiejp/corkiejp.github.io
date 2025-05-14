@@ -27,6 +27,16 @@
     .embed-linkcard-title { font-weight:bold; color:#0074d9; text-decoration:none; }
     .embed-linkcard-desc { font-size:0.96em; color:#555; }
     @media (max-width: 600px) { .container { padding: 1em; } form { flex-direction: column; gap: 0.5em; } }
+	
+
+.copy-at-uri-btn {
+  margin-left: 8px;
+  padding: 2px 6px;
+  font-size: 0.6em;
+  cursor: pointer;
+}
+
+	
   </style>
 </head>
 <body>
@@ -216,17 +226,23 @@ card.className = 'record-card';
 card.innerHTML = `
   <div><strong>Text:</strong> ${text ? text : '<em>No text</em>'}</div>
   ${embedHtml}
-  ${createdAt ? `<div><strong>Created:</strong> ${createdAt}</div>` : ''}			
-  <div>
-    <strong>Record AT URI:</strong> <code>${atUri}</code>
-    <br><small>
-      Options: - 
-	   ${bskyLinkHtml} 	  	  
-      <a href="${atpToolsUrl}" target="_blank" rel="noopener">atp.tools</a>, 
-      <a href="${pdslsdevUrl}" target="_blank" rel="noopener">pdsls.dev</a>
-      <br>
-    </small>
-  </div>
+  ${createdAt ? `<div><strong>Created:</strong> ${createdAt}</div>` : ''}		
+
+<div>
+  <strong>Record AT URI:</strong>
+  <code class="at-uri">${atUri}</code>
+  <button class="copy-at-uri-btn" type="button" title="Copy AT URI">Copy</button>
+  <span class="copy-feedback" style="display:none; color:green; margin-left:8px;">Copied!</span>
+  <br><small>
+    Options: - 
+    ${bskyLinkHtml}
+    <a href="${atpToolsUrl}" target="_blank" rel="noopener">atp.tools</a>, 
+    <a href="${pdslsdevUrl}" target="_blank" rel="noopener">pdsls.dev</a>
+    <br>
+  </small>
+</div>
+
+  
   ${innerUri ? `
     <div>
       <strong>Record Value URI:</strong>
@@ -246,6 +262,20 @@ card.innerHTML = `
 `;
 
 container.appendChild(card);
+
+const copyBtn = card.querySelector('.copy-at-uri-btn');
+const atUriElem = card.querySelector('.at-uri');
+const feedback = card.querySelector('.copy-feedback');
+
+if (copyBtn && atUriElem && feedback) {
+  copyBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(atUriElem.textContent).then(() => {
+      feedback.style.display = 'inline';
+      setTimeout(() => { feedback.style.display = 'none'; }, 1200);
+    });
+  });
+}
+
 
         });
       } catch (err) {
