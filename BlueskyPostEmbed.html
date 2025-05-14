@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bluesky Post Embed</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+
+  <div id="bluesky-embed-container" style="display: flex; justify-content: center; margin: 2em 0;"></div>
+
+  <script async src="https://embed.bsky.app/static/embed.js" charset="utf-8"></script>
+  <script>
+    function getParam(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const atUri = getParam('uri');
+      if (atUri) {
+        const container = document.getElementById('bluesky-embed-container');
+        container.innerHTML = `<blockquote class="bluesky-embed" data-bluesky-uri="${atUri}"></blockquote>`;
+        if (window.BlueskyEmbed && window.BlueskyEmbed.init) {
+          window.BlueskyEmbed.init();
+        }
+      } else {
+        document.getElementById('bluesky-embed-container').innerText = 'No URI provided.';
+      }
+    });
+  </script>
+
+</body>
+</html>
