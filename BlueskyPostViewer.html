@@ -124,8 +124,32 @@
   <div class="container">
     <h1>ATProto Post Viewer <br>(with SkyView Thread)</h1>
 	<p align=center>Accepts uri (AT URI), pds (PDS host), and cdn (CDN host) as URL parameters.
-	<br><br>Due to limitations of Github Pages, I can't access the Bluesky api to display posts, like I want to here.</p>
+	<br><br>Due to limitations of Github Pages,<br> I can't access the Bluesky api to display posts, like I want to here.</p>
     <div id="record"></div>
+	
+	  <div id="bluesky-embed-container" style="display: flex; justify-content: center; margin: 2em 0;"></div>
+
+  <script async src="https://embed.bsky.app/static/embed.js" charset="utf-8"></script>
+  <script>
+    function getParam(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const atUri = getParam('uri');
+      if (atUri) {
+        const container = document.getElementById('bluesky-embed-container');
+        container.innerHTML = `<blockquote class="bluesky-embed" data-bluesky-uri="${atUri}"></blockquote>`;
+        if (window.BlueskyEmbed && window.BlueskyEmbed.init) {
+          window.BlueskyEmbed.init();
+        }
+      } else {
+        document.getElementById('bluesky-embed-container').innerText = 'No URI provided.';
+      }
+    });
+  </script>
+	
     <div class="iframe-container">
       <h2>SkyView Thread View</h2>
       <iframe id="skyview-iframe"
