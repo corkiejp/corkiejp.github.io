@@ -43,29 +43,159 @@
   <div class="container">
     <h1>ATProto Record Viewer (Multi-PDS)</h1>
 	<p>(Pass parameters to html file with e.g., ?pds=nameofpds&repo=did:plc:exampledid&collection=app.bsky.feed.post).<br>
+	Alternatively just put '?did=' and if you use a did string the script will detect the PDS host.<br>
+	Also now accepting '?uri=', which will auto detect the PDS Host.<br>
+	Get that sort of information from enabling developer mode on Bluesky app or website. ~ Long Press on version number
  Deep links are provide below to atp.Tools, SkyThread & pdsls for your convenience!</p>
+ 
+ 
     <form id="queryForm">
-      <label>
-        PDS Host
-        <input type="text" id="pds" name="pds" required>
-      </label>
-      <label>
-        Repo (DID or handle)
-        <input type="text" id="repo" name="repo" required>
-      </label>
-      <label>
-        Collection (NSID)
-        <input type="text" id="collection" name="collection" required>
-      </label>
-      <button type="submit">Fetch Records</button>
-    </form>
+	
+    <label for="uri">AT URI:</label>
+    <input type="text" id="uri" name="uri" placeholder="Paste AT URI here">
+    <button type="button" id="parseUriBtn">Parse URI</button>
+    <br><br>
+    <label for="pds">PDS Host:</label>
+    <input type="text" name="pds" id="pds" placeholder="PDS Host">
+    <br>
+    <label for="repo">Repo (DID):</label>
+    <input type="text" name="repo" id="repo" placeholder="Repo DID">
+    <br>
+    <label for="collection">Collection:</label>
+    <input type="text" name="collection" id="collection" placeholder="Collection">
+    <br>
+    <label for="rkey">Record Key:</label>
+    <input type="text" name="rkey" id="rkey" placeholder="Record Key">
+    <br>
+	  <button type="submit">Fetch Records</button>
+    <!-- Add your form's submit button and logic as needed -->
+  </form>
+	
     <div id="records"></div>
   </div>
   <script>
+  
+  
+
+document.addEventListener('DOMContentLoaded', function() {
     // --- Default values ---
     const DEFAULT_PDS = 'bsky.social';
-    const DEFAULT_REPO = 'corkiejp.github.io'; // Example public repo
+    const DEFAULT_REPO = 'corkiejp.github.io';
     const DEFAULT_COLLECTION = 'app.bsky.feed.post';
+
+    function setDefaultIfEmpty(selector, value) {
+        const field = document.querySelector(selector);
+        if (field && !field.value) {
+            field.value = value;
+        }
+    }
+
+    // Set defaults first
+    setDefaultIfEmpty('[name="pds"]', DEFAULT_PDS);
+    setDefaultIfEmpty('[name="repo"]', DEFAULT_REPO);
+    setDefaultIfEmpty('[name="collection"]', DEFAULT_COLLECTION);
+
+    // Helper to trigger fetch if all fields are filled
+    function triggerFetchIfReady() {
+        const pds = document.querySelector('[name="pds"]').value.trim();
+        const repo = document.querySelector('[name="repo"]').value.trim();
+        const collection = document.querySelector('[name="collection"]').value.trim();
+        if (pds && repo && collection) {
+            fetchAndDisplayRecords(pds, repo, collection);
+        }
+    }
+
+    // --- Parse AT URI function ---
+    function parseAtUri(atUri, fetchAfter = true) {
+        if (!atUri) return;
+        // Matches at://repo/collection or at://repo/collection/rkey
+        const match = atUri.match(/^at:\/\/([^/]+)\/([^/]+)(?:\/([^/]+))?$/);
+        if (match) {
+            const [, repo, collection, rkey] = match;
+            document.querySelector('[name="repo"]').value = repo;
+            document.querySelector('[name="collection"]').value = collection;
+            if (rkey && document.querySelector('[name="rkey"]')) {
+                document.querySelector('[name="rkey"]').value = rkey;
+            }
+            // Auto-resolve PDS host for did:plc
+            if (repo.startsWith('did:plc:')) {
+                fetch('https://plc.directory/' + repo)
+                    .then(resp => resp.json())
+                    .then(data => {
+                        if (data && data.service && data.service[0] && data.service[0].serviceEndpoint) {
+                            document.querySelector('[name="pds"]').value = data.service[0].serviceEndpoint.replace(/^https?:\/\//, '');
+                        }
+                        if (fetchAfter) triggerFetchIfReady();
+                    })
+                    .catch(() => {
+                        if (fetchAfter) triggerFetchIfReady();
+                    });
+            } else {
+                if (fetchAfter) triggerFetchIfReady();
+            }
+        } else {
+            alert('Invalid AT URI format.');
+        }
+    }
+
+    // --- Handle URL parameters ---
+    const params = new URLSearchParams(window.location.search);
+
+    // 1. Try URI parameter first
+    if (params.has('uri')) {
+        const atUri = params.get('uri').trim();
+        if (atUri) {
+            parseAtUri(atUri, true); // Will auto-fetch after filling
+            // return; // Not strictly needed, but prevents did param from being processed
+        }
+    } else if (params.has('did')) {
+        // 2. If no URI, try DID parameter
+        const did = params.get('did').trim();
+        if (did) {
+            document.querySelector('[name="repo"]').value = did;
+            // Optionally auto-resolve PDS host for did:plc
+            if (did.startsWith('did:plc:')) {
+                fetch('https://plc.directory/' + did)
+                    .then(resp => resp.json())
+                    .then(data => {
+                        if (data && data.service && data.service[0] && data.service[0].serviceEndpoint) {
+                            document.querySelector('[name="pds"]').value = data.service[0].serviceEndpoint.replace(/^https?:\/\//, '');
+                        }
+                        triggerFetchIfReady();
+                    })
+                    .catch(() => {
+                        triggerFetchIfReady();
+                    });
+            } else {
+                triggerFetchIfReady();
+            }
+        }
+    }
+
+    // --- Button click to parse AT URI from input field ---
+    const btn = document.getElementById('parseUriBtn');
+    if (btn) {
+        btn.addEventListener('click', function() {
+            const atUri = document.getElementById('uri').value.trim();
+            if (!atUri) return;
+            parseAtUri(atUri, false); // Don't auto-fetch, let user submit
+        });
+    }
+});
+
+
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+    // --- Default values ---
+
 
     // --- Get URL parameters with fallback to defaults ---
     const params = new URLSearchParams(window.location.search);
@@ -161,7 +291,7 @@
 		  
 		  
 function atUriToUrls(atUri) {
-  const regex = /^at:\/\/([^/]+)\/([^/]+)\/([^/]+)$/;
+  const regex = /^at:\/\/([^/]+)\/([^/]+)(?:\/([^/]+))?$/
   const match = atUri.match(regex);
   if (!match) return null;
 
