@@ -50,25 +50,33 @@
  
  
     <form id="queryForm">
+	  <ul>
+      <li>
 	
     <label for="uri">AT URI:</label>
     <input type="text" id="uri" name="uri" placeholder="Paste AT URI here">
     <button type="button" id="parseUriBtn">Parse URI</button>
-    <br><br>
+    </li>
+      <li>
     <label for="pds">PDS Host:</label>
     <input type="text" name="pds" id="pds" placeholder="PDS Host">
-    <br>
+    </li>
+      <li>
     <label for="repo">Repo (DID):</label>
     <input type="text" name="repo" id="repo" placeholder="Repo DID">
-    <br>
+    </li>
+	  
+      <li>
     <label for="collection">Collection:</label>
     <input type="text" name="collection" id="collection" placeholder="Collection">
-    <br>
+    </li>
+      <li>
     <label for="rkey">Record Key:</label>
     <input type="text" name="rkey" id="rkey" placeholder="Record Key">
-    <br>
 	  <button type="submit">Fetch Records</button>
     <!-- Add your form's submit button and logic as needed -->
+	</li>
+	</ul>
   </form>
 	
     <div id="records"></div>
@@ -138,39 +146,57 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // --- Handle URL parameters ---
+
+   // --- Handle URL parameters ---
     const params = new URLSearchParams(window.location.search);
 
     // 1. Try URI parameter first
     if (params.has('uri')) {
         const atUri = params.get('uri').trim();
         if (atUri) {
-            parseAtUri(atUri, true); // Will auto-fetch after filling
-            // return; // Not strictly needed, but prevents did param from being processed
+            parseAtUri(atUri, true); // Auto-fetch after filling
+            return;
         }
-    } else if (params.has('did')) {
-        // 2. If no URI, try DID parameter
+    }
+
+    // 2. If no URI, try DID parameter
+    if (params.has('did')) {
         const did = params.get('did').trim();
         if (did) {
             document.querySelector('[name="repo"]').value = did;
-            // Optionally auto-resolve PDS host for did:plc
             if (did.startsWith('did:plc:')) {
                 fetch('https://plc.directory/' + did)
                     .then(resp => resp.json())
                     .then(data => {
-                        if (data && data.service && data.service[0] && data.service[0].serviceEndpoint) {
+                        if (data?.service?.[0]?.serviceEndpoint) {
                             document.querySelector('[name="pds"]').value = data.service[0].serviceEndpoint.replace(/^https?:\/\//, '');
                         }
                         triggerFetchIfReady();
                     })
-                    .catch(() => {
-                        triggerFetchIfReady();
-                    });
+                    .catch(() => triggerFetchIfReady());
             } else {
                 triggerFetchIfReady();
             }
+            return;
         }
     }
+
+    // 3. Check for individual parameters (repo, collection, pds)
+    if (params.has('repo') || params.has('collection') || params.has('pds')) {
+        // Override defaults with individual parameters
+        if (params.has('pds')) {
+            document.querySelector('[name="pds"]').value = params.get('pds');
+        }
+        if (params.has('repo')) {
+            document.querySelector('[name="repo"]').value = params.get('repo');
+        }
+        if (params.has('collection')) {
+            document.querySelector('[name="collection"]').value = params.get('collection');
+        }
+        // Auto-fetch if all required fields are filled
+        triggerFetchIfReady();
+    }
+
 
     // --- Button click to parse AT URI from input field ---
     const btn = document.getElementById('parseUriBtn');
