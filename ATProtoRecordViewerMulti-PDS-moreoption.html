@@ -399,18 +399,57 @@ repoInput.addEventListener('change', () => {
     }
 
     // --- Fetch and display records ---
-    async function fetchAndDisplayRecords(pds, repo, collection) {
-      const url = `https://${pds}/xrpc/com.atproto.repo.listRecords?repo=${encodeURIComponent(repo)}&collection=${encodeURIComponent(collection)}&limit=100`;
-      const container = document.getElementById('records');
-      container.innerHTML = "<em>Loading...</em>";
-      try {
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
-        const data = await res.json();
-        if (!data.records || data.records.length === 0) {
-          container.innerHTML = "<p>No records found.</p>";
-          return;
-        }
+let currentCursor = null;
+let currentParams = {};
+
+async function fetchAndDisplayRecords(pds, repo, collection, rkey = '', cursor = null, append = false) {
+  const container = document.getElementById('records');
+  if (!append) container.innerHTML = "<em>Loading...</em>";
+
+  try {
+    let url = `https://${pds}/xrpc/com.atproto.repo.listRecords?repo=${encodeURIComponent(repo)}&collection=${encodeURIComponent(collection)}&limit=25`;
+    if (cursor) url += `&cursor=${encodeURIComponent(cursor)}`;
+    if (rkey) {
+      url = `https://${pds}/xrpc/com.atproto.repo.getRecord?repo=${encodeURIComponent(repo)}&collection=${encodeURIComponent(collection)}&rkey=${encodeURIComponent(rkey)}`;
+    }
+
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
+    const data = await res.json();
+
+    if (!append) container.innerHTML = "";
+
+    // Single record (rkey)
+    if (data.value) {
+      renderRecordCard({ value: data.value, uri: data.uri }, container, pds);
+      hideSeeMoreButton();
+      return;
+    }
+
+    // Multiple records
+    if (!data.records || data.records.length === 0) {
+      if (!append) container.innerHTML = "<p>No records found.</p>";
+      hideSeeMoreButton();
+      return;
+    }
+
+    data.records.forEach(record => renderRecordCard(record, container, pds));
+
+    if (data.cursor && !rkey) {
+      currentCursor = data.cursor;
+      currentParams = { pds, repo, collection, rkey };
+      showSeeMoreButton();
+    } else {
+      currentCursor = null;
+      hideSeeMoreButton();
+    }
+  } catch (err) {
+    if (!append) container.innerHTML = '';
+    container.innerHTML += `<p style="color:red;">${err.message}</p>`;
+    hideSeeMoreButton();
+  }
+
+
         container.innerHTML = "";
         data.records.forEach(record => {
           const value = record.value || {};
@@ -428,6 +467,36 @@ repoInput.addEventListener('change', () => {
 		  const atpToolsUrl = `https://atp.tools/${atUri}`;
           const skythreadAtUri = `https://blue.mackuba.eu/skythread/?q=${atUri}`;
           const skythreadInnerUri = innerUri ? `https://blue.mackuba.eu/skythread/?q=${innerUri}` : null;
+		  
+		  
+function showSeeMoreButton() {
+  let btn = document.getElementById('seeMoreBtn');
+  if (!btn) {
+    btn = document.createElement('button');
+    btn.id = 'seeMoreBtn';
+    btn.textContent = 'See More';
+    btn.className = 'see-more-btn';
+    btn.onclick = function(e) {
+      e.preventDefault();
+      fetchAndDisplayRecords(
+        currentParams.pds,
+        currentParams.repo,
+        currentParams.collection,
+        currentParams.rkey,
+        currentCursor,
+        true // append
+      );
+    };
+    document.getElementById('records').appendChild(btn);
+  } else {
+    btn.style.display = '';
+  }
+}
+function hideSeeMoreButton() {
+  const btn = document.getElementById('seeMoreBtn');
+  if (btn) btn.style.display = 'none';
+}
+		  
 		  
 		  
 function atUriToUrls(atUri) {

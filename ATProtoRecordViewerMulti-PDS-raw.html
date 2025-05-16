@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ATProto Record Viewer Multi-PDS</title>
+  <style>
+    label { display: block; margin-top: 10px; }
+    input { width: 400px; }
+    ul { list-style-type: none; padding: 0; }
+    li { margin-bottom: 1em; }
+    .centered { text-align: center; margin-top: 2em; }
+    #output { margin-top: 2em; }
+    #error { color: red; }
+    #loading { color: blue; }
+  </style>
+</head>
+<body>
+  <form id="queryForm">
+    <ul>
+      <li>
+        <label for="uri">AT URI:</label>
+        <input type="text" id="uri" name="uri" placeholder="Paste AT URI here">
+        <button type="button" id="parseUriBtn">Parse URI</button>
+      </li>
+      <li>
+        <label for="pds">PDS Host:</label>
+        <input type="text" name="pds" id="pds" placeholder="PDS Host">
+      </li>
+      <li>
+        <label for="repo">Repo (DID):</label>
+        <input type="text" name="repo" id="repo" placeholder="Repo DID">
+      </li>
+      <li>
+        <label for="collection">Collection:</label>
+        <input type="text" name="collection" id="collection" placeholder="Collection">
+      </li>
+      <li>
+        <label for="rkey">Record Key:</label>
+        <input type="text" name="rkey" id="rkey" placeholder="Record Key">
+        <button type="submit">Fetch Records</button>
+      </li>
+    </ul>
+  </form>
+
+  <div class="centered">
+    <button type="button" id="resetParamsBtn">Reset/Clear Parameters!</button>
+  </div>
+
+  <div id="loading"></div>
+  <div id="error"></div>
+  <div id="output"></div>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const DEFAULT_PDS = 'bsky.social';
+    const DEFAULT_REPO = 'corkiejp.github.io';
+    const DEFAULT_COLLECTION = 'app.bsky.feed.post';
+
+    function setDefaultIfEmpty(selector, value) {
+      const field = document.querySelector(selector);
+      if (field && !field.value) {
+        field.value = value;
+      }
+    }
+
+    // Set defaults on load
+    setDefaultIfEmpty('[name="pds"]', DEFAULT_PDS);
+    setDefaultIfEmpty('[name="repo"]', DEFAULT_REPO);
+    setDefaultIfEmpty('[name="collection"]', DEFAULT_COLLECTION);
+
+    // Helper to trigger fetch if all required fields are filled
+    function triggerFetchIfReady() {
+      const pds = document.querySelector('[name="pds"]').value.trim();
+      const repo = document.querySelector('[name="repo"]').value.trim();
+      const collection = document.querySelector('[name="collection"]').value.trim();
+      if (pds && repo && collection) {
+        fetchAndDisplayRecords(pds, repo, collection);
+      }
+    }
+
+    // Parse AT URI and fill fields
+    function parseAtUri(atUri, fetchAfter = true) {
+      if (!atUri) return;
+      const match = atUri.match(/^at:\/\/([^/]+)\/([^/]+)(?:\/([^/]+))?$/);
+      if (match) {
+        const [, repo, collection, rkey] = match;
+        document.querySelector('[name="repo"]').value = repo;
+        document.querySelector('[name="collection"]').value = collection;
+        if (rkey && document.querySelector('[name="rkey"]')) {
+          document.querySelector('[name="rkey"]').value = rkey;
+        }
+        if (repo.startsWith('did:plc:')) {
+          fetch('https://plc.directory/' + repo)
+            .then(resp => resp.json())
+            .then(data => {
+              if (data?.service?.[0]?.serviceEndpoint) {
+                document.querySelector('[name="pds"]').value = data.service[0].serviceEndpoint.replace(/^https?:\/\//, '');
+              }
+              if (fetchAfter) triggerFetchIfReady();
+            })
+            .catch(() => {
+              if (fetchAfter) triggerFetchIfReady();
+            });
+        } else {
+          if (fetchAfter) triggerFetchIfReady();
+        }
+      } else {
+        alert('Invalid AT URI format.');
+      }
+    }
+
+    // Handle URL parameters on load
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.has('uri')) {
+      const atUri = params.get('uri').trim();
+      if (atUri) {
+        parseAtUri(atUri, true);
+      }
+    } else if (params.has('did')) {
+      const did = params.get('did').trim();
+      if (did) {
+        document.querySelector('[name="repo"]').value = did;
+        if (did.startsWith('did:plc:')) {
+          fetch('https://plc.directory/' + did)
+            .then(resp => resp.json())
+            .then(data => {
+              if (data?.service?.[0]?.serviceEndpoint) {
+                document.querySelector('[name="pds"]').value = data.service[0].serviceEndpoint.replace(/^https?:\/\//, '');
+              }
+              triggerFetchIfReady();
+            })
+            .catch(() => {
+              triggerFetchIfReady();
+            });
+        } else {
+          triggerFetchIfReady();
+        }
+      }
+    } else if (params.has('repo') || params.has('collection') || params.has('pds')) {
+      if (params.has('pds')) {
+        document.querySelector('[name="pds"]').value = params.get('pds');
+      }
+      if (params.has('repo')) {
+        document.querySelector('[name="repo"]').value = params.get('repo');
+      }
+      if (params.has('collection')) {
+        document.querySelector('[name="collection"]').value = params.get('collection');
+      }
+      triggerFetchIfReady();
+    }
+
+    // Parse URI button click
+    const parseBtn = document.getElementById('parseUriBtn');
+    if (parseBtn) {
+      parseBtn.addEventListener('click', () => {
+        const atUri = document.getElementById('uri').value.trim();
+        if (!atUri) return;
+        parseAtUri(atUri, false); // User must click fetch to load
+      });
+    }
+
+    // Repo field change: auto-resolve PDS and set default collection
+    const repoInput = document.getElementById('repo');
+    repoInput.addEventListener('change', () => {
+      const repoValue = repoInput.value.trim();
+      if (repoValue.startsWith('did:plc:')) {
+        fetch('https://plc.directory/' + repoValue)
+          .then(resp => resp.json())
+          .then(data => {
+            if (data?.service?.[0]?.serviceEndpoint) {
+              document.querySelector('[name="pds"]').value = data.service[0].serviceEndpoint.replace(/^https?:\/\//, '');
+            }
+          })
+          .catch(() => {
+            // ignore errors
+          });
+      }
+      const collectionField = document.querySelector('[name="collection"]');
+      if (collectionField && !collectionField.value) {
+        collectionField.value = DEFAULT_COLLECTION;
+      }
+    });
+
+    // Reset/Clear Parameters button
+    const resetBtn = document.getElementById('resetParamsBtn');
+    resetBtn.addEventListener('click', () => {
+      window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+      document.querySelectorAll('input').forEach(input => input.value = '');
+    });
+
+    // Fetch and display logic
+    document.getElementById('queryForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const pds = document.querySelector('[name="pds"]').value.trim();
+      const repo = document.querySelector('[name="repo"]').value.trim();
+      const collection = document.querySelector('[name="collection"]').value.trim();
+      const rkey = document.querySelector('[name="rkey"]').value.trim();
+      fetchAndDisplayRecords(pds, repo, collection, rkey);
+    });
+
+    // Optionally, auto-fetch on page load if all fields are filled (already handled above)
+  });
+
+  // Your original fetchAndDisplayRecords function, adapted to accept rkey
+  async function fetchAndDisplayRecords(pds, repo, collection, rkey) {
+    const output = document.getElementById('output');
+    const error = document.getElementById('error');
+    const loading = document.getElementById('loading');
+    output.innerHTML = '';
+    error.innerHTML = '';
+    loading.innerHTML = 'Loading...';
+
+    try {
+      // Build the URL
+      let url = `https://${pds}/xrpc/com.atproto.repo.listRecords?repo=${encodeURIComponent(repo)}&collection=${encodeURIComponent(collection)}`;
+      if (rkey) {
+        url = `https://${pds}/xrpc/com.atproto.repo.getRecord?repo=${encodeURIComponent(repo)}&collection=${encodeURIComponent(collection)}&rkey=${encodeURIComponent(rkey)}`;
+      }
+
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error(`HTTP error ${resp.status}`);
+      const data = await resp.json();
+
+      loading.innerHTML = '';
+
+      output.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+    } catch (err) {
+      loading.innerHTML = '';
+      error.innerHTML = 'Error: ' + err.message;
+    }
+  }
+  </script>
+</body>
+</html>
