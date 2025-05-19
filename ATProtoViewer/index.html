@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <base href="/ATProtoViewer/">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ATProto Record Viewer</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="assets/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>ATProto Record Viewer</h1>
+  <button id="open-modal">Show Modal Example</button>
+  <div id="record-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;">
+    <div id="modal-content" style="background:#fff;margin:5vh auto;padding:2em;max-width:600px;border-radius:12px;position:relative;">
+      <button onclick="closeModal()" style="position:absolute;top:1em;right:1em;">✕</button>
+      <p>This is a modal popup!</p>
+    </div>
+  </div>
+  <script src="main.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/ATProtoViewer/service-worker.js');
+    }
+  </script>
+</body>
+</html>
