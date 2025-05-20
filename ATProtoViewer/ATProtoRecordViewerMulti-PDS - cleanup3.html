@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ATProto Record Viewer (Multi-PDS)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  
+  
+  
+  
+  <style>
+body { font-family: system-ui, sans-serif; background: #f5f6fa; margin: 0; padding: 2em 0; }
+.container { max-width: 700px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding: 2em; }
+h1 { text-align: center; color: #333; margin-top: 0; }
+
+form { display: flex; gap: 1em; flex-wrap: wrap; margin-bottom: 2em; align-items: flex-end; justify-content: center; }
+label { flex: 1 1 250px; display: flex; flex-direction: column; font-weight: 500; color: #444; }
+input[type="text"] { padding: 0.5em; border: 1px solid #bbb; border-radius: 6px; font-size: 1em; margin-top: 0.3em; }
+button {
+  padding: 0.7em 1.5em;
+  background: #0074d9;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1em;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+button:hover { background: #005fa3; }
+#records { margin-top: 2em; }
+#record-count { margin-bottom:1em; color:#333; font-size:1.05em; }
+.record-card { border: 1px solid #e1e4ea; border-radius: 8px; background: #fafbfc; padding: 1em 1.2em; margin-bottom: 1.5em; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
+.record-card code { background: #f1f1f1; padding: 0.1em 0.3em; border-radius: 4px; font-size: 0.95em; }
+.record-card ul { margin: 0.5em 0 0 1em; padding: 0; }
+.record-card li { margin-bottom: 0.2em; font-size: 0.98em; }
+.record-card a { color: #0074d9; text-decoration: none; word-break: break-all; }
+.record-card a:hover { text-decoration: underline; }
+.embed-images { display: flex; gap: 8px; margin: 0.5em 0; }
+.embed-images img { max-width: 100px; max-height: 100px; border-radius: 6px; border: 1px solid #ccc; }
+.embed-linkcard { display:flex; align-items:center; border:1px solid #ddd; border-radius:8px; padding:8px; margin:0.5em 0; background:#f7f7fa; }
+.embed-linkcard img { width:60px; height:60px; object-fit:cover; border-radius:6px; margin-right:10px; }
+.embed-linkcard-title { font-weight:bold; color:#0074d9; text-decoration:none; }
+.embed-linkcard-desc { font-size:0.96em; color:#555; }
+@media (max-width: 600px) { .container { padding: 1em; } form { flex-direction: column; gap: 0.5em; } }
+.copy-at-uri-btn { margin-left: 8px; padding: 2px 6px; font-size: 0.6em; cursor: pointer; }
+label { display: block; margin-top: 10px; }
+input { width: 400px; }
+ul { list-style-type: none; padding: 0; }
+li { margin-bottom: 1em; }
+.centered { text-align: center; }
+
+/* For card dropdowns */
+.record-links {
+  position: relative;
+  display: inline-block;
+}
+.links-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 0.5em 1em;
+  z-index: 10;
+  min-width: 200px;
+  max-width: 320px;
+  white-space: normal;
+}
+.links-toggle-btn {
+  background: none;
+  border: none;
+  font-size: 0.9em;
+  cursor: pointer;
+  padding: 0 6px;
+  color: #0074d9;
+  line-height: 1;
+  vertical-align: middle;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+.links-toggle-btn:hover {
+  background: #e6f1fa;
+}
+
+/* For instructions/form dropdowns */
+.dropdown-content {
+  display: none;
+  position: static;
+  background-color: #f9f9f9;
+  min-width: 350px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.05);
+  padding: 14px 20px;
+  z-index: 10;
+  border-radius: 6px;
+  font-size: 15px;
+  color: #333;
+}
+.dropdown-content.show {
+  display: block;
+}
+
+/* Optional: If you use .dropbtn */
+.dropbtn {
+  background-color: #3498DB;
+  color: white;
+  padding: 10px 18px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  margin-bottom: 1em;
+}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ATProto Record Viewer (Multi-PDS)</h1>
+    <!-- Instructions Dropdown -->
+    <div class="dropdown">
+      <button id="instructionsToggleBtn" class="dropbtn">Show Instructions</button>
+	<div id="instructionDropdown" class="dropdown-content">
+  <h3>How to Use ATProto Record Viewer</h3>
+  <ul>
+    <li>
+      <strong>Flexible URL Parameters:</strong>
+      <ul>
+        <li>Pass parameters to the HTML file, e.g.: <code>?pds=nameofpds&amp;repo=did:plc:exampledid&amp;collection=app.bsky.feed.post</code></li>
+        <li>Alternatively, use <code>?did=</code> with your DID string-the script will auto-detect the PDS host.</li>
+        <li>Or use <code>?uri=</code> to auto-detect and load the record by AT URI.</li>
+      </ul>
+    </li>
+    <li>
+      <strong>Smart Entry Detection:</strong>
+      <ul>
+        <li>Paste your repo/DID/URI and simply tab out or click away-no need to press return!</li>
+      </ul>
+    </li>
+    <li>
+      <strong>Where to Find Your Info:</strong>
+      <ul>
+        <li>Enable developer mode in the Bluesky app or website (long-press the version number) to get your DID and URI links.</li>
+      </ul>
+    </li>
+    <li>
+      <strong>Selective Content Display:</strong>
+      <ul>
+        <li>The viewer displays only relevant content from records for clarity.</li>
+        <li>Want to see the raw records? <a href="../ATProtoRecordViewerMulti-PDS-raw.html" target="_blank">Click here for raw data view.</a></li>
+      </ul>
+    </li>
+    <li>
+      <strong>Limitations:</strong>
+      <ul>
+        <li>Some content may not display due to static HTML page restrictions. <a href="https://bsky.app/profile/did:plc:qxlh6bohvep3taqhmtpipx4b/post/3lp5ur5cuykbz" target="_blank">Learn more in this Bluesky thread.</a></li>
+      </ul>
+    </li>
+    <li>
+      <strong>Deep Links & Utilities:</strong>
+      <ul>
+        <li>Quick access to <a href="https://atp.tools/" target="_blank">atp.Tools</a>, <a href="https://skythread.app/" target="_blank">SkyThread</a>, and <a href="https://pds.ls/" target="_blank">pdsls</a> for every record.</li>
+        <li><strong>Copy Links:</strong> Easily copy AT URI links and Bluesky permalinks for sharing or reference.</li>
+      </ul>
+    </li>
+  </ul>
+  <p style="margin-top:1em;">
+    <em>Tip: For the best experience, use the latest version of your browser.</em>
+  </p>
+</div>
+	  
+
+
+    </div>
+    <!-- Form Dropdown -->
+    <div class="dropdown">
+      <button id="formToggleBtn" class="dropbtn">Show Form</button>
+      <div id="formDropdown" class="dropdown-content" style="padding: 0; min-width: 0;">
+        <form id="queryForm" style="padding: 14px 20px;">
+          <ul>
+            <li>
+              <label for="uri">AT URI:</label>
+              <input type="text" id="uri" name="uri" placeholder="Paste AT URI here">
+              <button type="button" id="parseUriBtn">Parse URI</button>
+            </li>
+            <li>
+              <label for="pds">PDS Host:</label>
+              <input type="text" name="pds" id="pds" placeholder="PDS Host">
+            </li>
+            <li>
+              <label for="repo">Repo (DID):</label>
+              <input type="text" name="repo" id="repo" placeholder="Repo DID">
+            </li>
+            <li>
+              <label for="collection">Collection:</label>
+              <input type="text" name="collection" id="collection" placeholder="Collection">
+            </li>
+            <li>
+              <label for="rkey">Record Key:</label>
+              <input type="text" name="rkey" id="rkey" placeholder="Record Key">
+              <button type="submit">Fetch Records</button>
+            </li>
+          </ul>
+        </form>
+        <div class="centered">
+          
+			<button type="button" id="resetParamsBtn">Reset Form</button>
+			<button type="button" id="clearUrlBtn">Clear URL</button>
+		  
+        </div>
+      </div>
+    </div>
+    <div id="record-count"></div>
+    <div id="records"></div>
+  </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // --- Attach event listeners FIRST ---
+
+  // Toggle Instructions Dropdown
+  const instructionsBtn = document.getElementById('instructionsToggleBtn');
+  const instructionsDropdown = document.getElementById('instructionDropdown');
+  if (instructionsBtn && instructionsDropdown) {
+    instructionsBtn.addEventListener('click', function() {
+      instructionsDropdown.classList.toggle('show');
+      instructionsBtn.textContent = instructionsDropdown.classList.contains('show') ? "Hide Instructions" : "Show Instructions";
+    });
+  }
+
+  // Toggle Form Dropdown
+  const formBtn = document.getElementById('formToggleBtn');
+  const formDropdown = document.getElementById('formDropdown');
+  if (formBtn && formDropdown) {
+    formBtn.addEventListener('click', function() {
+      formDropdown.classList.toggle('show');
+      formBtn.textContent = formDropdown.classList.contains('show') ? "Hide Form" : "Show Form";
+    });
+  }
+
+  // Reset Form Button
+  const resetBtn = document.getElementById('resetParamsBtn');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', function() {
+      // Reset all form fields to defaults
+      setDefaultIfEmpty('[name="pds"]', DEFAULT_PDS, true);
+      setDefaultIfEmpty('[name="repo"]', DEFAULT_REPO, true);
+      setDefaultIfEmpty('[name="collection"]', DEFAULT_COLLECTION, true);
+      const uriField = document.querySelector('[name="uri"]');
+      const rkeyField = document.querySelector('[name="rkey"]');
+      if (uriField) uriField.value = '';
+      if (rkeyField) rkeyField.value = '';
+      // Optionally clear records/results
+      document.getElementById('records').innerHTML = '';
+      document.getElementById('record-count').textContent = '';
+    });
+  }
+
+  // Clear URL Button (reloads page with clean URL)
+  const clearUrlBtn = document.getElementById('clearUrlBtn');
+  if (clearUrlBtn) {
+    clearUrlBtn.addEventListener('click', function() {
+      window.location.href = window.location.pathname + window.location.hash;
+    });
+  }
+
+  // --- Default values ---
+  const DEFAULT_PDS = 'bsky.social';
+  const DEFAULT_REPO = 'corkiejp.github.io';
+  const DEFAULT_COLLECTION = 'app.bsky.feed.post';
+
+  function setDefaultIfEmpty(selector, value, force = false) {
+    const field = document.querySelector(selector);
+    if (field && (!field.value || force)) {
+      field.value = value;
+    }
+  }
+  // Set defaults on first load
+  setDefaultIfEmpty('[name="pds"]', DEFAULT_PDS);
+  setDefaultIfEmpty('[name="repo"]', DEFAULT_REPO);
+  setDefaultIfEmpty('[name="collection"]', DEFAULT_COLLECTION);
+
+  // --- Show/hide form on page load based on URL params ---
+  const params = new URLSearchParams(window.location.search);
+  const hasParams = ["repo", "collection", "pds", "uri", "did"].some(key => params.has(key));
+  if (formDropdown && formBtn) {
+    if (hasParams) {
+      formDropdown.classList.remove("show");
+      formBtn.textContent = "Show Form";
+    } else {
+      formDropdown.classList.add("show");
+      formBtn.textContent = "Hide Form";
+    }
+  }
+
+  // --- Helper to trigger fetch if all fields are filled ---
+  function triggerFetchIfReady() {
+    const pds = document.querySelector('[name="pds"]').value.trim();
+    const repo = document.querySelector('[name="repo"]').value.trim();
+    const collection = document.querySelector('[name="collection"]').value.trim();
+    if (pds && repo && collection) {
+      fetchAndDisplayRecords(pds, repo, collection);
+    }
+  }
+
+  // --- Parse AT URI function ---
+  function parseAtUri(atUri, fetchAfter = true) {
+    if (!atUri) return;
+    const match = atUri.match(/^at:\/\/([^/]+)\/([^/]+)(?:\/([^/]+))?$/);
+    if (match) {
+      const [, repo, collection, rkey] = match;
+      document.querySelector('[name="repo"]').value = repo;
+      document.querySelector('[name="collection"]').value = collection;
+      if (rkey && document.querySelector('[name="rkey"]')) {
+        document.querySelector('[name="rkey"]').value = rkey;
+      }
+      if (repo.startsWith('did:plc:')) {
+        fetch('https://plc.directory/' + repo)
+          .then(resp => resp.json())
+          .then(data => {
+            if (data && data.service && data.service[0] && data.service[0].serviceEndpoint) {
+              document.querySelector('[name="pds"]').value = data.service[0].serviceEndpoint.replace(/^https?:\/\//, '');
+            }
+            if (fetchAfter) triggerFetchIfReady();
+          })
+          .catch(() => {
+            if (fetchAfter) triggerFetchIfReady();
+          });
+      } else {
+        if (fetchAfter) triggerFetchIfReady();
+      }
+    } else {
+      alert('Invalid AT URI format.');
+    }
+  }
+
+  // --- Repo input change: auto-fill PDS if PLC DID ---
+  const repoInput = document.getElementById('repo');
+  if (repoInput) {
+    repoInput.addEventListener('change', () => {
+      const repoValue = repoInput.value.trim();
+      if (repoValue.startsWith('did:plc:')) {
+        fetch('https://plc.directory/' + repoValue)
+          .then(resp => {
+            if (!resp.ok) throw new Error('DID not found in PLC directory');
+            return resp.json();
+          })
+          .then(data => {
+            if (data?.service?.[0]?.serviceEndpoint) {
+              document.querySelector('[name="pds"]').value =
+                data.service[0].serviceEndpoint.replace(/^https?:\/\//, '');
+            }
+          })
+          .catch(() => {
+            document.querySelector('[name="pds"]').value = '';
+          });
+      }
+      const collectionField = document.querySelector('[name="collection"]');
+      if (collectionField && !collectionField.value) {
+        collectionField.value = DEFAULT_COLLECTION;
+      }
+    });
+  }
+
+  // --- Parse AT URI button ---
+  const parseUriBtn = document.getElementById('parseUriBtn');
+  if (parseUriBtn) {
+    parseUriBtn.addEventListener('click', function() {
+      const atUri = document.getElementById('uri').value.trim();
+      if (!atUri) return;
+      parseAtUri(atUri, false); // Don't auto-fetch, let user submit
+    });
+  }
+
+  // --- Form handler ---
+  const queryForm = document.getElementById('queryForm');
+  if (queryForm) {
+    queryForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const pds = document.getElementById('pds').value.trim();
+      const repo = document.getElementById('repo').value.trim();
+      const collection = document.getElementById('collection').value.trim();
+      fetchAndDisplayRecords(pds, repo, collection);
+    });
+  }
+
+  // --- Parameter handling with alreadyFetched flag ---
+  let alreadyFetched = false;
+
+  // 1. Try URI parameter first
+  if (params.has('uri')) {
+    const atUri = params.get('uri').trim();
+    if (atUri) {
+      parseAtUri(atUri, true);
+      alreadyFetched = true;
+    }
+  }
+
+  // 2. If no URI, try DID parameter
+  if (!alreadyFetched && params.has('did')) {
+    const did = params.get('did').trim();
+    if (did) {
+      document.querySelector('[name="repo"]').value = did;
+      if (did.startsWith('did:plc:')) {
+        fetch('https://plc.directory/' + did)
+          .then(resp => resp.json())
+          .then(data => {
+            if (data?.service?.[0]?.serviceEndpoint) {
+              document.querySelector('[name="pds"]').value = data.service[0].serviceEndpoint.replace(/^https?:\/\//, '');
+            }
+            triggerFetchIfReady();
+          })
+          .catch(() => triggerFetchIfReady());
+      } else {
+        triggerFetchIfReady();
+      }
+      alreadyFetched = true;
+    }
+  }
+
+  // 3. Check for individual parameters (repo, collection, pds)
+  if (!alreadyFetched && (params.has('repo') || params.has('collection') || params.has('pds'))) {
+    if (params.has('pds')) {
+      document.querySelector('[name="pds"]').value = params.get('pds');
+    }
+    if (params.has('repo')) {
+      document.querySelector('[name="repo"]').value = params.get('repo');
+    }
+    if (params.has('collection')) {
+      document.querySelector('[name="collection"]').value = params.get('collection');
+    }
+    triggerFetchIfReady();
+    alreadyFetched = true;
+  }
+  
+  async function fetchHandleForDid(did) {
+  // Only fetch if it's a PLC DID
+  if (!did.startsWith('did:plc:')) return null;
+  try {
+    const resp = await fetch('https://plc.directory/' + did);
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    return data.handle || null;
+  } catch {
+    return null;
+  }
+}
+
+
+  // --- Helper functions for record rendering ---
+  function extractUrls(text) {
+    return text && typeof text === 'string'
+      ? text.match(/https?:\/\/[^\s]+/g) || []
+      : [];
+  }
+  function formatDateTime(isoString) {
+    if (!isoString) return '';
+    const date = new Date(isoString);
+    return date.toLocaleString();
+  }
+  function renderEmbed(value) {
+    let embedHtml = '';
+    if (!value.embed) return embedHtml;
+    if (Array.isArray(value.embed.images)) {
+      embedHtml += `<div class="embed-images">`;
+      value.embed.images.forEach(img => {
+        const thumb = img.thumb || img.fullsize;
+        if (thumb) {
+          embedHtml += `<a href="${img.fullsize || thumb}" target="_blank" rel="noopener">
+                          <img src="${thumb}" alt="image">
+                        </a>`;
+        }
+      });
+      embedHtml += `</div>`;
+    }
+    if (value.embed.external) {
+      const ext = value.embed.external;
+      const hasValidThumb = typeof ext.thumb === 'string' && /^https?:\/\//.test(ext.thumb);
+      embedHtml += `
+        <div class="embed-linkcard">
+          ${hasValidThumb ? `<img src="${ext.thumb}" alt="link thumbnail" onerror="this.style.display='none';">` : ''}
+          <div style="flex:1;">
+            <a href="${ext.uri}" target="_blank" rel="noopener" class="embed-linkcard-title">${ext.title || ext.uri}</a>
+            <div class="embed-linkcard-desc">${ext.description || ''}</div>
+          </div>
+        </div>
+      `;
+    }
+    return embedHtml;
+  }
+  function atUriToUrls(atUri) {
+    const regex = /^at:\/\/([^/]+)\/([^/]+)(?:\/([^/]+))?$/;
+    const match = atUri.match(regex);
+    if (!match) return null;
+    const did = match[1];
+    const collection = match[2];
+    const rkey = match[3];
+    const bskyUrl = (collection === 'app.bsky.feed.post')
+      ? `https://bsky.app/profile/${did}/post/${rkey}`
+      : null;
+    const clearskyHistoryUrl = `https://clearsky.app/${did}/history`;
+    return {
+      did,
+      collection,
+      rkey,
+      bskyUrl,
+      clearskyHistoryUrl
+    };
+  }
+  
+  // Start of clean up of functions 
+  
+  
+  function toggleLinksMenu(btn) {
+  const menu = btn.nextElementSibling;
+  document.querySelectorAll('.links-menu').forEach(m => {
+    if (m !== menu) m.style.display = 'none';
+  });
+  menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+}
+
+  
+function createRecordCard(record, collection, pds) {
+  const value = record.value || {};
+  const text = value.text || '';
+  const atUri = record.uri;
+  const innerUri = value.uri;
+  const urlField = value.url;
+  const name = value.name || value.title || urlField || innerUri || '';
+  const textUrls = extractUrls(text);
+  const createdAt = value.createdAt ? formatDateTime(value.createdAt) : '';
+  const postview = `./BlueskyPostViewer.html?uri=${atUri}&pds=${pds}`;
+  const pdslsdevUrl = `https://pdsls.dev/${atUri}`;
+  const atpToolsUrl = `https://atp.tools/${atUri}`;
+  const skythreadAtUri = `https://blue.mackuba.eu/skythread/?q=${atUri}`;
+  const skythreadInnerUri = innerUri ? `https://blue.mackuba.eu/skythread/?q=${innerUri}` : null;
+  const skyviewUri = "https://skyview.social/?url=" + encodeURIComponent(atUri);
+  const { bskyUrl, clearskyHistoryUrl } = atUriToUrls(atUri) || {};
+  const embedHtml = renderEmbed(value);
+
+  // Build dropdown links as an array of HTML strings
+  let links = [];
+  if (collection === "app.bsky.feed.post") {
+    links.push(`
+      <a href="${bskyUrl}" target="_blank" rel="noopener" class="bsky-link">bsky.app</a>
+    `);
+    links.push(`<a href="${postview}" target="_blank" rel="noopener">Post viewer</a>`);
+    links.push(`<a href="${clearskyHistoryUrl}" target="_blank" rel="noopener">Clearsky</a>`);
+    links.push(`<a href="${skythreadAtUri}" target="_blank" rel="noopener">SkyThread</a>`);
+    links.push(`<a href="${skyviewUri}" target="_blank" rel="noopener">Skyview</a>`);
+  }
+  links.push(`<a href="${atpToolsUrl}" target="_blank" rel="noopener">atp.tools</a>`);
+  links.push(`<a href="${pdslsdevUrl}" target="_blank" rel="noopener">pdsls.dev</a>`);
+  if (innerUri && skythreadInnerUri) {
+    links.push(`<a href="${skythreadInnerUri}" target="_blank" rel="noopener">SkyThread (value URI)</a>`);
+  }
+
+  // Build the card
+  const card = document.createElement('div');
+  card.className = 'record-card';
+  if (bskyUrl) {
+  card.dataset.bskyUrl = bskyUrl;
+}
+  card.innerHTML = `
+    <div><strong>Text:</strong> ${text ? text : '<em>No text</em>'}</div>
+    ${embedHtml}
+    ${createdAt ? `<div><strong>Created:</strong> ${createdAt}</div>` : ''}
+    <div>
+      <strong>Record AT URI:</strong>
+      <code class="at-uri">${atUri}</code>
+      <button class="copy-at-uri-btn" type="button" title="Copy AT URI">Copy</button>
+      <span class="copy-feedback" style="display:none; color:green; margin-left:8px;">Copied!</span>
+    </div>
+    ${innerUri ? `
+      <div>
+        <strong>Record Value URI:</strong>
+        <a href="${innerUri}" target="_blank" rel="noopener">${innerUri}</a>
+      </div>
+    ` : ''}
+    ${urlField ? `<div><strong>URL:</strong> <a href="${urlField}" target="_blank" rel="noopener">${name}</a></div>` : ''}
+    ${textUrls.length > 0 ? `
+      <div><strong>Links found in text:</strong>
+        <ul>
+          ${textUrls.map(turl => `<li><a href="${turl}" target="_blank" rel="noopener">${turl}</a></li>`).join('')}
+        </ul>
+      </div>
+    ` : ''}
+
+	<div class="record-links">
+  ${collection === "app.bsky.feed.post" && bskyUrl ? `
+  Bsky Permalink:
+    <button type="button" class="copy-bsky-link-btn" title="Copy bsky.app link" style="background:none;border:none;vertical-align:middle;cursor:pointer;padding:0;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" style="vertical-align:middle;">
+        <rect x="9" y="9" width="13" height="13" rx="2" fill="#0074d9" fill-opacity="0.15" stroke="#0074d9" stroke-width="2"/>
+        <rect x="3" y="3" width="13" height="13" rx="2" stroke="#0074d9" stroke-width="2"/>
+      </svg>
+    </button>
+    <span class="copy-bsky-feedback" style="display:none;color:green;margin-left:4px;">Copied!</span>
+  ` : ''}
+  <button class="links-toggle-btn" type="button">⋯ More</button>
+  <div class="links-menu" style="display:none;">
+    <ul class="links-list">
+      ${links.map(link => `<li>${link}</li>`).join('')}
+    </ul>
+  </div>
+</div>
+	
+
+
+	
+	
+	
+  `;
+  return card;
+}
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  // --- Fetch and display records ---
+  async function fetchAndDisplayRecords(pds, repo, collection) {
+    const url = `https://${pds}/xrpc/com.atproto.repo.listRecords?repo=${encodeURIComponent(repo)}&collection=${encodeURIComponent(collection)}&limit=100`;
+    const container = document.getElementById('records');
+    const countDiv = document.getElementById('record-count');
+    container.innerHTML = "<em>Loading...</em>";
+    countDiv.textContent = "";
+	
+	// --- Fetch handle for display ---
+  let handle = null;
+  if (repo.startsWith('did:plc:')) {
+    handle = await fetchHandleForDid(repo);
+  }
+  
+	
+	
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
+      const data = await res.json();
+      const records = data.records || [];
+      container.innerHTML = "";
+      if (!records.length) {
+        container.innerHTML = "<p>No records found.</p>";
+        countDiv.textContent = "Showing 0 records.";
+        return;
+      }
+
+records.forEach(record => {
+  const card = createRecordCard(record, collection, pds);
+  container.appendChild(card);
+
+
+
+
+		
+
+
+		
+		
+		
+		
+        // Copy-to-clipboard logic
+        const copyBtn = card.querySelector('.copy-at-uri-btn');
+        const atUriElem = card.querySelector('.at-uri');
+        const feedback = card.querySelector('.copy-feedback');
+        if (copyBtn && atUriElem && feedback) {
+          copyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(atUriElem.textContent).then(() => {
+              feedback.style.display = 'inline';
+              setTimeout(() => { feedback.style.display = 'none'; }, 1200);
+            });
+          });
+        }
+      });
+      countDiv.textContent = handle
+  ? `Showing ${records.length} records from @${handle}`
+  : `Showing ${records.length} records from ${repo}`;
+    } catch (err) {
+      container.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
+	  
+	  countDiv.textContent = handle
+  ? `Showing 0 records from @${handle}`
+  : `Showing 0 records from ${repo}`;
+
+    }
+  }
+
+  // --- Auto-fetch on page load if nothing handled above ---
+  if (!alreadyFetched) {
+    fetchAndDisplayRecords(DEFAULT_PDS, DEFAULT_REPO, DEFAULT_COLLECTION);
+  }
+});
+
+
+
+document.addEventListener('click', function(e) {
+  // Copy AT URI
+  if (e.target.classList.contains('copy-at-uri-btn')) {
+    const card = e.target.closest('.record-card');
+    const atUri = card.querySelector('.at-uri').textContent;
+    navigator.clipboard.writeText(atUri);
+    const feedback = e.target.nextElementSibling;
+    feedback.style.display = 'inline';
+    setTimeout(() => feedback.style.display = 'none', 1200);
+  }
+  
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('click', function(e) {
+    // Copy bsky.app link (outside dropdown)
+    if (e.target.classList.contains('copy-bsky-link-btn')) {
+      console.log("Copy button clicked!");
+
+      const card = e.target.closest('.record-card');
+      if (!card) {
+        console.log("No .record-card found for this button.");
+        return;
+      }
+      console.log("Found .record-card:", card);
+
+      const bskyUrl = card.dataset.bskyUrl;
+      if (!bskyUrl) {
+        console.log("No bskyUrl found in dataset for this card.");
+        return;
+      }
+      console.log("bskyUrl to copy:", bskyUrl);
+
+      navigator.clipboard.writeText(bskyUrl)
+        .then(() => {
+          console.log("Copied to clipboard successfully!");
+          const feedback = e.target.nextElementSibling;
+          if (feedback) {
+            feedback.style.display = 'inline';
+            setTimeout(() => feedback.style.display = 'none', 1200);
+          }
+        })
+        .catch(err => {
+          console.error("Clipboard write failed:", err);
+        });
+    }
+    // ...other handlers...
+  });
+});
+
+
+
+  
+  
+  // Copy bsky.app link
+  // if (e.target.classList.contains('copy-bsky-link-btn')) {
+  //  const menu = e.target.closest('.links-menu') || e.target.closest('.record-card');
+  //  const bskyLink = menu.querySelector('a.bsky-link');
+  //  const feedback = e.target.nextElementSibling;
+  //  if (bskyLink) {
+  //    navigator.clipboard.writeText(bskyLink.href);
+  //    feedback.style.display = 'inline';
+  //    setTimeout(() => feedback.style.display = 'none', 1200);
+  //  }
+  // }
+});
+
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('links-toggle-btn')) {
+    const btn = e.target;
+    const menu = btn.nextElementSibling;
+    document.querySelectorAll('.links-menu').forEach(m => {
+      if (m !== menu) m.style.display = 'none';
+    });
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+  }
+});
+
+
+</script>
+
+  		 <footer>
+            <p align=center><small><b>Disclaimer:-</b> This page was created with the assistance of AI Powered search engine!<br>
+				<a href="https://www.perplexity.ai/" target='_blank'>https://www.perplexity.ai/</a><br>
+				If you use it, your not interacting with the AI.</small></p>
+        </footer>
+
+</body>
+</html>
