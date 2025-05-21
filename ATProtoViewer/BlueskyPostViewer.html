@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ATProto Post Viewer with SkyView Thread (Responsive)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f5f6fa;
+      margin: 0;
+      padding: 2em 0;
+    }
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      padding: 2em;
+      box-sizing: border-box;
+    }
+    h1 {
+      text-align: center;
+    }
+    .record-card {
+      border: 1px solid #e1e4ea;
+      border-radius: 8px;
+      background: #fafbfc;
+      padding: 1em 1.2em;
+      margin-bottom: 1.5em;
+    }
+    .embed-images {
+      display: flex;
+      gap: 8px;
+      margin: 0.5em 0;
+      flex-wrap: wrap;
+    }
+    .embed-images img {
+      max-width: 120px;
+      max-height: 120px;
+      width: auto;
+      height: auto;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .image-placeholder {
+      display: inline-block;
+      width: 120px;
+      height: 120px;
+      background: #eee;
+      color: #aaa;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      text-align: center;
+      line-height: 120px;
+      font-size: 0.9em;
+      margin-right: 8px;
+    }
+    .embed-linkcard {
+      display: flex;
+      align-items: center;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 8px;
+      margin: 0.5em 0;
+      background: #f7f7fa;
+    }
+    .embed-linkcard img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-right: 10px;
+    }
+    .embed-linkcard-title {
+      font-weight: bold;
+      color: #0074d9;
+      text-decoration: none;
+    }
+    .embed-linkcard-desc {
+      font-size: 0.96em;
+      color: #555;
+    }
+    .iframe-container {
+      margin-top: 2em;
+    }
+    .skyview-link {
+      font-weight: bold;
+      color: #0074d9;
+      text-decoration: underline;
+    }
+    .skyview-iframe {
+      border: none;
+      outline: none;
+      width: 700px;
+      height: 800px;
+      border-radius: 8px;
+      max-width: 100%;
+      box-sizing: border-box;
+      display: block;
+      margin: 0 auto;
+    }
+    @media (max-width: 800px) {
+      .container {
+        padding: 1em;
+        border-radius: 0;
+      }
+      .skyview-iframe {
+        width: 100vw;
+        height: 80vw;
+        min-height: 400px;
+        max-height: 90vh;
+      }
+    }
+    @media (max-width: 500px) {
+      .skyview-iframe {
+        height: 350px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ATProto Post Viewer <br>(with SkyView Thread)</h1>
+	<p align=center>Accepts uri (AT URI), pds (PDS host), and cdn (CDN host) as URL parameters.
+	<br><br>Due to limitations of Github Pages,<br> I can't access the Bluesky api to display posts, like I want to here.<br><br>
+	But have found away to display some content when when public and accessible.</p>
+    <div id="record"></div>
+	
+	  <div id="bluesky-embed-container" style="display: flex; justify-content: center; margin: 2em 0;"></div>
+
+  <script async src="https://embed.bsky.app/static/embed.js" charset="utf-8"></script>
+  <script>
+    function getParam(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const atUri = getParam('uri');
+      if (atUri) {
+        const container = document.getElementById('bluesky-embed-container');
+        container.innerHTML = `<blockquote class="bluesky-embed" data-bluesky-uri="${atUri}"></blockquote>`;
+        if (window.BlueskyEmbed && window.BlueskyEmbed.init) {
+          window.BlueskyEmbed.init();
+        }
+      } else {
+        document.getElementById('bluesky-embed-container').innerText = 'No URI provided.';
+      }
+    });
+  </script>
+	
+    <div class="iframe-container">
+      <h2>SkyView Thread View</h2>
+      <iframe id="skyview-iframe"
+        src=""
+        class="skyview-iframe"
+        allowfullscreen
+        loading="lazy"
+        title="SkyView Thread"
+      ></iframe>
+      <div style="margin-top:1em; text-align:center;">
+        <a id="skyview-thread-link" href="#" target="_blank" rel="noopener" class="skyview-link">
+          View full thread on SkyView
+        </a>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Utility to parse the AT URI
+    function parseAtUri(uri) {
+      uri = uri.trim();
+      const match = uri.match(/^at:\/\/([^\/]+)\/([^\/]+)\/([^\/]+)$/);
+      if (!match) return null;
+      return { repo: match[1], collection: match[2], rkey: match[3] };
+    }
+
+    // Format ISO date/time for display
+    function formatDateTime(isoString) {
+      if (!isoString) return '';
+      const date = new Date(isoString);
+      return date.toLocaleString();
+    }
+
+    // Render images and link cards
+    function renderEmbed(embed, atUri, cdnBase) {
+	console.log("DEBUG EMBED", value.embed);
+      if (!embed) return '';
+      let html = '';
+      if (Array.isArray(embed.images)) {
+        const atUriParts = atUri.replace(/^at:\/\//, '').split('/');
+        const atUriCdn = atUriParts.slice(0, 3).join('/');
+        html += '<div class="embed-images">';
+        embed.images.forEach((img, idx) => {
+          const imgUrl = `${cdnBase}/img/feed_fullsize/plain/${atUriCdn}/${idx}`;
+          html += `<a href="${imgUrl}" target="_blank" rel="noopener">
+                    <img src="${imgUrl}" alt="${img.alt || 'image'}"
+                      onerror="this.style.display='none';this.parentNode.insertAdjacentHTML('beforeend', '<span class=&quot;image-placeholder&quot;>Image unavailable</span>');" />
+                  </a>`;
+        });
+        html += '</div>';
+      }
+      if (embed.external) {
+        const ext = embed.external;
+        const hasThumb = typeof ext.thumb === 'string' && /^https?:\/\//.test(ext.thumb);
+        html += `
+          <div class="embed-linkcard">
+            ${hasThumb ? `<img src="${ext.thumb}" alt="link thumbnail" onerror="this.style.display='none';" />` : ''}
+            <div style="flex:1;">
+              <a href="${ext.uri}" target="_blank" rel="noopener" class="embed-linkcard-title">${ext.title || ext.uri}</a>
+              <div class="embed-linkcard-desc">${ext.description || ''}</div>
+            </div>
+          </div>
+        `;
+      }
+      return html;
+    }
+	
+function renderEmbed(embed, did, cdnBase) {
+  if (!embed) return '';
+
+  // External link card
+  if (embed.$type === 'app.bsky.embed.external' && embed.external) {
+    const ext = embed.external;
+    let thumbHtml = '';
+    if (ext.thumb?.ref?.$link) {
+      const blob = ext.thumb.ref.$link;
+      const mimeType = ext.thumb.mimeType?.split('/')[1] || 'jpeg';
+      const thumbUrl = `${cdnBase}/img/feed_thumbnail/plain/${did}/${blob}@${mimeType}`;
+      thumbHtml = `<img src="${thumbUrl}" alt="Embed thumbnail"
+                     style="max-width:96px;max-height:96px;border-radius:8px;margin-right:8px;"
+                     onerror="this.style.display='none';">`;
+    }
+    return `
+      <div class="embed-card" style="margin-top:12px;border:1px solid #eee;padding:12px;border-radius:8px;">
+        <div style="display:flex;gap:12px;">
+          ${thumbHtml}
+          <div style="flex:1;">
+            <a href="${ext.uri}" target="_blank" rel="noopener"
+               style="font-weight:500;text-decoration:none;color:#0074d9;">
+              ${ext.title || ext.uri}
+            </a>
+            ${ext.description ? `<div style="margin-top:4px;color:#666;font-size:0.9em;">${ext.description}</div>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Image embeds
+  if (embed.$type === 'app.bsky.embed.images' && Array.isArray(embed.images)) {
+    return `
+      <div class="embed-images" style="margin-top:12px;display:flex;gap:8px;">
+        ${embed.images.map(img => {
+          if (img.image?.ref?.$link) {
+            const blob = img.image.ref.$link;
+            const mimeType = img.image.mimeType?.split('/')[1] || 'jpeg';
+            const imgUrl = `${cdnBase}/img/feed_fullsize/plain/${did}/${blob}@${mimeType}`;
+            return `<img src="${imgUrl}" alt="${img.alt || ''}" 
+                        style="max-width:180px;max-height:180px;border-radius:8px;"
+                        onerror="this.style.display='none';">`;
+          }
+          return '';
+        }).join('')}
+      </div>
+    `;
+  }
+
+  // Record embeds (simple, shows text and a link)
+  if (embed.$type === 'app.bsky.embed.record' && embed.record?.value) {
+    const rec = embed.record;
+    const recText = rec.value.text || '';
+    const recUri = rec.uri || '';
+    return `
+      <div class="embed-record" style="margin-top:12px;border:1px solid #eee;padding:12px;border-radius:8px;background:#f7f7fa;">
+        <div style="font-size:90%;color:#555;">
+          <span style="font-weight:bold;">Embedded Record:</span>
+          ${recText ? `<div style="margin-top:4px;">${recText}</div>` : ''}
+          ${recUri ? `<div style="margin-top:4px;"><a href="?uri=${encodeURIComponent(recUri)}" target="_blank" rel="noopener">View record</a></div>` : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  // Record with media (shows record and media)
+  if (embed.$type === 'app.bsky.embed.recordWithMedia') {
+    const recHtml = embed.record ? renderEmbed({ $type: 'app.bsky.embed.record', record: embed.record }, did, cdnBase) : '';
+    const mediaHtml = embed.media ? renderEmbed(embed.media, did, cdnBase) : '';
+    return `
+      <div class="embed-recordwithmedia" style="margin-top:12px;">
+        ${recHtml}
+        ${mediaHtml}
+      </div>
+    `;
+  }
+
+  return '';
+}
+	
+	
+	
+function renderEmbed(embed, did) {
+  if (!embed) return '';
+  // External embed
+  if (embed.$type === 'app.bsky.embed.external' && embed.external) {
+    const ext = embed.external;
+    let thumbHtml = '';
+    if (ext.thumb && ext.thumb.ref && ext.thumb.ref.$link) {
+      // Try to construct a CDN URL for the blob
+      const blob = ext.thumb.ref.$link;
+      const mime = ext.thumb.mimeType || 'jpeg';
+      // This pattern works for public blobs, may fail for private ones
+      const thumbUrl = `https://cdn.bsky.app/img/feed_thumbnail/plain/${did}/${blob}@${mime.split('/')[1]}`;
+      thumbHtml = `<img src="${thumbUrl}" alt="thumbnail" style="max-width:96px;max-height:96px;border-radius:8px;margin-right:8px;" onerror="this.style.display='none';">`;
+    }
+    return `
+      <div class="embed-linkcard" style="display:flex;gap:8px;align-items:flex-start;margin-top:8px;">
+        ${thumbHtml}
+        <div style="flex:1;">
+          <a href="${ext.uri}" target="_blank" rel="noopener" style="font-weight:bold;">${ext.title || ext.uri}</a>
+          ${ext.description ? `<div style="font-size:90%;color:#444;">${ext.description}</div>` : ''}
+        </div>
+      </div>
+    `;
+  }
+  // Add more embed types here if you want (images, records, etc.)
+  return '';
+}
+
+
+// Add this renderEmbed function ABOVE fetchAndDisplayPost
+function renderEmbed(embed, did, cdnBase) {
+  if (!embed) return '';
+  if (embed.$type === 'app.bsky.embed.external' && embed.external) {
+    const ext = embed.external;
+    let thumbHtml = '';
+    if (ext.thumb?.ref?.$link) {
+      const blob = ext.thumb.ref.$link;
+      const mimeType = ext.thumb.mimeType?.split('/')[1] || 'jpeg';
+      const thumbUrl = `${cdnBase}/img/feed_thumbnail/plain/${did}/${blob}@${mimeType}`;
+      thumbHtml = `<img src="${thumbUrl}" alt="Embed thumbnail" 
+                     style="max-width:96px;max-height:96px;border-radius:8px;margin-right:8px;"
+                     onerror="this.style.display='none';">`;
+    }
+    return `
+      <div class="embed-card" style="margin-top:12px;border:1px solid #eee;padding:12px;border-radius:8px;">
+        <div style="display:flex;gap:12px;">
+          ${thumbHtml}
+          <div style="flex:1;">
+            <a href="${ext.uri}" target="_blank" rel="noopener" 
+               style="font-weight:500;text-decoration:none;color:#0074d9;">
+              ${ext.title || ext.uri}
+            </a>
+            ${ext.description ? `<div style="margin-top:4px;color:#666;font-size:0.9em;">${ext.description}</div>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  return ''; // Add other embed types (images, records) here if needed
+}
+
+	
+// Modified fetchAndDisplayPost function
+async function fetchAndDisplayPost(atUri, pdsHost, cdnBase) {
+  const container = document.getElementById('record');
+  container.innerHTML = '<em>Loading...</em>';
+
+  const parsed = parseAtUri(atUri);
+  if (!parsed) {
+    container.innerHTML = '<p style="color:red;">Invalid AT URI format.</p>';
+    return;
+  }
+
+  const { repo, collection, rkey } = parsed;
+  try {
+    const url = `https://${pdsHost}/xrpc/com.atproto.repo.getRecord?repo=${encodeURIComponent(repo)}&collection=${encodeURIComponent(collection)}&rkey=${encodeURIComponent(rkey)}`;
+    const res = await fetch(url);
+    
+    if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
+    
+    const data = await res.json();
+    const value = data.value || {};
+    
+    const text = value.text || '';
+    const createdAt = value.createdAt ? formatDateTime(value.createdAt) : '';
+    const embedHtml = renderEmbed(value.embed, repo, cdnBase); // Use repo (DID) here
+    
+    const card = document.createElement('div');
+    card.className = 'record-card';
+    card.innerHTML = `
+      ${text ? `<div style="margin-bottom:1rem;"><strong>Text:</strong> ${text}</div>` : ''}
+      ${embedHtml}
+      ${createdAt ? `<div style="margin-top:1rem;"><strong>Created:</strong> ${createdAt}</div>` : ''}
+      <div style="margin-top:1rem;">
+        <strong>Record AT URI:</strong> 
+        <code style="word-break:break-word;">${atUri}</code>
+      </div>
+    `;
+
+    container.innerHTML = '';
+    container.appendChild(card);
+
+  } catch (err) {
+    container.innerHTML = `<p style="color:red;">${err.message}</p>`;
+  }
+}
+	
+	
+	
+
+    // Get URL parameter
+    function getParam(name, fallback) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name) || fallback;
+    }
+
+    // Set SkyView iframe and thread link
+    function setSkyViewEmbed(atUri) {
+      if (!atUri) return;
+      // Thread view (not embed.html)
+      const threadUrl = 'https://skyview.social/?url=' + encodeURIComponent(atUri);
+      document.getElementById('skyview-iframe').src = threadUrl + '&theme=light';
+      document.getElementById('skyview-thread-link').href = threadUrl;
+    }
+
+    // On page load
+    window.addEventListener('DOMContentLoaded', () => {
+      const atUri = getParam('uri');
+      const pdsHost = getParam('pds', 'bsky.social');
+      const cdnBase = getParam('cdn', 'https://cdn.bsky.app');
+      if (atUri) {
+        fetchAndDisplayPost(atUri, pdsHost, cdnBase);
+        setSkyViewEmbed(atUri);
+      } else {
+        document.getElementById('record').innerHTML = '<p>Please provide an AT URI as the "uri" URL parameter.</p>';
+      }
+    });
+  </script>
+</body>
+</html>
