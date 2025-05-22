@@ -577,7 +577,6 @@ function getCdnImageUrl(blob, mimeType, did, cdnBase, type = 'feed_fullsize') {
 
 
 function renderBlueskyMedia(value, did, cdnBase) {
-  console.log("DEBUG EMBED", value.embed);
   let mediaHtml = '';
 
   // 1. Photo/image embeds
@@ -637,7 +636,6 @@ function renderBlueskyMedia(value, did, cdnBase) {
 }
 
  function renderEmbed(embed, atUri, cdnBase) {
-  console.log("DEBUG EMBED", embed);
   if (!embed) return '';
   let html = '';
   if (Array.isArray(embed.images)) {
@@ -767,7 +765,6 @@ function renderEmbed(embed, did, cdnBase) {
 
   
 function createRecordCard(record, collection, pds) {
-console.log("DEBUG record", record);
   const value = record.value || {};
   const text = value.text || '';
   const atUri = record.uri;
