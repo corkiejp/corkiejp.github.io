@@ -2,18 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>ATProto Record Viewer (Multi-PDS)</title>
+   <title>ATProto Record Viewer (Multi-PDS)</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0074d9">
   <link rel="icon" href="assets/icon-192.png">
-  <link rel="stylesheet" href="styles.css">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   
   
   
-
-
-
+  
   
   <style>
 body { font-family: system-ui, sans-serif; background: #f5f6fa; margin: 0; padding: 2em 0; }
@@ -580,6 +577,7 @@ function getCdnImageUrl(blob, mimeType, did, cdnBase, type = 'feed_fullsize') {
 
 
 function renderBlueskyMedia(value, did, cdnBase) {
+  console.log("DEBUG EMBED", value.embed);
   let mediaHtml = '';
 
   // 1. Photo/image embeds
@@ -639,6 +637,7 @@ function renderBlueskyMedia(value, did, cdnBase) {
 }
 
  function renderEmbed(embed, atUri, cdnBase) {
+  console.log("DEBUG EMBED", embed);
   if (!embed) return '';
   let html = '';
   if (Array.isArray(embed.images)) {
@@ -768,6 +767,7 @@ function renderEmbed(embed, did, cdnBase) {
 
   
 function createRecordCard(record, collection, pds) {
+console.log("DEBUG record", record);
   const value = record.value || {};
   const text = value.text || '';
   const atUri = record.uri;
@@ -965,10 +965,12 @@ document.addEventListener('click', function(e) {
   const copyBtn = e.target.closest('.copy-bsky-link-btn');
   if (copyBtn) {
     // Console log for debugging
+    console.log("Bsky copy button clicked!", copyBtn);
     const card = copyBtn.closest('.record-card');
     if (!card) return;
     const bskyUrl = card.dataset.bskyUrl;
-    if (!bskyUrl) {);
+    if (!bskyUrl) {
+      console.log("No bskyUrl found in dataset for this card.");
       return;
     }
     navigator.clipboard.writeText(bskyUrl)
@@ -1084,11 +1086,10 @@ document.addEventListener('DOMContentLoaded', function() {
 		
 		</script>
 
-
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
-    navigator.serviceWorker.register('./service-worker.js').then(function(registration) {
+    navigator.serviceWorker.register('./sw.js').then(function(registration) {
       console.log('ServiceWorker registration successful:', registration.scope);
     }, function(err) {
       console.log('ServiceWorker registration failed:', err);
@@ -1096,6 +1097,7 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+
 
 
 </body>
