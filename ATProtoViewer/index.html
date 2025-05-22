@@ -138,6 +138,28 @@ li { margin-bottom: 1em; }
   border-radius: 6px;
 }
 
+#bluesky-embed-modal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+#bluesky-embed-modal > div {
+  background: #fff;
+  border-radius: 8px;
+  max-width: 95vw;
+  max-height: 90vh;
+  min-width: 520px;
+  min-height: 400px;
+  overflow: auto;
+  padding: 1em;
+  position: relative;
+}
+
+
 
   </style>
 </head>
@@ -250,9 +272,11 @@ li { margin-bottom: 1em; }
 				If you use it, your not interacting with the AI.</small></p>
         </footer>
 		
-		<div id="image-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index:9999;">
-  <img id="modal-img" src="" alt="Full size" style="max-width:90vw; max-height:90vh; box-shadow:0 0 16px #000;">
-</div>
+		
+
+
+
+		
 		
 		
 <script>
@@ -577,6 +601,7 @@ function getCdnImageUrl(blob, mimeType, did, cdnBase, type = 'feed_fullsize') {
 
 
 function renderBlueskyMedia(value, did, cdnBase) {
+  console.log("DEBUG EMBED", value.embed);
   let mediaHtml = '';
 
   // 1. Photo/image embeds
@@ -635,7 +660,8 @@ function renderBlueskyMedia(value, did, cdnBase) {
   return mediaHtml;
 }
 
- function renderEmbed(embed, atUri, cdnBase) {
+function renderEmbedAtUri(embed, atUri, cdnBase) {
+  console.log("DEBUG EMBED", embed);
   if (!embed) return '';
   let html = '';
   if (Array.isArray(embed.images)) {
@@ -644,14 +670,8 @@ function renderBlueskyMedia(value, did, cdnBase) {
     html += '<div class="embed-images">';
     embed.images.forEach((img, idx) => {
       const imgUrl = `${cdnBase}/img/feed_fullsize/plain/${atUriCdn}/${idx}`;
-      html += `
-        <a href="javascript:void(0);" onclick="openImageModal('${imgUrl}')">
-          <img src="${imgUrl}" alt="${img.alt || 'image'}"
-            class="enlargeable"
-            onerror="this.style.display='none';this.parentNode.insertAdjacentHTML('beforeend', '<span class=&quot;image-placeholder&quot;>Image unavailable</span>');" 
-            style="cursor:pointer;"
-          />
-        </a>`;
+      // You probably want to actually use imgUrl here, e.g.:
+      html += `<img src="${imgUrl}" alt="Embedded image ${idx+1}" />`;
     });
     html += '</div>';
   }
@@ -680,7 +700,7 @@ function extractDidFromUri(uri) {
 }
 	
 	
-function renderEmbed(embed, did, cdnBase) {
+function renderEmbedDid(embed, did, cdnBase) {
   if (!embed) return '';
 
   // External link card
@@ -710,6 +730,7 @@ function renderEmbed(embed, did, cdnBase) {
       </div>
     `;
   }
+
 
   // Image embeds
   if (embed.$type === 'app.bsky.embed.images' && Array.isArray(embed.images)) {
@@ -748,8 +769,8 @@ function renderEmbed(embed, did, cdnBase) {
 
   // Record with media (shows record and media)
   if (embed.$type === 'app.bsky.embed.recordWithMedia') {
-    const recHtml = embed.record ? renderEmbed({ $type: 'app.bsky.embed.record', record: embed.record }, did, cdnBase) : '';
-    const mediaHtml = embed.media ? renderEmbed(embed.media, did, cdnBase) : '';
+	const recHtml = embed.record ? renderEmbedDid({ $type: 'app.bsky.embed.record', record: embed.record }, did, cdnBase) : '';
+	const mediaHtml = embed.media ? renderEmbedDid(embed.media, did, cdnBase) : '';
     return `
       <div class="embed-recordwithmedia" style="margin-top:12px;">
         ${recHtml}
@@ -773,7 +794,7 @@ function createRecordCard(record, collection, pds) {
   const name = value.name || value.title || urlField || innerUri || '';
   const textUrls = extractUrls(text);
   const createdAt = value.createdAt ? formatDateTime(value.createdAt) : '';
-  const postview = `./BlueskyPostViewer.html?uri=${atUri}&pds=${pds}`;
+  const postview = `./BlueskyPostViewer.html?mode=detail&uri=${atUri}&pds=${pds}`;
   const pdslsdevUrl = `https://pdsls.dev/${atUri}`;
   const atpToolsUrl = `https://atp.tools/${atUri}`;
   const skythreadAtUri = `https://blue.mackuba.eu/skythread/?q=${atUri}`;
@@ -783,10 +804,11 @@ function createRecordCard(record, collection, pds) {
 
   // --- Embed/media rendering ---
   
-  const did = record.repo || record.did || extractDidFromUri(record.uri);
+	const did = record.repo || record.did || extractDidFromUri(record.uri);
 	const cdnBase = 'https://cdn.bsky.app';
 	const embedObj = value.embed?.embed || value.embed;
-	const embedHtml = renderEmbed(embedObj, did, cdnBase);
+	const embedHtml = renderEmbedDid(embedObj, did, cdnBase);
+
 
 
   // --- Dropdown links ---
@@ -844,7 +866,12 @@ function createRecordCard(record, collection, pds) {
           </svg>
         </button>
         <span class="copy-bsky-feedback" style="display:none;color:green;margin-left:4px;">Copied!</span> 
-      ` : ''}
+      ` : ''} 
+	  ${collection === "app.bsky.feed.post" && bskyUrl ? `
+    Embed
+  </button>
+` : ''}
+
       <button class="links-toggle-btn" type="button">⋯ More</button>
       <div class="links-menu" style="display:none;">
         <ul class="links-list">
@@ -1018,6 +1045,33 @@ document.addEventListener('click', function(e) {
 
 </script>
 
+<script>
+const modal = document.getElementById('bskyModal');
+const modalContent = document.getElementById('bskyModalContent');
+const openBtn = document.getElementById('openBskyEmbedBtn');
+
+openBtn.addEventListener('click', () => {
+  // Set the embed blockquote
+  modalContent.innerHTML = `
+    <blockquote class="bluesky-embed"
+      data-bluesky-uri="at://did:plc:qxlh6bohvep3taqhmtpipx4b/app.bsky.feed.post/3lpih7uwdaszt">
+    </blockquote>
+  `;
+  // Show the modal
+  modal.showModal();
+
+  // Ensure the embed script processes the new blockquote
+  if (window.BlueskyEmbed && window.BlueskyEmbed.init) {
+    window.BlueskyEmbed.init();
+  }
+});
+
+// Optional: ESC closes the modal
+modal.addEventListener('cancel', () => {
+  modalContent.innerHTML = '';
+});
+</script>
+
 
 
 
@@ -1056,25 +1110,8 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
-// Model script!
-document.addEventListener('DOMContentLoaded', function() {
-  const modal = document.getElementById('image-modal');
-  const modalImg = document.getElementById('modal-img');
 
-  // Delegate clicks on images with a class 'enlargeable'
-  document.body.addEventListener('click', function(e) {
-    if (e.target.classList.contains('enlargeable')) {
-      modalImg.src = e.target.src;
-      modal.style.display = 'flex';
-    }
-  });
 
-  // Close modal on click
-  modal.addEventListener('click', function() {
-    modal.style.display = 'none';
-    modalImg.src = '';
-  });
-});
 
 
 
