@@ -11,38 +11,35 @@
   </style>
 </head>
 <body>
-  <dialog id="bskyModal">
-    <form method="dialog" style="margin:0;">
-      <button style="float:right;" autofocus>✖</button>
-    </form>
+  <div id="bskyModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:#fff; border-radius:8px; max-width:95vw; max-height:90vh; min-width:320px; min-height:200px; overflow:auto; padding:1em; position:relative;">
+    <button onclick="closeModal()" style="position:absolute; top:8px; right:8px;">✖</button>
     <div id="bskyModalContent"></div>
-  </dialog>
-  <button id="openBskyEmbedBtn">Show Bluesky Embed in Modal</button>
+  </div>
+</div>
+<button id="openBskyEmbedBtn">Show Bluesky Embed in Modal</button>
   
   <blockquote class="bluesky-embed" data-bluesky-uri="at://did:plc:qxlh6bohvep3taqhmtpipx4b/app.bsky.feed.post/3lpih7uwdaszt" data-bluesky-cid="bafyreic2lvrlp6hjto7xg3akbyi6jcdn2g5ipoic5y7czpg3zwocpovrvi" data-bluesky-embed-color-mode="system"><p lang="en">Just a thought, if anyone is using these two viewers? ATProto Record Viewer ~ Multi-PDS &amp; ATProto Post Viewer would you be interested in me creating a combined PWA for them. Once I finalize and happy with the code for the Post Viewer?</p>&mdash; John O Connell {alt for corkiejp.posts.fyi} (<a href="https://bsky.app/profile/did:plc:qxlh6bohvep3taqhmtpipx4b?ref_src=embed">@corkiejp.github.io</a>) <a href="https://bsky.app/profile/did:plc:qxlh6bohvep3taqhmtpipx4b/post/3lpih7uwdaszt?ref_src=embed">19 May 2025 at 02:46</a></blockquote>
   
-  <script>
-    const modal = document.getElementById('bskyModal');
-    const modalContent = document.getElementById('bskyModalContent');
-    const openBtn = document.getElementById('openBskyEmbedBtn');
-
-    openBtn.addEventListener('click', () => {
-      modalContent.innerHTML = `
-        <blockquote class="bluesky-embed"
-          data-bluesky-uri="at://did:plc:qxlh6bohvep3taqhmtpipx4b/app.bsky.feed.post/3lpih7uwdaszt">
-        </blockquote>
-      `;
-      modal.showModal();
-      setTimeout(() => {
-        if (window.BlueskyEmbed && window.BlueskyEmbed.init) {
-          window.BlueskyEmbed.init();
-        }
-      }, 100);
-    });
-
-    modal.addEventListener('close', () => {
-      modalContent.innerHTML = '';
-    });
-  </script>
+<script>
+function openModal() {
+  document.getElementById('bskyModal').style.display = 'flex';
+  const modalContent = document.getElementById('bskyModalContent');
+  modalContent.innerHTML = `
+    <blockquote class="bluesky-embed"
+      data-bluesky-uri="at://did:plc:qxlh6bohvep3taqhmtpipx4b/app.bsky.feed.post/3lpih7uwdaszt"></blockquote>
+  `;
+  setTimeout(() => {
+    if (window.BlueskyEmbed && window.BlueskyEmbed.init) {
+      window.BlueskyEmbed.init();
+    }
+  }, 300);
+}
+function closeModal() {
+  document.getElementById('bskyModal').style.display = 'none';
+  document.getElementById('bskyModalContent').innerHTML = '';
+}
+document.getElementById('openBskyEmbedBtn').onclick = openModal;
+</script>
 </body>
 </html>
