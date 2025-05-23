@@ -10,7 +10,7 @@ const URLS_TO_CACHE = [
   '/ATProtoViewer/assets/icon-192.png',
   '/ATProtoViewer/assets/icon-512.png'
 ];
-
+// Comment put into force a refresh after an AI pranked me an froze my PWA by turning off scrolling!
 
 // Install: Cache new assets
 self.addEventListener('install', event => {
