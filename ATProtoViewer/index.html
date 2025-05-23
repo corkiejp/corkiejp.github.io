@@ -181,12 +181,6 @@ li { margin-bottom: 1em; }
   /* ...existing styles... */
 }
 
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden; /* Prevent background scrolling when modal is open */
-}
 
 
 
@@ -332,19 +326,22 @@ document.addEventListener('DOMContentLoaded', function() {
     modalImg.src = imgUrl;
     modalImg.alt = altText || '';
     modalAlt.textContent = altText || '';
-    document.getElementById('imgModal').style.display = 'flex';
-	  document.getElementById('imgModal').style.display = 'flex';
+	document.getElementById('imgModal').style.display = 'flex';
+	document.body.style.overflow = 'hidden'; // Only prevent scroll when modal is open
+
 
   // Scroll modal into view for mobile browsers
   setTimeout(() => {
     document.getElementById('imgModal').scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, 50);
   }
+  
 
   function closeImgModal() {
     document.getElementById('imgModal').style.display = 'none';
     document.getElementById('modalImg').src = '';
     document.getElementById('modalAltText').textContent = '';
+	document.body.style.overflow = ''; // Restore scroll when modal closes
   }
 
   document.body.addEventListener('click', function (e) {
