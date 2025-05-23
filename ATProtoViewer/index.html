@@ -174,6 +174,19 @@ li { margin-bottom: 1em; }
   /* ...other styles... */
 }
 
+#imgModal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* ...existing styles... */
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevent background scrolling when modal is open */
+}
 
 
 
@@ -320,6 +333,12 @@ document.addEventListener('DOMContentLoaded', function() {
     modalImg.alt = altText || '';
     modalAlt.textContent = altText || '';
     document.getElementById('imgModal').style.display = 'flex';
+	  document.getElementById('imgModal').style.display = 'flex';
+
+  // Scroll modal into view for mobile browsers
+  setTimeout(() => {
+    document.getElementById('imgModal').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 50);
   }
 
   function closeImgModal() {
