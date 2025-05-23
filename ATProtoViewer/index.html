@@ -138,26 +138,43 @@ li { margin-bottom: 1em; }
   border-radius: 6px;
 }
 
-#bluesky-embed-modal {
-  display: none;
-  position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh;
-  background: rgba(0,0,0,0.5);
-  z-index: 1000;
+#imgModal .modal-content {
+  /* ...existing styles... */
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-}
-#bluesky-embed-modal > div {
+  max-width: 90vw;
+  max-height: 90vh;
+  position: relative;
   background: #fff;
   border-radius: 8px;
-  max-width: 95vw;
-  max-height: 90vh;
-  min-width: 520px;
-  min-height: 400px;
-  overflow: auto;
   padding: 1em;
-  position: relative;
+  overflow: auto;
 }
+#modalImg {
+  max-width: 90vw;
+  max-height: 60vh;
+  display: block;
+  margin: auto;
+  flex: 0 0 auto;
+}
+#modalAltText {
+  margin-top: 0.5em;
+  color: #333;
+  font-size: 1em;
+  text-align: center;
+  border: 2px solid blue;
+  min-height: 2em;
+  width: 100%;
+}
+
+.links-menu {
+  position: absolute;
+  z-index: 10;
+  /* ...other styles... */
+}
+
+
 
 
 
@@ -260,7 +277,14 @@ li { margin-bottom: 1em; }
 		  
         </div>
       </div>
-    </div>
+    </div><br><br>
+	<img src="assets/image-circle-icon-256x256-bl766vvq.png"
+     alt="A dark circular logo featuring a stylized wave and a small circle. ~ Image for test purposes."
+     data-alt="A dark circular logo featuring a stylized wave and a small circle. ~ Image for test purposes."
+     class="modal-img"
+     style="width:25px;cursor:pointer;" /> 
+	 <a href="./Blueskyessentiallinks.html?mode=detail">Bluesky Essential Links</a>
+	<br><br>
     <div id="record-count"></div>
     <div id="records"></div>
   </div>
@@ -272,8 +296,55 @@ li { margin-bottom: 1em; }
 				If you use it, your not interacting with the AI.</small></p>
         </footer>
 		
-		
+	<!-- Modal overlay (hidden by default) -->
+<div id="imgModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:10000;">
+  <div style="position:relative; background:#fff; border:2px solid blue; border-radius:8px; padding:1em; max-width:90vw; max-height:90vh; display:flex; flex-direction:column; align-items:center;">
+  <button onclick="closeImgModal()" style="position:absolute; top:8px; right:8px;">✖</button>
+  <img id="modalImg" src="" alt="Preview"
+       style="max-width:90vw; max-height:60vh; display:block; margin:auto; flex:0 0 auto;" />
+  <div id="modalAltText"
+       style="margin-top:0.5em; font-size:1em; color:#222; text-align:center; border:2px solid blue; min-height:2em; width:100%;">
+  </div>
+</div>
 
+
+
+	
+  <!-- Modal JS and Event Delegation -->
+  <script>
+document.addEventListener('DOMContentLoaded', function() {
+  function openImgModal(imgUrl, altText) {
+    const modalImg = document.getElementById('modalImg');
+    const modalAlt = document.getElementById('modalAltText');
+    modalImg.src = imgUrl;
+    modalImg.alt = altText || '';
+    modalAlt.textContent = altText || '';
+    document.getElementById('imgModal').style.display = 'flex';
+  }
+
+  function closeImgModal() {
+    document.getElementById('imgModal').style.display = 'none';
+    document.getElementById('modalImg').src = '';
+    document.getElementById('modalAltText').textContent = '';
+  }
+
+  document.body.addEventListener('click', function (e) {
+    if (e.target.matches('img.modal-img')) {
+      const altText = e.target.getAttribute('data-alt');
+      openImgModal(e.target.src, altText);
+    }
+  });
+
+  document.getElementById('imgModal').addEventListener('click', function(e) {
+    if (e.target === this) closeImgModal();
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === "Escape") closeImgModal();
+  });
+});
+
+  </script>
 
 
 		
@@ -601,7 +672,6 @@ function getCdnImageUrl(blob, mimeType, did, cdnBase, type = 'feed_fullsize') {
 
 
 function renderBlueskyMedia(value, did, cdnBase) {
-  console.log("DEBUG EMBED", value.embed);
   let mediaHtml = '';
 
   // 1. Photo/image embeds
@@ -661,7 +731,6 @@ function renderBlueskyMedia(value, did, cdnBase) {
 }
 
 function renderEmbedAtUri(embed, atUri, cdnBase) {
-  console.log("DEBUG EMBED", embed);
   if (!embed) return '';
   let html = '';
   if (Array.isArray(embed.images)) {
@@ -671,7 +740,10 @@ function renderEmbedAtUri(embed, atUri, cdnBase) {
     embed.images.forEach((img, idx) => {
       const imgUrl = `${cdnBase}/img/feed_fullsize/plain/${atUriCdn}/${idx}`;
       // You probably want to actually use imgUrl here, e.g.:
-      html += `<img src="${imgUrl}" alt="Embedded image ${idx+1}" />`;
+      // html += `<img src="${imgUrl}" alt="Embedded image ${idx+1}" />`;
+	  // html += `<img src="${imgUrl}" alt="Embedded image ${idx+1}" style="cursor:pointer;" onclick="openImgModal('${imgUrl}')" />`;
+	  html += `<img src="${imgUrl}" alt="Embedded image ${idx+1}" class="modal-img" data-source="AtUri" />`;
+
     });
     html += '</div>';
   }
@@ -711,7 +783,7 @@ function renderEmbedDid(embed, did, cdnBase) {
       const blob = ext.thumb.ref.$link;
       const mimeType = ext.thumb.mimeType?.split('/')[1] || 'jpeg';
       const thumbUrl = `${cdnBase}/img/feed_thumbnail/plain/${did}/${blob}@${mimeType}`;
-      thumbHtml = `<img src="${thumbUrl}" alt="Embed thumbnail"
+      thumbHtml = `<img src="${thumbUrl}" alt="Embed thumbnail" class="modal-img" data-source="LinkCard"
                      style="max-width:96px;max-height:96px;border-radius:8px;margin-right:8px;"
                      onerror="this.style.display='none';">`;
     }
@@ -741,10 +813,15 @@ function renderEmbedDid(embed, did, cdnBase) {
             const blob = img.image.ref.$link;
             const mimeType = img.image.mimeType?.split('/')[1] || 'jpeg';
             const imgUrl = `${cdnBase}/img/feed_fullsize/plain/${did}/${blob}@${mimeType}`;
-            return `<img src="${imgUrl}" alt="${img.alt || ''}" 
-                        style="max-width:180px;max-height:180px;border-radius:8px;"
-                        onerror="this.style.display='none';">`;
+				return `<img src="${imgUrl}" alt="${img.alt || ''}" 
+					class="modal-img" data-source="Did"
+					data-alt="${img.alt || ''}"
+					style="max-width:180px;max-height:180px;border-radius:8px;"
+					onerror="this.style.display='none';">`;
           }
+		  
+
+		  
           return '';
         }).join('')}
       </div>
@@ -795,6 +872,7 @@ function createRecordCard(record, collection, pds) {
   const textUrls = extractUrls(text);
   const createdAt = value.createdAt ? formatDateTime(value.createdAt) : '';
   const postview = `./BlueskyPostViewer.html?mode=detail&uri=${atUri}&pds=${pds}`;
+  const rawrecords = `../ATProtoRecordViewerMulti-PDS-raw.html?uri=${atUri}&pds=${pds}`;
   const pdslsdevUrl = `https://pdsls.dev/${atUri}`;
   const atpToolsUrl = `https://atp.tools/${atUri}`;
   const skythreadAtUri = `https://blue.mackuba.eu/skythread/?q=${atUri}`;
@@ -820,6 +898,7 @@ function createRecordCard(record, collection, pds) {
     links.push(`<a href="${skythreadAtUri}" target="_blank" rel="noopener">SkyThread</a>`);
     links.push(`<a href="${skyviewUri}" target="_blank" rel="noopener">Skyview</a>`);
   }
+  links.push(`<a href="${rawrecords}" target="_blank" rel="noopener">Raw Records</a>`);
   links.push(`<a href="${atpToolsUrl}" target="_blank" rel="noopener">atp.tools</a>`);
   links.push(`<a href="${pdslsdevUrl}" target="_blank" rel="noopener">pdsls.dev</a>`);
   if (innerUri && skythreadInnerUri) {
@@ -969,44 +1048,20 @@ records.forEach(record => {
 });
 
 
+let openLinksMenu = null;
+let closeMenuTimeout = null;
+
 document.addEventListener('click', function(e) {
   // --- Copy AT URI ---
   if (e.target.classList.contains('copy-at-uri-btn')) {
-    const card = e.target.closest('.record-card');
-    if (!card) return;
-    const atUri = card.querySelector('.at-uri').textContent;
-    navigator.clipboard.writeText(atUri);
-    const feedback = e.target.nextElementSibling;
-    if (feedback) {
-      feedback.style.display = 'inline';
-      setTimeout(() => feedback.style.display = 'none', 1200);
-    }
+    // ... your copy logic ...
     return;
   }
 
   // --- Copy bsky.app link (handles SVG clicks) ---
   const copyBtn = e.target.closest('.copy-bsky-link-btn');
   if (copyBtn) {
-    // Console log for debugging
-    console.log("Bsky copy button clicked!", copyBtn);
-    const card = copyBtn.closest('.record-card');
-    if (!card) return;
-    const bskyUrl = card.dataset.bskyUrl;
-    if (!bskyUrl) {
-      console.log("No bskyUrl found in dataset for this card.");
-      return;
-    }
-    navigator.clipboard.writeText(bskyUrl)
-      .then(() => {
-        const feedback = copyBtn.nextElementSibling;
-        if (feedback) {
-          feedback.style.display = 'inline';
-          setTimeout(() => feedback.style.display = 'none', 1200);
-        }
-      })
-      .catch(err => {
-        console.error("Clipboard write failed:", err);
-      });
+    // ... your copy logic ...
     return;
   }
 
@@ -1014,115 +1069,87 @@ document.addEventListener('click', function(e) {
   if (e.target.classList.contains('links-toggle-btn')) {
     const btn = e.target;
     const menu = btn.nextElementSibling;
+
+    // Close any other open menus
     document.querySelectorAll('.links-menu').forEach(m => {
       if (m !== menu) m.style.display = 'none';
     });
-    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+
+    // Toggle current menu
+    if (menu.style.display === 'block') {
+      menu.style.display = 'none';
+      openLinksMenu = null;
+      clearTimeout(closeMenuTimeout);
+    } else {
+      menu.style.display = 'block';
+      openLinksMenu = menu;
+      // Optional: auto-close after 5 seconds
+      clearTimeout(closeMenuTimeout);
+      closeMenuTimeout = setTimeout(() => {
+        if (openLinksMenu === menu) {
+          menu.style.display = 'none';
+          openLinksMenu = null;
+        }
+      }, 5000);
+    }
+    // Prevent bubbling to outer handler
+    e.stopPropagation();
     return;
   }
 
-  // --- (Optional) Add other click-based handlers here ---
-
-
-
-
-  // Toggle "More" dropdown menu
-  if (e.target.classList.contains('links-toggle-btn')) {
-    const btn = e.target;
-    const menu = btn.nextElementSibling;
-    document.querySelectorAll('.links-menu').forEach(m => {
-      if (m !== menu) m.style.display = 'none';
-    });
-    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-    return;
+  // --- Close dropdown if clicking outside ---
+  if (openLinksMenu) {
+    openLinksMenu.style.display = 'none';
+    openLinksMenu = null;
+    clearTimeout(closeMenuTimeout);
   }
 
-  // (Optional) Add more click-based UI logic here...
+  // ... other click-based UI logic ...
 });
+
+// Optional: Prevent menu from closing when clicking inside it
+document.addEventListener('click', function(e) {
+  if (e.target.closest('.links-menu')) {
+    e.stopPropagation();
+  }
+}, true);
+
 
 
 
 </script>
+
+
+
+
+
+
+
+		
+
 
 <script>
-const modal = document.getElementById('bskyModal');
-const modalContent = document.getElementById('bskyModalContent');
-const openBtn = document.getElementById('openBskyEmbedBtn');
 
-openBtn.addEventListener('click', () => {
-  // Set the embed blockquote
-  modalContent.innerHTML = `
-    <blockquote class="bluesky-embed"
-      data-bluesky-uri="at://did:plc:qxlh6bohvep3taqhmtpipx4b/app.bsky.feed.post/3lpih7uwdaszt">
-    </blockquote>
-  `;
-  // Show the modal
-  modal.showModal();
+function openImgModal(imgUrl, altText) {
+  const modalImg = document.getElementById('modalImg');
+  modalImg.src = imgUrl;
+  modalImg.alt = altText || '';
+  document.getElementById('imgModal').style.display = 'flex';
+}
 
-  // Ensure the embed script processes the new blockquote
-  if (window.BlueskyEmbed && window.BlueskyEmbed.init) {
-    window.BlueskyEmbed.init();
-  }
-});
 
-// Optional: ESC closes the modal
-modal.addEventListener('cancel', () => {
-  modalContent.innerHTML = '';
-});
+function closeImgModal() {
+  document.getElementById('imgModal').style.display = 'none';
+  document.getElementById('modalImg').src = '';
+}
+
 </script>
 
-
-
-
-
-		
-		<script>
-
-document.addEventListener('DOMContentLoaded', function() {
-  document.querySelectorAll('.links-toggle-btn').forEach(button => {
-    let linksMenuTimeout = null;
-    const menuEl = button.nextElementSibling;
-
-    button.addEventListener('click', function() {
-      // Toggle menu
-      if (menuEl.style.display === 'block') {
-        menuEl.style.display = 'none';
-        if (linksMenuTimeout) clearTimeout(linksMenuTimeout);
-      } else {
-        menuEl.style.display = 'block';
-        if (linksMenuTimeout) clearTimeout(linksMenuTimeout);
-        linksMenuTimeout = setTimeout(() => {
-          menuEl.style.display = 'none';
-        }, 5000); // 5 seconds
-      }
-    });
-
-    // Keep menu open while hovered
-    menuEl.addEventListener('mouseenter', () => {
-      if (linksMenuTimeout) clearTimeout(linksMenuTimeout);
-    });
-    menuEl.addEventListener('mouseleave', () => {
-      linksMenuTimeout = setTimeout(() => {
-        menuEl.style.display = 'none';
-      }, 2000); // 2 seconds after mouse leaves
-    });
-  });
-});
-
-
-
-
-
-
-
-
-		
-		</script>
 
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
-    navigator.serviceWorker.register('./sw.js').then(function(registration) {
+    navigator.serviceWorker.register('./service-worker.js').then(function(registration) {
       console.log('ServiceWorker registration successful:', registration.scope);
     }, function(err) {
       console.log('ServiceWorker registration failed:', err);
@@ -1130,7 +1157,6 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
-
 
 
 </body>
