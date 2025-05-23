@@ -1,4 +1,4 @@
-const CACHE_NAME = 'atproto-pwa-v1.04';
+const CACHE_NAME = 'atproto-pwa-v1.05';
 const URLS_TO_CACHE = [
   '/ATProtoViewer/',
   '/ATProtoViewer/index.html',
@@ -10,30 +10,34 @@ const URLS_TO_CACHE = [
   '/ATProtoViewer/assets/icon-512.png'
 ];
 
+
+// Install: Cache new assets
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(URLS_TO_CACHE))
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(URLS_TO_CACHE))
+      .then(() => self.skipWaiting()) // Force immediate activation
   );
 });
 
+// Activate: Delete old caches
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames
+          .filter(cacheName => cacheName !== CACHE_NAME)
+          .map(cacheName => caches.delete(cacheName))
+      );
+    }).then(() => self.clients.claim()) // Control all clients immediately
+  );
+});
+
+// Fetch: Serve cached or network
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request).then(response => response || fetch(event.request))
   );
 });
 
-self.addEventListener('activate', event => {
-  const cacheAllowList = [CACHE_NAME]; // Only keep the current cache
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (!cacheAllowList.includes(cacheName)) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
-  );
-});
 
