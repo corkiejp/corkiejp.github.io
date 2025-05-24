@@ -31,14 +31,36 @@ button {
   font-weight: 600;
   transition: background 0.2s;
 }
+
+	#back-link {
+  position: fixed;
+  top: 16px;         /* Distance from the top edge */
+  left: 16px;        /* Distance from the left edge */
+  z-index: 1000;     /* Make sure it stays above other content */
+  background: #fff;  /* Optional: background for readability */
+  padding: 8px 14px; /* Optional: padding for a button look */
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.07);
+  text-decoration: none;
+  color: #0074d9;
+  font-weight: bold;
+  font-size: 0.8em;
+  opacity: 0.95;
+  transition: background 0.2s, color 0.2s;
+}
+#back-link:hover {
+  background: #e6f1fa;
+  color: #005fa3;
+}
+
   </style>
 </head>
-<body>
+<body><a id="back-link" href="#" style="position: fixed; top: 16px; left: 16px;">⬅️ ATProto Viewer.</a>
+
+
   <div class="container">
     <h1>Bluesky essential links</h1>
 
- <br><br><p align=center>
-	<a href="index.html?mode=detail">Back to ATProto Viewer</a><br><br></p>
 <b>Power User</b>
 If you want to upgrade your Bluesky usage to the next level, here is a list of utilities for your toolbox!
 
@@ -66,9 +88,6 @@ Other Tools
 Alternative Clients
 <ul> <li><a href="https://azsky.app" target="_blank"><strong>AzSky</strong></a> &mdash; Alternative client featuring a threaded view and support for long posts with a 50,000-character limit.</li> <li><a href="https://bluesky-followers.advaith.io/" target="_blank"><strong>Bluesky Follower Explorer</strong></a> &mdash; See who follows your followers.</li> <li><a href="https://bluepeers.app/" target="_blank"><strong>Bluepeers</strong></a> &mdash; Find & engage with your active Bluesky peers through a Chrome extension.</li> <li><a href="https://blueskybookmarks.com/" target="_blank"><strong>blueskybookmarks.com</strong></a> &mdash; Android PWA Bookmarks.</li> <li><a href="https://croissantapp.com/" target="_blank"><strong>Croissant</strong></a> &mdash; Alternative native iOS cross-posting client for Bluesky, Mastodon and Threads.</li> <li><a href="https://github.com/FireCubeStudios/DarkSky" target="_blank"><strong>DarkSky</strong></a> &mdash; Modern client for Windows.</li> <li><a href="https://deck.blue/" target="_blank"><strong>deck.blue</strong></a> &mdash; Alternative web client with column view.</li> <li><a href="https://graysky.app/" target="_blank"><strong>Graysky</strong></a> &mdash; Alternative mobile client for both Android and iOS.</li> <li><a href="https://github.com/callmearta/kite" target="_blank"><strong>Kite</strong></a> &mdash; Alternative web client.</li> <li><a href="https://klearsky.pages.dev/" target="_blank"><strong>Klearsky</strong></a> &mdash; Alternative web client that is "design first".</li> <li><a href="https://langit.pages.dev/" target="_blank"><strong>Langit</strong></a> &mdash; Alternative mobile web client.</li> <li><a href="https://nootti.com" target="_blank"><strong>Nootti</strong></a> &mdash; Alternative native iOS/iPad cross-posting client for Bluesky, Mastodon and Nostr.</li> <li><a href="https://useouranos.app/" target="_blank"><strong>Ouranos</strong></a> &mdash; Webclient built with Next.js.</li> <li><a href="https://www.redgazer.com/" target="_blank"><strong>RedGazer</strong></a> &mdash; Alternative front end focusing on media content.</li> <li><a href="https://skeetdeck.pages.dev/" target="_blank"><strong>Skeetdeck</strong></a> &mdash; Web client based on Tweetdeck.</li> <li><a href="https://www.skeetsapp.com" target="_blank"><strong>Skeets</strong></a> &mdash; Alternative client for iOS, iPadOS and MacOS.</li> <li><a href="https://github.com/jcsalterego/Sky.app" target="_blank"><strong>Sky.app</strong></a> &mdash; Alternative MacOS client.</li> <li><a href="https://skyfeed.app" target="_blank"><strong>SkyFeed</strong></a> &mdash; Alternative web client with a powerful custom feed builder.</li> <li><a href="https://tabtter.jp/" target="_blank"><strong>Tabtter</strong></a> &mdash; Webclient with a Japanese focus.</li> <li><a href="https://github.com/sugyan/tuisky" target="_blank"><strong>Tuisky</strong></a> &mdash; A TUI client for Bluesky.</li> <li><a href="https://tokimekibluesky.vercel.app/" target="_blank"><strong>TOKIMEKI</strong></a> &mdash; Alternative web client.</li> <li><a href="https://github.com/UnicordDev/UniSky" target="_blank"><strong>Unisky</strong></a> &mdash; Client for Windows 11, Windows 10 and Windows 10 Mobile.</li> </ul>
  
- 
-  <br><br><p align=center>
-	<a href="index.html?mode=detail">Back to ATProto Viewer</a><br><br></p>
 </div>	
     		 <footer>
             <p align=center><small><b>Disclaimer:-</b> I'm not a developer, this page/PWA was created <br> with the assistance of AI Powered search engine,<br>
@@ -84,7 +103,14 @@ Alternative Clients
 		
 		
 		</div>
-
+		
+<script>
+// --- Link back to ATProto Viewer ---
+document.addEventListener('DOMContentLoaded', function() {
+  const backLink = document.getElementById('back-link');
+  backLink.href = `index.html${window.location.search}`;
+});
+</script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {

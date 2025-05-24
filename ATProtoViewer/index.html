@@ -289,8 +289,8 @@ li { margin-bottom: 1em; }
      alt="A dark circular logo featuring a stylized wave and a small circle. ~ Image for test purposes."
      data-alt="A dark circular logo featuring a stylized wave and a small circle. ~ Image for test purposes."
      class="modal-img"
-     style="width:25px;cursor:pointer;" /> 
-	 <a href="./Blueskyessentiallinks.html?mode=detail">Bluesky Essential Links</a>
+     style="width:25px;cursor:pointer;" />  
+	 <button type="button" id="linksListBtn">Bluesky Essential Links</button>
 	<br><br>
     <div id="record-count"></div>
     <div id="records"></div>
@@ -362,9 +362,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
   </script>
 
+<script>
+	  // --- Link backs enabled ---
+// document.getElementById('queryForm').addEventListener('submit', function(e) {
+//  e.preventDefault();
+//  const formData = new FormData(this);
+//  const params = new URLSearchParams(formData).toString();
+//  window.location.href = `Blueskyessentiallinks.html?${params}`;
+//});
 
+document.getElementById('linksListBtn').addEventListener('click', function() {
+  const form = document.getElementById('queryForm');
+  const formData = new FormData(form);
+  const params = new URLSearchParams(formData).toString();
+  window.location.href = `Blueskyessentiallinks.html?${params}&mode=detail`;
+});
+
+</script>
 		
-		
+	
 		
 <script>
 document.addEventListener('DOMContentLoaded', function() {

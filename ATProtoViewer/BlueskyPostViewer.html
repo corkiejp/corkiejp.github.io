@@ -118,15 +118,39 @@
         height: 350px;
       }
     }
+	
+	#back-link {
+  position: fixed;
+  top: 16px;         /* Distance from the top edge */
+  left: 16px;        /* Distance from the left edge */
+  z-index: 1000;     /* Make sure it stays above other content */
+  background: #fff;  /* Optional: background for readability */
+  padding: 8px 14px; /* Optional: padding for a button look */
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.07);
+  text-decoration: none;
+  color: #0074d9;
+  font-weight: bold;
+  font-size: 0.8em;
+  opacity: 0.95;
+  transition: background 0.2s, color 0.2s;
+}
+#back-link:hover {
+  background: #e6f1fa;
+  color: #005fa3;
+}
+
   </style>
 </head>
 <body>
+<a id="back-link" href="#">⬅️ Back to ATProto Viewer with same Params!</a>
   <div class="container">
     <h1>ATProto Post Viewer <br>(with SkyView Thread)</h1>
 	
+	
+	
+	<br><br>
 	<p align=center>
-	<a href="index.html">Back to Main Viewer</a><br><br>
-
 	Accepts uri (AT URI), pds (PDS host), and cdn (CDN host) as URL parameters.
 	<br><br>Due to limitations of Github Pages,<br> I can't access the Bluesky api to display posts, like I want to here.<br><br>
 	But have found away to display some content when when public and accessible.</p>
@@ -172,6 +196,22 @@
     </div>
   </div>
   <script>
+	// Backlink with params!
+	// Place this in your script on the other page
+		const backLink = document.getElementById('back-link');
+		backLink.href = `index.html${window.location.search}`;
+		
+	document.addEventListener('DOMContentLoaded', function() {
+		const backLink = document.getElementById('back-link');
+		if (backLink) {
+		backLink.href = `index.html${window.location.search}`;
+		}
+	});
+
+		
+	
+
+
     // Utility to parse the AT URI
     function parseAtUri(uri) {
       uri = uri.trim();
