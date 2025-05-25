@@ -1,4 +1,4 @@
-const CACHE_NAME = 'atproto-pwa-v1.07';
+const CACHE_NAME = 'atproto-pwa-v1.08';
 const URLS_TO_CACHE = [
   '/ATProtoViewer/',
   '/ATProtoViewer/index.html',
@@ -11,7 +11,7 @@ const URLS_TO_CACHE = [
   '/ATProtoViewer/assets/icon-512.png'
 ];
 
-// Just a commit on this to iron out a bug change
+// JavaScript restructured and cleaned up!
 // Install: Cache new assets
 self.addEventListener('install', event => {
   event.waitUntil(
