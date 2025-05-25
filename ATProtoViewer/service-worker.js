@@ -11,7 +11,7 @@ const URLS_TO_CACHE = [
   '/ATProtoViewer/assets/icon-512.png'
 ];
 
-
+// Just a commit on this to iron out a bug change
 // Install: Cache new assets
 self.addEventListener('install', event => {
   event.waitUntil(

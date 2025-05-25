@@ -424,6 +424,8 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   
+  
+  
 	// Handle wrong uri!?
   
 function isAccountAtUri(uri) {
@@ -468,42 +470,8 @@ function handleUriInput(uri) {
 });
 
 
-function attachCopyBskyLinkHandlers() {
-  document.querySelectorAll('.copy-bsky-link-btn').forEach(btn => {
-    btn.onclick = function(e) {
-      const card = e.target.closest('.record-card');
-      if (!card) return;
-      const bskyUrl = card.dataset.bskyUrl;
-      if (!bskyUrl) return;
-
-      navigator.clipboard.writeText(bskyUrl).then(() => {
-        const feedback = card.querySelector('.copy-bsky-feedback');
-        if (feedback) {
-          feedback.style.display = 'inline';
-          setTimeout(() => { feedback.style.display = 'none'; }, 1200);
-        }
-      });
-    };
-  });
-}
 
 
-function attachCopyAtUriHandlers() {
-  document.querySelectorAll('.copy-at-uri-btn').forEach(btn => {
-    btn.onclick = function(e) {
-      const card = e.target.closest('.record-card');
-      if (!card) return;
-      const atUriElem = card.querySelector('.at-uri');
-      const feedback = card.querySelector('.copy-feedback');
-      if (atUriElem && feedback) {
-        navigator.clipboard.writeText(atUriElem.textContent).then(() => {
-          feedback.style.display = 'inline';
-          setTimeout(() => { feedback.style.display = 'none'; }, 1200);
-        });
-      }
-    };
-  });
-}
 
 
 
@@ -632,6 +600,38 @@ if (queryForm) {
 
 
 
+// Add this once, inside DOMContentLoaded
+document.addEventListener('click', function(e) {
+  // --- Copy Bsky Link ---
+  if (e.target.closest('.copy-bsky-link-btn')) {
+    const card = e.target.closest('.record-card');
+    if (!card) return;
+    const bskyUrl = card.dataset.bskyUrl;
+    const feedback = card.querySelector('.copy-bsky-feedback');
+    if (bskyUrl && feedback) {
+      navigator.clipboard.writeText(bskyUrl).then(() => {
+        feedback.style.display = 'inline';
+        setTimeout(() => { feedback.style.display = 'none'; }, 1200);
+      });
+    }
+    return;
+  }
+
+  // --- Copy AT URI ---
+  if (e.target.closest('.copy-at-uri-btn')) {
+    const card = e.target.closest('.record-card');
+    if (!card) return;
+    const atUriElem = card.querySelector('.at-uri');
+    const feedback = card.querySelector('.copy-feedback');
+    if (atUriElem && feedback) {
+      navigator.clipboard.writeText(atUriElem.textContent).then(() => {
+        feedback.style.display = 'inline';
+        setTimeout(() => { feedback.style.display = 'none'; }, 1200);
+      });
+    }
+    return;
+  }
+});
 
 
 
@@ -1076,8 +1076,7 @@ function displayRecords(records, collection, pds, handle) {
     ? `Showing ${records.length} record${records.length > 1 ? 's' : ''} from @${handle}`
     : `Showing ${records.length} record${records.length > 1 ? 's' : ''} from ${pds}`;
 	  // 🟢 Always attach handlers after rendering
-  attachCopyBskyLinkHandlers();
-  attachCopyAtUriHandlers();
+
 }
 
 
@@ -1201,11 +1200,7 @@ let openLinksMenu = null;
 let closeMenuTimeout = null;
 
 document.addEventListener('click', function(e) {
-  // --- Copy AT URI ---
-  if (e.target.classList.contains('copy-at-uri-btn')) {
-    // ... your copy logic ...
-    return;
-  }
+
 
   // --- Copy bsky.app link (handles SVG clicks) ---
   const copyBtn = e.target.closest('.copy-bsky-link-btn');
