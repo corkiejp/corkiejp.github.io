@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Share Target Test PWA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <h1>Share Target Test PWA</h1>
+  <div id="output"></div>
+  <script>
+    function getParams() {
+      const params = new URLSearchParams(window.location.search);
+      const result = {};
+      for (const [key, value] of params.entries()) {
+        result[key] = value;
+      }
+      return result;
+    }
+
+    function displayParams(params) {
+      const output = document.getElementById('output');
+      if (Object.keys(params).length === 0) {
+        output.textContent = "No share parameters received.";
+      } else {
+        output.innerHTML = '<pre>' + JSON.stringify(params, null, 2) + '</pre>';
+      }
+      console.log("Received share params:", params);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const params = getParams();
+      displayParams(params);
+    });
+  </script>
+</body>
+</html>
