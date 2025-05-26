@@ -290,11 +290,6 @@ li { margin-bottom: 1em; }
      class="modal-img"
      style="width:25px;cursor:pointer;" />  
 	 <button type="button" id="linksListBtn">Bluesky Essential Links</button>
-	 	<img src="assets/image-circle-icon-256x256-bl766vvq.png"
-     alt="A dark circular logo featuring a stylized wave and a small circle. ~ Image for test purposes."
-     data-alt="A dark circular logo featuring a stylized wave and a small circle. ~ Image for test purposes."
-     class="modal-img"
-     style="width:25px;cursor:pointer;" /> 
 	<br><br>
     <div id="record-count"></div>
     <div id="records"></div>
@@ -716,38 +711,31 @@ function createRecordCard(record, collection, pds) {
   setDefaultIfEmpty('[name="repo"]', DEFAULT_REPO);
   setDefaultIfEmpty('[name="collection"]', DEFAULT_COLLECTION);
 
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', function() {
   // --- Attach event listeners FIRST ---
+  
+// --- Fill form from URI param if present ---
+const params = new URLSearchParams(window.location.search);
+const uri = params.get('uri');
+if (uri) {
+  parseAtUri(uri, false); // fill fields, don't auto-fetch
+  // If you want to auto-fetch as well, use: parseAtUri(uri, true);
+}
 
-  // --- Fill form from URI param if present ---
-  const params = new URLSearchParams(window.location.search);
-  const uri = params.get('uri');
-  if (uri) {
-    // Fill form and auto-fetch after parsing
-    await parseAtUri(uri, true); // true = auto-fetch after parsing
+// --- Set defaults only if fields are empty ---
+setDefaultIfEmpty('[name="pds"]', DEFAULT_PDS);
+setDefaultIfEmpty('[name="repo"]', DEFAULT_REPO);
+setDefaultIfEmpty('[name="collection"]', DEFAULT_COLLECTION);
+setDefaultIfEmpty('[name="rkey"]', '');
+setDefaultIfEmpty('[name="uri"]', '');
 
-    // Clean the URL for a nicer user experience (optional, but recommended)
-    // history.replaceState({}, '', '/ATProtoViewer/');
-  }
-
-  // --- Set defaults only if fields are empty ---
-  setDefaultIfEmpty('[name="pds"]', DEFAULT_PDS);
-  setDefaultIfEmpty('[name="repo"]', DEFAULT_REPO);
-  setDefaultIfEmpty('[name="collection"]', DEFAULT_COLLECTION);
-  setDefaultIfEmpty('[name="rkey"]', '');
-  setDefaultIfEmpty('[name="uri"]', '');
-
-  console.log("After parseAtUri and defaults:", {
-    repo: document.querySelector('[name="repo"]').value,
-    collection: document.querySelector('[name="collection"]').value,
-    rkey: document.querySelector('[name="rkey"]').value,
-    uri: document.querySelector('[name="uri"]').value,
-    pds: document.querySelector('[name="pds"]').value
-  });
+console.log("After parseAtUri and defaults:", {
+  repo: document.querySelector('[name="repo"]').value,
+  collection: document.querySelector('[name="collection"]').value,
+  rkey: document.querySelector('[name="rkey"]').value,
+  uri: document.querySelector('[name="uri"]').value,
+  pds: document.querySelector('[name="pds"]').value
 });
-
-
-
   
 
   // Toggle Instructions Dropdown
@@ -863,69 +851,37 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
- 
- // --- Parse AT URI function ---
-async function parseAtUri(atUri, fetchAfter = true) {
-  if (!atUri) return;
-
-  // --- Handle Bluesky web URLs ---
-  if (atUri.startsWith('https://bsky.app/')) {
-    // Example: https://bsky.app/profile/raxdflipnote.bsky.social/post/3lpyzwfpiic2k
-    const urlParts = atUri.split('/');
-    if (urlParts.length >= 7 && urlParts[3] === 'profile' && urlParts[5] === 'post') {
-      const handle = urlParts[4];
-      const rkey = urlParts[6];
-      // Resolve handle to DID using public API
-      try {
-        const resp = await fetch(`https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=${handle}`);
-        const data = await resp.json();
-        if (!data.did) throw new Error('Could not resolve handle');
-        document.querySelector('[name="repo"]').value = data.did;
-        document.querySelector('[name="collection"]').value = 'app.bsky.feed.post';
+  // --- Parse AT URI function ---
+  function parseAtUri(atUri, fetchAfter = true) {
+    if (!atUri) return;
+    const match = atUri.match(/^at:\/\/([^/]+)\/([^/]+)(?:\/([^/]+))?$/);
+    if (match) {
+      const [, repo, collection, rkey] = match;
+      document.querySelector('[name="repo"]').value = repo;
+      document.querySelector('[name="collection"]').value = collection;
+      if (rkey && document.querySelector('[name="rkey"]')) {
         document.querySelector('[name="rkey"]').value = rkey;
+      }
+      if (repo.startsWith('did:plc:')) {
+        fetch('https://plc.directory/' + repo)
+          .then(resp => resp.json())
+          .then(data => {
+            if (data && data.service && data.service[0] && data.service[0].serviceEndpoint) {
+              document.querySelector('[name="pds"]').value = data.service[0].serviceEndpoint.replace(/^https?:\/\//, '');
+            }
+            if (fetchAfter) triggerFetchIfReady();
+          })
+          .catch(() => {
+            if (fetchAfter) triggerFetchIfReady();
+          });
+      } else {
         if (fetchAfter) triggerFetchIfReady();
-        return;
-      } catch (e) {
-        alert('Failed to resolve Bluesky handle: ' + handle);
-        return;
       }
     } else {
-      alert('Unrecognized Bluesky post URL format.');
-      return;
+      alert('Invalid AT URI format.');
     }
   }
 
-  // --- Handle at:// URIs ---
-  const match = atUri.match(/^at:\/\/([^/]+)\/([^/]+)(?:\/([^/]+))?$/);
-  if (match) {
-    const [, repo, collection, rkey] = match;
-    document.querySelector('[name="repo"]').value = repo;
-    document.querySelector('[name="collection"]').value = collection;
-    if (rkey && document.querySelector('[name="rkey"]')) {
-      document.querySelector('[name="rkey"]').value = rkey;
-    }
-    if (repo.startsWith('did:plc:')) {
-      fetch('https://plc.directory/' + repo)
-        .then(resp => resp.json())
-        .then(data => {
-          if (data && data.service && data.service[0] && data.service[0].serviceEndpoint) {
-            document.querySelector('[name="pds"]').value = data.service[0].serviceEndpoint.replace(/^https?:\/\//, '');
-          }
-          if (fetchAfter) triggerFetchIfReady();
-        })
-        .catch(() => {
-          if (fetchAfter) triggerFetchIfReady();
-        });
-    } else {
-      if (fetchAfter) triggerFetchIfReady();
-    }
-  } else {
-    alert('Invalid AT URI format.');
-  }
-}
-
- 
- 
   // --- Repo input change: auto-fill PDS if PLC DID ---
   const repoInput = document.getElementById('repo');
   if (repoInput) {
