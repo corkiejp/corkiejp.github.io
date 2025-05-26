@@ -12,7 +12,7 @@ const URLS_TO_CACHE = [
 ];
 
 
-
+// Index.html with debugging
 // Install: Cache new assets
 self.addEventListener('install', event => {
   event.waitUntil(

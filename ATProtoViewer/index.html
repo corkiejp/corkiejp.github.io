@@ -188,6 +188,8 @@ li { margin-bottom: 1em; }
   </style>
 </head>
 <body>
+<div id="debug-info" style="background:#ffe;color:#900;padding:8px;font-size:13px"></div>
+
   <div class="container">
     <h1>ATProto Record Viewer (Multi-PDS)</h1>
     <!-- Instructions Dropdown -->
@@ -292,7 +294,6 @@ li { margin-bottom: 1em; }
 	 <button type="button" id="linksListBtn">Bluesky Essential Links</button>
 	 	
 	<br>
-	<div id="debug-info" style="background:#eee; color:#333; padding:8px; font-size:12px;"></div>
 	<br>
     <div id="record-count"></div>
     <div id="records"></div>
@@ -319,8 +320,12 @@ li { margin-bottom: 1em; }
 
 <script>
 function showDebugInfo(msg) {
-  document.getElementById('debug-info').textContent = msg;
+  const debugDiv = document.getElementById('debug-info');
+  if (debugDiv) {
+    debugDiv.textContent = msg;
+  }
 }
+
 
 // Example usage:
 const params = new URLSearchParams(window.location.search);
@@ -734,6 +739,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   const params = new URLSearchParams(window.location.search);
   const uri = params.get('uri');
   console.log("Parsed uri param:", uri);
+    if (!uri) {
+    showDebugInfo('No URI parameter found. Defaulting to feed view.');
+  } else {
+    showDebugInfo('URI param: ' + uri);
+  }
   if (uri) {
     // Fill form and auto-fetch after parsing
     await parseAtUri(uri, true); // true = auto-fetch after parsing
@@ -1222,6 +1232,24 @@ console.log("Decoded URI param:", decodeURIComponent(params.get('uri')));
     const countDiv = document.getElementById('record-count');
     container.innerHTML = "<em>Loading...</em>";
     countDiv.textContent = "";
+	
+	try {
+    let url;
+    if (rkey) {
+      url = `https://${pds}/xrpc/com.atproto.repo.getRecord?repo=${encodeURIComponent(repo)}&collection=${encodeURIComponent(collection)}&rkey=${encodeURIComponent(rkey)}`;
+    } else {
+      url = `https://${pds}/xrpc/com.atproto.repo.listRecords?repo=${encodeURIComponent(repo)}&collection=${encodeURIComponent(collection)}&limit=100`;
+    }
+    const res = await fetch(url);
+    if (!res.ok) {
+      showDebugInfo(`Fetch error: HTTP ${res.status} - ${res.statusText}`);
+      throw new Error(`Error ${res.status}: ${res.statusText}`);
+    }
+    // ...process response...
+  } catch (err) {
+    showDebugInfo('Fetch error: ' + err.message);
+    // ...other error handling...
+  }
 	
 	// --- Fetch handle for display ---
   let handle = null;
