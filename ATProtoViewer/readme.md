@@ -26,7 +26,7 @@ The viewer supports direct linking and automatic form filling via URL parameters
     - Example:
 
 ```
-https://corkiejp.github.io/ATProtoViewer/index.html.html?uri=at://did:plc:xxxx/app.bsky.feed.post/yyyy
+https://corkiejp.github.io/ATProtoViewer/index.html.html?uri=at://did:plc:qxlh6bohvep3taqhmtpipx4b/app.bsky.feed.post/3lpx3s7avxc5r
 ```
 
 - **`pds` Parameter (optional):**
@@ -34,7 +34,7 @@ https://corkiejp.github.io/ATProtoViewer/index.html.html?uri=at://did:plc:xxxx/a
     - Example:
 
 ```
-https://corkiejp.github.io/ATProtoViewer/index.html.html?uri=at://did:plc:xxxx/app.bsky.feed.post/yyyy&pds=bsky.social
+https://corkiejp.github.io/ATProtoViewer/index.html.html?uri=at://did:plc:qxlh6bohvep3taqhmtpipx4b/app.bsky.feed.post/3lpx3s7avxc5r&pds=bsky.social
 ```
 
 - **Default Values:**
