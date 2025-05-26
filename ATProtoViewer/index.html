@@ -716,7 +716,7 @@ function createRecordCard(record, collection, pds) {
   setDefaultIfEmpty('[name="repo"]', DEFAULT_REPO);
   setDefaultIfEmpty('[name="collection"]', DEFAULT_COLLECTION);
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async () => {
   // --- Attach event listeners FIRST ---
 
   // --- Fill form from URI param if present ---
@@ -724,7 +724,10 @@ document.addEventListener('DOMContentLoaded', function() {
   const uri = params.get('uri');
   if (uri) {
     // Fill form and auto-fetch after parsing
-    parseAtUri(uri, true); // true = auto-fetch after parsing
+    await parseAtUri(uri, true); // true = auto-fetch after parsing
+
+    // Clean the URL for a nicer user experience (optional, but recommended)
+    // history.replaceState({}, '', '/ATProtoViewer/');
   }
 
   // --- Set defaults only if fields are empty ---
@@ -741,6 +744,8 @@ document.addEventListener('DOMContentLoaded', function() {
     uri: document.querySelector('[name="uri"]').value,
     pds: document.querySelector('[name="pds"]').value
   });
+});
+
 
 
   

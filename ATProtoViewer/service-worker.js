@@ -11,7 +11,7 @@ const URLS_TO_CACHE = [
   '/ATProtoViewer/assets/icon-512.png'
 ];
 
-// Added share to feature for android PWA. 5th
+// Added share to feature for android PWA. 6th
 // Install: Cache new assets
 self.addEventListener('install', event => {
   event.waitUntil(
