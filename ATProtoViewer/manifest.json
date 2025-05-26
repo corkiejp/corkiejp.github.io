@@ -19,7 +19,7 @@
     }
   ],
   "share_target": {
-    "action": "/",
+    "action": "/ATProtoViewer/",
     "method": "GET",
     "params": {
       "url": "uri"
