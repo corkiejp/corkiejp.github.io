@@ -1,0 +1,28 @@
+{
+  "name": "Share Target Test PWA",
+  "short_name": "ShareTest",
+  
+  "start_url": "/Testsharetopwa/",
+  "scope": "/Testsharetopwa/",
+  
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "description": "Test what is received via Android share intent",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ],
+  "share_target": {
+    "action": "/share-test",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
+}
