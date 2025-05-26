@@ -291,16 +291,13 @@ li { margin-bottom: 1em; }
      style="width:25px;cursor:pointer;" />  
 	 <button type="button" id="linksListBtn">Bluesky Essential Links</button>
 	 	
-	<br><br>
+	<br>
+	<div id="debug-info" style="background:#eee; color:#333; padding:8px; font-size:12px;"></div>
+	<br>
     <div id="record-count"></div>
     <div id="records"></div>
   </div>
     		 <footer>
-			 <img src="assets/image-circle-icon-256x256-bl766vvq.png"
-     alt="A dark circular logo featuring a stylized wave and a small circle. ~ Image for test purposes."
-     data-alt="A dark circular logo featuring a stylized wave and a small circle. ~ Image for test purposes."
-     class="modal-img"
-     style="width:25px;cursor:pointer;" /> 
             <p align=center><small><b>Disclaimer:-</b> I'm not a developer, this page/PWA was created <br> with the assistance of AI Powered search engine,<br>
 				<a href="https://www.perplexity.ai/" target='_blank'>https://www.perplexity.ai/</a><br>
 				 as an experiment into what can be done with static html on github.<br>
@@ -321,6 +318,17 @@ li { margin-bottom: 1em; }
 
 
 <script>
+function showDebugInfo(msg) {
+  document.getElementById('debug-info').textContent = msg;
+}
+
+// Example usage:
+const params = new URLSearchParams(window.location.search);
+const uri = params.get('uri');
+showDebugInfo('URI param: ' + uri);
+
+
+
 function isAccountAtUri(uri) {
   // Account URI: at://did:plc:xxxx
   // Post URI: at://did:plc:xxxx/app.bsky.feed.post/xxxx
@@ -1173,6 +1181,8 @@ function displayRecords(records, collection, pds, handle) {
 
 
 async function fetchAndDisplaySingleRecord(pds, repo, collection, rkey) {
+console.log("SParsed URI param:", params.get('uri'));
+console.log("SDecoded URI param:", decodeURIComponent(params.get('uri')));
   const url = `https://${pds}/xrpc/com.atproto.repo.getRecord?repo=${encodeURIComponent(repo)}&collection=${encodeURIComponent(collection)}&rkey=${encodeURIComponent(rkey)}`;
   const container = document.getElementById('records');
   const countDiv = document.getElementById('record-count');
@@ -1205,6 +1215,8 @@ async function fetchAndDisplaySingleRecord(pds, repo, collection, rkey) {
 
   // --- Fetch and display records ---
   async function fetchAndDisplayRecords(pds, repo, collection) {
+  console.log("Parsed URI param:", params.get('uri'));
+console.log("Decoded URI param:", decodeURIComponent(params.get('uri')));
     const url = `https://${pds}/xrpc/com.atproto.repo.listRecords?repo=${encodeURIComponent(repo)}&collection=${encodeURIComponent(collection)}&limit=100`;
     const container = document.getElementById('records');
     const countDiv = document.getElementById('record-count');
