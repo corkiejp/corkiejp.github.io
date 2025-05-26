@@ -19,7 +19,7 @@
     }
   ],
   "share_target": {
-    "action": "/ATProtoViewer/",
+    "action": "/ATProtoViewer/index.html",
     "method": "GET",
 	"enctype": "application/x-www-form-urlencoded",
     "params": {
