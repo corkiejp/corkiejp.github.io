@@ -4,8 +4,6 @@
   
   "start_url": "/Testsharetopwa/",
   "scope": "/Testsharetopwa/",
-  
-  "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "description": "Test what is received via Android share intent",
@@ -22,7 +20,7 @@
     }
   ],
   "share_target": {
-    "action": "/Testsharetopwa",
+    "action": "/Testsharetopwa/",
     "method": "GET",
     "params": {
       "title": "title",
