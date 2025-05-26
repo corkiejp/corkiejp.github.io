@@ -713,35 +713,31 @@ function createRecordCard(record, collection, pds) {
 
 document.addEventListener('DOMContentLoaded', function() {
   // --- Attach event listeners FIRST ---
-  
-// --- Fill form from URI param if present ---
-const params = new URLSearchParams(window.location.search);
-  // Prioritize shared URLs
-  if (params.has('uri')) {
-    const uri = params.get('uri');
-    parseAtUri(uri, true); // Auto-fetch after parsing
-    return;
+
+  // --- Fill form from URI param if present ---
+  const params = new URLSearchParams(window.location.search);
+  const uri = params.get('uri');
+  if (uri) {
+    // Fill form and auto-fetch after parsing
+    parseAtUri(uri, true); // true = auto-fetch after parsing
   }
-const uri = params.get('uri');
-if (uri) {
-  parseAtUri(uri, false); // fill fields, don't auto-fetch
-  // If you want to auto-fetch as well, use: parseAtUri(uri, true);
-}
 
-// --- Set defaults only if fields are empty ---
-setDefaultIfEmpty('[name="pds"]', DEFAULT_PDS);
-setDefaultIfEmpty('[name="repo"]', DEFAULT_REPO);
-setDefaultIfEmpty('[name="collection"]', DEFAULT_COLLECTION);
-setDefaultIfEmpty('[name="rkey"]', '');
-setDefaultIfEmpty('[name="uri"]', '');
+  // --- Set defaults only if fields are empty ---
+  setDefaultIfEmpty('[name="pds"]', DEFAULT_PDS);
+  setDefaultIfEmpty('[name="repo"]', DEFAULT_REPO);
+  setDefaultIfEmpty('[name="collection"]', DEFAULT_COLLECTION);
+  setDefaultIfEmpty('[name="rkey"]', '');
+  setDefaultIfEmpty('[name="uri"]', '');
 
-console.log("After parseAtUri and defaults:", {
-  repo: document.querySelector('[name="repo"]').value,
-  collection: document.querySelector('[name="collection"]').value,
-  rkey: document.querySelector('[name="rkey"]').value,
-  uri: document.querySelector('[name="uri"]').value,
-  pds: document.querySelector('[name="pds"]').value
-});
+  console.log("After parseAtUri and defaults:", {
+    repo: document.querySelector('[name="repo"]').value,
+    collection: document.querySelector('[name="collection"]').value,
+    rkey: document.querySelector('[name="rkey"]').value,
+    uri: document.querySelector('[name="uri"]').value,
+    pds: document.querySelector('[name="pds"]').value
+  });
+
+
   
 
   // Toggle Instructions Dropdown
