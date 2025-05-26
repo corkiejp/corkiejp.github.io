@@ -17,9 +17,7 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ]
-  {
-  "name": "ATProto Record Viewer",
+  ],
   "share_target": {
     "action": "/",
     "method": "GET",
@@ -28,4 +26,5 @@
     }
   }
 }
-}
+
+
