@@ -716,6 +716,12 @@ document.addEventListener('DOMContentLoaded', function() {
   
 // --- Fill form from URI param if present ---
 const params = new URLSearchParams(window.location.search);
+  // Prioritize shared URLs
+  if (params.has('uri')) {
+    const uri = params.get('uri');
+    parseAtUri(uri, true); // Auto-fetch after parsing
+    return;
+  }
 const uri = params.get('uri');
 if (uri) {
   parseAtUri(uri, false); // fill fields, don't auto-fetch
@@ -852,7 +858,32 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // --- Parse AT URI function ---
-  function parseAtUri(atUri, fetchAfter = true) {
+  async function parseAtUri(atUri, fetchAfter = true) {
+  
+    // --- New: Handle Bluesky web URLs ---
+  if (atUri.startsWith('https://bsky.app/')) {
+    // Example: https://bsky.app/profile/raxdflipnote.bsky.social/post/3lpyzwfpiic2k
+    const urlParts = atUri.split('/');
+    if (urlParts.length >= 7 && urlParts[3] === 'profile' && urlParts[5] === 'post') {
+      const handle = urlParts[4];
+      const rkey = urlParts[6];
+      // Resolve handle to DID using public API
+      try {
+        const resp = await fetch(`https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=${handle}`);
+        const data = await resp.json();
+        if (!data.did) throw new Error('Could not resolve handle');
+        document.querySelector('[name="repo"]').value = data.did;
+        document.querySelector('[name="collection"]').value = 'app.bsky.feed.post';
+        document.querySelector('[name="rkey"]').value = rkey;
+        if (fetchAfter) triggerFetchIfReady();
+        return;
+      } catch (e) {
+        alert('Failed to resolve Bluesky handle: ' + handle);
+        return;
+      }
+    }
+  }
+  
     if (!atUri) return;
     const match = atUri.match(/^at:\/\/([^/]+)\/([^/]+)(?:\/([^/]+))?$/);
     if (match) {

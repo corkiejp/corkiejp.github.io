@@ -18,4 +18,14 @@
       "type": "image/png"
     }
   ]
+  {
+  "name": "ATProto Record Viewer",
+  "share_target": {
+    "action": "/",
+    "method": "GET",
+    "params": {
+      "url": "uri"
+    }
+  }
+}
 }

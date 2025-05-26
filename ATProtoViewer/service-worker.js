@@ -1,4 +1,4 @@
-const CACHE_NAME = 'atproto-pwa-v1.08';
+const CACHE_NAME = 'atproto-pwa-v1.09';
 const URLS_TO_CACHE = [
   '/ATProtoViewer/',
   '/ATProtoViewer/index.html',
@@ -11,7 +11,7 @@ const URLS_TO_CACHE = [
   '/ATProtoViewer/assets/icon-512.png'
 ];
 
-// JavaScript restructured and cleaned up!
+// Added share to feature for android PWA.
 // Install: Cache new assets
 self.addEventListener('install', event => {
   event.waitUntil(
