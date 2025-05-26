@@ -290,16 +290,17 @@ li { margin-bottom: 1em; }
      class="modal-img"
      style="width:25px;cursor:pointer;" />  
 	 <button type="button" id="linksListBtn">Bluesky Essential Links</button>
-	 	<img src="assets/image-circle-icon-256x256-bl766vvq.png"
-     alt="A dark circular logo featuring a stylized wave and a small circle. ~ Image for test purposes."
-     data-alt="A dark circular logo featuring a stylized wave and a small circle. ~ Image for test purposes."
-     class="modal-img"
-     style="width:25px;cursor:pointer;" /> 
+	 	
 	<br><br>
     <div id="record-count"></div>
     <div id="records"></div>
   </div>
     		 <footer>
+			 <img src="assets/image-circle-icon-256x256-bl766vvq.png"
+     alt="A dark circular logo featuring a stylized wave and a small circle. ~ Image for test purposes."
+     data-alt="A dark circular logo featuring a stylized wave and a small circle. ~ Image for test purposes."
+     class="modal-img"
+     style="width:25px;cursor:pointer;" /> 
             <p align=center><small><b>Disclaimer:-</b> I'm not a developer, this page/PWA was created <br> with the assistance of AI Powered search engine,<br>
 				<a href="https://www.perplexity.ai/" target='_blank'>https://www.perplexity.ai/</a><br>
 				 as an experiment into what can be done with static html on github.<br>
@@ -716,12 +717,15 @@ function createRecordCard(record, collection, pds) {
   setDefaultIfEmpty('[name="repo"]', DEFAULT_REPO);
   setDefaultIfEmpty('[name="collection"]', DEFAULT_COLLECTION);
 
+
+
 document.addEventListener('DOMContentLoaded', async () => {
   // --- Attach event listeners FIRST ---
 
   // --- Fill form from URI param if present ---
   const params = new URLSearchParams(window.location.search);
   const uri = params.get('uri');
+  console.log("Parsed uri param:", uri);
   if (uri) {
     // Fill form and auto-fetch after parsing
     await parseAtUri(uri, true); // true = auto-fetch after parsing
@@ -918,7 +922,8 @@ async function parseAtUri(atUri, fetchAfter = true) {
         });
     } else {
       if (fetchAfter) triggerFetchIfReady();
-    }
+    } 
+	return;
   } else {
     alert('Invalid AT URI format.');
   }
@@ -1062,22 +1067,48 @@ function openImgModal(imgUrl, altText) {
 if (params.has('uri')) {
   const atUri = params.get('uri').trim();
   if (atUri) {
-    const match = atUri.match(/^at:\/\/([^/]+)\/([^/]+)\/([^/]+)$/);
+    // 1. Try AT URI
+    let match = atUri.match(/^at:\/\/([^/]+)\/([^/]+)\/([^/]+)$/);
     if (match) {
       const repo = match[1];
       const collection = match[2];
       const rkey = match[3];
-      // Use PDS from param or default
       const pds = params.get('pds') || document.querySelector('[name="pds"]').value || DEFAULT_PDS;
       console.log("[DEBUG] Calling fetchAndDisplaySingleRecord with:", pds, repo, collection, rkey);
       fetchAndDisplaySingleRecord(pds, repo, collection, rkey);
       alreadyFetched = true;
-    } else {
-      document.getElementById('records').innerHTML = `<p style="color:red;">Invalid URI format.</p>`;
-      alreadyFetched = true;
+      return;
     }
+
+    // 2. Try Bluesky web URL
+    match = atUri.match(/^https:\/\/bsky\.app\/profile\/([^/]+)\/post\/([^/]+)$/);
+    if (match) {
+      const handle = match[1];
+      const rkey = match[2];
+      // Resolve handle to DID
+      fetch(`https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=${handle}`)
+        .then(resp => resp.json())
+        .then(data => {
+          if (!data.did) throw new Error('Could not resolve handle');
+          const repo = data.did;
+          const collection = 'app.bsky.feed.post';
+          const pds = 'bsky.social';
+          console.log("[DEBUG] Calling fetchAndDisplaySingleRecord with:", pds, repo, collection, rkey);
+          fetchAndDisplaySingleRecord(pds, repo, collection, rkey);
+        })
+        .catch(e => {
+          document.getElementById('records').innerHTML = `<p style="color:red;">Failed to resolve handle: ${handle}</p>`;
+        });
+      alreadyFetched = true;
+      return;
+    }
+
+    // 3. If neither matched, show error
+    document.getElementById('records').innerHTML = `<p style="color:red;">XXX Invalid URI format. XXX</p>`;
+    alreadyFetched = true;
   }
 }
+
 
 
   // 2. If no URI, try DID parameter
