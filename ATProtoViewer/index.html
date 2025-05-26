@@ -290,6 +290,11 @@ li { margin-bottom: 1em; }
      class="modal-img"
      style="width:25px;cursor:pointer;" />  
 	 <button type="button" id="linksListBtn">Bluesky Essential Links</button>
+	 	<img src="assets/image-circle-icon-256x256-bl766vvq.png"
+     alt="A dark circular logo featuring a stylized wave and a small circle. ~ Image for test purposes."
+     data-alt="A dark circular logo featuring a stylized wave and a small circle. ~ Image for test purposes."
+     class="modal-img"
+     style="width:25px;cursor:pointer;" /> 
 	<br><br>
     <div id="record-count"></div>
     <div id="records"></div>
@@ -853,10 +858,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // --- Parse AT URI function ---
-  async function parseAtUri(atUri, fetchAfter = true) {
-  
-    // --- New: Handle Bluesky web URLs ---
+ 
+ // --- Parse AT URI function ---
+async function parseAtUri(atUri, fetchAfter = true) {
+  if (!atUri) return;
+
+  // --- Handle Bluesky web URLs ---
   if (atUri.startsWith('https://bsky.app/')) {
     // Example: https://bsky.app/profile/raxdflipnote.bsky.social/post/3lpyzwfpiic2k
     const urlParts = atUri.split('/');
@@ -877,38 +884,43 @@ document.addEventListener('DOMContentLoaded', function() {
         alert('Failed to resolve Bluesky handle: ' + handle);
         return;
       }
-    }
-  }
-  
-    if (!atUri) return;
-    const match = atUri.match(/^at:\/\/([^/]+)\/([^/]+)(?:\/([^/]+))?$/);
-    if (match) {
-      const [, repo, collection, rkey] = match;
-      document.querySelector('[name="repo"]').value = repo;
-      document.querySelector('[name="collection"]').value = collection;
-      if (rkey && document.querySelector('[name="rkey"]')) {
-        document.querySelector('[name="rkey"]').value = rkey;
-      }
-      if (repo.startsWith('did:plc:')) {
-        fetch('https://plc.directory/' + repo)
-          .then(resp => resp.json())
-          .then(data => {
-            if (data && data.service && data.service[0] && data.service[0].serviceEndpoint) {
-              document.querySelector('[name="pds"]').value = data.service[0].serviceEndpoint.replace(/^https?:\/\//, '');
-            }
-            if (fetchAfter) triggerFetchIfReady();
-          })
-          .catch(() => {
-            if (fetchAfter) triggerFetchIfReady();
-          });
-      } else {
-        if (fetchAfter) triggerFetchIfReady();
-      }
     } else {
-      alert('Invalid AT URI format.');
+      alert('Unrecognized Bluesky post URL format.');
+      return;
     }
   }
 
+  // --- Handle at:// URIs ---
+  const match = atUri.match(/^at:\/\/([^/]+)\/([^/]+)(?:\/([^/]+))?$/);
+  if (match) {
+    const [, repo, collection, rkey] = match;
+    document.querySelector('[name="repo"]').value = repo;
+    document.querySelector('[name="collection"]').value = collection;
+    if (rkey && document.querySelector('[name="rkey"]')) {
+      document.querySelector('[name="rkey"]').value = rkey;
+    }
+    if (repo.startsWith('did:plc:')) {
+      fetch('https://plc.directory/' + repo)
+        .then(resp => resp.json())
+        .then(data => {
+          if (data && data.service && data.service[0] && data.service[0].serviceEndpoint) {
+            document.querySelector('[name="pds"]').value = data.service[0].serviceEndpoint.replace(/^https?:\/\//, '');
+          }
+          if (fetchAfter) triggerFetchIfReady();
+        })
+        .catch(() => {
+          if (fetchAfter) triggerFetchIfReady();
+        });
+    } else {
+      if (fetchAfter) triggerFetchIfReady();
+    }
+  } else {
+    alert('Invalid AT URI format.');
+  }
+}
+
+ 
+ 
   // --- Repo input change: auto-fill PDS if PLC DID ---
   const repoInput = document.getElementById('repo');
   if (repoInput) {
