@@ -17,7 +17,7 @@
     }
   ],
   "share_target": {
-    "action": "/share-test",
+    "action": "/Testsharetopwa",
     "method": "GET",
     "params": {
       "title": "title",
