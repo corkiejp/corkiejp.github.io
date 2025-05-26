@@ -1,0 +1,69 @@
+<img src="https://r2cdn.perplexity.ai/pplx-full-logo-primary-dark%402x.png" class="logo" width="120"/>
+
+
+## 📝 ATProto Record Viewer — Script Structure \& URL Parameters
+
+### 📁 **Project Structure Overview**
+
+- **Constants \& Configuration:**
+Defined at the top of the main script file for easy reference and modification (e.g., `DEFAULT_PDS`, `DEFAULT_REPO`, etc.).
+- **Helper Functions:**
+Utility functions (such as `setDefaultIfEmpty`, `parseAtUri`, etc.) are grouped together near the top of the script for reuse and clarity.
+- **Main Logic:**
+All initialization and event listeners are placed inside a single `DOMContentLoaded` handler to ensure the DOM is ready before any manipulation.
+- **Event Listeners:**
+All button clicks, form submissions, and modal interactions are registered inside the main DOMContentLoaded block.
+
+---
+
+### 🔗 **URL Parameter Behavior**
+
+The viewer supports direct linking and automatic form filling via URL parameters:
+
+- **`uri` Parameter:**
+    - If the page is loaded with a `?uri=at://...` parameter, the form fields (`repo`, `collection`, `rkey`, `pds`) are automatically filled based on the parsed AT URI.
+    - The user can then fetch the single record or modify the fields for further queries.
+    - Example:
+
+```
+https://corkiejp.github.io/ATProtoViewer/index.html.html?uri=at://did:plc:xxxx/app.bsky.feed.post/yyyy
+```
+
+- **`pds` Parameter (optional):**
+    - If provided, this value will prefill the PDS Host field.
+    - Example:
+
+```
+https://corkiejp.github.io/ATProtoViewer/index.html.html?uri=at://did:plc:xxxx/app.bsky.feed.post/yyyy&pds=bsky.social
+```
+
+- **Default Values:**
+    - If any fields are not filled by the URL parameters, they are set to sensible defaults as defined in the script constants.
+
+---
+
+### 🛠 **How It Works**
+
+1. On page load, the script:
+    - Parses URL parameters.
+    - Fills form fields from `uri` and `pds` if present.
+    - Sets default values for any remaining empty fields.
+2. The user can:
+    - Click "Show This Record Only" to fetch a single record.
+    - Click "Fetch Records" to list all records for the specified repo/collection.
+    - Edit any form field and re-submit as needed.
+
+---
+
+### 💡 **Maintaining the Code**
+
+- All logic is contained within a single `DOMContentLoaded` handler for clarity.
+- Helper functions are grouped for reusability.
+- To add new features or change defaults, update the constants and helper functions at the top of the script.
+
+---
+
+**For further details, see comments within the script or contact [@corkiejp](https://github.com/corkiejp).**
+
+---
+
