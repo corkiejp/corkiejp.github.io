@@ -50,7 +50,7 @@ https://corkiejp.github.io/ATProtoViewer/index.html?uri=at://did:plc:qxlh6bohvep
     - Sets default values for any remaining empty fields.
 2. The user can:
     - Click "Show This Record Only" to fetch a single record.
-    - Click "Fetch Records" to list all records for the specified repo/collection.
+    - Click "Fetch Records" to list 100 latest records for the specified repo/collection.
     - Edit any form field and re-submit as needed.
 
 ---
