@@ -5,6 +5,8 @@ const URLS_TO_CACHE = [
   '/Testsharetopwa/manifest.json',
   '/Testsharetopwa/styles.css',
   '/Testsharetopwa/main.js',
+  '/Testsharetopwa/assets/icon-192.png',
+  '/Testsharetopwa/assets/icon-512.png'
 ];
 
 
