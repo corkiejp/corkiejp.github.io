@@ -882,6 +882,7 @@ async function parseAtUri(atUri, fetchAfter = true) {
         document.querySelector('[name="repo"]').value = data.did;
         document.querySelector('[name="collection"]').value = 'app.bsky.feed.post';
         document.querySelector('[name="rkey"]').value = rkey;
+		document.querySelector('[name="pds"]').value = 'bsky.social';
         if (fetchAfter) triggerFetchIfReady();
         return;
       } catch (e) {
