@@ -26,6 +26,16 @@
       "url": "uri"
     }
   }
+  "share_target": {
+  "action": "/ttospwa/",
+  "method": "GET",
+  "params": {
+    "title": "title",
+    "text": "text",
+    "url": "url"
+  }
+}
+
 }
 
 
