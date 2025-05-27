@@ -1,4 +1,4 @@
-const CACHE_NAME = 'atproto-pwa-v1.09';
+const CACHE_NAME = 'atproto-pwa-v1.10';
 const URLS_TO_CACHE = [
   '/ATProtoViewer/',
   '/ATProtoViewer/index.html',
@@ -12,15 +12,29 @@ const URLS_TO_CACHE = [
 ];
 
 
-// Now hopefully parsing the text string
+// Using Share to on bluesky should now work.
 // Install: Cache new assets
-self.addEventListener('install', event => {
+
+self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(URLS_TO_CACHE))
-      .then(() => self.skipWaiting()) // Force immediate activation
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames
+          .filter(cacheName => cacheName !== CACHE_NAME)
+          .map(cacheName => caches.delete(cacheName))
+      );
+    }).then(() => self.clients.claim())
+     .then(() => {
+        // Notify all clients that SW is activated
+        return self.clients.matchAll().then(clients => {
+          clients.forEach(client => {
+            client.postMessage({type: 'SW_ACTIVATED'});
+          });
+        });
+      })
   );
 });
+
 
 // Activate: Delete old caches
 self.addEventListener('activate', event => {

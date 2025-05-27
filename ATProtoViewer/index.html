@@ -1418,8 +1418,17 @@ if ('serviceWorker' in navigator) {
       console.log('ServiceWorker registration failed:', err);
     });
   });
+
+  // Listen for messages from the service worker
+  navigator.serviceWorker.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'SW_ACTIVATED') {
+      // Reload the page, preserving the query string
+      window.location.href = window.location.pathname + window.location.search;
+    }
+  });
 }
 </script>
+
 
 
 </body>
