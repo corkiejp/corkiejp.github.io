@@ -188,8 +188,6 @@ li { margin-bottom: 1em; }
   </style>
 </head>
 <body>
-<div id="debug-info" style="background:#ffe;color:#900;padding:8px;font-size:13px"></div>
-
   <div class="container">
     <h1>ATProto Record Viewer (Multi-PDS)</h1>
     <!-- Instructions Dropdown -->
@@ -292,9 +290,7 @@ li { margin-bottom: 1em; }
      class="modal-img"
      style="width:25px;cursor:pointer;" />  
 	 <button type="button" id="linksListBtn">Bluesky Essential Links</button>
-	 	
-	<br>
-	<br>
+	<br><br>
     <div id="record-count"></div>
     <div id="records"></div>
   </div>
@@ -319,23 +315,6 @@ li { margin-bottom: 1em; }
 
 
 <script>
-function showDebugInfo(msg) {
-  const debugDiv = document.getElementById('debug-info');
-  if (debugDiv) {
-    debugDiv.textContent = msg;
-  }
-}
-
-
-// Example usage:
-const params = new URLSearchParams(window.location.search);
-const uri = params.get('uri');
-showDebugInfo('URI param: ' + uri);
-
-
-
-
-
 function isAccountAtUri(uri) {
   // Account URI: at://did:plc:xxxx
   // Post URI: at://did:plc:xxxx/app.bsky.feed.post/xxxx
@@ -732,45 +711,31 @@ function createRecordCard(record, collection, pds) {
   setDefaultIfEmpty('[name="repo"]', DEFAULT_REPO);
   setDefaultIfEmpty('[name="collection"]', DEFAULT_COLLECTION);
 
-
-
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', function() {
   // --- Attach event listeners FIRST ---
+  
+// --- Fill form from URI param if present ---
+const params = new URLSearchParams(window.location.search);
+const uri = params.get('uri');
+if (uri) {
+  parseAtUri(uri, false); // fill fields, don't auto-fetch
+  // If you want to auto-fetch as well, use: parseAtUri(uri, true);
+}
 
-  // --- Fill form from URI param if present ---
-  const params = new URLSearchParams(window.location.search);
-  const uri = params.get('uri');
-  console.log("Parsed uri param:", uri);
-    if (!uri) {
-    showDebugInfo('No URI parameter found. Defaulting to feed view.');
-  } else {
-    showDebugInfo('URI param: ' + uri);
-  }
-  if (uri) {
-    // Fill form and auto-fetch after parsing
-    await parseAtUri(uri, true); // true = auto-fetch after parsing
+// --- Set defaults only if fields are empty ---
+setDefaultIfEmpty('[name="pds"]', DEFAULT_PDS);
+setDefaultIfEmpty('[name="repo"]', DEFAULT_REPO);
+setDefaultIfEmpty('[name="collection"]', DEFAULT_COLLECTION);
+setDefaultIfEmpty('[name="rkey"]', '');
+setDefaultIfEmpty('[name="uri"]', '');
 
-    // Clean the URL for a nicer user experience (optional, but recommended)
-    // history.replaceState({}, '', '/ATProtoViewer/');
-  }
-
-  // --- Set defaults only if fields are empty ---
-  setDefaultIfEmpty('[name="pds"]', DEFAULT_PDS);
-  setDefaultIfEmpty('[name="repo"]', DEFAULT_REPO);
-  setDefaultIfEmpty('[name="collection"]', DEFAULT_COLLECTION);
-  setDefaultIfEmpty('[name="rkey"]', '');
-  setDefaultIfEmpty('[name="uri"]', '');
-
-  console.log("After parseAtUri and defaults:", {
-    repo: document.querySelector('[name="repo"]').value,
-    collection: document.querySelector('[name="collection"]').value,
-    rkey: document.querySelector('[name="rkey"]').value,
-    uri: document.querySelector('[name="uri"]').value,
-    pds: document.querySelector('[name="pds"]').value
-  });
-
-
-
+console.log("After parseAtUri and defaults:", {
+  repo: document.querySelector('[name="repo"]').value,
+  collection: document.querySelector('[name="collection"]').value,
+  rkey: document.querySelector('[name="rkey"]').value,
+  uri: document.querySelector('[name="uri"]').value,
+  pds: document.querySelector('[name="pds"]').value
+});
   
 
   // Toggle Instructions Dropdown
@@ -886,7 +851,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
- 
  // --- Parse AT URI function ---
 async function parseAtUri(atUri, fetchAfter = true) {
   if (!atUri) return;
@@ -949,8 +913,6 @@ async function parseAtUri(atUri, fetchAfter = true) {
   }
 }
 
- 
- 
   // --- Repo input change: auto-fill PDS if PLC DID ---
   const repoInput = document.getElementById('repo');
   if (repoInput) {
@@ -1130,7 +1092,6 @@ if (params.has('uri')) {
 }
 
 
-
   // 2. If no URI, try DID parameter
   if (!alreadyFetched && params.has('did')) {
     const did = params.get('did').trim();
@@ -1193,8 +1154,6 @@ function displayRecords(records, collection, pds, handle) {
 
 
 async function fetchAndDisplaySingleRecord(pds, repo, collection, rkey) {
-console.log("SParsed URI param:", params.get('uri'));
-console.log("SDecoded URI param:", decodeURIComponent(params.get('uri')));
   const url = `https://${pds}/xrpc/com.atproto.repo.getRecord?repo=${encodeURIComponent(repo)}&collection=${encodeURIComponent(collection)}&rkey=${encodeURIComponent(rkey)}`;
   const container = document.getElementById('records');
   const countDiv = document.getElementById('record-count');
@@ -1227,31 +1186,11 @@ console.log("SDecoded URI param:", decodeURIComponent(params.get('uri')));
 
   // --- Fetch and display records ---
   async function fetchAndDisplayRecords(pds, repo, collection) {
-  console.log("Parsed URI param:", params.get('uri'));
-console.log("Decoded URI param:", decodeURIComponent(params.get('uri')));
     const url = `https://${pds}/xrpc/com.atproto.repo.listRecords?repo=${encodeURIComponent(repo)}&collection=${encodeURIComponent(collection)}&limit=100`;
     const container = document.getElementById('records');
     const countDiv = document.getElementById('record-count');
     container.innerHTML = "<em>Loading...</em>";
     countDiv.textContent = "";
-	
-	try {
-    let url;
-    if (rkey) {
-      url = `https://${pds}/xrpc/com.atproto.repo.getRecord?repo=${encodeURIComponent(repo)}&collection=${encodeURIComponent(collection)}&rkey=${encodeURIComponent(rkey)}`;
-    } else {
-      url = `https://${pds}/xrpc/com.atproto.repo.listRecords?repo=${encodeURIComponent(repo)}&collection=${encodeURIComponent(collection)}&limit=100`;
-    }
-    const res = await fetch(url);
-    if (!res.ok) {
-      showDebugInfo(`Fetch error: HTTP ${res.status} - ${res.statusText}`);
-      throw new Error(`Error ${res.status}: ${res.statusText}`);
-    }
-    // ...process response...
-  } catch (err) {
-    showDebugInfo('Fetch error: ' + err.message);
-    // ...other error handling...
-  }
 	
 	// --- Fetch handle for display ---
   let handle = null;
@@ -1430,7 +1369,6 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
-
 
 
 </body>
