@@ -19,11 +19,11 @@
     }
   ],
   "share_target": {
-    "action": "/ATProtoViewer/index.html",
+    "action": "/ATProtoViewer/",
     "method": "GET",
 	"enctype": "application/x-www-form-urlencoded",
     "params": {
-      "url": "uri"
+      "url": "url"
     }
   }
 }

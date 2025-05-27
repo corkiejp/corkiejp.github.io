@@ -23,19 +23,13 @@
     "method": "GET",
 	"enctype": "application/x-www-form-urlencoded",
     "params": {
-      "url": "uri"
+	"title": "title",
+    "text": "text",		
+      "url": "url"
     }
   }
-  "share_target": {
-  "action": "/ttospwa/",
-  "method": "GET",
-  "params": {
-    "title": "title",
-    "text": "text",
-    "url": "url"
-  }
-}
 
 }
+
 
 
