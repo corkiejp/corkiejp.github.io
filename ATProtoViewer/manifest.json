@@ -23,8 +23,9 @@
     "method": "GET",
 	"enctype": "application/x-www-form-urlencoded",
     "params": {
-      "url": "url"
-    }
+		"text": "uri",
+		"url": "uri"
+	}
   }
 }
 

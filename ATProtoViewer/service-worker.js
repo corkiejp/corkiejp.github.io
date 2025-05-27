@@ -12,7 +12,7 @@ const URLS_TO_CACHE = [
 ];
 
 
-// Index.html with debugging v2
+// Now hopefully parsing the text string
 // Install: Cache new assets
 self.addEventListener('install', event => {
   event.waitUntil(
