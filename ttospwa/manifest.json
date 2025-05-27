@@ -1,12 +1,11 @@
 {
-  "name": "Share Target Test PWA",
-  "short_name": "ShareTest",
-  
-  "start_url": "/Testsharetopwa/",
-  "scope": "/Testsharetopwa/",
+  "name": "Test to share PWA",
+  "short_name": "ttospwa",
+  "start_url": "/ttospwa/",
+  "scope": "/ttospwa/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "description": "Test what is received via Android share intent",
+  "theme_color": "#1976d2",
   "icons": [
     {
       "src": "assets/icon-192.png",
@@ -20,12 +19,13 @@
     }
   ],
   "share_target": {
-    "action": "/Testsharetopwa/",
+    "action": "/ttospwa/",
     "method": "GET",
+	"enctype": "application/x-www-form-urlencoded",
     "params": {
-      "title": "title",
-      "text": "text",
-      "url": "url"
+      "url": "uri"
     }
   }
 }
+
+
