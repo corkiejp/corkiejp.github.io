@@ -232,7 +232,7 @@ li { margin-bottom: 1em; }
     <li>
       <strong>Deep Links & Utilities:</strong>
       <ul>
-        <li>Quick access to <a href="https://atp.tools/" target="_blank">atp.Tools</a>, <a href="https://skythread.app/" target="_blank">SkyThread</a>, and <a href="https://pds.ls/" target="_blank">pdsls</a> for every record.</li>
+        <li>Quick access to <a href="https://atp.tools/" target="_blank">atp.Tools</a>, <a href="https://blue.mackuba.eu/skythread/" target="_blank">SkyThread</a>, and <a href="https://pds.ls/" target="_blank">pdsls</a> for every record.</li>
         <li><strong>Copy Links:</strong> Easily copy AT URI links and Bluesky permalinks for sharing or reference.</li>
       </ul>
     </li>
@@ -379,13 +379,21 @@ function extractUrls(text) {
     const bskyUrl = (collection === 'app.bsky.feed.post')
       ? `https://bsky.app/profile/${did}/post/${rkey}`
       : null;
+	 const deerUrl = (collection === 'app.bsky.feed.post')
+      ? `https://deer.social/profile/${did}/post/${rkey}`
+      : null;
     const clearskyHistoryUrl = `https://clearsky.app/${did}/history`;
+	const plcdirprofile = `https://plc.directory/${did}`;
+	const credblue = `https://cred.blue/${did}`;
     return {
       did,
       collection,
       rkey,
       bskyUrl,
-      clearskyHistoryUrl
+	  deerUrl,
+      clearskyHistoryUrl,
+	  plcdirprofile,
+	  credblue,
     };
   }
 
@@ -611,7 +619,7 @@ function createRecordCard(record, collection, pds) {
   const skythreadAtUri = `https://blue.mackuba.eu/skythread/?q=${atUri}`;
   const skythreadInnerUri = innerUri ? `https://blue.mackuba.eu/skythread/?q=${innerUri}` : null;
   const skyviewUri = "https://skyview.social/?url=" + encodeURIComponent(atUri);
-  const { bskyUrl, clearskyHistoryUrl } = atUriToUrls(atUri) || {};
+  const { bskyUrl, clearskyHistoryUrl, deerUrl, plcdirprofile, credblue} = atUriToUrls(atUri) || {};
 
   // --- Embed/media rendering ---
   const did = record.repo || record.did || extractDidFromUri(record.uri);
@@ -628,8 +636,9 @@ function createRecordCard(record, collection, pds) {
   // --- Dropdown links ---
   let links = [];
   if (collection === "app.bsky.feed.post") {
-    links.push(`<a href="${bskyUrl}" target="_blank" rel="noopener" class="bsky-link">bsky.app</a>`);
     links.push(`<a href="${postview}">Post viewer</a>`);
+    links.push(`<a href="${bskyUrl}" target="_blank" rel="noopener" class="bsky-link">bsky.app</a>`);
+    links.push(`<a href="${deerUrl}" target="_blank" rel="noopener" class="bsky-link">deer.social</a>`);
     links.push(`<a href="${clearskyHistoryUrl}" target="_blank" rel="noopener">Clearsky</a>`);
     links.push(`<a href="${skythreadAtUri}" target="_blank" rel="noopener">SkyThread</a>`);
     links.push(`<a href="${skyviewUri}" target="_blank" rel="noopener">Skyview</a>`);
@@ -637,6 +646,9 @@ function createRecordCard(record, collection, pds) {
   links.push(`<a href="${rawrecords}" target="_blank" rel="noopener">Raw Records</a>`);
   links.push(`<a href="${atpToolsUrl}" target="_blank" rel="noopener">atp.tools</a>`);
   links.push(`<a href="${pdslsdevUrl}" target="_blank" rel="noopener">pdsls.dev</a>`);
+  links.push(`<a href="${plcdirprofile}" target="_blank" rel="noopener">plc.directory</a>`);
+  links.push(`<a href="${credblue}" target="_blank" rel="noopener">cred.blue</a>`);
+  
   if (innerUri && skythreadInnerUri) {
     links.push(`<a href="${skythreadInnerUri}" target="_blank" rel="noopener">SkyThread (value URI)</a>`);
   }
