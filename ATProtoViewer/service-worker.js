@@ -12,7 +12,7 @@ const URLS_TO_CACHE = [
 ];
 
 
-// Localstorage Bookmarks added!
+// Localstorage Bookmarks added! Need to add a line break for mobile!
 // Install: Cache new assets
 
 self.addEventListener('activate', event => {
