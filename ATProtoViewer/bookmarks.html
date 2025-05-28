@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+   <title>ATProto Viewer Bookmarks</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0074d9">
+  <link rel="icon" href="assets/icon-192.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  
+  
+  
+  
+  <style>
+body { font-family: system-ui, sans-serif; background: #f5f6fa; margin: 0; padding: 2em 0; }
+.container { max-width: 700px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding: 2em; }
+h1 { text-align: center; color: #333; margin-top: 0; }
+
+form { display: flex; gap: 1em; flex-wrap: wrap; margin-bottom: 2em; align-items: flex-end; justify-content: center; }
+label { flex: 1 1 250px; display: flex; flex-direction: column; font-weight: 500; color: #444; }
+input[type="text"] { padding: 0.5em; border: 1px solid #bbb; border-radius: 6px; font-size: 1em; margin-top: 0.3em; }
+button {
+  padding: 0.7em 1.5em;
+  background: #0074d9;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1em;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+	#back-link {
+  position: fixed;
+  top: 16px;         /* Distance from the top edge */
+  left: 16px;        /* Distance from the left edge */
+  z-index: 1000;     /* Make sure it stays above other content */
+  background: #fff;  /* Optional: background for readability */
+  padding: 8px 14px; /* Optional: padding for a button look */
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.07);
+  text-decoration: none;
+  color: #0074d9;
+  font-weight: bold;
+  font-size: 0.8em;
+  opacity: 0.95;
+  transition: background 0.2s, color 0.2s;
+}
+#back-link:hover {
+  background: #e6f1fa;
+  color: #005fa3;
+}
+
+  </style>
+</head>
+<body><a id="back-link" href="#" style="position: fixed; top: 16px; left: 16px;">⬅️ ATProto Viewer.</a>
+
+
+  <div class="container">
+    <h1>ATProto Viewer Bookmarks</h1>
+	<h2>Bookmarks stored in localStorage,<br> Export them if you create a big list!</h2>
+	  <div style="margin-top:1em;">
+    <button onclick="exportBookmarks()">Export Bookmarks</button>
+    <input type="file" id="import-bookmarks-file" style="display:none;" onchange="importBookmarks(event)">
+    <button onclick="document.getElementById('import-bookmarks-file').click()">Import Bookmarks</button>
+  </div>
+	  <div id="bookmark-list"></div>
+  <div style="margin-top:1em;">
+    <button onclick="exportBookmarks()">Export Bookmarks</button>
+    <input type="file" id="import-bookmarks-file" style="display:none;" onchange="importBookmarks(event)">
+    <button onclick="document.getElementById('import-bookmarks-file').click()">Import Bookmarks</button>
+  </div>
+
+
+ 
+</div>	
+    		 <footer>
+            <p align=center><small><b>Disclaimer:-</b> I'm not a developer, this page/PWA was created <br> with the assistance of AI Powered search engine,<br>
+				<a href="https://www.perplexity.ai/" target='_blank'>https://www.perplexity.ai/</a><br>
+				 as an experiment into what can be done with static html on github.<br>
+				 Static webpage so no monitoring in place with a server backend, no login details requested so no privacy issues.<br> .   
+				If you use it, your not interacting with the AI.</small></p>
+        </footer>
+		
+
+
+
+		
+		
+		</div>
+		
+  <script>
+	let basePath = window.location.origin + window.location.pathname;
+	if (basePath.endsWith('bookmarks.html')) {
+	basePath = basePath.replace('bookmarks.html', 'index.html');
+	}
+
+function fetchHandleForDid(did) {
+  // Example for ATProto/Bluesky PLC directory:
+  return fetch(`https://plc.directory/${did}`)
+    .then(res => res.json())
+    .then(data => data.alsoKnownAs && data.alsoKnownAs[0]
+      ? data.alsoKnownAs[0].replace('at://', '')
+      : (data.handle || null)
+    )
+    .catch(() => null);
+}
+
+
+function showBookmarks() {
+  const originalBookmarks = JSON.parse(localStorage.getItem('bskyBookmarks') || "[]");
+  // For display, use a reversed copy
+  const bookmarks = originalBookmarks.slice().reverse();
+  const listDiv = document.getElementById('bookmark-list');
+  if (bookmarks.length === 0) {
+    listDiv.innerHTML = "<p>No bookmarks yet.</p>";
+    return;
+  }
+  listDiv.innerHTML = bookmarks.map((b, i) => `
+    <div class="bookmark-item" data-uri="${b.uri}">
+      <strong>${b.title || b.uri}</strong><br>
+      <em>${b.description || ''}</em><br>
+      <span>Handle: <span class="handle-value">${b.handle}</span> | DID: ${b.did}</span><br>
+      <span class="bookmark-actions">
+        <button onclick="window.location.href='${basePath}?uri=${encodeURIComponent(b.uri)}'">Open Post</button>
+        <button onclick="removeBookmark('${b.uri}')">Remove</button>
+      </span>
+    </div>
+  `).join('');
+
+  // After rendering, update any handles that are still DIDs
+  bookmarks.forEach(b => {
+    if (b.handle && b.handle.startsWith('did:plc:')) {
+      fetchHandleForDid(b.did).then(realHandle => {
+        if (realHandle) {
+          // Update the visible handle
+          const item = listDiv.querySelector(`.bookmark-item[data-uri="${b.uri}"] .handle-value`);
+          if (item) item.textContent = realHandle;
+          // Update the handle in originalBookmarks (for storage)
+          const idx = originalBookmarks.findIndex(orig => orig.uri === b.uri);
+          if (idx > -1) {
+            originalBookmarks[idx].handle = realHandle;
+            localStorage.setItem('bskyBookmarks', JSON.stringify(originalBookmarks));
+          }
+        }
+      });
+    }
+  });
+}
+
+
+
+    function removeBookmark(uri) {
+      let bookmarks = JSON.parse(localStorage.getItem('bskyBookmarks') || "[]");
+      bookmarks = bookmarks.filter(b => b.uri !== uri);
+      localStorage.setItem('bskyBookmarks', JSON.stringify(bookmarks));
+      showBookmarks();
+    }
+    function exportBookmarks() {
+      const bookmarks = localStorage.getItem('bskyBookmarks') || "[]";
+      const blob = new Blob([bookmarks], {type: "application/json"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "bsky-bookmarks.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    function importBookmarks(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (Array.isArray(imported)) {
+            localStorage.setItem('bskyBookmarks', JSON.stringify(imported));
+            alert('Bookmarks imported!');
+            showBookmarks();
+          } else {
+            alert('Invalid file format.');
+          }
+        } catch (err) {
+          alert('Error reading file.');
+        }
+      };
+      reader.readAsText(file);
+    }
+    // Show bookmarks on page load
+    showBookmarks();
+  </script>		
+		
+<script>
+// --- Link back to ATProto Viewer ---
+document.addEventListener('DOMContentLoaded', function() {
+  const backLink = document.getElementById('back-link');
+  backLink.href = `index.html${window.location.search}`;
+});
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./service-worker.js').then(function(registration) {
+      console.log('ServiceWorker registration successful:', registration.scope);
+    }, function(err) {
+      console.log('ServiceWorker registration failed:', err);
+    });
+  });
+}
+</script>
+
+
+
+</body>
+</html>

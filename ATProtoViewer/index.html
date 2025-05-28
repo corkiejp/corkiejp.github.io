@@ -181,6 +181,31 @@ li { margin-bottom: 1em; }
   /* ...existing styles... */
 }
 
+.bookmark-link-btn {
+  display: inline-flex;
+  align-items: center;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 14px 6px 10px;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  
+}
+.bookmark-link-btn:hover {
+  background: #ffe066;
+  color: #111;
+  text-decoration: none;
+}
+.bookmark-link-btn .star {
+  margin-right: 6px;
+  font-size: 1.2em;
+  color: #e6b800;
+}
+
 
 
 
@@ -253,7 +278,7 @@ li { margin-bottom: 1em; }
           <ul>
             <li>
 			
-			<label for="uri">Post AT URI:</label>
+			<label for="uri">Post AT URI or Bluesky web URLs:</label>
 			<input type="text" id="uri" name="uri" placeholder="e.g. at://did:plc:xxx/app.bsky.feed.post/xxx" ...>
 
               <button type="button" id="parseUriBtn">Parse URI</button>
@@ -289,7 +314,11 @@ li { margin-bottom: 1em; }
      data-alt="A dark circular logo featuring a stylized wave and a small circle. ~ Image for test purposes."
      class="modal-img"
      style="width:25px;cursor:pointer;" />  
-	 <button type="button" id="linksListBtn">Bluesky Essential Links</button>
+	 <button type="button" id="linksListBtn" class="dropbtn">Bluesky Essential Links</button>
+	<a href="bookmarks.html" id="show-bookmarks-btn" class="dropbtn" title="Show bookmarks">
+  <span class="star">★</span> Bookmarks
+</a>
+
 	<br><br>
     <div id="record-count"></div>
     <div id="records"></div>
@@ -313,8 +342,102 @@ li { margin-bottom: 1em; }
   </div>
 </div>
 
+<!-- Bookmark Modal -->
+<!-- Bookmark List Modal -->
+<div id="bookmark-modal" style="display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); z-index:1000; overflow:auto;">
+  <div id="bookmark-modal-content" style="background:#fff; margin:40px auto; padding:24px; border-radius:8px; max-width:500px; min-height:200px; position:relative;">
+    <button class="close" onclick="closeBookmarkModal()" style="position:absolute; top:8px; right:12px; font-size:20px; background:none; border:none; cursor:pointer;">&times;</button>
+    <h3>Your Bookmarks</h3>
+    <div id="bookmark-list"></div>
+    <div id="export-import-bar" style="margin:10px 0;">
+      <button onclick="exportBookmarks()">Export Bookmarks</button>
+      <input type="file" id="import-bookmarks-file" style="display:none;" onchange="importBookmarks(event)">
+      <button onclick="document.getElementById('import-bookmarks-file').click()">Import Bookmarks</button>
+    </div>
+  </div>
+</div>
+
+
+
+
+
 
 <script>
+// Towards having bookmarks.
+function extractDidFromAtUri(atUri) {
+  const match = atUri.match(/^at:\/\/([^/]+)/);
+  return match ? match[1] : '';
+}
+
+const handleCache = {};
+
+async function getHandle(did) {
+  if (handleCache[did]) return handleCache[did];
+  let handle = await fetchHandleForDid(did);
+  if (!handle) handle = did;
+  handleCache[did] = handle;
+  return handle;
+}
+
+async function addDidAndHandleToCards() {
+  const cards = document.querySelectorAll('.record-card');
+  for (const card of cards) {
+    const atUriElem = card.querySelector('.at-uri');
+    if (atUriElem) {
+      const atUri = atUriElem.textContent.trim();
+      card.dataset.uri = atUri;
+      const did = extractDidFromAtUri(atUri);
+      card.dataset.did = did;
+      let handle = await fetchHandleForDid(did);
+      if (!handle) handle = did;
+      card.dataset.handle = handle;
+
+      // Update visible content: add or update a handle display
+      let handleElem = card.querySelector('.record-handle');
+      if (!handleElem) {
+        handleElem = document.createElement('div');
+        handleElem.className = 'record-handle';
+        atUriElem.parentNode.insertBefore(handleElem, atUriElem.nextSibling);
+      }
+      handleElem.innerHTML = `<strong>Handle:</strong> @${handle}`;
+    }
+  }
+}
+
+async function updateHandlesOnCards() {
+  const cards = document.querySelectorAll('.record-card');
+  for (const card of cards) {
+    const did = card.dataset.did;
+    if (did && did.startsWith('did:plc:')) {
+      const handle = await fetchHandleForDid(did);
+      if (handle) {
+        card.dataset.handle = handle;
+        // Optionally update visible card content
+        let handleElem = card.querySelector('.record-handle');
+        if (!handleElem) {
+          handleElem = document.createElement('div');
+          handleElem.className = 'record-handle';
+          // Insert after the .at-uri code element
+          const atUriElem = card.querySelector('.at-uri');
+          if (atUriElem) {
+            atUriElem.parentNode.insertBefore(handleElem, atUriElem.nextSibling);
+          } else {
+            card.insertBefore(handleElem, card.firstChild);
+          }
+        }
+        handleElem.innerHTML = `<strong>Handle:</strong> @${handle}`;
+      }
+    }
+  }
+}
+
+
+
+
+
+// end towards bookmarks
+
+
 function isAccountAtUri(uri) {
   // Account URI: at://did:plc:xxxx
   // Post URI: at://did:plc:xxxx/app.bsky.feed.post/xxxx
@@ -675,6 +798,8 @@ function createRecordCard(record, collection, pds) {
         <a href="${innerUri}" target="_blank" rel="noopener">${innerUri}</a>
       </div>
     ` : ''}
+	<div class="record-handle"><strong>Handle:</strong> <span class="handle-value">@${did}</span></div>
+
     ${urlField ? `<div><strong>URL:</strong> <a href="${urlField}" target="_blank" rel="noopener">${name}</a></div>` : ''}
     ${textUrls.length > 0 ? `
       <div><strong>Links found in text:</strong>
@@ -694,6 +819,12 @@ function createRecordCard(record, collection, pds) {
         </button>
         <span class="copy-bsky-feedback" style="display:none;color:green;margin-left:4px;">Copied!</span> 
       ` : ''} 
+	  
+		<button class="bookmark-btn" title="Bookmark this post" style="background:none; border:none; cursor:pointer; padding:0; vertical-align:middle;">
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#0074D9" viewBox="0 0 24 24" style="vertical-align:middle;">
+    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+  </svg>
+</button>
 
 
       <button class="links-toggle-btn" type="button">⋯ More</button>
@@ -704,6 +835,19 @@ function createRecordCard(record, collection, pds) {
       </div>
     </div>
   `;
+  
+    // Fetch and update the handle asynchronously
+  fetchHandleForDid(did).then(handle => {
+    if (handle) {
+      card.dataset.handle = handle;
+      const handleElem = card.querySelector('.handle-value');
+      if (handleElem) handleElem.textContent = '@' + handle;
+    }
+  });
+  card.dataset.uri = atUri;
+  card.dataset.did = did;
+  card.dataset.handle = did; // Temporarily set to DID; will update to handle after fetch
+
   return card;
 }
 
@@ -1043,10 +1187,12 @@ function openImgModal(imgUrl, altText) {
 
   document.getElementById('imgModal').addEventListener('click', function(e) {
     if (e.target === this) closeImgModal();
+	e.stopPropagation();
   });
 
   document.addEventListener('keydown', function(e) {
     if (e.key === "Escape") closeImgModal();
+	e.stopPropagation();
   });
 
 
@@ -1330,19 +1476,116 @@ document.addEventListener('click', function(e) {
 </script>
 
 <script>
-
+// --- Modal image logic (keep as is) ---
 function openImgModal(imgUrl, altText) {
   const modalImg = document.getElementById('modalImg');
   modalImg.src = imgUrl;
   modalImg.alt = altText || '';
   document.getElementById('imgModal').style.display = 'flex';
 }
-
-
 function closeImgModal() {
   document.getElementById('imgModal').style.display = 'none';
   document.getElementById('modalImg').src = '';
 }
+
+// --- Bookmark logic ---
+
+// Only ONE event listener for bookmark button
+document.addEventListener('click', function(e) {
+  if (e.target.closest('.bookmark-btn')) {
+    showBookmarkForm(e.target.closest('.record-card'));
+  }
+  e.stopPropagation();
+});
+
+function showBookmarkForm(cardElem) {
+  const uri = cardElem.dataset.uri;
+  const handle = cardElem.dataset.handle;
+  const did = cardElem.dataset.did;
+  const title = prompt("Bookmark title:", "");
+  if (title === null) return;
+  const description = prompt("Bookmark description (optional):", "");
+  addBookmark({ uri, handle, did, title, description });
+}
+
+function addBookmark(bookmark) {
+  let bookmarks = JSON.parse(localStorage.getItem('bskyBookmarks') || "[]");
+  if (!bookmarks.some(b => b.uri === bookmark.uri)) {
+    bookmarks.push(bookmark);
+    localStorage.setItem('bskyBookmarks', JSON.stringify(bookmarks));
+    alert('Bookmark saved!');
+  } else {
+    alert('Already bookmarked!');
+  }
+}
+
+
+
+function showBookmarks() {
+  const bookmarks = JSON.parse(localStorage.getItem('bskyBookmarks') || "[]");
+  const listDiv = document.getElementById('bookmark-list');
+  if (bookmarks.length === 0) {
+    listDiv.innerHTML = "<p>No bookmarks yet.</p>";
+  } else {
+    listDiv.innerHTML = bookmarks.map(b => `
+      <div class="bookmark-item" style="border-bottom:1px solid #eee; margin-bottom:12px; padding-bottom:8px;">
+        <strong>${b.title || b.uri}</strong><br>
+        <em>${b.description || ''}</em><br>
+        <span>Handle: ${b.handle} | DID: ${b.did}</span><br>
+        <a href="?uri=${encodeURIComponent(b.uri)}" target="_blank">Open Post</a>
+        <span class="bookmark-actions">
+          <button onclick="removeBookmark('${b.uri}')">Remove</button>
+        </span>
+      </div>
+    `).join('');
+  }
+  document.getElementById('bookmark-modal').style.display = 'block';
+}
+
+function closeBookmarkModal() {
+  document.getElementById('bookmark-modal').style.display = 'none';
+}
+
+function removeBookmark(uri) {
+  let bookmarks = JSON.parse(localStorage.getItem('bskyBookmarks') || "[]");
+  bookmarks = bookmarks.filter(b => b.uri !== uri);
+  localStorage.setItem('bskyBookmarks', JSON.stringify(bookmarks));
+  showBookmarks();
+}
+
+function exportBookmarks() {
+  const bookmarks = localStorage.getItem('bskyBookmarks') || "[]";
+  const blob = new Blob([bookmarks], {type: "application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = "bsky-bookmarks.json";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importBookmarks(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (Array.isArray(imported)) {
+        localStorage.setItem('bskyBookmarks', JSON.stringify(imported));
+        alert('Bookmarks imported!');
+        showBookmarks();
+      } else {
+        alert('Invalid file format.');
+      }
+    } catch (err) {
+      alert('Error reading file.');
+    }
+  };
+  reader.readAsText(file);
+}
+
+
 
 </script>
 

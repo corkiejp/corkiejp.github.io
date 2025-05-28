@@ -1,4 +1,4 @@
-const CACHE_NAME = 'atproto-pwa-v1.10';
+const CACHE_NAME = 'atproto-pwa-v1.11';
 const URLS_TO_CACHE = [
   '/ATProtoViewer/',
   '/ATProtoViewer/index.html',
@@ -12,7 +12,7 @@ const URLS_TO_CACHE = [
 ];
 
 
-// Using Share to on bluesky should now work.
+// Localstorage Bookmarks added!
 // Install: Cache new assets
 
 self.addEventListener('activate', event => {
