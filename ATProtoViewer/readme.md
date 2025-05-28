@@ -22,11 +22,12 @@ The viewer supports direct linking and automatic form filling via URL parameters
 
 - **`uri` Parameter:**
     - If the page is loaded with a `?uri=at://...` parameter, the form fields (`repo`, `collection`, `rkey`, `pds`) are automatically filled based on the parsed AT URI.
-    - The user can then fetch the single record or modify the fields for further queries.
+    - The user can then fetch the single record or modify the fields for further queries. Also supports the Bluesky web urls. Both can be enter/pasted on the page URI field. 
     - Example:
 
 ```
 https://corkiejp.github.io/ATProtoViewer/index.html?uri=at://did:plc:qxlh6bohvep3taqhmtpipx4b/app.bsky.feed.post/3lpx3s7avxc5r
+https://bsky.app/profile/corkiejp.github.io/post/3lqb3j3wrocta
 ```
 
 - **`pds` Parameter (optional):**
