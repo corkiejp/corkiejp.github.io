@@ -27,6 +27,8 @@ The viewer supports direct linking and automatic form filling via URL parameters
 
 ```
 https://corkiejp.github.io/ATProtoViewer/index.html?uri=at://did:plc:qxlh6bohvep3taqhmtpipx4b/app.bsky.feed.post/3lpx3s7avxc5r
+```
+```
 https://bsky.app/profile/corkiejp.github.io/post/3lqb3j3wrocta
 ```
 
