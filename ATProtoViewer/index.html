@@ -206,6 +206,59 @@ li { margin-bottom: 1em; }
   color: #e6b800;
 }
 
+#linksModal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.6);
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+#linksModal.open {
+  display: flex;
+}
+
+#imgModalClose {
+  width: 44px;
+  height: 44px;
+  line-height: 44px;
+  text-align: center;
+  font-size: 2em;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.8);
+  color: #333;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  z-index: 2;
+}
+
+#linksModalClose {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 44px;
+  height: 44px;
+  line-height: 44px;
+  text-align: center;
+  font-size: 2em;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.85);
+  color: #333;
+  border: none;
+  cursor: pointer;
+  z-index: 2;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transition: background 0.2s, color 0.2s;
+}
+#linksModalClose:hover,
+#linksModalClose:focus {
+  background: #0074d9;
+  color: #fff;
+  outline: none;
+}
+
+
 
 
 
@@ -331,31 +384,32 @@ li { margin-bottom: 1em; }
 				If you use it, your not interacting with the AI.</small></p>
         </footer>
 		
-	<!-- Modal overlay (hidden by default) -->
-<div id="imgModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:10000;">
-  <div style="position:relative; background:#fff; border:2px solid blue; border-radius:8px; padding:1em; max-width:90vw; max-height:90vh; display:flex; flex-direction:column; align-items:center;">
-  <button onclick="closeImgModal()" style="position:absolute; top:8px; right:8px;">✖</button>
-  <img id="modalImg" src="" alt="Preview"
-       style="max-width:90vw; max-height:60vh; display:block; margin:auto; flex:0 0 auto;" />
-  <div id="modalAltText"
-       style="margin-top:0.5em; font-size:1em; color:#222; text-align:center; border:2px solid blue; min-height:2em; width:100%;">
+<!-- Image Modal -->
+<div id="imgModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:10000;">
+  <div style="background:#fff; border-radius:10px; box-shadow:0 4px 16px rgba(0,0,0,0.2); padding:1em; max-width:90vw; max-height:90vh; overflow:auto; position:relative;">
+    <button id="imgModalClose" style="position:absolute; top:10px; right:10px; background:none; border:none; font-size:1.5em; cursor:pointer;">✖</button>
+    <img id="modalImg" src="" alt="" style="max-width:100%; max-height:70vh; display:block; margin:0 auto;">
+    <div id="modalAltText" style="margin-top:1em; text-align:center; color:#333;"></div>
   </div>
 </div>
 
-<!-- Bookmark Modal -->
-<!-- Bookmark List Modal -->
-<div id="bookmark-modal" style="display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); z-index:1000; overflow:auto;">
-  <div id="bookmark-modal-content" style="background:#fff; margin:40px auto; padding:24px; border-radius:8px; max-width:500px; min-height:200px; position:relative;">
-    <button class="close" onclick="closeBookmarkModal()" style="position:absolute; top:8px; right:12px; font-size:20px; background:none; border:none; cursor:pointer;">&times;</button>
-    <h3>Your Bookmarks</h3>
-    <div id="bookmark-list"></div>
-    <div id="export-import-bar" style="margin:10px 0;">
-      <button onclick="exportBookmarks()">Export Bookmarks</button>
-      <input type="file" id="import-bookmarks-file" style="display:none;" onchange="importBookmarks(event)">
-      <button onclick="document.getElementById('import-bookmarks-file').click()">Import Bookmarks</button>
-    </div>
+
+
+<!-- Links Modal -->
+<div id="linksModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:10000;">
+  <div style="background:#fff; border-radius:10px; box-shadow:0 4px 16px rgba(0,0,0,0.2); padding:2em 1em; max-width:95vw; max-height:90vh; overflow-y:auto; position:relative;">
+    <button id="linksModalClose" style="position:absolute; top:10px; right:10px; background:none; border:none; font-size:1.5em; cursor:pointer;">✖</button>
+    <div id="linksModalTagline" style="margin-bottom:1em; font-weight:bold; font-size:1.1em;">
+  <!-- Tagline and account handle will be set by JS -->
+	</div>
+    <ul id="linksModalList" style="list-style:none; padding:0; margin:0;">
+      <!-- Links will be injected here -->
+    </ul>
   </div>
 </div>
+
+
+
 
 
 
@@ -502,8 +556,11 @@ function extractUrls(text) {
     const bskyUrl = (collection === 'app.bsky.feed.post')
       ? `https://bsky.app/profile/${did}/post/${rkey}`
       : null;
-	 const deerUrl = (collection === 'app.bsky.feed.post')
+	const deerUrl = (collection === 'app.bsky.feed.post')
       ? `https://deer.social/profile/${did}/post/${rkey}`
+      : null;
+	const klskyUrl = (collection === 'app.bsky.feed.post')
+      ? `https://klearsky.pages.dev/#/post?uri=at://${did}/app.bsky.feed.post/${rkey}`
       : null;
     const clearskyHistoryUrl = `https://clearsky.app/${did}/history`;
 	const plcdirprofile = `https://plc.directory/${did}`;
@@ -514,6 +571,7 @@ function extractUrls(text) {
       rkey,
       bskyUrl,
 	  deerUrl,
+	  klskyUrl,
       clearskyHistoryUrl,
 	  plcdirprofile,
 	  credblue,
@@ -742,17 +800,20 @@ function createRecordCard(record, collection, pds) {
   const skythreadAtUri = `https://blue.mackuba.eu/skythread/?q=${atUri}`;
   const skythreadInnerUri = innerUri ? `https://blue.mackuba.eu/skythread/?q=${innerUri}` : null;
   const skyviewUri = "https://skyview.social/?url=" + encodeURIComponent(atUri);
-  const { bskyUrl, clearskyHistoryUrl, deerUrl, plcdirprofile, credblue} = atUriToUrls(atUri) || {};
+  const { bskyUrl, clearskyHistoryUrl, deerUrl, klskyUrl, plcdirprofile, credblue} = atUriToUrls(atUri) || {};
 
   // --- Embed/media rendering ---
   const did = record.repo || record.did || extractDidFromUri(record.uri);
   const cdnBase = 'https://cdn.bsky.app';
   const embedObj = value.embed?.embed || value.embed;
   const embedHtml = renderEmbedDid(embedObj, did, cdnBase);
+  
+  
+  
 
   // ... rest of your card creation code ...
 
-
+  
 
 
 
@@ -762,6 +823,7 @@ function createRecordCard(record, collection, pds) {
     links.push(`<a href="${postview}">Post viewer</a>`);
     links.push(`<a href="${bskyUrl}" target="_blank" rel="noopener" class="bsky-link">bsky.app</a>`);
     links.push(`<a href="${deerUrl}" target="_blank" rel="noopener" class="bsky-link">deer.social</a>`);
+	links.push(`<a href="${klskyUrl}" target="_blank" rel="noopener" class="bsky-link">klearsky.pages.dev</a>`);
     links.push(`<a href="${clearskyHistoryUrl}" target="_blank" rel="noopener">Clearsky</a>`);
     links.push(`<a href="${skythreadAtUri}" target="_blank" rel="noopener">SkyThread</a>`);
     links.push(`<a href="${skyviewUri}" target="_blank" rel="noopener">Skyview</a>`);
@@ -828,13 +890,21 @@ function createRecordCard(record, collection, pds) {
 
 
       <button class="links-toggle-btn" type="button">⋯ More</button>
-      <div class="links-menu" style="display:none;">
-        <ul class="links-list">
-          ${links.map(link => `<li>${link}</li>`).join('')}
-        </ul>
-      </div>
+	  
+
     </div>
   `;
+  
+const moreBtn = card.querySelector('.links-toggle-btn');
+if (moreBtn) {
+  moreBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    // Use the handle if available, otherwise show the DID
+    showLinksModal(links, card.dataset.handle || card.dataset.did || 'unknown');
+  });
+}  
+  
+
   
     // Fetch and update the handle asynchronously
   fetchHandleForDid(did).then(handle => {
@@ -848,6 +918,7 @@ function createRecordCard(record, collection, pds) {
   card.dataset.did = did;
   card.dataset.handle = did; // Temporarily set to DID; will update to handle after fetch
   card.dataset.text = text || ""; // <--- Use the extracted text from value.text
+  
   return card;
 }
 
@@ -1154,46 +1225,7 @@ document.addEventListener('click', function(e) {
   }
 });
 
-function openImgModal(imgUrl, altText) {
-    const modalImg = document.getElementById('modalImg');
-    const modalAlt = document.getElementById('modalAltText');
-    modalImg.src = imgUrl;
-    modalImg.alt = altText || '';
-    modalAlt.textContent = altText || '';
-	document.getElementById('imgModal').style.display = 'flex';
-	document.body.style.overflow = 'hidden'; // Only prevent scroll when modal is open
 
-
-  // Scroll modal into view for mobile browsers
-  setTimeout(() => {
-    document.getElementById('imgModal').scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, 50);
-  }
-  
-
-  function closeImgModal() {
-    document.getElementById('imgModal').style.display = 'none';
-    document.getElementById('modalImg').src = '';
-    document.getElementById('modalAltText').textContent = '';
-	document.body.style.overflow = ''; // Restore scroll when modal closes
-  }
-
-  document.body.addEventListener('click', function (e) {
-    if (e.target.matches('img.modal-img')) {
-      const altText = e.target.getAttribute('data-alt');
-      openImgModal(e.target.src, altText);
-    }
-  });
-
-  document.getElementById('imgModal').addEventListener('click', function(e) {
-    if (e.target === this) closeImgModal();
-	e.stopPropagation();
-  });
-
-  document.addEventListener('keydown', function(e) {
-    if (e.key === "Escape") closeImgModal();
-	e.stopPropagation();
-  });
 
 
 
@@ -1318,6 +1350,8 @@ async function fetchAndDisplaySingleRecord(pds, repo, collection, rkey) {
   container.innerHTML = "<em>Loading...</em>";
   countDiv.textContent = "";
 
+	
+
   let handle = null;
   if (repo.startsWith('did:plc:')) {
     handle = await fetchHandleForDid(repo);
@@ -1412,9 +1446,6 @@ records.forEach(record => {
 
 
 
-let openLinksMenu = null;
-let closeMenuTimeout = null;
-
 document.addEventListener('click', function(e) {
 
 
@@ -1425,37 +1456,7 @@ document.addEventListener('click', function(e) {
     return;
   }
 
-  // --- Toggle "More" dropdown menu ---
-  if (e.target.classList.contains('links-toggle-btn')) {
-    const btn = e.target;
-    const menu = btn.nextElementSibling;
 
-    // Close any other open menus
-    document.querySelectorAll('.links-menu').forEach(m => {
-      if (m !== menu) m.style.display = 'none';
-    });
-
-    // Toggle current menu
-    if (menu.style.display === 'block') {
-      menu.style.display = 'none';
-      openLinksMenu = null;
-      clearTimeout(closeMenuTimeout);
-    } else {
-      menu.style.display = 'block';
-      openLinksMenu = menu;
-      // Optional: auto-close after 5 seconds
-      clearTimeout(closeMenuTimeout);
-      closeMenuTimeout = setTimeout(() => {
-        if (openLinksMenu === menu) {
-          menu.style.display = 'none';
-          openLinksMenu = null;
-        }
-      }, 5000);
-    }
-    // Prevent bubbling to outer handler
-    e.stopPropagation();
-    return;
-  }
 
   // --- Close dropdown if clicking outside ---
   if (openLinksMenu) {
@@ -1477,26 +1478,10 @@ document.addEventListener('click', function(e) {
 </script>
 
 <script>
-// --- Modal image logic (keep as is) ---
-function openImgModal(imgUrl, altText) {
-  const modalImg = document.getElementById('modalImg');
-  modalImg.src = imgUrl;
-  modalImg.alt = altText || '';
-  document.getElementById('imgModal').style.display = 'flex';
-}
-function closeImgModal() {
-  document.getElementById('imgModal').style.display = 'none';
-  document.getElementById('modalImg').src = '';
-    document.getElementById('modalAltText').textContent = '';
-    document.body.style.overflow = '';
-}
+// Show the links modal with a list of links
 
-document.getElementById('imgModal').addEventListener('click', function(e) {
-  // Only close if the click is on the background, not inside the modal content
-  if (e.target === this) {
-    closeImgModal();
-  }
-});
+
+
 
 
 // --- Bookmark logic ---
@@ -1606,8 +1591,123 @@ function importBookmarks(event) {
 
 
 
+
+
 </script>
 
+
+<script>
+// === Modal Manager ===
+function closeAllModals() {
+  document.querySelectorAll('.modal').forEach(modal => {
+    modal.style.display = 'none';
+  });
+  document.body.style.overflow = '';
+}
+
+function openModal(modalId) {
+  closeAllModals(); // Always close others first
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) modal.style.display = 'none';
+  // Only restore scroll if no other modal is open
+  const anyOpen = Array.from(document.querySelectorAll('.modal'))
+    .some(m => m.style.display === 'flex' || m.style.display === 'block');
+  if (!anyOpen) document.body.style.overflow = '';
+}
+
+// ESC key closes the last open modal
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const modals = Array.from(document.querySelectorAll('.modal'))
+      .filter(m => m.style.display === 'flex' || m.style.display === 'block');
+    if (modals.length) {
+      closeModal(modals[modals.length - 1].id);
+    }
+  }
+});
+
+// === Image Modal Logic ===
+function openImgModal(imgSrc, altText) {
+  document.getElementById('modalImg').src = imgSrc;
+  document.getElementById('modalAltText').textContent = altText || '';
+  openModal('imgModal');
+}
+
+function closeImgModal() {
+  document.getElementById('modalImg').src = '';
+  document.getElementById('modalAltText').textContent = '';
+  closeModal('imgModal');
+}
+
+// === Links Modal Logic ===
+function showLinksModal(linksHtml, handleOrDid) {
+  const tagline = document.getElementById('linksModalTagline');
+  tagline.innerHTML = `
+    Open this record/post <br> with the sites below<br>
+    <span style="font-weight:normal; color:#555;">
+      Account: <span style="font-family:monospace;">${handleOrDid}</span>
+    </span>
+  `;
+  const list = document.getElementById('linksModalList');
+  list.innerHTML = linksHtml.map(link => `<li style="margin:0.5em 0;">${link}</li>`).join('');
+  openModal('linksModal');
+}
+
+
+function closeLinksModal() {
+  closeModal('linksModal');
+}
+
+// === Attach Modal Event Listeners After DOM is Ready ===
+document.addEventListener('DOMContentLoaded', function() {
+  // Image modal close button and background
+  const imgModal = document.getElementById('imgModal');
+  if (imgModal) {
+    imgModal.addEventListener('click', function(e) {
+      if (e.target === imgModal) closeImgModal();
+    });
+    const imgModalClose = document.getElementById('imgModalClose');
+    if (imgModalClose) imgModalClose.onclick = closeImgModal;
+  }
+
+  // Links modal close button and background
+  const linksModal = document.getElementById('linksModal');
+  if (linksModal) {
+    linksModal.addEventListener('click', function(e) {
+      if (e.target === linksModal) closeLinksModal();
+    });
+    const linksModalClose = document.getElementById('linksModalClose');
+    if (linksModalClose) linksModalClose.onclick = closeLinksModal;
+  }
+});
+
+document.addEventListener('click', function(e) {
+  // Adjust the selector below if your embedded images use a different class
+  const img = e.target.closest('.modal-img');
+  if (img) {
+    openImgModal(img.src, img.getAttribute('data-alt') || img.alt || '');
+  }
+});
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Attach click handler to all images with class 'modal-img'
+  document.querySelectorAll('.modal-img').forEach(img => {
+    img.addEventListener('click', function() {
+      openImgModal(img.src, img.getAttribute('data-alt') || img.alt || '');
+    });
+  });
+});
+
+</script>
 
 <script>
 	  // --- Link backs enabled ---
