@@ -847,7 +847,7 @@ function createRecordCard(record, collection, pds) {
   card.dataset.uri = atUri;
   card.dataset.did = did;
   card.dataset.handle = did; // Temporarily set to DID; will update to handle after fetch
-
+  card.dataset.text = text || ""; // <--- Use the extracted text from value.text
   return card;
 }
 
@@ -1349,6 +1349,7 @@ async function fetchAndDisplaySingleRecord(pds, repo, collection, rkey) {
     const countDiv = document.getElementById('record-count');
     container.innerHTML = "<em>Loading...</em>";
     countDiv.textContent = "";
+
 	
 	// --- Fetch handle for display ---
   let handle = null;
@@ -1486,7 +1487,17 @@ function openImgModal(imgUrl, altText) {
 function closeImgModal() {
   document.getElementById('imgModal').style.display = 'none';
   document.getElementById('modalImg').src = '';
+    document.getElementById('modalAltText').textContent = '';
+    document.body.style.overflow = '';
 }
+
+document.getElementById('imgModal').addEventListener('click', function(e) {
+  // Only close if the click is on the background, not inside the modal content
+  if (e.target === this) {
+    closeImgModal();
+  }
+});
+
 
 // --- Bookmark logic ---
 
@@ -1498,15 +1509,23 @@ document.addEventListener('click', function(e) {
   e.stopPropagation();
 });
 
+
+
 function showBookmarkForm(cardElem) {
   const uri = cardElem.dataset.uri;
   const handle = cardElem.dataset.handle;
   const did = cardElem.dataset.did;
+  const recordText = cardElem.dataset.text || "";
+
   const title = prompt("Bookmark title:", "");
   if (title === null) return;
-  const description = prompt("Bookmark description (optional):", "");
+
+  // Pre-fill the description with the record's text
+  const description = prompt("Bookmark description (optional):", recordText);
   addBookmark({ uri, handle, did, title, description });
 }
+
+
 
 function addBookmark(bookmark) {
   let bookmarks = JSON.parse(localStorage.getItem('bskyBookmarks') || "[]");

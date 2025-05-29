@@ -12,7 +12,7 @@ const URLS_TO_CACHE = [
 ];
 
 
-// Localstorage Bookmarks added! Need to add a line break for mobile!
+// Localstorage Bookmarks + autofill for desc! Fixed a bug that stopped scrolling on modal close.
 // Install: Cache new assets
 
 self.addEventListener('activate', event => {
