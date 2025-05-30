@@ -1,4 +1,4 @@
-const CACHE_NAME = 'atproto-pwa-v1.11';
+const CACHE_NAME = 'atproto-pwa-v1.12';
 const URLS_TO_CACHE = [
   '/ATProtoViewer/',
   '/ATProtoViewer/index.html',
