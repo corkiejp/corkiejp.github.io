@@ -15,7 +15,7 @@ const URLS_TO_CACHE = [
 
 // Localstorage Bookmarks + autofill for desc! Fixed a bug that stopped scrolling on modal close.
 // More list now in a modal display instead of drop down.
-// Modal window to show bookmarks, with link to bookmarks page to manage them.
+// Modal window to show bookmarks, with link to bookmarks page to manage them. v2
 // Install: Cache new assets ...
 
 self.addEventListener('activate', event => {
