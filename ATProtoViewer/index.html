@@ -367,10 +367,8 @@ li { margin-bottom: 1em; }
      data-alt="A dark circular logo featuring a stylized wave and a small circle. ~ Image for test purposes."
      class="modal-img"
      style="width:25px;cursor:pointer;" />  
-	 <button type="button" id="linksListBtn" class="dropbtn">Bluesky Essential Links</button><br>
-	<a href="bookmarks.html" id="show-bookmarks-btn" class="dropbtn" title="Show bookmarks">
-  <span class="star">★</span> Bookmarks
-</a></div>
+		<button type="button" id="linksListBtn" class="dropbtn">Bluesky Essential Links</button><br>
+		<button id="openBookmarksModalBtn" class="dropbtn" >★ Bookmarks</button>
 
 	<br><br>
     <div id="record-count"></div>
@@ -408,6 +406,18 @@ li { margin-bottom: 1em; }
   </div>
 </div>
 
+<!-- Bookmarks Modal -->
+<div id="bookmarksModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:10000;">
+  <div style="background:#fff; border-radius:10px; box-shadow:0 4px 16px rgba(0,0,0,0.2); padding:1em; max-width:95vw; max-height:90vh; overflow-y:auto; position:relative;">
+    <button id="bookmarksModalClose" aria-label="Close" style="position:absolute; top:10px; right:10px; width:44px; height:44px; font-size:2em; border-radius:50%; background:rgba(255,255,255,0.85); color:#333; border:none; cursor:pointer; z-index:2; box-shadow:0 2px 6px rgba(0,0,0,0.15);">✖</button>
+    <div style="margin-bottom:1em; font-weight:bold; font-size:1.1em;">
+      ATProto Viewer Bookmarks.<br>
+      <a href="./Bookmarks.html" target="_top" style=" font-size:0.9em; color:#0074d9; text-decoration:underline;">Manage your bookmarks.</a>
+    </div>
+    <ul id="bookmarksModalList" style="list-style:none; padding:0; margin:0;"></ul>
+    <div id="bookmarksModalEmpty" style="display:none; color:#888; text-align:center; margin-top:2em;">No bookmarks yet.</div>
+  </div>
+</div>
 
 
 
@@ -1536,10 +1546,7 @@ function showBookmarks() {
         <strong>${b.title || b.uri}</strong><br>
         <em>${b.description || ''}</em><br>
         <span>Handle: ${b.handle} | DID: ${b.did}</span><br>
-        <a href="?uri=${encodeURIComponent(b.uri)}" target="_blank">Open Post</a>
-        <span class="bookmark-actions">
-          <button onclick="removeBookmark('${b.uri}')">Remove</button>
-        </span>
+        <a href="?uri=${encodeURIComponent(b.uri)}" target="_top">Open Post</a>
       </div>
     `).join('');
   }
@@ -1550,12 +1557,6 @@ function closeBookmarkModal() {
   document.getElementById('bookmark-modal').style.display = 'none';
 }
 
-function removeBookmark(uri) {
-  let bookmarks = JSON.parse(localStorage.getItem('bskyBookmarks') || "[]");
-  bookmarks = bookmarks.filter(b => b.uri !== uri);
-  localStorage.setItem('bskyBookmarks', JSON.stringify(bookmarks));
-  showBookmarks();
-}
 
 function exportBookmarks() {
   const bookmarks = localStorage.getItem('bskyBookmarks') || "[]";
@@ -1704,6 +1705,62 @@ function openModal(modalId) {
   }
 }
 
+// --- Bookmarks Modal Logic (uses only bskyBookmarks) ---
+function getBookmarks() {
+  return JSON.parse(localStorage.getItem('bskyBookmarks') || '[]');
+}
+
+// Show the bookmarks modal
+function showBookmarksModal() {
+  const list = document.getElementById('bookmarksModalList');
+  const emptyMsg = document.getElementById('bookmarksModalEmpty');
+  const bookmarks = JSON.parse(localStorage.getItem('bskyBookmarks') || "[]").slice().reverse();
+
+  if (bookmarks.length === 0) {
+    list.innerHTML = '';
+    emptyMsg.style.display = '';
+  } else {
+    emptyMsg.style.display = 'none';
+    list.innerHTML = bookmarks.map(b => `
+      <li style="margin:1em 0; border-bottom:1px solid #eee; padding-bottom:0.5em;">
+        <div>
+          <strong>${b.title || b.uri}</strong>
+        </div>
+        <div>
+          <em>${b.description || ''}</em>
+        </div>
+        <div>
+          <span>Handle: ${b.handle || ''} | DID: ${b.did || ''}</span>
+        </div>
+        <div>
+          <a href="?uri=${encodeURIComponent(b.uri)}" target="_top">View</a>
+        </div>
+      </li>
+    `).join('');
+  }
+  // Show the modal (use your modal manager or just set display)
+  openModal('bookmarksModal');
+}
+
+function closeBookmarksModal() {
+  document.getElementById('bookmarksModal').style.display = 'none';
+}
+
+
+
+document.getElementById('openBookmarksModalBtn').onclick = showBookmarksModal;
+
+// Modal close button and background click
+document.addEventListener('DOMContentLoaded', function() {
+  const bookmarksModal = document.getElementById('bookmarksModal');
+  if (bookmarksModal) {
+    bookmarksModal.addEventListener('click', function(e) {
+      if (e.target === bookmarksModal) closeModal('bookmarksModal');
+    });
+    const closeBtn = document.getElementById('bookmarksModalClose');
+    if (closeBtn) closeBtn.onclick = () => closeModal('bookmarksModal');
+  }
+});
 
 
 

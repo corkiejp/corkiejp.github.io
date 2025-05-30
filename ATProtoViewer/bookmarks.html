@@ -92,10 +92,13 @@ button {
 		</div>
 		
   <script>
-	let basePath = window.location.origin + window.location.pathname;
-	if (basePath.endsWith('bookmarks.html')) {
-	basePath = basePath.replace('bookmarks.html', 'index.html');
-	}
+//	let basePath = window.location.origin + window.location.pathname;
+//	if (basePath.endsWith('bookmarks.html')) {
+//	basePath = basePath.replace('bookmarks.html', 'index.html');
+//	}
+
+// Always replace the last path segment with 'index.html'
+let basePath = window.location.origin + window.location.pathname.replace(/[^\/]+$/, 'index.html');
 
 function fetchHandleForDid(did) {
   // Example for ATProto/Bluesky PLC directory:
