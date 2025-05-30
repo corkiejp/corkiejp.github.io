@@ -1689,6 +1689,25 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
+function openModal(modalId) {
+  closeAllModals();
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => {
+      modal.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Optionally focus the close button for accessibility:
+//      const closeBtn = modal.querySelector('button[aria-label="Close"], button[id$="Close"]');
+      if (closeBtn) closeBtn.focus();
+    }, 50);
+  }
+}
+
+
+
+
+
 document.addEventListener('click', function(e) {
   // Adjust the selector below if your embedded images use a different class
   const img = e.target.closest('.modal-img');

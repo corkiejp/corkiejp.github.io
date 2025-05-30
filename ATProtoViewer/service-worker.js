@@ -4,6 +4,7 @@ const URLS_TO_CACHE = [
   '/ATProtoViewer/index.html',
   '/ATProtoViewer/BlueskyPostViewer.html',
   '/ATProtoViewer/Blueskyessentiallinks.html',
+  '/ATProtoViewer/bookmarks.html',
   '/ATProtoViewer/manifest.json',
   '/ATProtoViewer/styles.css',
   '/ATProtoViewer/main.js',
@@ -14,7 +15,7 @@ const URLS_TO_CACHE = [
 
 // Localstorage Bookmarks + autofill for desc! Fixed a bug that stopped scrolling on modal close.
 // More list now in a modal display instead of drop down.
-// Install: Cache new assets
+// Install: Cache new assets ...
 
 self.addEventListener('activate', event => {
   event.waitUntil(
