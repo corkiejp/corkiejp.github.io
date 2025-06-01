@@ -474,7 +474,7 @@ async function addDidAndHandleToCards() {
         handleElem.className = 'record-handle';
         atUriElem.parentNode.insertBefore(handleElem, atUriElem.nextSibling);
       }
-      handleElem.innerHTML = `<strong>Handle:</strong> @${handle}`;
+      handleElem.innerHTML = `<strong>1 ~ Handle:</strong> @${handle}`;
     }
   }
 }
@@ -500,7 +500,7 @@ async function updateHandlesOnCards() {
             card.insertBefore(handleElem, card.firstChild);
           }
         }
-        handleElem.innerHTML = `<strong>Handle:</strong> @${handle}`;
+        handleElem.innerHTML = `<strong>2 ~ Handle:</strong> @${handle}`;
       }
     }
   }
@@ -933,7 +933,10 @@ if (urlParams.has('did')) {
         <a href="${innerUri}" target="_blank" rel="noopener">${innerUri}</a>
       </div>
     ` : ''}
-	<div class="record-handle"><strong>Handle:</strong> <span class="handle-value">@${did}</span></div>
+	<div class="record-handle">
+  <strong>* Handle:</strong>
+  <span class="handle-value" data-did="${did}">@${did}</span>
+</div>
 
     ${urlField ? `<div><strong>URL:</strong> <a href="${urlField}" target="_blank" rel="noopener">${name}</a></div>` : ''}
     ${textUrls.length > 0 ? `
@@ -996,10 +999,28 @@ if (moreBtn) {
 }
 
 
+
+
 </script>
 			
 		
 <script>
+function enhanceHandles() {
+  const spans = document.querySelectorAll('.handle-value[data-did]');
+//  console.log("enhanceHandles: found", spans.length, "spans");
+  spans.forEach(span => {
+    const did = span.getAttribute('data-did');
+//    console.log("enhanceHandles: processing", did);
+    resolveDidToHandle(did).then(handle => {
+      if (handle && handle !== did) {
+//        console.log("enhanceHandles: updating", did, "to", handle);
+        span.textContent = '@' + handle;
+      }
+    });
+  });
+}
+
+
   // --- Default values ---
   const handleCache = JSON.parse(localStorage.getItem('handleCache') || '{}');
   const DEFAULT_PDS = 'bsky.social';
@@ -1336,7 +1357,7 @@ if (params.has('uri')) {
       const collection = match[2];
       const rkey = match[3];
       const pds = params.get('pds') || document.querySelector('[name="pds"]').value || DEFAULT_PDS;
-      console.log("[DEBUG] Calling fetchAndDisplaySingleRecord with:", pds, repo, collection, rkey);
+//      console.log("[DEBUG] Calling fetchAndDisplaySingleRecord with:", pds, repo, collection, rkey);
       fetchAndDisplaySingleRecord(pds, repo, collection, rkey);
       alreadyFetched = true;
       return;
@@ -1355,7 +1376,7 @@ if (params.has('uri')) {
           const repo = data.did;
           const collection = 'app.bsky.feed.post';
           const pds = 'bsky.social';
-          console.log("[DEBUG] Calling fetchAndDisplaySingleRecord with:", pds, repo, collection, rkey);
+//          console.log("[DEBUG] Calling fetchAndDisplaySingleRecord with:", pds, repo, collection, rkey);
           fetchAndDisplaySingleRecord(pds, repo, collection, rkey);
         })
         .catch(e => {
@@ -1429,7 +1450,8 @@ function displayRecords(records, collection, pds, handle) {
     ? `Showing ${records.length} record${records.length > 1 ? 's' : ''} from @${handle}`
     : `Showing ${records.length} record${records.length > 1 ? 's' : ''} from ${pds}`;
 	  // 🟢 Always attach handlers after rendering
-
+//	console.log("Calling enhanceHandles after rendering cards...");
+//	enhanceHandles();
 }
 
 
@@ -1525,6 +1547,7 @@ async function fetchAndDisplayRecords(pds, repo, collection) {
       ? `Showing 0 records from @${handle}`
       : `Showing 0 records from ${repo}`;
   }
+  enhanceHandles();
 }
 
 async function createFollowRecordCard(record, pds) {
@@ -1553,6 +1576,7 @@ async function createFollowRecordCard(record, pds) {
   // --- Auto-fetch on page load if nothing handled above ---
   if (!alreadyFetched) {
     fetchAndDisplayRecords(DEFAULT_PDS, DEFAULT_REPO, DEFAULT_COLLECTION);
+	
   }
 });
 
@@ -1575,12 +1599,6 @@ document.addEventListener('click', function(e) {
   // ... other click-based UI logic ...
 });
 
-// Optional: Prevent menu from closing when clicking inside it
-document.addEventListener('click', function(e) {
-  if (e.target.closest('.links-menu')) {
-    e.stopPropagation();
-  }
-}, true);
 
 </script>
 
@@ -1642,12 +1660,13 @@ function showBookmarks() {
       <div class="bookmark-item" style="border-bottom:1px solid #eee; margin-bottom:12px; padding-bottom:8px;">
         <strong>${b.title || b.uri}</strong><br>
         <em>${b.description || ''}</em><br>
-        <span>Handle: ${b.handle} | DID: ${b.did}</span><br>
+        <span>#Handle: ${b.handle} | DID: ${b.did}</span><br>
         <a href="?uri=${encodeURIComponent(b.uri)}" target="_top">Open Post</a>
       </div>
     `).join('');
   }
   document.getElementById('bookmark-modal').style.display = 'block';
+  enhanceHandles()
 }
 
 function closeBookmarkModal() {
@@ -1797,7 +1816,7 @@ function openModal(modalId) {
       modal.scrollIntoView({ behavior: 'smooth', block: 'center' });
       // Optionally focus the close button for accessibility:
 //      const closeBtn = modal.querySelector('button[aria-label="Close"], button[id$="Close"]');
-      if (closeBtn) closeBtn.focus();
+//      if (closeBtn) closeBtn.focus();
     }, 50);
   }
 }
@@ -1827,7 +1846,7 @@ function showBookmarksModal() {
           <em>${b.description || ''}</em>
         </div>
         <div>
-          <span>Handle: ${b.handle || ''} | DID: ${b.did || ''}</span>
+          <span>#Handle: ${b.handle || ''} | DID: ${b.did || ''}</span>
         </div>
         <div>
           <a href="?uri=${encodeURIComponent(b.uri)}" target="_top">View</a>
@@ -1837,6 +1856,7 @@ function showBookmarksModal() {
   }
   // Show the modal (use your modal manager or just set display)
   openModal('bookmarksModal');
+  
 }
 
 function closeBookmarksModal() {
@@ -1892,7 +1912,10 @@ document.getElementById('linksListBtn').addEventListener('click', function() {
   window.location.href = `Blueskyessentiallinks.html?${params}&mode=detail`;
 });
 
-
+// setTimeout(() => {
+//  console.log("Global test: calling enhanceHandles...");
+//  enhanceHandles();
+// }, 3000);
 
 </script>
 
