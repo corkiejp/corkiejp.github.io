@@ -347,6 +347,12 @@ li { margin-bottom: 1em; }
             <li>
               <label for="collection">Collection:</label>
               <input type="text" name="collection" id="collection" placeholder="Collection">
+				<select id="recordType" name="recordType">
+					<option value="app.bsky.feed.post">Post</option>
+					<option value="app.bsky.graph.follow">Follow</option>
+					<option value="a.bookmark.on.my.pds">PDS Bookmarks</option> 
+				</select>
+				
             </li>
             <li>
               <label for="rkey">Record Key:</label>
@@ -433,7 +439,7 @@ function extractDidFromAtUri(atUri) {
   return match ? match[1] : '';
 }
 
-const handleCache = {};
+
 
 async function getHandle(did) {
   if (handleCache[did]) return handleCache[did];
@@ -500,6 +506,47 @@ async function updateHandlesOnCards() {
 
 
 // end towards bookmarks
+
+
+// Follows code!
+
+async function resolveDidToHandle(did) {
+  if (handleCache[did]) return handleCache[did];
+
+  try {
+    // Use getProfile, NOT resolveHandle
+    const resp = await fetch(`https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=${encodeURIComponent(did)}`);
+    if (!resp.ok) throw new Error('Profile not found');
+    const data = await resp.json();
+    if (data.handle) {
+      handleCache[did] = data.handle;
+      localStorage.setItem('handleCache', JSON.stringify(handleCache));
+      return data.handle;
+    }
+  } catch (e) {
+    console.error('Handle resolution failed:', e);
+  }
+  return did; // fallback
+}
+
+async function fetchAccountPosts(did) {
+  try {
+    const handle = await resolveDidToHandle(did);
+    document.getElementById('searchInput').value = handle;
+    
+    const response = await fetch(`https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=${did}`);
+    const data = await response.json();
+    
+    data.feed.forEach(post => {
+      // Use your existing post display logic
+      displayPost(post.post);
+    });
+  } catch (e) {
+    console.error('Error fetching account posts:', e);
+  }
+}
+
+
 
 
 function isAccountAtUri(uri) {
@@ -818,6 +865,17 @@ function createRecordCard(record, collection, pds) {
   const embedObj = value.embed?.embed || value.embed;
   const embedHtml = renderEmbedDid(embedObj, did, cdnBase);
   
+  // ... Is this the right spot for this?
+  // Handle ?did= parameter in URL
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.has('did')) {
+  const did = urlParams.get('did');
+  document.getElementById('recordType').value = 'app.bsky.graph.follow';
+  fetchAccountPosts(did);
+}
+  // End of addition!
+  
+  
   
   
 
@@ -938,9 +996,11 @@ if (moreBtn) {
 		
 <script>
   // --- Default values ---
+  const handleCache = JSON.parse(localStorage.getItem('handleCache') || '{}');
   const DEFAULT_PDS = 'bsky.social';
   const DEFAULT_REPO = 'corkiejp.github.io';
   const DEFAULT_COLLECTION = 'app.bsky.feed.post';
+  
 
 
   // Set defaults on first load
@@ -958,6 +1018,21 @@ if (uri) {
   parseAtUri(uri, false); // fill fields, don't auto-fetch
   // If you want to auto-fetch as well, use: parseAtUri(uri, true);
 }
+
+  // New: Record type change handler  
+  document.getElementById('recordType').addEventListener('change', function() {
+  let collectionValue = this.value;
+  let placeholder = '';
+  if (collectionValue === 'app.bsky.feed.post') {
+    placeholder = 'Post Record Key';
+  } else if (collectionValue === 'app.bsky.graph.follow') {
+    placeholder = 'Follow Record Key';
+  } else if (collectionValue === 'a.bookmark.on.my.pds') {
+    placeholder = 'Bookmark Record Key';
+  }
+  document.getElementById('collection').value = collectionValue;
+  document.getElementById('rkey').placeholder = placeholder;
+});
 
 // --- Set defaults only if fields are empty ---
 setDefaultIfEmpty('[name="pds"]', DEFAULT_PDS);
@@ -1387,64 +1462,86 @@ async function fetchAndDisplaySingleRecord(pds, repo, collection, rkey) {
   
 
   // --- Fetch and display records ---
-  async function fetchAndDisplayRecords(pds, repo, collection) {
-    const url = `https://${pds}/xrpc/com.atproto.repo.listRecords?repo=${encodeURIComponent(repo)}&collection=${encodeURIComponent(collection)}&limit=100`;
-    const container = document.getElementById('records');
-    const countDiv = document.getElementById('record-count');
-    container.innerHTML = "<em>Loading...</em>";
-    countDiv.textContent = "";
+// --- Fetch and display records ---
+async function fetchAndDisplayRecords(pds, repo, collection) {
+  const url = `https://${pds}/xrpc/com.atproto.repo.listRecords?repo=${encodeURIComponent(repo)}&collection=${encodeURIComponent(collection)}&limit=100`;
+  const container = document.getElementById('records');
+  const countDiv = document.getElementById('record-count');
+  container.innerHTML = "<em>Loading...</em>";
+  countDiv.textContent = "";
 
-	
-	// --- Fetch handle for display ---
+  // --- Fetch handle for display ---
   let handle = null;
   if (repo.startsWith('did:plc:')) {
     handle = await fetchHandleForDid(repo);
   }
-  
-	
-	
-    try {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
-      const data = await res.json();
-      const records = data.records || [];
-      container.innerHTML = "";
-      if (!records.length) {
-        container.innerHTML = "<p>No records found.</p>";
-        countDiv.textContent = "Showing 0 records.";
-        return;
-      }
 
-records.forEach(record => {
-  const card = createRecordCard(record, collection, pds);
-  container.appendChild(card);
-
-			
-        // Copy-to-clipboard logic
-        const copyBtn = card.querySelector('.copy-at-uri-btn');
-        const atUriElem = card.querySelector('.at-uri');
-        const feedback = card.querySelector('.copy-feedback');
-        if (copyBtn && atUriElem && feedback) {
-          copyBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(atUriElem.textContent).then(() => {
-              feedback.style.display = 'inline';
-              setTimeout(() => { feedback.style.display = 'none'; }, 1200);
-            });
-          });
-        }
-      });
-      countDiv.textContent = handle
-  ? `Showing ${records.length} records from @${handle}`
-  : `Showing ${records.length} records from ${repo}`;
-    } catch (err) {
-      container.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
-	  
-	  countDiv.textContent = handle
-  ? `Showing 0 records from @${handle}`
-  : `Showing 0 records from ${repo}`;
-
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
+    const data = await res.json();
+    const records = data.records || [];
+    container.innerHTML = "";
+    if (!records.length) {
+      container.innerHTML = "<p>No records found.</p>";
+      countDiv.textContent = "Showing 0 records.";
+      return;
     }
+
+    // --- Main difference: pass collection to createRecordCard, and handle follow records ---
+    for (const record of records) {
+      let card;
+      if (collection === "app.bsky.graph.follow" || record.value?.['$type'] === "app.bsky.graph.follow") {
+        card = await createFollowRecordCard(record, pds); // async, because of handle resolution
+      } else {
+        card = createRecordCard(record, collection, pds);
+      }
+      container.appendChild(card);
+
+      // Copy-to-clipboard logic (same as before)
+      const copyBtn = card.querySelector('.copy-at-uri-btn');
+      const atUriElem = card.querySelector('.at-uri');
+      const feedback = card.querySelector('.copy-feedback');
+      if (copyBtn && atUriElem && feedback) {
+        copyBtn.addEventListener('click', () => {
+          navigator.clipboard.writeText(atUriElem.textContent).then(() => {
+            feedback.style.display = 'inline';
+            setTimeout(() => { feedback.style.display = 'none'; }, 1200);
+          });
+        });
+      }
+    }
+    countDiv.textContent = handle
+      ? `Showing ${records.length} records from @${handle}`
+      : `Showing ${records.length} records from ${repo}`;
+  } catch (err) {
+    container.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
+    countDiv.textContent = handle
+      ? `Showing 0 records from @${handle}`
+      : `Showing 0 records from ${repo}`;
   }
+}
+
+async function createFollowRecordCard(record, pds) {
+  // record.value.subject is the DID being followed
+  const did = record.value.subject;
+  const handle = await resolveDidToHandle(did);
+  const card = document.createElement('div');
+  card.className = "record-card";
+  card.innerHTML = `
+    <div>
+      <strong>Follow Record</strong>
+      <div>Following: 
+        <a href="?did=${encodeURIComponent(did)}" style="font-family:monospace">@${handle}</a>
+      </div>
+      <div>Created: ${new Date(record.value.createdAt).toLocaleString()}</div>
+      <div class="at-uri" style="display:none;">${record.uri}</div>
+      <button class="copy-at-uri-btn">Copy AT URI</button>
+      <span class="copy-feedback" style="display:none;">Copied!</span>
+    </div>
+  `;
+  return card;
+}
   
   
 
@@ -1468,12 +1565,7 @@ document.addEventListener('click', function(e) {
 
 
 
-  // --- Close dropdown if clicking outside ---
-  if (openLinksMenu) {
-    openLinksMenu.style.display = 'none';
-    openLinksMenu = null;
-    clearTimeout(closeMenuTimeout);
-  }
+
 
   // ... other click-based UI logic ...
 });
