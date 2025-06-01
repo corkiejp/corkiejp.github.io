@@ -1,4 +1,4 @@
-const CACHE_NAME = 'atproto-pwa-v1.12';
+const CACHE_NAME = 'atproto-pwa-v1.13';
 const URLS_TO_CACHE = [
   '/ATProtoViewer/',
   '/ATProtoViewer/index.html',
@@ -16,6 +16,7 @@ const URLS_TO_CACHE = [
 // Localstorage Bookmarks + autofill for desc! Fixed a bug that stopped scrolling on modal close.
 // More list now in a modal display instead of drop down.
 // Modal window to show bookmarks, with link to bookmarks page to manage them. v2
+// Display follow records.
 // Install: Cache new assets ...
 
 self.addEventListener('activate', event => {
