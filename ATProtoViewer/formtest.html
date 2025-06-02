@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Responsive ATProto Form Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+body { font-family: system-ui, sans-serif; background: #f5f6fa; margin: 0; padding: 2em 0; }
+.container { max-width: 700px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding: 2em; }
+h1 { text-align: center; color: #333; margin-top: 0; }
+
+form { display: flex; gap: 1em; flex-wrap: wrap; margin-bottom: 2em; align-items: flex-end; justify-content: center; }
+label { flex: 1 1 250px; display: flex; flex-direction: column; font-weight: 500; color: #444; margin-top: 10px; }
+input[type="text"], select {
+  padding: 0.5em;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  font-size: 1em;
+  margin-top: 0.3em;
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
+}
+button {
+  padding: 0.5em 1.0em;
+  background: #0074d9;
+  color: #fff;
+  border: none;
+  border-radius: 2px;
+  font-size: 0.8em;
+  cursor: pointer;
+  font-weight: 400;
+  transition: background 0.2s;
+}
+button:hover { background: #005fa3; }
+#records { margin-top: 2em; }
+#record-count { margin-bottom:1em; color:#333; font-size:1.05em; }
+
+@media (max-width: 600px) {
+  .container { padding: 1em; }
+  form { flex-direction: column; gap: 0.5em; align-items: stretch; }
+  input[type="text"], select {
+    width: 100%;
+    max-width: 100%;
+    font-size: 1em;
+  }
+  button {
+    width: 100%;
+    font-size: 1em;
+    padding: 0.8em 0;
+  }
+  label { margin-top: 6px; margin-bottom: 2px; }
+}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ATProto Record Viewer Demo</h1>
+    <form id="queryForm">
+      <label>
+        PDS
+        <input type="text" name="pds" id="pds" placeholder="Public Data Server">
+      </label>
+      <label>
+        Repo
+        <input type="text" name="repo" id="repo" placeholder="Repo DID">
+      </label>
+      <label>
+        Collection
+        <select name="collection" id="collection">
+          <option value="app.bsky.feed.post">Posts</option>
+          <option value="app.bsky.graph.follow">Follows</option>
+          <option value="app.bsky.feed.like">Likes</option>
+          <option value="a.bookmark.on.my.pds">Bookmarks</option>
+        </select>
+      </label>
+      <label>
+        Record Key
+        <input type="text" name="rkey" id="rkey" placeholder="Record Key">
+      </label>
+      <button type="submit">Fetch Records</button>
+    </form>
+    <div id="record-count"></div>
+    <div id="records"></div>
+  </div>
+</body>
+</html>
