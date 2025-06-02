@@ -1,4 +1,4 @@
-const CACHE_NAME = 'atproto-pwa-v1.13';
+const CACHE_NAME = 'atproto-pwa-v1.14';
 const URLS_TO_CACHE = [
   '/ATProtoViewer/',
   '/ATProtoViewer/index.html',
@@ -18,6 +18,7 @@ const URLS_TO_CACHE = [
 // Modal window to show bookmarks, with link to bookmarks page to manage them. v2
 // Display follow records.
 // Handle should now be displayed instead of DID string.
+// Set your own presets and import/export them + display of likes.
 // Install: Cache new assets ...
 
 self.addEventListener('activate', event => {

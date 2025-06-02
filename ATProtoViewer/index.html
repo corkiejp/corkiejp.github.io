@@ -331,47 +331,68 @@ Just select the option to switch to this in select drop-down after the collectio
     <!-- Form Dropdown -->
     <div class="dropdown">
       <button id="formToggleBtn" class="dropbtn">Show Form</button>
-      <div id="formDropdown" class="dropdown-content" style="padding: 0; min-width: 0;">
-        <form id="queryForm" style="padding: 7px 10px;">
-          <ul>
-            <li>
-			
-			<label for="uri">Post AT URI or Bluesky web URLs:</label>
-			<input type="text" id="uri" name="uri" placeholder="e.g. at://did:plc:xxx/app.bsky.feed.post/xxx" ...>
+      <div id="formDropdown" class="dropdown-content">
+  <form id="queryForm" autocomplete="on">
+    <label for="uri">Post AT URI or Bluesky web URLs:</label>
+    <div class="row-group">
+      <input type="text" id="uri" name="uri" placeholder="e.g. at://did:plc:xxx/app.bsky.feed.post/xxx">
+      <button type="button" id="parseUriBtn">Parse URI</button>
+    </div>
 
-              <button type="button" id="parseUriBtn">Parse URI</button>
-            </li>
-            <li>
-              <label for="pds">PDS Host:</label>
-              <input type="text" name="pds" id="pds" placeholder="PDS Host">
-            </li>
-            <li>
-              <label for="repo">Repo (DID):</label>
-              <input type="text" name="repo" id="repo" placeholder="Repo DID">
-            </li>
-            <li>
-              <label for="collection">Collection:</label>
-              <input type="text" name="collection" id="collection" placeholder="Collection">
-				<select id="recordType" name="recordType">
-					<option value="app.bsky.feed.post">Post</option>
-					<option value="app.bsky.graph.follow">Follow</option>
-					<option value="a.bookmark.on.my.pds">PDS Bookmarks</option> 
-				</select>
-				
-            </li>
-            <li>
-              <label for="rkey">Record Key:</label>
-              <input type="text" name="rkey" id="rkey" placeholder="Record Key"><br>
-			  <button type="button" id="fetchSingleBtn" style="margin-left:8px;">Show This Record Only</button>
-              <button type="submit">Fetch Records</button>
-            </li>
-          </ul>
-        </form>
-			<button type="button" id="resetParamsBtn">Reset Form</button>
-			<button type="button" id="clearUrlBtn">Clear URL</button>
-		  
-        
-      </div>
+    <label for="pds">PDS Host:</label>
+    <input type="text" name="pds" id="pds" placeholder="PDS Host">
+
+    <label for="repo">Repo (DID):</label>
+    <input type="text" name="repo" id="repo" placeholder="Repo DID">
+
+    <label for="collection">Collection:</label>
+    <div class="row-group">
+      <input type="text" name="collection" id="collection" placeholder="Collection">
+      <select id="recordType" name="recordType">
+        <option value="app.bsky.feed.post">Post</option>
+		<option value="app.bsky.feed.like">Likes</option>
+        <option value="app.bsky.graph.follow">Follow</option>
+        <option value="a.bookmark.on.my.pds">PDS Bookmarks</option>
+      </select>
+    </div>
+
+    <label for="rkey">Record Key:</label>
+    <div class="row-group">
+      <input type="text" name="rkey" id="rkey" placeholder="Record Key">
+      <button type="button" id="fetchSingleBtn">Show This Record Only</button>
+    </div>
+
+    <button type="submit">Fetch Records</button>
+
+    <div class="row-group">
+      <button type="button" id="set-defaults-btn">Set as Default</button>
+      <button type="button" id="clear-defaults-btn">Clear Saved Defaults</button>
+    </div>
+    <div class="row-group">
+      <span id="default-msg" style="color:green; display:none;">Defaults saved!</span>
+      <span id="clear-msg" style="color:green; display:none;">Defaults cleared!</span>
+    </div>
+
+    <div class="preset-row">
+      <label for="preset-select">Choose a preset:</label>
+      <select id="preset-select"></select>
+      <button type="button" id="apply-preset-btn">Apply</button>
+    </div>
+    <div class="preset-actions">
+      <input type="text" id="new-preset-name" placeholder="Preset name">
+      <button type="button" id="save-preset-btn">Save</button>
+      <button type="button" id="delete-preset-btn">Delete</button>
+      <button type="button" id="export-presets-btn">Export</button>
+      <input type="file" id="import-presets-input" accept=".json" style="display:none;">
+      <button type="button" id="import-presets-btn">Import</button>
+    </div>
+    <div class="row-group">
+      <span id="preset-msg" style="color:green; display:none;"></span>
+      <span id="import-msg" style="color:green; display:none;"></span>
+    </div>
+  </form>
+  <button type="button" id="clearUrlBtn" style="width:100%;margin-top:6px;">Clear URL</button>
+</div>
     </div><br><br><div>
 	<img src="assets/image-circle-icon-256x256-bl766vvq.png"
      alt="A dark circular logo featuring a stylized wave and a small circle. ~ Image for test purposes."
@@ -438,7 +459,6 @@ Just select the option to switch to this in select drop-down after the collectio
 
 
 <script>
-// Towards having bookmarks.
 function extractDidFromAtUri(atUri) {
   const match = atUri.match(/^at:\/\/([^/]+)/);
   return match ? match[1] : '';
@@ -454,63 +474,76 @@ async function getHandle(did) {
   return handle;
 }
 
-async function addDidAndHandleToCards() {
-  const cards = document.querySelectorAll('.record-card');
-  for (const card of cards) {
-    const atUriElem = card.querySelector('.at-uri');
-    if (atUriElem) {
-      const atUri = atUriElem.textContent.trim();
-      card.dataset.uri = atUri;
-      const did = extractDidFromAtUri(atUri);
-      card.dataset.did = did;
-      let handle = await fetchHandleForDid(did);
-      if (!handle) handle = did;
-      card.dataset.handle = handle;
 
-      // Update visible content: add or update a handle display
-      let handleElem = card.querySelector('.record-handle');
-      if (!handleElem) {
-        handleElem = document.createElement('div');
-        handleElem.className = 'record-handle';
-        atUriElem.parentNode.insertBefore(handleElem, atUriElem.nextSibling);
-      }
-      handleElem.innerHTML = `<strong>1 ~ Handle:</strong> @${handle}`;
-    }
-  }
+// Likes Code!
+
+// Extract DID from a URI like at://did:plc:xxx/app.bsky.feed.post/xxx
+function extractDidFromAtUri(uri) {
+  const match = uri.match(/^at:\/\/([^\/]+)/);
+  return match ? match[1] : null;
 }
 
-async function updateHandlesOnCards() {
-  const cards = document.querySelectorAll('.record-card');
-  for (const card of cards) {
-    const did = card.dataset.did;
-    if (did && did.startsWith('did:plc:')) {
-      const handle = await fetchHandleForDid(did);
-      if (handle) {
-        card.dataset.handle = handle;
-        // Optionally update visible card content
-        let handleElem = card.querySelector('.record-handle');
-        if (!handleElem) {
-          handleElem = document.createElement('div');
-          handleElem.className = 'record-handle';
-          // Insert after the .at-uri code element
-          const atUriElem = card.querySelector('.at-uri');
-          if (atUriElem) {
-            atUriElem.parentNode.insertBefore(handleElem, atUriElem.nextSibling);
-          } else {
-            card.insertBefore(handleElem, card.firstChild);
-          }
-        }
-        handleElem.innerHTML = `<strong>2 ~ Handle:</strong> @${handle}`;
-      }
-    }
+// Format date/time
+function formatDateTime(dt) {
+  const date = new Date(dt);
+  return date.toLocaleString(undefined, { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+}
+
+async function renderLikesList(records, containerId = 'records') {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  // Clear previous content
+  container.innerHTML = "";
+
+  if (!records || records.length === 0) {
+    container.textContent = "No likes found.";
+    return;
   }
+
+  const ul = document.createElement('ul');
+  ul.style.listStyle = 'none';
+  ul.style.padding = '0';
+
+  for (const record of records) {
+    // 1. Get liker DID and resolve handle
+    const likerDid = record.repo || record.did || extractDidFromAtUri(record.uri);
+    const likerHandle = await resolveDidToHandle(likerDid);
+
+    // 2. Get post URI and extract author DID, then resolve handle
+    const postUri = record.subject?.uri || record.subject || record.value?.subject?.uri || "";
+    const authorDid = extractDidFromAtUri(postUri);
+    let authorHandle = authorDid ? await resolveDidToHandle(authorDid) : null;
+
+    // 3. Format createdAt
+  // 3. Format createdAt (robust)
+  const createdAtRaw = record.createdAt || record.value?.createdAt || record.value?.['createdAt'];
+  const createdAt = createdAtRaw ? formatDateTime(createdAtRaw) : "";
+
+    // 4. Build links
+const currentPage = window.location.pathname.split('/').pop(); // or just use pathname if needed
+
+const postLink = `${currentPage}?uri=${encodeURIComponent(postUri)}`;
+const authorLink = authorDid ? `${currentPage}?did=${encodeURIComponent(authorDid)}` : "#";
+
+    // 5. Build list item
+    const li = document.createElement('li');
+    li.style.marginBottom = '8px';
+    li.innerHTML = `
+<strong>@${likerHandle || likerDid}</strong>
+liked
+<a href="${postLink}" target="_Top">this post</a>
+by
+<a href="${authorLink}" target="_Top">@${authorHandle || authorDid || "unknown"}</a>
+on ${createdAt}
+    `;
+    ul.appendChild(li);
+  }
+
+  container.appendChild(ul);
 }
 
 
-
-
-
-// end towards bookmarks
 
 
 // Follows code!
@@ -534,22 +567,7 @@ async function resolveDidToHandle(did) {
   return did; // fallback
 }
 
-async function fetchAccountPosts(did) {
-  try {
-    const handle = await resolveDidToHandle(did);
-    document.getElementById('searchInput').value = handle;
-    
-    const response = await fetch(`https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=${did}`);
-    const data = await response.json();
-    
-    data.feed.forEach(post => {
-      // Use your existing post display logic
-      displayPost(post.post);
-    });
-  } catch (e) {
-    console.error('Error fetching account posts:', e);
-  }
-}
+
 
 
 
@@ -872,12 +890,12 @@ function createRecordCard(record, collection, pds) {
   
   // ... Is this the right spot for this?
   // Handle ?did= parameter in URL
-const urlParams = new URLSearchParams(window.location.search);
-if (urlParams.has('did')) {
-  const did = urlParams.get('did');
-  document.getElementById('recordType').value = 'app.bsky.graph.follow';
-  fetchAccountPosts(did);
-}
+// const urlParams = new URLSearchParams(window.location.search);
+// if (urlParams.has('did')) {
+//  const did = urlParams.get('did');
+//  document.getElementById('recordType').value = 'app.bsky.graph.follow';
+//  fetchAccountPosts(did);
+//}
   // End of addition!
   
   
@@ -1022,17 +1040,269 @@ function enhanceHandles() {
 
 
   // --- Default values ---
-  const handleCache = JSON.parse(localStorage.getItem('handleCache') || '{}');
-  const DEFAULT_PDS = 'bsky.social';
-  const DEFAULT_REPO = 'corkiejp.github.io';
-  const DEFAULT_COLLECTION = 'app.bsky.feed.post';
+  const handleCache = JSON.parse(localStorage.getItem('handleCache') || '{}');  
   
+  const DEFAULTS_KEY = 'viewerDefaults';
+
+const defaultSettings = JSON.parse(localStorage.getItem(DEFAULTS_KEY)) || {
+  pds: 'bsky.social',
+  repo: 'corkiejp.github.io',
+  collection: 'app.bsky.feed.post'
+};
+
+// Prefill form inputs on DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+  setDefaultIfEmpty('[name="pds"]', defaultSettings.pds);
+  setDefaultIfEmpty('[name="repo"]', defaultSettings.repo);
+  setDefaultIfEmpty('[name="collection"]', defaultSettings.collection);
+});
+
+// Forum presets selector
+
+document.getElementById('set-defaults-btn').addEventListener('click', () => {
+  const pds = document.querySelector('[name="pds"]').value.trim() || 'bsky.social';
+  const repo = document.querySelector('[name="repo"]').value.trim() || 'corkiejp.github.io';
+  const collection = document.querySelector('[name="collection"]').value.trim() || 'app.bsky.feed.post';
+
+  const newDefaults = { pds, repo, collection };
+  localStorage.setItem(DEFAULTS_KEY, JSON.stringify(newDefaults));
+
+  // Show confirmation message
+  const msg = document.getElementById('default-msg');
+  msg.style.display = 'inline';
+  setTimeout(() => { msg.style.display = 'none'; }, 3000);
+});
 
 
-  // Set defaults on first load
-  setDefaultIfEmpty('[name="pds"]', DEFAULT_PDS);
-  setDefaultIfEmpty('[name="repo"]', DEFAULT_REPO);
-  setDefaultIfEmpty('[name="collection"]', DEFAULT_COLLECTION);
+document.getElementById('clear-defaults-btn').addEventListener('click', function() {
+  // Remove from localStorage
+  localStorage.removeItem(DEFAULTS_KEY);
+
+  // Optionally, reset the form fields to your hardcoded defaults immediately
+  document.querySelector('[name="pds"]').value = 'bsky.social';
+  document.querySelector('[name="repo"]').value = 'corkiejp.github.io';
+  document.querySelector('[name="collection"]').value = 'app.bsky.feed.post';
+
+  // Show confirmation message
+  const msg = document.getElementById('clear-msg');
+  msg.style.display = 'inline';
+  setTimeout(() => { msg.style.display = 'none'; }, 3000);
+});
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Attach event listeners FIRST
+
+  // Fill form from URI, repo, or did param if present
+  const params = new URLSearchParams(window.location.search);
+  const uri = params.get('uri');
+  const repo = params.get('repo');
+  const did = params.get('did');
+
+  if (uri) {
+    parseAtUri(uri, false); // fill fields, don't auto-fetch
+  } else if (repo) {
+    document.getElementById('repo').value = repo;
+    // You might want to auto-fetch or fill other fields if needed
+  } else if (did) {
+    document.getElementById('repo').value = did;
+    // If you want to auto-fetch, call your fetch function here
+  }
+});
+
+
+const BUILTIN_PRESETS = [
+  {
+    name: "CorkieJP",
+    pds: "bsky.social",
+    repo: "corkiejp.github.io",
+    collection: "app.bsky.feed.post"
+  },
+  {
+    name: "Bluesky Official",
+    pds: "bsky.social",
+    repo: "bsky.app",
+    collection: "app.bsky.feed.post"
+  },
+  {
+    name: "CorkieJP PDS Bookmarks",
+    pds: "bsky.social",
+    repo: "corkiejp.github.io",
+    collection: "a.bookmark.on.my.pds"
+  }
+  // Add more as needed
+];
+
+const USER_PRESETS_KEY = "userPresets";
+
+// Populate dropdown on page load
+document.addEventListener('DOMContentLoaded', () => {
+  const select = document.getElementById('preset-select');
+  BUILTIN_PRESETS.forEach((preset, idx) => {
+    const option = document.createElement('option');
+    option.value = idx;
+    option.textContent = preset.name;
+    select.appendChild(option);
+  });
+});
+
+// Apply preset to form fields
+document.getElementById('apply-preset-btn').addEventListener('click', () => {
+  const idx = document.getElementById('preset-select').value;
+  const allPresets = getAllPresets();
+  const preset = allPresets[idx];
+  if (!preset) {
+    alert("Invalid preset selected.");
+    return;
+  }
+  document.querySelector('[name="pds"]').value = preset.pds;
+  document.querySelector('[name="repo"]').value = preset.repo;
+  document.querySelector('[name="collection"]').value = preset.collection;
+
+  // Set the preset name field for both built-in and user presets
+  const presetNameInput = document.getElementById('new-preset-name');
+  if (presetNameInput) {
+    presetNameInput.value = preset.name || ""; // fallback if name missing
+  }
+});
+
+
+//FINDTHIS
+
+// --- Utility functions ---
+function getUserPresets() {
+  return JSON.parse(localStorage.getItem(USER_PRESETS_KEY) || "[]");
+}
+function setUserPresets(presets) {
+  localStorage.setItem(USER_PRESETS_KEY, JSON.stringify(presets));
+}
+function getAllPresets() {
+  return [...BUILTIN_PRESETS, ...getUserPresets()];
+}
+function isBuiltinPreset(idx) {
+  return idx < BUILTIN_PRESETS.length;
+}
+
+// --- Populate preset dropdown ---
+function populatePresetDropdown() {
+  const select = document.getElementById('preset-select');
+  select.innerHTML = "";
+  getAllPresets().forEach((preset, idx) => {
+    const option = document.createElement('option');
+    option.value = idx;
+    option.textContent = preset.name + (isBuiltinPreset(idx) ? " (built-in)" : "");
+    select.appendChild(option);
+  });
+}
+
+// --- Apply selected preset ---
+document.getElementById('apply-preset-btn').addEventListener('click', () => {
+  const idx = document.getElementById('preset-select').value;
+  const preset = getAllPresets()[idx];
+  document.querySelector('[name="pds"]').value = preset.pds;
+  document.querySelector('[name="repo"]').value = preset.repo;
+  document.querySelector('[name="collection"]').value = preset.collection;
+});
+
+// --- Save current as new user preset ---
+document.getElementById('save-preset-btn').addEventListener('click', () => {
+  const name = document.getElementById('new-preset-name').value.trim();
+  if (!name) {
+    showPresetMsg("Enter a name for your preset.", "red");
+    return;
+  }
+  const pds = document.querySelector('[name="pds"]').value.trim();
+  const repo = document.querySelector('[name="repo"]').value.trim();
+  const collection = document.querySelector('[name="collection"]').value.trim();
+  const newPreset = { name, pds, repo, collection };
+
+  // Prevent duplicate names
+  let userPresets = getUserPresets();
+  if (userPresets.some(p => p.name === name)) {
+    showPresetMsg("You already have a preset with that name.", "red");
+    return;
+  }
+  userPresets.push(newPreset);
+  setUserPresets(userPresets);
+  populatePresetDropdown();
+  showPresetMsg("Preset saved!", "green");
+});
+
+// --- Delete selected user preset ---
+document.getElementById('delete-preset-btn').addEventListener('click', () => {
+  const idx = parseInt(document.getElementById('preset-select').value, 10);
+  if (isBuiltinPreset(idx)) {
+    showPresetMsg("Cannot delete built-in presets.", "red");
+    return;
+  }
+  let userPresets = getUserPresets();
+  userPresets.splice(idx - BUILTIN_PRESETS.length, 1);
+  setUserPresets(userPresets);
+  populatePresetDropdown();
+  showPresetMsg("Preset deleted.", "green");
+});
+
+// --- Helper for user feedback ---
+function showPresetMsg(msg, color) {
+  const el = document.getElementById('preset-msg');
+  el.textContent = msg;
+  el.style.color = color;
+  el.style.display = "inline";
+  setTimeout(() => { el.style.display = "none"; }, 2500);
+}
+
+// --- Initialize dropdown on page load ---
+document.addEventListener('DOMContentLoaded', populatePresetDropdown);
+
+
+document.getElementById('export-presets-btn').addEventListener('click', () => {
+  const userPresets = getUserPresets();
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(userPresets, null, 2));
+  const dlAnchor = document.createElement('a');
+  dlAnchor.setAttribute("href", dataStr);
+  dlAnchor.setAttribute("download", "bsky-presets.json");
+  document.body.appendChild(dlAnchor);
+  dlAnchor.click();
+  dlAnchor.remove();
+});
+
+// Show file picker when button is clicked
+document.getElementById('import-presets-btn').addEventListener('click', () => {
+  document.getElementById('import-presets-input').click();
+});
+
+// Handle file selection and import
+document.getElementById('import-presets-input').addEventListener('change', function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!Array.isArray(imported)) throw new Error("Invalid format");
+      // Optional: Validate each preset object here
+      setUserPresets(imported);
+      populatePresetDropdown();
+      showImportMsg("Presets imported!", "green");
+    } catch (err) {
+      showImportMsg("Import failed: " + err.message, "red");
+    }
+  };
+  reader.readAsText(file);
+});
+
+// Helper for import feedback
+function showImportMsg(msg, color) {
+  const el = document.getElementById('import-msg');
+  el.textContent = msg;
+  el.style.color = color;
+  el.style.display = "inline";
+  setTimeout(() => { el.style.display = "none"; }, 2500);
+}
+
+
+
+
 
 document.addEventListener('DOMContentLoaded', function() {
   // --- Attach event listeners FIRST ---
@@ -1046,26 +1316,26 @@ if (uri) {
 }
 
   // New: Record type change handler  
-  document.getElementById('recordType').addEventListener('change', function() {
+document.getElementById('recordType').addEventListener('change', function() {
   let collectionValue = this.value;
   let placeholder = '';
+
   if (collectionValue === 'app.bsky.feed.post') {
     placeholder = 'Post Record Key';
   } else if (collectionValue === 'app.bsky.graph.follow') {
     placeholder = 'Follow Record Key';
+  } else if (collectionValue === 'app.bsky.feed.like') {
+    placeholder = 'Like Record Key';
   } else if (collectionValue === 'a.bookmark.on.my.pds') {
     placeholder = 'Bookmark Record Key';
   }
+
   document.getElementById('collection').value = collectionValue;
   document.getElementById('rkey').placeholder = placeholder;
 });
 
-// --- Set defaults only if fields are empty ---
-setDefaultIfEmpty('[name="pds"]', DEFAULT_PDS);
-setDefaultIfEmpty('[name="repo"]', DEFAULT_REPO);
-setDefaultIfEmpty('[name="collection"]', DEFAULT_COLLECTION);
-setDefaultIfEmpty('[name="rkey"]', '');
-setDefaultIfEmpty('[name="uri"]', '');
+
+
 
 console.log("After parseAtUri and defaults:", {
   repo: document.querySelector('[name="repo"]').value,
@@ -1096,23 +1366,6 @@ console.log("After parseAtUri and defaults:", {
     });
   }
 
-  // Reset Form Button
-  const resetBtn = document.getElementById('resetParamsBtn');
-  if (resetBtn) {
-    resetBtn.addEventListener('click', function() {
-      // Reset all form fields to defaults
-      setDefaultIfEmpty('[name="pds"]', DEFAULT_PDS, true);
-      setDefaultIfEmpty('[name="repo"]', DEFAULT_REPO, true);
-      setDefaultIfEmpty('[name="collection"]', DEFAULT_COLLECTION, true);
-      const uriField = document.querySelector('[name="uri"]');
-      const rkeyField = document.querySelector('[name="rkey"]');
-      if (uriField) uriField.value = '';
-      if (rkeyField) rkeyField.value = '';
-      // Optionally clear records/results
-      document.getElementById('records').innerHTML = '';
-      document.getElementById('record-count').textContent = '';
-    });
-  }
 
 	// Single record functions helpers
   // Clear URL Button (reloads page with clean URL)
@@ -1497,7 +1750,7 @@ async function fetchAndDisplayRecords(pds, repo, collection) {
   container.innerHTML = "<em>Loading...</em>";
   countDiv.textContent = "";
 
-  // --- Fetch handle for display ---
+  // Fetch handle for display
   let handle = null;
   if (repo.startsWith('did:plc:')) {
     handle = await fetchHandleForDid(repo);
@@ -1515,11 +1768,23 @@ async function fetchAndDisplayRecords(pds, repo, collection) {
       return;
     }
 
-    // --- Main difference: pass collection to createRecordCard, and handle follow records ---
+    // 🟦 1. Likes: render as a list, not cards
+    if (collection === "app.bsky.feed.like") {
+      await renderLikesList(records, 'records');
+      countDiv.textContent = handle
+        ? `Showing ${records.length} likes from @${handle}`
+        : `Showing ${records.length} likes from ${repo}`;
+      return; // Done!
+    }
+
+    // 🟦 2. Follows and others: render as cards
     for (const record of records) {
       let card;
-      if (collection === "app.bsky.graph.follow" || record.value?.['$type'] === "app.bsky.graph.follow") {
-        card = await createFollowRecordCard(record, pds); // async, because of handle resolution
+      if (
+        collection === "app.bsky.graph.follow" ||
+        record.value?.['$type'] === "app.bsky.graph.follow"
+      ) {
+        card = await createFollowRecordCard(record, pds); // async for handle resolution
       } else {
         card = createRecordCard(record, collection, pds);
       }
@@ -1550,6 +1815,7 @@ async function fetchAndDisplayRecords(pds, repo, collection) {
   enhanceHandles();
 }
 
+
 async function createFollowRecordCard(record, pds) {
   // record.value.subject is the DID being followed
   const did = record.value.subject;
@@ -1574,10 +1840,9 @@ async function createFollowRecordCard(record, pds) {
   
 
   // --- Auto-fetch on page load if nothing handled above ---
-  if (!alreadyFetched) {
-    fetchAndDisplayRecords(DEFAULT_PDS, DEFAULT_REPO, DEFAULT_COLLECTION);
-	
-  }
+//  if (!alreadyFetched) {
+//    fetchAndDisplayRecords(DEFAULT_PDS, DEFAULT_REPO, DEFAULT_COLLECTION);
+//	 }
 });
 
 
