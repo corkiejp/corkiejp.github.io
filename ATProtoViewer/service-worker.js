@@ -1,4 +1,4 @@
-const CACHE_NAME = 'atproto-pwa-v1.14';
+const CACHE_NAME = 'atproto-pwa-v1.15';
 const URLS_TO_CACHE = [
   '/ATProtoViewer/',
   '/ATProtoViewer/index.html',
@@ -19,7 +19,7 @@ const URLS_TO_CACHE = [
 // Display follow records.
 // Handle should now be displayed instead of DID string.
 // Set your own presets and import/export them + display of likes.
-// Update of CSS for mobile display.
+// Update of CSS for mobile display ~ Didn't work had to resort to old form layout!
 // Install: Cache new assets ...
 
 self.addEventListener('activate', event => {

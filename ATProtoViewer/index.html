@@ -331,68 +331,67 @@ Just select the option to switch to this in select drop-down after the collectio
     <!-- Form Dropdown -->
     <div class="dropdown">
       <button id="formToggleBtn" class="dropbtn">Show Form</button>
-      <div id="formDropdown" class="dropdown-content">
-  <form id="queryForm" autocomplete="on">
-    <label for="uri">Post AT URI or Bluesky web URLs:</label>
-    <div class="row-group">
-      <input type="text" id="uri" name="uri" placeholder="e.g. at://did:plc:xxx/app.bsky.feed.post/xxx">
-      <button type="button" id="parseUriBtn">Parse URI</button>
-    </div>
+<div id="formDropdown" class="dropdown-content" style="padding: 0; min-width: 0;">
+        <form id="queryForm" style="padding: 7px 10px;">
+          <ul>
+            <li>
+			
+			<label for="uri">Post AT URI or Bluesky web URLs:</label>
+			<input type="text" id="uri" name="uri" placeholder="e.g. at://did:plc:xxx/app.bsky.feed.post/xxx" ...>
 
-    <label for="pds">PDS Host:</label>
-    <input type="text" name="pds" id="pds" placeholder="PDS Host">
+              <button type="button" id="parseUriBtn">Parse URI</button>
+            </li>
+            <li>
+              <label for="pds">PDS Host:</label>
+              <input type="text" name="pds" id="pds" placeholder="PDS Host">
+            </li>
+            <li>
+              <label for="repo">Repo (DID):</label>
+              <input type="text" name="repo" id="repo" placeholder="Repo DID">
+            </li>
+            <li>
+              <label for="collection">Collection:</label>
+              <input type="text" name="collection" id="collection" placeholder="Collection">
+				<select id="recordType" name="recordType">
+					<option value="app.bsky.feed.post">Post</option>
+					<option value="app.bsky.graph.follow">Follow</option>
+					<option value="a.bookmark.on.my.pds">PDS Bookmarks</option> 
+				</select>
+				
+            </li>
+            <li>
+              <label for="rkey">Record Key:</label>
+              <input type="text" name="rkey" id="rkey" placeholder="Record Key"><br>
+			  <button type="button" id="fetchSingleBtn" style="margin-left:8px;">Show This Record Only</button>
+              <button type="submit">Fetch Records</button>
+            </li>
+			<li>
+			<button type="button" id="set-defaults-btn">Set as Default</button>
+<span id="default-msg" style="color:green; display:none; margin-left:10px;">Defaults saved!</span>
+<button type="button" id="clear-defaults-btn">Clear Saved Defaults</button>
+<span id="clear-msg" style="color:green; display:none; margin-left:10px;">Defaults cleared!</span>
+<label for="preset-select">Choose a preset:</label>
+<select id="preset-select">
+  <!-- Options will be filled by JS -->
+</select>
+<button type="button" id="apply-preset-btn">Apply Preset</button>
+<br>
+<input type="text" id="new-preset-name" placeholder="Preset name">
+<button type="button" id="save-preset-btn">Save Current as Preset</button>
+<button type="button" id="delete-preset-btn">Delete Selected Preset</button>
+<span id="preset-msg" style="color:green; display:none; margin-left:10px;"></span><br>
+<button type="button" id="export-presets-btn">Export Presets</button>
+<input type="file" id="import-presets-input" accept=".json" style="display:none;">
+<button type="button" id="import-presets-btn">Import Presets</button>
+<span id="import-msg" style="color:green; display:none; margin-left:10px;"></span>
 
-    <label for="repo">Repo (DID):</label>
-    <input type="text" name="repo" id="repo" placeholder="Repo DID">
-
-    <label for="collection">Collection:</label>
-    <div class="row-group">
-      <input type="text" name="collection" id="collection" placeholder="Collection">
-      <select id="recordType" name="recordType">
-        <option value="app.bsky.feed.post">Post</option>
-		<option value="app.bsky.feed.like">Likes</option>
-        <option value="app.bsky.graph.follow">Follow</option>
-        <option value="a.bookmark.on.my.pds">PDS Bookmarks</option>
-      </select>
-    </div>
-
-    <label for="rkey">Record Key:</label>
-    <div class="row-group">
-      <input type="text" name="rkey" id="rkey" placeholder="Record Key">
-      <button type="button" id="fetchSingleBtn">Show This Record Only</button>
-    </div>
-
-    <button type="submit">Fetch Records</button>
-
-    <div class="row-group">
-      <button type="button" id="set-defaults-btn">Set as Default</button>
-      <button type="button" id="clear-defaults-btn">Clear Saved Defaults</button>
-    </div>
-    <div class="row-group">
-      <span id="default-msg" style="color:green; display:none;">Defaults saved!</span>
-      <span id="clear-msg" style="color:green; display:none;">Defaults cleared!</span>
-    </div>
-
-    <div class="preset-row">
-      <label for="preset-select">Choose a preset:</label>
-      <select id="preset-select"></select>
-      <button type="button" id="apply-preset-btn">Apply</button>
-    </div>
-    <div class="preset-actions">
-      <input type="text" id="new-preset-name" placeholder="Preset name">
-      <button type="button" id="save-preset-btn">Save</button>
-      <button type="button" id="delete-preset-btn">Delete</button>
-      <button type="button" id="export-presets-btn">Export</button>
-      <input type="file" id="import-presets-input" accept=".json" style="display:none;">
-      <button type="button" id="import-presets-btn">Import</button>
-    </div>
-    <div class="row-group">
-      <span id="preset-msg" style="color:green; display:none;"></span>
-      <span id="import-msg" style="color:green; display:none;"></span>
-    </div>
-  </form>
-  <button type="button" id="clearUrlBtn" style="width:100%;margin-top:6px;">Clear URL</button>
-</div>
+			</li>
+          </ul>
+        </form>
+			<button type="button" id="clearUrlBtn">Clear URL</button>
+		  
+        
+      </div>
     </div><br><br><div>
 	<img src="assets/image-circle-icon-256x256-bl766vvq.png"
      alt="A dark circular logo featuring a stylized wave and a small circle. ~ Image for test purposes."
