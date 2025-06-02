@@ -19,6 +19,7 @@ const URLS_TO_CACHE = [
 // Display follow records.
 // Handle should now be displayed instead of DID string.
 // Set your own presets and import/export them + display of likes.
+// Update of CSS for mobile display.
 // Install: Cache new assets ...
 
 self.addEventListener('activate', event => {
