@@ -84,5 +84,67 @@ button:hover { background: #005fa3; }
     <div id="record-count"></div>
     <div id="records"></div>
   </div>
+  
+   <form id="queryForm" style="padding: 7px 10px;">
+          <ul>
+            <li>
+			
+			<label for="uri">Post AT URI or Bluesky web URLs:</label>
+			<input type="text" id="uri" name="uri" placeholder="e.g. at://did:plc:xxx/app.bsky.feed.post/xxx" ...>
+
+              <button type="button" id="parseUriBtn">Parse URI</button>
+            </li>
+            <li>
+              <label for="pds">PDS Host:</label>
+              <input type="text" name="pds" id="pds" placeholder="PDS Host">
+            </li>
+            <li>
+              <label for="repo">Repo (DID):</label>
+              <input type="text" name="repo" id="repo" placeholder="Repo DID">
+            </li>
+            <li>
+              <label for="collection">Collection:</label>
+              <input type="text" name="collection" id="collection" placeholder="Collection">
+				<select id="recordType" name="recordType">
+					<option value="app.bsky.feed.post">Post</option>
+					<option value="app.bsky.feed.like">Like</option>
+					<option value="app.bsky.graph.follow">Follow</option>
+					<option value="a.bookmark.on.my.pds">PDS Bookmarks</option> 
+				</select>
+				
+            </li>
+            <li>
+              <label for="rkey">Record Key:</label>
+              <input type="text" name="rkey" id="rkey" placeholder="Record Key"><br>
+			  <button type="button" id="fetchSingleBtn" style="margin-left:8px;">Show This Record Only</button>
+              <button type="submit">Fetch Records</button>
+            </li>
+			<li>
+			<button type="button" id="set-defaults-btn">Set as Default</button>
+<span id="default-msg" style="color:green; display:none; margin-left:10px;">Defaults saved!</span>
+<button type="button" id="clear-defaults-btn">Clear Saved Defaults</button>
+<span id="clear-msg" style="color:green; display:none; margin-left:10px;">Defaults cleared!</span>
+<label for="preset-select">Choose a preset:</label>
+<select id="preset-select">
+  <!-- Options will be filled by JS -->
+</select>
+<button type="button" id="apply-preset-btn">Apply Preset</button>
+<br>
+<input type="text" id="new-preset-name" placeholder="Preset name">
+<button type="button" id="save-preset-btn">Save Current as Preset</button>
+<button type="button" id="delete-preset-btn">Delete Selected Preset</button>
+<span id="preset-msg" style="color:green; display:none; margin-left:10px;"></span><br>
+<button type="button" id="export-presets-btn">Export Presets</button>
+<input type="file" id="import-presets-input" accept=".json" style="display:none;">
+<button type="button" id="import-presets-btn">Import Presets</button>
+<span id="import-msg" style="color:green; display:none; margin-left:10px;"></span>
+
+			</li>
+          </ul>
+        </form>
+			<button type="button" id="clearUrlBtn">Clear URL</button>
+		  
+        
+      </div>
 </body>
 </html>
