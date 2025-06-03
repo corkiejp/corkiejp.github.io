@@ -21,6 +21,7 @@ const URLS_TO_CACHE = [
 // Set your own presets and import/export them + display of likes.
 // Update of CSS for mobile display ~ Didn't work had to resort to old form layout!
 // And forgot about the likes option!
+// Added to instructions for presets.
 // Install: Cache new assets ...
 
 self.addEventListener('activate', event => {
