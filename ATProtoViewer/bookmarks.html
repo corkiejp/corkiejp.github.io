@@ -129,6 +129,8 @@ function showBookmarks() {
       <span class="bookmark-actions">
         <button onclick="window.location.href='${basePath}?uri=${encodeURIComponent(b.uri)}'">Open Post</button>
         <button onclick="removeBookmark('${b.uri}')">Remove</button>
+		<button onclick="editBookmark('${b.uri}')">Edit</button>
+
       </span>
     </div>
   `).join('');
@@ -161,6 +163,20 @@ function showBookmarks() {
       localStorage.setItem('bskyBookmarks', JSON.stringify(bookmarks));
       showBookmarks();
     }
+	function editBookmark(uri) {
+  let bookmarks = JSON.parse(localStorage.getItem('bskyBookmarks') || "[]");
+  const idx = bookmarks.findIndex(b => b.uri === uri);
+  if (idx === -1) return;
+  const newTitle = prompt("Edit title:", bookmarks[idx].title || "");
+  if (newTitle === null) return; // Cancelled
+  const newDesc = prompt("Edit description:", bookmarks[idx].description || "");
+  if (newDesc === null) return; // Cancelled
+  bookmarks[idx].title = newTitle;
+  bookmarks[idx].description = newDesc;
+  localStorage.setItem('bskyBookmarks', JSON.stringify(bookmarks));
+  showBookmarks();
+}
+
     function exportBookmarks() {
       const bookmarks = localStorage.getItem('bskyBookmarks') || "[]";
       const blob = new Blob([bookmarks], {type: "application/json"});

@@ -22,7 +22,7 @@ const URLS_TO_CACHE = [
 // Update of CSS for mobile display ~ Didn't work had to resort to old form layout!
 // And forgot about the likes option!
 // Added to instructions for presets.
-// Added lists display.
+// Added lists display. + Linkto toolify.blue added.
 // Install: Cache new assets ...
 
 self.addEventListener('activate', event => {

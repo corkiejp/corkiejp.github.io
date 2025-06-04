@@ -1,0 +1,2404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+   <title>ATProto Record Viewer (Multi-PDS)</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0074d9">
+  <link rel="icon" href="assets/icon-192.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  
+  
+  
+  
+  <style>
+body { font-family: system-ui, sans-serif; background: #f5f6fa; margin: 0; padding: 2em 0; }
+.container { max-width: 700px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding: 2em; }
+h1 { text-align: center; color: #333; margin-top: 0; }
+
+form { display: flex; gap: 1em; flex-wrap: wrap; margin-bottom: 2em; align-items: flex-end; justify-content: center; }
+label { flex: 1 1 250px; display: flex; flex-direction: column; font-weight: 500; color: #444; }
+input[type="text"] { padding: 0.5em; border: 1px solid #bbb; border-radius: 6px; font-size: 1em; margin-top: 0.3em; }
+button {
+  padding: 0.5em 1.0em;
+  background: #0074d9;
+  color: #fff;
+  border: none;
+  border-radius: 2px;
+  font-size: 0.8em;
+  cursor: pointer;
+  font-weight: 400;
+  transition: background 0.2s;
+}
+button:hover { background: #005fa3; }
+#records { margin-top: 2em; }
+#record-count { margin-bottom:1em; color:#333; font-size:1.05em; }
+.record-card { border: 1px solid #e1e4ea; border-radius: 8px; background: #fafbfc; padding: 1em 1.2em; margin-bottom: 1.5em; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
+.record-card code { background: #f1f1f1; padding: 0.1em 0.3em; border-radius: 4px; font-size: 0.95em; }
+.record-card ul { margin: 0.5em 0 0 1em; padding: 0; }
+.record-card li { margin-bottom: 0.2em; font-size: 0.98em; }
+.record-card a { color: #0074d9; text-decoration: none; word-break: break-all; }
+.record-card a:hover { text-decoration: underline; }
+.embed-images { display: flex; gap: 8px; margin: 0.5em 0; }
+.embed-images img { max-width: 100px; max-height: 100px; border-radius: 6px; border: 1px solid #ccc; }
+.embed-linkcard { display:flex; align-items:center; border:1px solid #ddd; border-radius:8px; padding:8px; margin:0.5em 0; background:#f7f7fa; }
+.embed-linkcard img { width:60px; height:60px; object-fit:cover; border-radius:6px; margin-right:10px; }
+.embed-linkcard-title { font-weight:bold; color:#0074d9; text-decoration:none; }
+.embed-linkcard-desc { font-size:0.96em; color:#555; }
+@media (max-width: 600px) { .container { padding: 1em; } form { flex-direction: column; gap: 0.5em; } }
+.copy-at-uri-btn { margin-left: 8px; padding: 2px 6px; font-size: 0.6em; cursor: pointer; }
+label { display: block; margin-top: 10px; }
+input { width: 400px; }
+ul { list-style-type: none; padding: 0; }
+li { margin-bottom: 1em; }
+.centered { text-align: center; }
+
+/* For card dropdowns */
+.record-links {
+  position: relative;
+  display: inline-block;
+}
+.links-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 0.5em 1em;
+  z-index: 10;
+  min-width: 200px;
+  max-width: 320px;
+  white-space: normal;
+}
+.links-toggle-btn {
+  background: none;
+  border: none;
+  font-size: 0.9em;
+  cursor: pointer;
+  padding: 0 6px;
+  color: #0074d9;
+  line-height: 1;
+  vertical-align: middle;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+.links-toggle-btn:hover {
+  background: #e6f1fa;
+}
+
+/* For instructions/form dropdowns */
+.dropdown-content {
+  display: none;
+  position: static;
+  background-color: #f9f9f9;
+  min-width: 350px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.05);
+  padding: 7px 10px;
+  z-index: 10;
+  border-radius: 4px;
+  font-size: 15px;
+  color: #333;
+}
+.dropdown-content.show {
+  display: block;
+}
+
+/* Optional: If you use .dropbtn */
+.dropbtn {
+  background-color: #3498DB;
+  color: white;
+  padding: 8px 16px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  border-radius: 2px;
+  margin-bottom: 1em;
+}
+
+/* Record Media: for richer record display */
+
+.record-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin-top: 8px;
+  border-radius: 8px;
+}
+.record-link-card:hover {
+  background: #f0f8ff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.record-quote {
+  margin-top: 8px;
+  background: #f9f9fa;
+  border-left: 3px solid #0074d9;
+  padding-left: 8px;
+  border-radius: 6px;
+}
+
+#imgModal .modal-content {
+  /* ...existing styles... */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 90vw;
+  max-height: 90vh;
+  position: relative;
+  background: #fff;
+  border-radius: 8px;
+  padding: 1em;
+  overflow: auto;
+}
+#modalImg {
+  max-width: 90vw;
+  max-height: 60vh;
+  display: block;
+  margin: auto;
+  flex: 0 0 auto;
+}
+#modalAltText {
+  margin-top: 0.5em;
+  color: #333;
+  font-size: 1em;
+  text-align: center;
+  border: 2px solid blue;
+  min-height: 2em;
+  width: 100%;
+}
+
+.links-menu {
+  position: absolute;
+  z-index: 10;
+  /* ...other styles... */
+}
+
+#imgModal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* ...existing styles... */
+}
+
+.bookmark-link-btn {
+  display: inline-flex;
+  align-items: center;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 14px 6px 10px;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  
+}
+.bookmark-link-btn:hover {
+  background: #ffe066;
+  color: #111;
+  text-decoration: none;
+}
+.bookmark-link-btn .star {
+  margin-right: 6px;
+  font-size: 1.2em;
+  color: #e6b800;
+}
+
+#linksModal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.6);
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+#linksModal.open {
+  display: flex;
+}
+
+#imgModalClose {
+  width: 44px;
+  height: 44px;
+  line-height: 44px;
+  text-align: center;
+  font-size: 2em;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.8);
+  color: #333;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  z-index: 2;
+}
+
+#linksModalClose {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 44px;
+  height: 44px;
+  line-height: 44px;
+  text-align: center;
+  font-size: 2em;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.85);
+  color: #333;
+  border: none;
+  cursor: pointer;
+  z-index: 2;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transition: background 0.2s, color 0.2s;
+}
+#linksModalClose:hover,
+#linksModalClose:focus {
+  background: #0074d9;
+  color: #fff;
+  outline: none;
+}
+
+/* Modal Overlay */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 10000;
+  left: 0; top: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.7);
+  align-items: center;
+  justify-content: center;
+}
+
+/* When modal is open, use display:flex for centering */
+.modal[style*="display: flex"] {
+  display: flex !important;
+}
+
+/* Modal Content */
+.modal-content {
+  background: white;
+  border-radius: 10px;
+  max-width: 500px;
+  width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  padding: 2em 1.5em 1.5em 1.5em;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+}
+
+
+
+
+
+
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ATProto Record Viewer (Multi-PDS)</h1>
+	<h2>Now with option to set your own presets, load likes and follows. See instructions.</h2>
+    <!-- Instructions Dropdown -->
+    <div class="dropdown">
+      <button id="instructionsToggleBtn" class="dropbtn">Show Instructions</button>
+	<div id="instructionDropdown" class="dropdown-content">
+  <h3>How to Use ATProto Record Viewer</h3>
+  <ul>
+  <li>
+  <b>Important Update:</b> I have added the option to set the default presets on page/PWA load.<br>
+	You can also make a list of presets and import/export them. Handy to create them on One device and load in another. If you export a few different lists, you can create categorize sets of list to load.<br>
+	With the above your no longer forced to load my profile, sorry for not implementing it sooner, mainly creating this for my own use.<br>
+	Also added the option to view the latest 100 likes, so you can like a post and easily find it again with this. <br>
+	See my announcement : - <a href="https://skyview.social/?url=at%3A%2F%2Fdid%3Aplc%3Aqxlh6bohvep3taqhmtpipx4b%2Fapp.bsky.feed.post%2F3lqnt5toce2ue" target="_blank">Bluesky thread.</a>
+  </li>
+	<li>
+	I have added the feature to display your (or any account) follows, limitation to the max of latest 100 records.
+Just select the option to switch to this in select drop-down after the collection field. Limitations of static html and the records you can pull from the PDS servers. See: - <a href="https://skyview.social/?url=at%3A%2F%2Fdid%3Aplc%3Aqxlh6bohvep3taqhmtpipx4b%2Fapp.bsky.feed.post%2F3lqj3pufupsxw" target="_blank">Bluesky thread.</a>
+	</li>
+    <li>
+      <strong>Flexible URL Parameters:</strong>
+      <ul>
+        <li>Pass parameters to the HTML file, e.g.: <code>?pds=nameofpds&amp;repo=did:plc:exampledid&amp;collection=app.bsky.feed.post</code></li>
+        <li>Alternatively, use <code>?did=</code> with your DID string-the script will auto-detect the PDS host.</li>
+        <li>Or use <code>?uri=</code> to auto-detect and load the record by AT URI.</li>
+      </ul>
+    </li>
+    <li>
+      <strong>Smart Entry Detection:</strong>
+      <ul>
+        <li>Paste your repo/DID/URI and simply tab out or click away-no need to press return!</li>
+      </ul>
+    </li>
+    <li>
+      <strong>Where to Find Your Info:</strong>
+      <ul>
+        <li>Enable developer mode in the Bluesky app or website (long-press the version number) to get your DID and URI links.</li>
+      </ul>
+    </li>
+    <li>
+      <strong>Selective Content Display:</strong>
+      <ul>
+        <li>The viewer displays only public content, some media not available on static html.</li>
+        <li>Want to see the raw records? <a href="../ATProtoRecordViewerMulti-PDS-raw.html" target="_blank">Click here for raw data view.</a></li>
+      </ul>
+    </li>
+    <li>
+      <strong>Limitations:</strong>
+      <ul>
+        <li>Some content may not display due to static HTML page restrictions. <a href="https://bsky.app/profile/did:plc:qxlh6bohvep3taqhmtpipx4b/post/3lp5ur5cuykbz" target="_blank">Learn more in this Bluesky thread.</a></li>
+      </ul>
+    </li>
+    <li>
+      <strong>Deep Links & Utilities:</strong>
+      <ul>
+        <li>Quick access to <a href="https://atp.tools/" target="_blank">atp.Tools</a>, <a href="https://blue.mackuba.eu/skythread/" target="_blank">SkyThread</a>, and <a href="https://pds.ls/" target="_blank">pdsls</a> for every record.</li>
+        <li><strong>Copy Links:</strong> Easily copy AT URI links and Bluesky permalinks for sharing or reference.</li>
+      </ul>
+    </li>
+  </ul>
+  <p style="margin-top:1em;">
+    <em>Tip: For the best experience, use the latest version of your browser.</em>
+  </p>
+</div>
+	  
+
+
+    </div>
+    <!-- Form Dropdown -->
+    <div class="dropdown">
+      <button id="formToggleBtn" class="dropbtn">Show Form</button>
+<div id="formDropdown" class="dropdown-content" style="padding: 0; min-width: 0;">
+        <form id="queryForm" style="padding: 7px 10px;">
+          <ul>
+            <li>
+			
+			<label for="uri">Post AT URI or Bluesky web URLs:</label>
+			<input type="text" id="uri" name="uri" placeholder="e.g. at://did:plc:xxx/app.bsky.feed.post/xxx" ...>
+
+              <button type="button" id="parseUriBtn">Parse URI</button>
+            </li>
+            <li>
+              <label for="pds">PDS Host:</label>
+              <input type="text" name="pds" id="pds" placeholder="PDS Host">
+            </li>
+            <li>
+              <label for="repo">Repo (DID):</label>
+              <input type="text" name="repo" id="repo" placeholder="Repo DID">
+			  <button id="showListsBtn" type="button">Show Lists</button>
+            </li>
+            <li>
+              <label for="collection">Collection:</label>
+              <input type="text" name="collection" id="collection" placeholder="Collection">
+				<select id="recordType" name="recordType">
+					<option value="app.bsky.feed.post">Post</option>
+					<option value="app.bsky.feed.like">Like</option>
+					<option value="app.bsky.graph.follow">Follow</option>
+					<option value="a.bookmark.on.my.pds">PDS Bookmarks</option> 
+				</select>
+				
+            </li>
+            <li>
+              <label for="rkey">Record Key:</label>
+              <input type="text" name="rkey" id="rkey" placeholder="Record Key"><br>
+			  <button type="button" id="fetchSingleBtn" style="margin-left:8px;">Show This Record Only</button>
+              <button type="submit">Fetch Records</button>
+            </li>
+			<li>
+			<button type="button" id="set-defaults-btn">Set as Default</button>
+<span id="default-msg" style="color:green; display:none; margin-left:10px;">Defaults saved!</span>
+<button type="button" id="clear-defaults-btn">Clear Saved Defaults</button>
+<span id="clear-msg" style="color:green; display:none; margin-left:10px;">Defaults cleared!</span>
+<label for="preset-select">Choose a preset:</label>
+<select id="preset-select">
+  <!-- Options will be filled by JS -->
+</select>
+<button type="button" id="apply-preset-btn">Apply Preset</button>
+<br>
+<input type="text" id="new-preset-name" placeholder="Preset name">
+<button type="button" id="save-preset-btn">Save Current as Preset</button>
+<button type="button" id="delete-preset-btn">Delete Selected Preset</button>
+<span id="preset-msg" style="color:green; display:none; margin-left:10px;"></span><br>
+<button type="button" id="export-presets-btn">Export Presets</button>
+<input type="file" id="import-presets-input" accept=".json" style="display:none;">
+<button type="button" id="import-presets-btn">Import Presets</button>
+<span id="import-msg" style="color:green; display:none; margin-left:10px;"></span>
+
+			</li>
+          </ul>
+        </form>
+			<button type="button" id="clearUrlBtn">Clear URL</button>
+		  
+        
+      </div>
+    </div><br><br><div>
+	<img src="assets/image-circle-icon-256x256-bl766vvq.png"
+     alt="A dark circular logo featuring a stylized wave and a small circle. ~ Image for test purposes."
+     data-alt="A dark circular logo featuring a stylized wave and a small circle. ~ Image for test purposes."
+     class="modal-img"
+     style="width:25px;cursor:pointer;" />  
+		<button type="button" id="linksListBtn" class="dropbtn">Bluesky Essential Links</button><br>
+		<button id="openBookmarksModalBtn" class="dropbtn" >★ Bookmarks</button>
+
+	<br><br>
+    <div id="record-count"></div>
+    <div id="records"></div>
+  </div>
+    		 <footer>
+            <p align=center><small><b>Disclaimer:-</b> I'm not a developer, this page/PWA was created <br> with the assistance of AI Powered search engine,<br>
+				<a href="https://www.perplexity.ai/" target='_blank'>https://www.perplexity.ai/</a><br>
+				 as an experiment into what can be done with static html on github.<br>
+				 Static webpage so no monitoring in place with a server backend, no login details requested so no privacy issues.<br> .   
+				If you use it, your not interacting with the AI.</small></p>
+        </footer>
+		
+<!-- Image Modal -->
+<div id="imgModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:10000;">
+  <div style="background:#fff; border-radius:10px; box-shadow:0 4px 16px rgba(0,0,0,0.2); padding:1em; max-width:90vw; max-height:90vh; overflow:auto; position:relative;">
+    <button id="imgModalClose" style="position:absolute; top:10px; right:10px; background:none; border:none; font-size:1.5em; cursor:pointer;">✖</button>
+    <img id="modalImg" src="" alt="" style="max-width:100%; max-height:70vh; display:block; margin:0 auto;">
+    <div id="modalAltText" style="margin-top:1em; text-align:center; color:#333;"></div>
+  </div>
+</div>
+
+
+
+<!-- Links Modal -->
+<div id="linksModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:10000;">
+  <div style="background:#fff; border-radius:10px; box-shadow:0 4px 16px rgba(0,0,0,0.2); padding:2em 1em; max-width:95vw; max-height:90vh; overflow-y:auto; position:relative;">
+    <button id="linksModalClose" style="position:absolute; top:10px; right:10px; background:none; border:none; font-size:1.5em; cursor:pointer;">✖</button>
+    <div id="linksModalTagline" style="margin-bottom:1em; font-weight:bold; font-size:1.1em;">
+  <!-- Tagline and account handle will be set by JS -->
+	</div>
+    <ul id="linksModalList" style="list-style:none; padding:0; margin:0;">
+      <!-- Links will be injected here -->
+    </ul>
+  </div>
+</div>
+
+<!-- Bookmarks Modal -->
+<div id="bookmarksModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:10000;">
+  <div style="background:#fff; border-radius:10px; box-shadow:0 4px 16px rgba(0,0,0,0.2); padding:1em; max-width:95vw; max-height:90vh; overflow-y:auto; position:relative;">
+    <button id="bookmarksModalClose" aria-label="Close" style="position:absolute; top:10px; right:10px; width:44px; height:44px; font-size:2em; border-radius:50%; background:rgba(255,255,255,0.85); color:#333; border:none; cursor:pointer; z-index:2; box-shadow:0 2px 6px rgba(0,0,0,0.15);">✖</button>
+    <div style="margin-bottom:1em; font-weight:bold; font-size:1.1em;">
+      ATProto Viewer Bookmarks.<br>
+      <a href="./bookmarks.html" target="_top" style=" font-size:0.9em; color:#0074d9; text-decoration:underline;">Manage your bookmarks.</a>
+    </div>
+    <ul id="bookmarksModalList" style="list-style:none; padding:0; margin:0;"></ul>
+    <div id="bookmarksModalEmpty" style="display:none; color:#888; text-align:center; margin-top:2em;">No bookmarks yet.</div>
+  </div>
+</div>
+
+
+<!-- List Modal -->
+<div id="listModal" class="modal" style="display:none; align-items:center; justify-content:center;">
+  <div class="modal-content" style="position:relative; max-width:500px; width:95vw; max-height:90vh; overflow-y:auto;">
+    <button id="listModalClose" style="position:absolute;top:10px;right:10px;font-size:1.5em;">&times;</button>
+	<b>Note:-</b> Only shows the first 50 max on a list!
+    <div id="listModalContent"></div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+<script>
+function extractDidFromAtUri(atUri) {
+  const match = atUri.match(/^at:\/\/([^/]+)/);
+  return match ? match[1] : '';
+}
+
+
+
+async function getHandle(did) {
+  if (handleCache[did]) return handleCache[did];
+  let handle = await fetchHandleForDid(did);
+  if (!handle) handle = did;
+  handleCache[did] = handle;
+  return handle;
+}
+
+
+// Likes Code!
+
+// Extract DID from a URI like at://did:plc:xxx/app.bsky.feed.post/xxx
+function extractDidFromAtUri(uri) {
+  const match = uri.match(/^at:\/\/([^\/]+)/);
+  return match ? match[1] : null;
+}
+
+// Format date/time
+function formatDateTime(dt) {
+  const date = new Date(dt);
+  return date.toLocaleString(undefined, { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+}
+
+async function renderLikesList(records, containerId = 'records') {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  // Clear previous content
+  container.innerHTML = "";
+
+  if (!records || records.length === 0) {
+    container.textContent = "No likes found.";
+    return;
+  }
+
+  // --- Add Convert Button ---
+  const convertBtn = document.createElement('button');
+  convertBtn.textContent = "Convert All Likes to Bookmarks";
+  convertBtn.style.marginBottom = "1em";
+  convertBtn.onclick = function() {
+    convertLikesToBookmarks(records);
+    alert("Converted likes to bookmarks! (Duplicates skipped)");
+  };
+  container.appendChild(convertBtn);
+
+  // --- Likes List ---
+  const ul = document.createElement('ul');
+  ul.style.listStyle = 'none';
+  ul.style.padding = '0';
+
+  for (const record of records) {
+    // ...your existing code for building the list...
+    const likerDid = record.repo || record.did || extractDidFromAtUri(record.uri);
+    const likerHandle = await resolveDidToHandle(likerDid);
+    const postUri = record.subject?.uri || record.subject || record.value?.subject?.uri || "";
+    const authorDid = extractDidFromAtUri(postUri);
+    let authorHandle = authorDid ? await resolveDidToHandle(authorDid) : null;
+    const createdAtRaw = record.createdAt || record.value?.createdAt || record.value?.['createdAt'];
+    const createdAt = createdAtRaw ? formatDateTime(createdAtRaw) : "";
+    const currentPage = window.location.pathname.split('/').pop();
+    const postLink = `${currentPage}?uri=${encodeURIComponent(postUri)}`;
+    const authorLink = authorDid ? `${currentPage}?did=${encodeURIComponent(authorDid)}` : "#";
+    const li = document.createElement('li');
+    li.style.marginBottom = '8px';
+    li.innerHTML = `
+      <strong>@${likerHandle || likerDid}</strong>
+      liked
+      <a href="${postLink}" target="_Top">this post</a>
+      by
+      <a href="${authorLink}" target="_Top">@${authorHandle || authorDid || "unknown"}</a>
+      on ${createdAt}
+    `;
+    ul.appendChild(li);
+  }
+
+  container.appendChild(ul);
+}
+
+
+function convertLikesToBookmarks(likes) {
+  let bookmarks = JSON.parse(localStorage.getItem('bskyBookmarks') || "[]");
+  let added = 0;
+  likes.forEach(like => {
+    // Use the same structure as your existing bookmarks!
+    const uri = like.subject?.uri || like.subject || like.value?.subject?.uri || "";
+    if (!uri || bookmarks.some(b => b.uri === uri)) return; // Skip if already bookmarked
+
+    // Use post text or handle as title, leave description blank
+    const title = like.text || like.handle || uri;
+    const description = ""; // Or use like.text if you want
+    const handle = like.handle || "";
+    const did = like.did || like.repo || "";
+
+    bookmarks.push({ uri, title, description, handle, did });
+    added++;
+  });
+  localStorage.setItem('bskyBookmarks', JSON.stringify(bookmarks));
+  return added;
+}
+
+
+// Lists Code!
+
+async function fetchListsForActor(actorDid) {
+  const url = `https://public.api.bsky.app/xrpc/app.bsky.graph.getLists?actor=${encodeURIComponent(actorDid)}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  return data.lists || [];
+}
+
+function renderLists(lists) {
+  // Hide the record count/message
+  const recordCount = document.getElementById('record-count');
+  if (recordCount) recordCount.style.display = 'none';
+  //
+  const container = document.getElementById('records');
+  container.innerHTML = '';
+  if (!lists.length) {
+    container.innerHTML = '<p>No lists found.</p>';
+    return;
+  }
+  lists.forEach(list => {
+    const div = document.createElement('div');
+    div.className = 'record-card';
+    div.innerHTML = `
+      <h3>${list.name}</h3>
+      <p>${list.description || ''}</p>
+      <button class="view-list-members" data-list-uri="${list.uri}">View first 50 Members</button>
+    `;
+    container.appendChild(div);
+  });
+
+  // Attach click listeners for modal opening
+  container.querySelectorAll('.view-list-members').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const listUri = btn.getAttribute('data-list-uri');
+      openListModal(listUri);
+    });
+  });
+}
+
+
+async function openListModal(listUri) {
+  const content = document.getElementById('listModalContent');
+  content.innerHTML = '<em>Loading...</em>';
+  openModal('listModal');
+
+  // Fetch list members
+  const res = await fetch(`https://public.api.bsky.app/xrpc/app.bsky.graph.getList?list=${encodeURIComponent(listUri)}`);
+  const data = await res.json();
+
+  const count = data.items.length;
+
+  if (count === 0) {
+    content.innerHTML = '<p>No members found in this list.</p>';
+    return;
+  }
+
+  // (Build your membersHtml as before...)
+  const membersHtml = await Promise.all(data.items.map(async item => {
+    const did = item.subject.did;
+    let handle = item.subject.handle || did;
+    let avatar = item.subject.avatar || '';
+    if (!item.subject.handle) {
+      try {
+        const profRes = await fetch(`https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=${did}`);
+        const prof = await profRes.json();
+        handle = prof.handle || did;
+        avatar = prof.avatar || '';
+      } catch {}
+    }
+    return `
+      <div class="list-member" style="display:flex;align-items:center;gap:1em;margin:0.5em 0;">
+        ${avatar ? `<img src="${avatar}" alt="${handle}'s avatar" style="width:40px;height:40px;border-radius:50%;">` : ''}
+        <a href="?did=${encodeURIComponent(did)}">@${handle}</a>
+      </div>
+    `;
+  }));
+
+  content.innerHTML = `
+    <h3>List Members <span style="font-size:0.8em;color:#888;">(${count} shown)</span></h3>
+    ${membersHtml.join('')}
+  `;
+}
+
+
+
+
+
+// Modal close logic
+document.addEventListener('DOMContentLoaded', function() {
+  const listModal = document.getElementById('listModal');
+  if (listModal) {
+    listModal.addEventListener('click', function(e) {
+      if (e.target === listModal) closeModal('listModal');
+    });
+    const closeBtn = document.getElementById('listModalClose');
+    if (closeBtn) closeBtn.onclick = () => closeModal('listModal');
+  }
+});
+
+
+async function fetchAndDisplayLists(actorDid) {
+  const url = `https://public.api.bsky.app/xrpc/app.bsky.graph.getLists?actor=${encodeURIComponent(actorDid)}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Failed to fetch lists");
+  const data = await res.json();
+  const lists = data.lists || [];
+  renderLists(lists);
+}
+
+
+document.getElementById('showListsBtn').addEventListener('click', function() {
+  const did = document.getElementById('repo').value.trim();
+  fetchAndDisplayLists(did);
+});
+
+// Follows code!
+
+async function resolveDidToHandle(did) {
+  if (handleCache[did]) return handleCache[did];
+
+  try {
+    // Use getProfile, NOT resolveHandle
+    const resp = await fetch(`https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=${encodeURIComponent(did)}`);
+    if (!resp.ok) throw new Error('Profile not found');
+    const data = await resp.json();
+    if (data.handle) {
+      handleCache[did] = data.handle;
+      localStorage.setItem('handleCache', JSON.stringify(handleCache));
+      return data.handle;
+    }
+  } catch (e) {
+    console.error('Handle resolution failed:', e);
+  }
+  return did; // fallback
+}
+
+
+
+
+
+
+function isAccountAtUri(uri) {
+  // Account URI: at://did:plc:xxxx
+  // Post URI: at://did:plc:xxxx/app.bsky.feed.post/xxxx
+  if (!uri) return false;
+  return /^at:\/\/did:[^\/]+$/.test(uri.trim());
+}
+
+// Use this in your form submission or fetch handler:
+function handleUriInput(uri) {
+  if (isAccountAtUri(uri)) {
+    alert("You entered an account AT URI. Please enter a post AT URI (with a collection and record key).");
+    return false; // Prevent further processing
+  }
+  // ...continue with normal processing for post URIs...
+  return true;
+}
+  
+
+  
+    function setDefaultIfEmpty(selector, value, force = false) {
+    const field = document.querySelector(selector);
+    if (field && (!field.value || force)) {
+      field.value = value;
+    }
+  }
+  
+    async function fetchHandleForDid(did) {
+  // Only fetch if it's a PLC DID
+  if (!did.startsWith('did:plc:')) return null;
+  try {
+    const resp = await fetch('https://plc.directory/' + did);
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    return data.handle || null;
+  } catch {
+    return null;
+  }
+}
+
+  // --- Helper functions for record rendering ---
+function extractUrls(text) {
+  if (typeof text !== 'string') return [];
+  const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/gi;
+  return text.match(urlRegex) || [];
+}
+
+
+  function formatDateTime(isoString) {
+    if (!isoString) return '';
+    const date = new Date(isoString);
+    return date.toLocaleString();
+  }
+  
+function atUriToUrls(atUri) {
+  if (typeof atUri !== 'string') return null;
+  const regex = /^at:\/\/([^/]+)\/([^/]+)(?:\/([^/]+))?$/;
+  const match = atUri.match(regex);
+  if (!match) return null;
+  const did = match[1];
+    const collection = match[2];
+    const rkey = match[3];
+    const bskyUrl = (collection === 'app.bsky.feed.post')
+      ? `https://bsky.app/profile/${did}/post/${rkey}`
+      : null;
+	const deerUrl = (collection === 'app.bsky.feed.post')
+      ? `https://deer.social/profile/${did}/post/${rkey}`
+      : null;
+	const klskyUrl = (collection === 'app.bsky.feed.post')
+      ? `https://klearsky.pages.dev/#/post?uri=at://${did}/app.bsky.feed.post/${rkey}`
+      : null;
+    const clearskyHistoryUrl = `https://clearsky.app/${did}/history`;
+	const plcdirprofile = `https://plc.directory/${did}`;
+	const credblue = `https://cred.blue/${did}`;
+	const toolify = `https://toolify.blue/profile/${did}`;
+	
+	
+    return {
+      did,
+      collection,
+      rkey,
+      bskyUrl,
+	  deerUrl,
+	  klskyUrl,
+      clearskyHistoryUrl,
+	  plcdirprofile,
+	  credblue,
+	  toolify,
+    };
+  }
+
+  function toggleLinksMenu(btn) {
+  const menu = btn.nextElementSibling;
+  document.querySelectorAll('.links-menu').forEach(m => {
+    if (m !== menu) m.style.display = 'none';
+  });
+  menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+}
+
+// CDN URL Construction
+function getCdnImageUrl(blob, mimeType, did, cdnBase, type = 'feed_fullsize') {
+  // type: 'feed_fullsize' for images, 'feed_thumbnail' for link cards
+  mimeType = mimeType ? mimeType.split('/')[1] : 'jpeg';
+  return `${cdnBase}/img/${type}/plain/${did}/${blob}@${mimeType}`;
+}
+
+function extractDidFromUri(uri) {
+  // Example: "at://did:plc:annmh2aamt3ctc2gubsvi6dj/app.bsky.feed.post/3lpm2obmrxi2k"
+  if (typeof uri !== 'string') return "";
+  const match = uri.match(/^at:\/\/(did:[^\/]+)/);
+  return match ? match[1] : "";
+}
+
+// Media rendering for record display.
+
+
+function renderBlueskyMedia(value, did, cdnBase) {
+  let mediaHtml = '';
+
+  // 1. Photo/image embeds
+  if (value.embed?.images?.length) {
+    for (const img of value.embed.images) {
+      if (img.image?.ref?.$link) {
+        const blob = img.image.ref.$link;
+        const mimeType = img.image.mimeType;
+        const imgUrl = getCdnImageUrl(blob, mimeType, did, cdnBase, 'feed_fullsize');
+        mediaHtml += `
+          <img src="${imgUrl}" 
+               alt="${img.alt ? img.alt.replace(/"/g, '&quot;') : ''}" 
+               class="record-image" loading="lazy"
+               style="display:block;max-width:100%;margin-top:8px;border-radius:8px;" 
+               onerror="this.style.display='none';"/>
+        `;
+      }
+    }
+  }
+
+  // 2. External link card
+  if (value.embed?.external) {
+    const ext = value.embed.external;
+    let thumbHtml = '';
+    if (ext.thumb?.ref?.$link) {
+      const blob = ext.thumb.ref.$link;
+      const mimeType = ext.thumb.mimeType;
+      const thumbUrl = getCdnImageUrl(blob, mimeType, did, cdnBase, 'feed_thumbnail');
+      thumbHtml = `<img src="${thumbUrl}" alt="Embed thumbnail"
+                     style="width:100%;max-width:320px;display:block;margin-bottom:8px;border-radius:6px;"
+                     loading="lazy" onerror="this.style.display='none';">`;
+    }
+    mediaHtml += `
+      <a href="${ext.uri}" target="_blank" rel="noopener" class="record-link-card"
+         style="display:block;border:1px solid #ddd;border-radius:8px;padding:8px;margin-top:8px;text-decoration:none;color:inherit;">
+        ${thumbHtml}
+        <div style="font-weight:bold;margin-bottom:4px;">${ext.title || ''}</div>
+        <div style="font-size:90%;color:#666;">${ext.description || ''}</div>
+        <div style="font-size:80%;color:#999;margin-top:2px;">${ext.uri.replace(/^https?:\/\//, '')}</div>
+      </a>
+    `;
+  }
+
+  // 3. Quoted post (leave as before)
+  if (value.embed?.record?.value) {
+    const quote = value.embed.record.value;
+    mediaHtml += `
+      <div class="record-quote" style="border-left:3px solid #0074d9;padding-left:8px;margin-top:8px;background:#f9f9fa;border-radius:6px;">
+        <div style="font-size:90%;color:#0074d9;font-weight:bold;">Quoted:</div>
+        <div style="font-size:95%;margin-bottom:4px;">${quote.text || ''}</div>
+        ${quote.author ? `<div style="font-size:80%;color:#666;">by @${quote.author.handle || ''}</div>` : ''}
+      </div>
+    `;
+  }
+
+  return mediaHtml;
+}
+
+function renderEmbedAtUri(embed, atUri, cdnBase) {
+  if (!embed) return '';
+  let html = '';
+  if (Array.isArray(embed.images)) {
+    const atUriParts = atUri.replace(/^at:\/\//, '').split('/');
+    const atUriCdn = atUriParts.slice(0, 3).join('/');
+    html += '<div class="embed-images">';
+    embed.images.forEach((img, idx) => {
+      const imgUrl = `${cdnBase}/img/feed_fullsize/plain/${atUriCdn}/${idx}`;
+      // You probably want to actually use imgUrl here, e.g.:
+      // html += `<img src="${imgUrl}" alt="Embedded image ${idx+1}" />`;
+	  // html += `<img src="${imgUrl}" alt="Embedded image ${idx+1}" style="cursor:pointer;" onclick="openImgModal('${imgUrl}')" />`;
+	  html += `<img src="${imgUrl}" alt="Embedded image ${idx+1}" class="modal-img" data-source="AtUri" />`;
+
+    });
+    html += '</div>';
+  }
+  if (embed.external) {
+    const ext = embed.external;
+    const hasThumb = typeof ext.thumb === 'string' && /^https?:\/\//.test(ext.thumb);
+    html += `
+      <div class="embed-linkcard">
+        ${hasThumb ? `<img src="${ext.thumb}" alt="link thumbnail" onerror="this.style.display='none';" />` : ''}
+        <div style="flex:1;">
+          <a href="${ext.uri}" target="_blank" rel="noopener" class="embed-linkcard-title">${ext.title || ext.uri}</a>
+          <div class="embed-linkcard-desc">${ext.description || ''}</div>
+        </div>
+      </div>
+    `;
+  }
+  return html;
+}
+
+function renderEmbedDid(embed, did, cdnBase) {
+  if (!embed) return '';
+
+  // External link card
+  if (embed.$type === 'app.bsky.embed.external' && embed.external) {
+    const ext = embed.external;
+    let thumbHtml = '';
+    if (ext.thumb?.ref?.$link) {
+      const blob = ext.thumb.ref.$link;
+      const mimeType = ext.thumb.mimeType?.split('/')[1] || 'jpeg';
+      const thumbUrl = `${cdnBase}/img/feed_thumbnail/plain/${did}/${blob}@${mimeType}`;
+      thumbHtml = `<img src="${thumbUrl}" alt="Embed thumbnail" class="modal-img" data-source="LinkCard"
+                     style="max-width:96px;max-height:96px;border-radius:8px;margin-right:8px;"
+                     onerror="this.style.display='none';">`;
+    }
+    return `
+      <div class="embed-card" style="margin-top:12px;border:1px solid #eee;padding:12px;border-radius:8px;">
+        <div style="display:flex;gap:12px;">
+          ${thumbHtml}
+          <div style="flex:1;">
+            <a href="${ext.uri}" target="_blank" rel="noopener"
+               style="font-weight:500;text-decoration:none;color:#0074d9;">
+              ${ext.title || ext.uri}
+            </a>
+            ${ext.description ? `<div style="margin-top:4px;color:#666;font-size:0.9em;">${ext.description}</div>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+
+  // Image embeds
+  if (embed.$type === 'app.bsky.embed.images' && Array.isArray(embed.images)) {
+    return `
+      <div class="embed-images" style="margin-top:12px;display:flex;gap:8px;">
+        ${embed.images.map(img => {
+          if (img.image?.ref?.$link) {
+            const blob = img.image.ref.$link;
+            const mimeType = img.image.mimeType?.split('/')[1] || 'jpeg';
+            const imgUrl = `${cdnBase}/img/feed_fullsize/plain/${did}/${blob}@${mimeType}`;
+				return `<img src="${imgUrl}" alt="${img.alt || ''}" 
+					class="modal-img" data-source="Did"
+					data-alt="${img.alt || ''}"
+					style="max-width:180px;max-height:180px;border-radius:8px;"
+					onerror="this.style.display='none';">`;
+          }
+		  
+
+		  
+          return '';
+        }).join('')}
+      </div>
+    `;
+  }
+
+  // Record embeds (simple, shows text and a link)
+  if (embed.$type === 'app.bsky.embed.record' && embed.record?.value) {
+    const rec = embed.record;
+    const recText = rec.value.text || '';
+    const recUri = rec.uri || '';
+    return `
+      <div class="embed-record" style="margin-top:12px;border:1px solid #eee;padding:12px;border-radius:8px;background:#f7f7fa;">
+        <div style="font-size:90%;color:#555;">
+          <span style="font-weight:bold;">Embedded Record:</span>
+          ${recText ? `<div style="margin-top:4px;">${recText}</div>` : ''}
+          ${recUri ? `<div style="margin-top:4px;"><a href="?uri=${encodeURIComponent(recUri)}" target="_blank" rel="noopener">View record</a></div>` : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  // Record with media (shows record and media)
+  if (embed.$type === 'app.bsky.embed.recordWithMedia') {
+	const recHtml = embed.record ? renderEmbedDid({ $type: 'app.bsky.embed.record', record: embed.record }, did, cdnBase) : '';
+	const mediaHtml = embed.media ? renderEmbedDid(embed.media, did, cdnBase) : '';
+    return `
+      <div class="embed-recordwithmedia" style="margin-top:12px;">
+        ${recHtml}
+        ${mediaHtml}
+      </div>
+    `;
+  }
+
+  return '';
+}
+
+function createRecordCard(record, collection, pds) {
+  // Support both {value: {...}} and plain {...}
+  const value = (record && record.value) ? record.value : (record || {});
+  const text = value.text || '';
+  const textUrls = extractUrls(text);
+
+  const atUri = record.uri;
+  const innerUri = value.uri;
+  const urlField = value.url;
+  const name = value.name || value.title || urlField || innerUri || '';
+  const createdAt = value.createdAt ? formatDateTime(value.createdAt) : '';
+  const postview = `./BlueskyPostViewer.html?mode=detail&uri=${atUri}&pds=${pds}`;
+  const rawrecords = `../ATProtoRecordViewerMulti-PDS-raw.html?uri=${atUri}&pds=${pds}`;
+  const pdslsdevUrl = `https://pdsls.dev/${atUri}`;
+  const atpToolsUrl = `https://atp.tools/${atUri}`;
+  const skythreadAtUri = `https://blue.mackuba.eu/skythread/?q=${atUri}`;
+  const skythreadInnerUri = innerUri ? `https://blue.mackuba.eu/skythread/?q=${innerUri}` : null;
+  const skyviewUri = "https://skyview.social/?url=" + encodeURIComponent(atUri);
+  const { bskyUrl, clearskyHistoryUrl, deerUrl, klskyUrl, plcdirprofile, credblue, toolify} = atUriToUrls(atUri) || {};
+
+  // --- Embed/media rendering ---
+  const did = record.repo || record.did || extractDidFromUri(record.uri);
+  const cdnBase = 'https://cdn.bsky.app';
+  const embedObj = value.embed?.embed || value.embed;
+  const embedHtml = renderEmbedDid(embedObj, did, cdnBase);
+  
+  // ... Is this the right spot for this?
+  // Handle ?did= parameter in URL
+// const urlParams = new URLSearchParams(window.location.search);
+// if (urlParams.has('did')) {
+//  const did = urlParams.get('did');
+//  document.getElementById('recordType').value = 'app.bsky.graph.follow';
+//  fetchAccountPosts(did);
+//}
+  // End of addition!
+  
+  
+  
+  
+
+  // ... rest of your card creation code ...
+
+  
+
+
+
+  // --- Dropdown links ---
+  let links = [];
+  if (collection === "app.bsky.feed.post") {
+    links.push(`<a href="${postview}">Post viewer</a>`);
+    links.push(`<a href="${bskyUrl}" target="_blank" rel="noopener" class="bsky-link">bsky.app</a>`);
+    links.push(`<a href="${deerUrl}" target="_blank" rel="noopener" class="bsky-link">deer.social</a>`);
+	links.push(`<a href="${klskyUrl}" target="_blank" rel="noopener" class="bsky-link">klearsky.pages.dev</a>`);
+    links.push(`<a href="${clearskyHistoryUrl}" target="_blank" rel="noopener">Clearsky</a>`);
+    links.push(`<a href="${skythreadAtUri}" target="_blank" rel="noopener">SkyThread</a>`);
+    links.push(`<a href="${skyviewUri}" target="_blank" rel="noopener">Skyview</a>`);
+  }
+  links.push(`<a href="${rawrecords}" target="_blank" rel="noopener">Raw Records</a>`);
+  links.push(`<a href="${atpToolsUrl}" target="_blank" rel="noopener">atp.tools</a>`);
+  links.push(`<a href="${pdslsdevUrl}" target="_blank" rel="noopener">pdsls.dev</a>`);
+  links.push(`<a href="${plcdirprofile}" target="_blank" rel="noopener">plc.directory</a>`);
+  links.push(`<a href="${credblue}" target="_blank" rel="noopener">cred.blue</a>`);
+  links.push(`<a href="${toolify}" target="_blank" rel="noopener">toolify.blue</a>`);
+  
+  
+  
+  
+  if (innerUri && skythreadInnerUri) {
+    links.push(`<a href="${skythreadInnerUri}" target="_blank" rel="noopener">SkyThread (value URI)</a>`);
+  }
+
+  // --- Build the card ---
+  const card = document.createElement('div');
+  card.className = 'record-card';
+  if (bskyUrl) {
+    card.dataset.bskyUrl = bskyUrl;
+  }
+  card.innerHTML = `
+    <div><strong>Text:</strong> ${text ? text : '<em>No text</em>'}</div>
+    ${embedHtml}
+    ${createdAt ? `<div><strong>Created:</strong> ${createdAt}</div>` : ''}
+    <div>
+      <strong>Record AT URI:</strong>
+      <code class="at-uri">${atUri}</code>
+      <button class="copy-at-uri-btn" type="button" title="Copy AT URI">Copy</button>
+      <span class="copy-feedback" style="display:none; color:green; margin-left:8px;">Copied!</span>
+    </div>
+    ${innerUri ? `
+      <div>
+        <strong>Record Value URI:</strong>
+        <a href="${innerUri}" target="_blank" rel="noopener">${innerUri}</a>
+      </div>
+    ` : ''}
+	<div class="record-handle">
+  <strong>* Handle:</strong>
+  <span class="handle-value" data-did="${did}">@${did}</span>
+</div>
+
+    ${urlField ? `<div><strong>URL:</strong> <a href="${urlField}" target="_blank" rel="noopener">${name}</a></div>` : ''}
+    ${textUrls.length > 0 ? `
+      <div><strong>Links found in text:</strong>
+        <ul>
+          ${textUrls.map(turl => `<li><a href="${turl}" target="_blank" rel="noopener">${turl}</a></li>`).join('')}
+        </ul>
+      </div>
+    ` : ''}
+    <div class="record-links">
+      ${collection === "app.bsky.feed.post" && bskyUrl ? `
+      Bsky Permalink: 
+        <button type="button" class="copy-bsky-link-btn" title="Copy bsky.app link" style="background:none;border:none;vertical-align:middle;cursor:pointer;padding:0;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" style="vertical-align:middle;">
+            <rect x="9" y="9" width="13" height="13" rx="2" fill="#0074d9" fill-opacity="0.15" stroke="#0074d9" stroke-width="2"/>
+            <rect x="3" y="3" width="13" height="13" rx="2" stroke="#0074d9" stroke-width="2"/>
+          </svg>
+        </button>
+        <span class="copy-bsky-feedback" style="display:none;color:green;margin-left:4px;">Copied!</span> 
+      ` : ''} 
+	  
+		<button class="bookmark-btn" title="Bookmark this post" style="background:none; border:none; cursor:pointer; padding:0; vertical-align:middle;">
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#0074D9" viewBox="0 0 24 24" style="vertical-align:middle;">
+    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+  </svg>
+</button>
+
+
+      <button class="links-toggle-btn" type="button">⋯ More</button>
+	  
+
+    </div>
+  `;
+  
+const moreBtn = card.querySelector('.links-toggle-btn');
+if (moreBtn) {
+  moreBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    // Use the handle if available, otherwise show the DID
+    showLinksModal(links, card.dataset.handle || card.dataset.did || 'unknown');
+  });
+}  
+  
+
+  
+    // Fetch and update the handle asynchronously
+  fetchHandleForDid(did).then(handle => {
+    if (handle) {
+      card.dataset.handle = handle;
+      const handleElem = card.querySelector('.handle-value');
+      if (handleElem) handleElem.textContent = '@' + handle;
+    }
+  });
+  card.dataset.uri = atUri;
+  card.dataset.did = did;
+  card.dataset.handle = did; // Temporarily set to DID; will update to handle after fetch
+  card.dataset.text = text || ""; // <--- Use the extracted text from value.text
+  
+  return card;
+}
+
+
+
+
+</script>
+			
+		
+<script>
+function enhanceHandles() {
+  const spans = document.querySelectorAll('.handle-value[data-did]');
+//  console.log("enhanceHandles: found", spans.length, "spans");
+  spans.forEach(span => {
+    const did = span.getAttribute('data-did');
+//    console.log("enhanceHandles: processing", did);
+    resolveDidToHandle(did).then(handle => {
+      if (handle && handle !== did) {
+//        console.log("enhanceHandles: updating", did, "to", handle);
+        span.textContent = '@' + handle;
+      }
+    });
+  });
+}
+
+
+  // --- Default values ---
+  const handleCache = JSON.parse(localStorage.getItem('handleCache') || '{}');  
+  
+  const DEFAULTS_KEY = 'viewerDefaults';
+
+const defaultSettings = JSON.parse(localStorage.getItem(DEFAULTS_KEY)) || {
+  pds: 'bsky.social',
+  repo: 'corkiejp.github.io',
+  collection: 'app.bsky.feed.post'
+};
+
+// Prefill form inputs on DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+  setDefaultIfEmpty('[name="pds"]', defaultSettings.pds);
+  setDefaultIfEmpty('[name="repo"]', defaultSettings.repo);
+  setDefaultIfEmpty('[name="collection"]', defaultSettings.collection);
+});
+
+// Forum presets selector
+
+document.getElementById('set-defaults-btn').addEventListener('click', () => {
+  const pds = document.querySelector('[name="pds"]').value.trim() || 'bsky.social';
+  const repo = document.querySelector('[name="repo"]').value.trim() || 'corkiejp.github.io';
+  const collection = document.querySelector('[name="collection"]').value.trim() || 'app.bsky.feed.post';
+
+  const newDefaults = { pds, repo, collection };
+  localStorage.setItem(DEFAULTS_KEY, JSON.stringify(newDefaults));
+
+  // Show confirmation message
+  const msg = document.getElementById('default-msg');
+  msg.style.display = 'inline';
+  setTimeout(() => { msg.style.display = 'none'; }, 3000);
+});
+
+
+document.getElementById('clear-defaults-btn').addEventListener('click', function() {
+  // Remove from localStorage
+  localStorage.removeItem(DEFAULTS_KEY);
+
+  // Optionally, reset the form fields to your hardcoded defaults immediately
+  document.querySelector('[name="pds"]').value = 'bsky.social';
+  document.querySelector('[name="repo"]').value = 'corkiejp.github.io';
+  document.querySelector('[name="collection"]').value = 'app.bsky.feed.post';
+
+  // Show confirmation message
+  const msg = document.getElementById('clear-msg');
+  msg.style.display = 'inline';
+  setTimeout(() => { msg.style.display = 'none'; }, 3000);
+});
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Attach event listeners FIRST
+
+  // Fill form from URI, repo, or did param if present
+  const params = new URLSearchParams(window.location.search);
+  const uri = params.get('uri');
+  const repo = params.get('repo');
+  const did = params.get('did');
+
+  if (uri) {
+    parseAtUri(uri, false); // fill fields, don't auto-fetch
+  } else if (repo) {
+    document.getElementById('repo').value = repo;
+    // You might want to auto-fetch or fill other fields if needed
+  } else if (did) {
+    document.getElementById('repo').value = did;
+    // If you want to auto-fetch, call your fetch function here
+  }
+});
+
+
+const BUILTIN_PRESETS = [
+  {
+    name: "CorkieJP",
+    pds: "bsky.social",
+    repo: "corkiejp.github.io",
+    collection: "app.bsky.feed.post"
+  },
+  {
+    name: "Bluesky Official",
+    pds: "bsky.social",
+    repo: "bsky.app",
+    collection: "app.bsky.feed.post"
+  },
+  {
+    name: "CorkieJP PDS Bookmarks",
+    pds: "bsky.social",
+    repo: "corkiejp.github.io",
+    collection: "a.bookmark.on.my.pds"
+  }
+  // Add more as needed
+];
+
+const USER_PRESETS_KEY = "userPresets";
+
+// Populate dropdown on page load
+document.addEventListener('DOMContentLoaded', () => {
+  const select = document.getElementById('preset-select');
+  BUILTIN_PRESETS.forEach((preset, idx) => {
+    const option = document.createElement('option');
+    option.value = idx;
+    option.textContent = preset.name;
+    select.appendChild(option);
+  });
+});
+
+// Apply preset to form fields
+document.getElementById('apply-preset-btn').addEventListener('click', () => {
+  const idx = document.getElementById('preset-select').value;
+  const allPresets = getAllPresets();
+  const preset = allPresets[idx];
+  if (!preset) {
+    alert("Invalid preset selected.");
+    return;
+  }
+  document.querySelector('[name="pds"]').value = preset.pds;
+  document.querySelector('[name="repo"]').value = preset.repo;
+  document.querySelector('[name="collection"]').value = preset.collection;
+
+  // Set the preset name field for both built-in and user presets
+  const presetNameInput = document.getElementById('new-preset-name');
+  if (presetNameInput) {
+    presetNameInput.value = preset.name || ""; // fallback if name missing
+  }
+});
+
+
+//FINDTHIS
+
+// --- Utility functions ---
+function getUserPresets() {
+  return JSON.parse(localStorage.getItem(USER_PRESETS_KEY) || "[]");
+}
+function setUserPresets(presets) {
+  localStorage.setItem(USER_PRESETS_KEY, JSON.stringify(presets));
+}
+function getAllPresets() {
+  return [...BUILTIN_PRESETS, ...getUserPresets()];
+}
+function isBuiltinPreset(idx) {
+  return idx < BUILTIN_PRESETS.length;
+}
+
+// --- Populate preset dropdown ---
+function populatePresetDropdown() {
+  const select = document.getElementById('preset-select');
+  select.innerHTML = "";
+  getAllPresets().forEach((preset, idx) => {
+    const option = document.createElement('option');
+    option.value = idx;
+    option.textContent = preset.name + (isBuiltinPreset(idx) ? " (built-in)" : "");
+    select.appendChild(option);
+  });
+}
+
+// --- Apply selected preset ---
+document.getElementById('apply-preset-btn').addEventListener('click', () => {
+  const idx = document.getElementById('preset-select').value;
+  const preset = getAllPresets()[idx];
+  document.querySelector('[name="pds"]').value = preset.pds;
+  document.querySelector('[name="repo"]').value = preset.repo;
+  document.querySelector('[name="collection"]').value = preset.collection;
+});
+
+// --- Save current as new user preset ---
+document.getElementById('save-preset-btn').addEventListener('click', () => {
+  const name = document.getElementById('new-preset-name').value.trim();
+  if (!name) {
+    showPresetMsg("Enter a name for your preset.", "red");
+    return;
+  }
+  const pds = document.querySelector('[name="pds"]').value.trim();
+  const repo = document.querySelector('[name="repo"]').value.trim();
+  const collection = document.querySelector('[name="collection"]').value.trim();
+  const newPreset = { name, pds, repo, collection };
+
+  // Prevent duplicate names
+  let userPresets = getUserPresets();
+  if (userPresets.some(p => p.name === name)) {
+    showPresetMsg("You already have a preset with that name.", "red");
+    return;
+  }
+  userPresets.push(newPreset);
+  setUserPresets(userPresets);
+  populatePresetDropdown();
+  showPresetMsg("Preset saved!", "green");
+});
+
+// --- Delete selected user preset ---
+document.getElementById('delete-preset-btn').addEventListener('click', () => {
+  const idx = parseInt(document.getElementById('preset-select').value, 10);
+  if (isBuiltinPreset(idx)) {
+    showPresetMsg("Cannot delete built-in presets.", "red");
+    return;
+  }
+  let userPresets = getUserPresets();
+  userPresets.splice(idx - BUILTIN_PRESETS.length, 1);
+  setUserPresets(userPresets);
+  populatePresetDropdown();
+  showPresetMsg("Preset deleted.", "green");
+});
+
+// --- Helper for user feedback ---
+function showPresetMsg(msg, color) {
+  const el = document.getElementById('preset-msg');
+  el.textContent = msg;
+  el.style.color = color;
+  el.style.display = "inline";
+  setTimeout(() => { el.style.display = "none"; }, 2500);
+}
+
+// --- Initialize dropdown on page load ---
+document.addEventListener('DOMContentLoaded', populatePresetDropdown);
+
+
+document.getElementById('export-presets-btn').addEventListener('click', () => {
+  const userPresets = getUserPresets();
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(userPresets, null, 2));
+  const dlAnchor = document.createElement('a');
+  dlAnchor.setAttribute("href", dataStr);
+  dlAnchor.setAttribute("download", "bsky-presets.json");
+  document.body.appendChild(dlAnchor);
+  dlAnchor.click();
+  dlAnchor.remove();
+});
+
+// Show file picker when button is clicked
+document.getElementById('import-presets-btn').addEventListener('click', () => {
+  document.getElementById('import-presets-input').click();
+});
+
+// Handle file selection and import
+document.getElementById('import-presets-input').addEventListener('change', function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!Array.isArray(imported)) throw new Error("Invalid format");
+      // Optional: Validate each preset object here
+      setUserPresets(imported);
+      populatePresetDropdown();
+      showImportMsg("Presets imported!", "green");
+    } catch (err) {
+      showImportMsg("Import failed: " + err.message, "red");
+    }
+  };
+  reader.readAsText(file);
+});
+
+// Helper for import feedback
+function showImportMsg(msg, color) {
+  const el = document.getElementById('import-msg');
+  el.textContent = msg;
+  el.style.color = color;
+  el.style.display = "inline";
+  setTimeout(() => { el.style.display = "none"; }, 2500);
+}
+
+
+
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  // --- Attach event listeners FIRST ---
+  
+// --- Fill form from URI param if present ---
+const params = new URLSearchParams(window.location.search);
+const uri = params.get('uri');
+if (uri) {
+  parseAtUri(uri, false); // fill fields, don't auto-fetch
+  // If you want to auto-fetch as well, use: parseAtUri(uri, true);
+}
+
+  // New: Record type change handler  
+document.getElementById('recordType').addEventListener('change', function() {
+  let collectionValue = this.value;
+  let placeholder = '';
+
+  if (collectionValue === 'app.bsky.feed.post') {
+    placeholder = 'Post Record Key';
+  } else if (collectionValue === 'app.bsky.graph.follow') {
+    placeholder = 'Follow Record Key';
+  } else if (collectionValue === 'app.bsky.feed.like') {
+    placeholder = 'Like Record Key';
+  } else if (collectionValue === 'a.bookmark.on.my.pds') {
+    placeholder = 'Bookmark Record Key';
+  }
+
+  document.getElementById('collection').value = collectionValue;
+  document.getElementById('rkey').placeholder = placeholder;
+});
+
+
+
+
+console.log("After parseAtUri and defaults:", {
+  repo: document.querySelector('[name="repo"]').value,
+  collection: document.querySelector('[name="collection"]').value,
+  rkey: document.querySelector('[name="rkey"]').value,
+  uri: document.querySelector('[name="uri"]').value,
+  pds: document.querySelector('[name="pds"]').value
+});
+  
+
+  // Toggle Instructions Dropdown
+  const instructionsBtn = document.getElementById('instructionsToggleBtn');
+  const instructionsDropdown = document.getElementById('instructionDropdown');
+  if (instructionsBtn && instructionsDropdown) {
+    instructionsBtn.addEventListener('click', function() {
+      instructionsDropdown.classList.toggle('show');
+      instructionsBtn.textContent = instructionsDropdown.classList.contains('show') ? "Hide Instructions" : "Show Instructions";
+    });
+  }
+
+  // Toggle Form Dropdown
+  const formBtn = document.getElementById('formToggleBtn');
+  const formDropdown = document.getElementById('formDropdown');
+  if (formBtn && formDropdown) {
+    formBtn.addEventListener('click', function() {
+      formDropdown.classList.toggle('show');
+      formBtn.textContent = formDropdown.classList.contains('show') ? "Hide Form" : "Show Form";
+    });
+  }
+
+
+	// Single record functions helpers
+  // Clear URL Button (reloads page with clean URL)
+  const clearUrlBtn = document.getElementById('clearUrlBtn');
+  if (clearUrlBtn) {
+    clearUrlBtn.addEventListener('click', function() {
+      window.location.href = window.location.pathname + window.location.hash;
+    });
+  }
+  
+
+
+  
+  
+  document.getElementById('fetchSingleBtn').addEventListener('click', function() {
+  const pds = document.getElementById('pds').value.trim();
+  const repo = document.getElementById('repo').value.trim();
+  const collection = document.getElementById('collection').value.trim();
+  const rkey = document.getElementById('rkey').value.trim();
+
+  if (!pds || !repo || !collection || !rkey) {
+    alert('Please enter PDS, Repo, Collection, and Record Key.');
+    return;
+  }
+  
+  
+// --- URI parameter check: show single post if present ---
+document.addEventListener('DOMContentLoaded', function() {
+  const uri = params.get('uri');
+
+  if (uri) {
+    // Call your parseAtUri function, but don't auto-fetch
+    parseAtUri(uri, true); // false means: fill fields, don't auto-fetch
+
+    // Optionally, you can trigger a fetch right after, if you want to show the single record view:
+    // triggerFetchIfReady(); // Uncomment if you want to auto-fetch after filling
+
+    // No need to return; the form remains usable!
+  }
+
+  // ...rest of your logic for multi-record or default view...
+});
+
+
+
+
+
+  fetchAndDisplaySingleRecord(pds, repo, collection, rkey);
+});
+
+
+
+
+
+  // --- Show/hide form on page load based on URL params ---
+  const hasParams = ["repo", "collection", "pds", "uri", "did"].some(key => params.has(key));
+  if (formDropdown && formBtn) {
+    if (hasParams) {
+      formDropdown.classList.remove("show");
+      formBtn.textContent = "Show Form";
+    } else {
+      formDropdown.classList.add("show");
+      formBtn.textContent = "Hide Form";
+    }
+  }
+
+  // --- Helper to trigger fetch if all fields are filled ---
+  function triggerFetchIfReady() {
+    const pds = document.querySelector('[name="pds"]').value.trim();
+    const repo = document.querySelector('[name="repo"]').value.trim();
+    const collection = document.querySelector('[name="collection"]').value.trim();
+    if (pds && repo && collection) {
+      fetchAndDisplayRecords(pds, repo, collection);
+    }
+  }
+
+ // --- Parse AT URI function ---
+async function parseAtUri(atUri, fetchAfter = true) {
+  if (!atUri) return;
+
+  // --- Handle Bluesky web URLs ---
+  if (atUri.startsWith('https://bsky.app/')) {
+    // Example: https://bsky.app/profile/raxdflipnote.bsky.social/post/3lpyzwfpiic2k
+    const urlParts = atUri.split('/');
+    if (urlParts.length >= 7 && urlParts[3] === 'profile' && urlParts[5] === 'post') {
+      const handle = urlParts[4];
+      const rkey = urlParts[6];
+      // Resolve handle to DID using public API
+      try {
+        const resp = await fetch(`https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=${handle}`);
+        const data = await resp.json();
+        if (!data.did) throw new Error('Could not resolve handle');
+        document.querySelector('[name="repo"]').value = data.did;
+        document.querySelector('[name="collection"]').value = 'app.bsky.feed.post';
+        document.querySelector('[name="rkey"]').value = rkey;
+		document.querySelector('[name="pds"]').value = 'bsky.social';
+        if (fetchAfter) triggerFetchIfReady();
+        return;
+      } catch (e) {
+        alert('Failed to resolve Bluesky handle: ' + handle);
+        return;
+      }
+    } else {
+      alert('Unrecognized Bluesky post URL format.');
+      return;
+    }
+  }
+
+  // --- Handle at:// URIs ---
+  const match = atUri.match(/^at:\/\/([^/]+)\/([^/]+)(?:\/([^/]+))?$/);
+  if (match) {
+    const [, repo, collection, rkey] = match;
+    document.querySelector('[name="repo"]').value = repo;
+    document.querySelector('[name="collection"]').value = collection;
+    if (rkey && document.querySelector('[name="rkey"]')) {
+      document.querySelector('[name="rkey"]').value = rkey;
+    }
+    if (repo.startsWith('did:plc:')) {
+      fetch('https://plc.directory/' + repo)
+        .then(resp => resp.json())
+        .then(data => {
+          if (data && data.service && data.service[0] && data.service[0].serviceEndpoint) {
+            document.querySelector('[name="pds"]').value = data.service[0].serviceEndpoint.replace(/^https?:\/\//, '');
+          }
+          if (fetchAfter) triggerFetchIfReady();
+        })
+        .catch(() => {
+          if (fetchAfter) triggerFetchIfReady();
+        });
+    } else {
+      if (fetchAfter) triggerFetchIfReady();
+    } 
+	return;
+  } else {
+    alert('Invalid AT URI format.');
+  }
+}
+
+  // --- Repo input change: auto-fill PDS if PLC DID ---
+  const repoInput = document.getElementById('repo');
+  if (repoInput) {
+    repoInput.addEventListener('change', () => {
+      const repoValue = repoInput.value.trim();
+      if (repoValue.startsWith('did:plc:')) {
+        fetch('https://plc.directory/' + repoValue)
+          .then(resp => {
+            if (!resp.ok) throw new Error('DID not found in PLC directory');
+            return resp.json();
+          })
+          .then(data => {
+            if (data?.service?.[0]?.serviceEndpoint) {
+              document.querySelector('[name="pds"]').value =
+                data.service[0].serviceEndpoint.replace(/^https?:\/\//, '');
+            }
+          })
+          .catch(() => {
+            document.querySelector('[name="pds"]').value = '';
+          });
+      }
+      const collectionField = document.querySelector('[name="collection"]');
+      if (collectionField && !collectionField.value) {
+        collectionField.value = DEFAULT_COLLECTION;
+      }
+    });
+  }
+
+  // --- Parse AT URI button ---
+  const parseUriBtn = document.getElementById('parseUriBtn');
+  if (parseUriBtn) {
+    parseUriBtn.addEventListener('click', function() {
+      const atUri = document.getElementById('uri').value.trim();
+      if (!atUri) return;
+      parseAtUri(atUri, true); // Don't auto-fetch, let user submit
+    });
+  }
+
+  // --- Form handler ---
+  const queryForm = document.getElementById('queryForm');
+if (queryForm) {
+  queryForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const uri = document.getElementById('uri').value.trim(); // <-- Get the URI here
+    if (!handleUriInput(uri)) return; // <-- Call the check here
+    const pds = document.getElementById('pds').value.trim();
+    const repo = document.getElementById('repo').value.trim();
+    const collection = document.getElementById('collection').value.trim();
+    fetchAndDisplayRecords(pds, repo, collection);
+  });
+}
+
+
+document.addEventListener('click', function(e) {
+  // --- Copy Bsky Link ---
+  if (e.target.closest('.copy-bsky-link-btn')) {
+    const card = e.target.closest('.record-card');
+    if (!card) return;
+    const bskyUrl = card.dataset.bskyUrl;
+    const feedback = card.querySelector('.copy-bsky-feedback');
+    if (bskyUrl && feedback) {
+      navigator.clipboard.writeText(bskyUrl).then(() => {
+        feedback.style.display = 'inline';
+        setTimeout(() => { feedback.style.display = 'none'; }, 1200);
+      });
+    }
+    return;
+  }
+
+  // --- Copy AT URI ---
+  if (e.target.closest('.copy-at-uri-btn')) {
+    const card = e.target.closest('.record-card');
+    if (!card) return;
+    const atUriElem = card.querySelector('.at-uri');
+    const feedback = card.querySelector('.copy-feedback');
+    if (atUriElem && feedback) {
+      navigator.clipboard.writeText(atUriElem.textContent).then(() => {
+        feedback.style.display = 'inline';
+        setTimeout(() => { feedback.style.display = 'none'; }, 1200);
+      });
+    }
+    return;
+  }
+});
+
+
+
+
+
+
+
+
+  // --- Parameter handling with alreadyFetched flag ---
+  let alreadyFetched = false;
+
+// 1. Try URI parameter first
+if (params.has('uri')) {
+  const atUri = params.get('uri').trim();
+  if (atUri) {
+    // 1. Try AT URI
+    let match = atUri.match(/^at:\/\/([^/]+)\/([^/]+)\/([^/]+)$/);
+    if (match) {
+      const repo = match[1];
+      const collection = match[2];
+      const rkey = match[3];
+      const pds = params.get('pds') || document.querySelector('[name="pds"]').value || DEFAULT_PDS;
+//      console.log("[DEBUG] Calling fetchAndDisplaySingleRecord with:", pds, repo, collection, rkey);
+      fetchAndDisplaySingleRecord(pds, repo, collection, rkey);
+      alreadyFetched = true;
+      return;
+    }
+
+    // 2. Try Bluesky web URL
+    match = atUri.match(/^https:\/\/bsky\.app\/profile\/([^/]+)\/post\/([^/]+)$/);
+    if (match) {
+      const handle = match[1];
+      const rkey = match[2];
+      // Resolve handle to DID
+      fetch(`https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=${handle}`)
+        .then(resp => resp.json())
+        .then(data => {
+          if (!data.did) throw new Error('Could not resolve handle');
+          const repo = data.did;
+          const collection = 'app.bsky.feed.post';
+          const pds = 'bsky.social';
+//          console.log("[DEBUG] Calling fetchAndDisplaySingleRecord with:", pds, repo, collection, rkey);
+          fetchAndDisplaySingleRecord(pds, repo, collection, rkey);
+        })
+        .catch(e => {
+          document.getElementById('records').innerHTML = `<p style="color:red;">Failed to resolve handle: ${handle}</p>`;
+        });
+      alreadyFetched = true;
+      return;
+    }
+
+    // 3. If neither matched, show error
+    document.getElementById('records').innerHTML = `<p style="color:red;">XXX Invalid URI format. XXX</p>`;
+    alreadyFetched = true;
+  }
+}
+
+
+  // 2. If no URI, try DID parameter
+  if (!alreadyFetched && params.has('did')) {
+    const did = params.get('did').trim();
+    if (did) {
+      document.querySelector('[name="repo"]').value = did;
+      if (did.startsWith('did:plc:')) {
+        fetch('https://plc.directory/' + did)
+          .then(resp => resp.json())
+          .then(data => {
+            if (data?.service?.[0]?.serviceEndpoint) {
+              document.querySelector('[name="pds"]').value = data.service[0].serviceEndpoint.replace(/^https?:\/\//, '');
+            }
+            triggerFetchIfReady();
+          })
+          .catch(() => triggerFetchIfReady());
+      } else {
+        triggerFetchIfReady();
+      }
+      alreadyFetched = true;
+    }
+  }
+
+  // 3. Check for individual parameters (repo, collection, pds)
+  if (!alreadyFetched && (params.has('repo') || params.has('collection') || params.has('pds'))) {
+    if (params.has('pds')) {
+      document.querySelector('[name="pds"]').value = params.get('pds');
+    }
+    if (params.has('repo')) {
+      document.querySelector('[name="repo"]').value = params.get('repo');
+    }
+    if (params.has('collection')) {
+      document.querySelector('[name="collection"]').value = params.get('collection');
+    }
+    triggerFetchIfReady();
+    alreadyFetched = true;
+  }
+	
+
+function displayRecords(records, collection, pds, handle) {
+  const container = document.getElementById('records');
+  const countDiv = document.getElementById('record-count');
+  container.innerHTML = "";
+  if (!records || records.length === 0) {
+    container.innerHTML = "<p>No records found.</p>";
+    countDiv.textContent = handle
+      ? `Showing 0 records from @${handle}`
+      : `Showing 0 records from ${pds}`;
+    return;
+  }
+  records.forEach(record => {
+    const card = createRecordCard(record, collection, pds);
+    container.appendChild(card);
+  });
+  countDiv.textContent = handle
+    ? `Showing ${records.length} record${records.length > 1 ? 's' : ''} from @${handle}`
+    : `Showing ${records.length} record${records.length > 1 ? 's' : ''} from ${pds}`;
+	  // 🟢 Always attach handlers after rendering
+//	console.log("Calling enhanceHandles after rendering cards...");
+//	enhanceHandles();
+}
+
+
+async function fetchAndDisplaySingleRecord(pds, repo, collection, rkey) {
+  const url = `https://${pds}/xrpc/com.atproto.repo.getRecord?repo=${encodeURIComponent(repo)}&collection=${encodeURIComponent(collection)}&rkey=${encodeURIComponent(rkey)}`;
+  const container = document.getElementById('records');
+  const countDiv = document.getElementById('record-count');
+  container.innerHTML = "<em>Loading...</em>";
+  countDiv.textContent = "";
+
+	
+
+  let handle = null;
+  if (repo.startsWith('did:plc:')) {
+    handle = await fetchHandleForDid(repo);
+  }
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
+    const data = await res.json();
+
+    // The getRecord endpoint typically returns:
+    // { uri, cid, value: { ... } }
+    // So pass the whole object!
+    displayRecords(data ? [data] : [], collection, pds, handle);
+
+  } catch (err) {
+    container.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
+    countDiv.textContent = handle
+      ? `Showing 0 records from @${handle}`
+      : `Showing 0 records from ${pds}`;
+  }
+}
+  
+
+  // --- Fetch and display records ---
+// --- Fetch and display records ---
+async function fetchAndDisplayRecords(pds, repo, collection) {
+  const url = `https://${pds}/xrpc/com.atproto.repo.listRecords?repo=${encodeURIComponent(repo)}&collection=${encodeURIComponent(collection)}&limit=100`;
+  const container = document.getElementById('records');
+  const countDiv = document.getElementById('record-count');
+  container.innerHTML = "<em>Loading...</em>";
+  countDiv.textContent = "";
+
+  // Fetch handle for display
+  let handle = null;
+  if (repo.startsWith('did:plc:')) {
+    handle = await fetchHandleForDid(repo);
+  }
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
+    const data = await res.json();
+    const records = data.records || [];
+    container.innerHTML = "";
+    if (!records.length) {
+      container.innerHTML = "<p>No records found.</p>";
+      countDiv.textContent = "Showing 0 records.";
+      return;
+    }
+
+    // 🟦 1. Likes: render as a list, not cards
+    if (collection === "app.bsky.feed.like") {
+      await renderLikesList(records, 'records');
+      countDiv.textContent = handle
+        ? `Showing ${records.length} likes from @${handle}`
+        : `Showing ${records.length} likes from ${repo}`;
+      return; // Done!
+    }
+
+    // 🟦 2. Follows and others: render as cards
+    for (const record of records) {
+      let card;
+      if (
+        collection === "app.bsky.graph.follow" ||
+        record.value?.['$type'] === "app.bsky.graph.follow"
+      ) {
+        card = await createFollowRecordCard(record, pds); // async for handle resolution
+      } else {
+        card = createRecordCard(record, collection, pds);
+      }
+      container.appendChild(card);
+
+      // Copy-to-clipboard logic (same as before)
+      const copyBtn = card.querySelector('.copy-at-uri-btn');
+      const atUriElem = card.querySelector('.at-uri');
+      const feedback = card.querySelector('.copy-feedback');
+      if (copyBtn && atUriElem && feedback) {
+        copyBtn.addEventListener('click', () => {
+          navigator.clipboard.writeText(atUriElem.textContent).then(() => {
+            feedback.style.display = 'inline';
+            setTimeout(() => { feedback.style.display = 'none'; }, 1200);
+          });
+        });
+      }
+    }
+    countDiv.textContent = handle
+      ? `Showing ${records.length} records from @${handle}`
+      : `Showing ${records.length} records from ${repo}`;
+  } catch (err) {
+    container.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
+    countDiv.textContent = handle
+      ? `Showing 0 records from @${handle}`
+      : `Showing 0 records from ${repo}`;
+  }
+  enhanceHandles();
+}
+
+
+async function createFollowRecordCard(record, pds) {
+  // record.value.subject is the DID being followed
+  const did = record.value.subject;
+  const handle = await resolveDidToHandle(did);
+  const card = document.createElement('div');
+  card.className = "record-card";
+  card.innerHTML = `
+    <div>
+      <strong>Follow Record</strong>
+      <div>Following: 
+        <a href="?did=${encodeURIComponent(did)}" style="font-family:monospace">@${handle}</a>
+      </div>
+      <div>Created: ${new Date(record.value.createdAt).toLocaleString()}</div>
+      <div class="at-uri" style="display:none;">${record.uri}</div>
+      <button class="copy-at-uri-btn">Copy AT URI</button>
+      <span class="copy-feedback" style="display:none;">Copied!</span>
+    </div>
+  `;
+  return card;
+}
+  
+  
+
+  // --- Auto-fetch on page load if nothing handled above ---
+//  if (!alreadyFetched) {
+//    fetchAndDisplayRecords(DEFAULT_PDS, DEFAULT_REPO, DEFAULT_COLLECTION);
+//	 }
+});
+
+
+
+document.addEventListener('click', function(e) {
+
+
+  // --- Copy bsky.app link (handles SVG clicks) ---
+  const copyBtn = e.target.closest('.copy-bsky-link-btn');
+  if (copyBtn) {
+    // ... your copy logic ...
+    return;
+  }
+
+
+
+
+
+  // ... other click-based UI logic ...
+});
+
+
+</script>
+
+<script>
+// Show the links modal with a list of links
+
+
+
+
+
+// --- Bookmark logic ---
+
+// Only ONE event listener for bookmark button
+document.addEventListener('click', function(e) {
+  if (e.target.closest('.bookmark-btn')) {
+    showBookmarkForm(e.target.closest('.record-card'));
+  }
+  e.stopPropagation();
+});
+
+
+
+function showBookmarkForm(cardElem) {
+  const uri = cardElem.dataset.uri;
+  const handle = cardElem.dataset.handle;
+  const did = cardElem.dataset.did;
+  const recordText = cardElem.dataset.text || "";
+
+  const title = prompt("Bookmark title:", "");
+  if (title === null) return;
+
+  // Pre-fill the description with the record's text
+  const description = prompt("Bookmark description (optional):", recordText);
+  addBookmark({ uri, handle, did, title, description });
+}
+
+
+
+function addBookmark(bookmark) {
+  let bookmarks = JSON.parse(localStorage.getItem('bskyBookmarks') || "[]");
+  if (!bookmarks.some(b => b.uri === bookmark.uri)) {
+    bookmarks.push(bookmark);
+    localStorage.setItem('bskyBookmarks', JSON.stringify(bookmarks));
+    alert('Bookmark saved!');
+  } else {
+    alert('Already bookmarked!');
+  }
+}
+
+
+
+function showBookmarks() {
+  const bookmarks = JSON.parse(localStorage.getItem('bskyBookmarks') || "[]");
+  const listDiv = document.getElementById('bookmark-list');
+  if (bookmarks.length === 0) {
+    listDiv.innerHTML = "<p>No bookmarks yet.</p>";
+  } else {
+    listDiv.innerHTML = bookmarks.map(b => `
+      <div class="bookmark-item" style="border-bottom:1px solid #eee; margin-bottom:12px; padding-bottom:8px;">
+        <strong>${b.title || b.uri}</strong><br>
+        <em>${b.description || ''}</em><br>
+        <span>#Handle: ${b.handle} | DID: ${b.did}</span><br>
+        <a href="?uri=${encodeURIComponent(b.uri)}" target="_top">Open Post</a>
+      </div>
+    `).join('');
+  }
+  document.getElementById('bookmark-modal').style.display = 'block';
+  enhanceHandles()
+}
+
+function closeBookmarkModal() {
+  document.getElementById('bookmark-modal').style.display = 'none';
+}
+
+
+function exportBookmarks() {
+  const bookmarks = localStorage.getItem('bskyBookmarks') || "[]";
+  const blob = new Blob([bookmarks], {type: "application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = "bsky-bookmarks.json";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importBookmarks(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (Array.isArray(imported)) {
+        localStorage.setItem('bskyBookmarks', JSON.stringify(imported));
+        alert('Bookmarks imported!');
+        showBookmarks();
+      } else {
+        alert('Invalid file format.');
+      }
+    } catch (err) {
+      alert('Error reading file.');
+    }
+  };
+  reader.readAsText(file);
+}
+
+
+
+
+
+</script>
+
+
+<script>
+// === Modal Manager ===
+function closeAllModals() {
+  document.querySelectorAll('.modal').forEach(modal => {
+    modal.style.display = 'none';
+  });
+  document.body.style.overflow = '';
+}
+
+function openModal(modalId) {
+  closeAllModals(); // Always close others first
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) modal.style.display = 'none';
+  // Only restore scroll if no other modal is open
+  const anyOpen = Array.from(document.querySelectorAll('.modal'))
+    .some(m => m.style.display === 'flex' || m.style.display === 'block');
+  if (!anyOpen) document.body.style.overflow = '';
+}
+
+// ESC key closes the last open modal
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const modals = Array.from(document.querySelectorAll('.modal'))
+      .filter(m => m.style.display === 'flex' || m.style.display === 'block');
+    if (modals.length) {
+      closeModal(modals[modals.length - 1].id);
+    }
+  }
+});
+
+// === Image Modal Logic ===
+function openImgModal(imgSrc, altText) {
+  document.getElementById('modalImg').src = imgSrc;
+  document.getElementById('modalAltText').textContent = altText || '';
+  openModal('imgModal');
+}
+
+function closeImgModal() {
+  document.getElementById('modalImg').src = '';
+  document.getElementById('modalAltText').textContent = '';
+  closeModal('imgModal');
+}
+
+// === Links Modal Logic ===
+function showLinksModal(linksHtml, handleOrDid) {
+  const tagline = document.getElementById('linksModalTagline');
+  tagline.innerHTML = `
+    Open this record/post <br> with the sites below<br>
+    <span style="font-weight:normal; color:#555;">
+      Account: <span style="font-family:monospace;">${handleOrDid}</span>
+    </span>
+  `;
+  const list = document.getElementById('linksModalList');
+  list.innerHTML = linksHtml.map(link => `<li style="margin:0.5em 0;">${link}</li>`).join('');
+  openModal('linksModal');
+}
+
+
+function closeLinksModal() {
+  closeModal('linksModal');
+}
+
+// === Attach Modal Event Listeners After DOM is Ready ===
+document.addEventListener('DOMContentLoaded', function() {
+  // Image modal close button and background
+  const imgModal = document.getElementById('imgModal');
+  if (imgModal) {
+    imgModal.addEventListener('click', function(e) {
+      if (e.target === imgModal) closeImgModal();
+    });
+    const imgModalClose = document.getElementById('imgModalClose');
+    if (imgModalClose) imgModalClose.onclick = closeImgModal;
+  }
+
+  // Links modal close button and background
+  const linksModal = document.getElementById('linksModal');
+  if (linksModal) {
+    linksModal.addEventListener('click', function(e) {
+      if (e.target === linksModal) closeLinksModal();
+    });
+    const linksModalClose = document.getElementById('linksModalClose');
+    if (linksModalClose) linksModalClose.onclick = closeLinksModal;
+  }
+});
+
+function openModal(modalId) {
+  closeAllModals();
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => {
+      modal.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Optionally focus the close button for accessibility:
+//      const closeBtn = modal.querySelector('button[aria-label="Close"], button[id$="Close"]');
+//      if (closeBtn) closeBtn.focus();
+    }, 50);
+  }
+}
+
+// --- Bookmarks Modal Logic (uses only bskyBookmarks) ---
+function getBookmarks() {
+  return JSON.parse(localStorage.getItem('bskyBookmarks') || '[]');
+}
+
+// Show the bookmarks modal
+function showBookmarksModal() {
+  const list = document.getElementById('bookmarksModalList');
+  const emptyMsg = document.getElementById('bookmarksModalEmpty');
+  const bookmarks = JSON.parse(localStorage.getItem('bskyBookmarks') || "[]").slice().reverse();
+
+  if (bookmarks.length === 0) {
+    list.innerHTML = '';
+    emptyMsg.style.display = '';
+  } else {
+    emptyMsg.style.display = 'none';
+    list.innerHTML = bookmarks.map(b => `
+      <li style="margin:1em 0; border-bottom:1px solid #eee; padding-bottom:0.5em;">
+        <div>
+          <strong>${b.title || b.uri}</strong>
+        </div>
+        <div>
+          <em>${b.description || ''}</em>
+        </div>
+        <div>
+          <span>#Handle: ${b.handle || ''} | DID: ${b.did || ''}</span>
+        </div>
+        <div>
+          <a href="?uri=${encodeURIComponent(b.uri)}" target="_top">View</a>
+        </div>
+      </li>
+    `).join('');
+  }
+  // Show the modal (use your modal manager or just set display)
+  openModal('bookmarksModal');
+  
+}
+
+function closeBookmarksModal() {
+  document.getElementById('bookmarksModal').style.display = 'none';
+}
+
+
+
+document.getElementById('openBookmarksModalBtn').onclick = showBookmarksModal;
+
+// Modal close button and background click
+document.addEventListener('DOMContentLoaded', function() {
+  const bookmarksModal = document.getElementById('bookmarksModal');
+  if (bookmarksModal) {
+    bookmarksModal.addEventListener('click', function(e) {
+      if (e.target === bookmarksModal) closeModal('bookmarksModal');
+    });
+    const closeBtn = document.getElementById('bookmarksModalClose');
+    if (closeBtn) closeBtn.onclick = () => closeModal('bookmarksModal');
+  }
+});
+
+
+
+
+document.addEventListener('click', function(e) {
+  // Adjust the selector below if your embedded images use a different class
+  const img = e.target.closest('.modal-img');
+  if (img) {
+    openImgModal(img.src, img.getAttribute('data-alt') || img.alt || '');
+  }
+});
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Attach click handler to all images with class 'modal-img'
+  document.querySelectorAll('.modal-img').forEach(img => {
+    img.addEventListener('click', function() {
+      openImgModal(img.src, img.getAttribute('data-alt') || img.alt || '');
+    });
+  });
+});
+
+</script>
+
+<script>
+	  // --- Link backs enabled ---
+
+document.getElementById('linksListBtn').addEventListener('click', function() {
+  const form = document.getElementById('queryForm');
+  const formData = new FormData(form);
+  const params = new URLSearchParams(formData).toString();
+  window.location.href = `Blueskyessentiallinks.html?${params}&mode=detail`;
+});
+
+// setTimeout(() => {
+//  console.log("Global test: calling enhanceHandles...");
+//  enhanceHandles();
+// }, 3000);
+
+</script>
+
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./service-worker.js').then(function(registration) {
+      console.log('ServiceWorker registration successful:', registration.scope);
+    }, function(err) {
+      console.log('ServiceWorker registration failed:', err);
+    });
+  });
+
+  // Listen for messages from the service worker
+  navigator.serviceWorker.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'SW_ACTIVATED') {
+      // Reload the page, preserving the query string
+      window.location.href = window.location.pathname + window.location.search;
+    }
+  });
+}
+</script>
+
+
+</body>
+</html>

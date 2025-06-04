@@ -788,7 +788,7 @@ function extractUrls(text) {
     return date.toLocaleString();
   }
   
-  function atUriToUrls(atUri) {
+function atUriToUrls(atUri) {
   if (typeof atUri !== 'string') return null;
   const regex = /^at:\/\/([^/]+)\/([^/]+)(?:\/([^/]+))?$/;
   const match = atUri.match(regex);
@@ -808,6 +808,9 @@ function extractUrls(text) {
     const clearskyHistoryUrl = `https://clearsky.app/${did}/history`;
 	const plcdirprofile = `https://plc.directory/${did}`;
 	const credblue = `https://cred.blue/${did}`;
+	const toolify = `https://toolify.blue/profile/${did}`;
+	
+	
     return {
       did,
       collection,
@@ -818,6 +821,7 @@ function extractUrls(text) {
       clearskyHistoryUrl,
 	  plcdirprofile,
 	  credblue,
+	  toolify,
     };
   }
 
@@ -1043,7 +1047,7 @@ function createRecordCard(record, collection, pds) {
   const skythreadAtUri = `https://blue.mackuba.eu/skythread/?q=${atUri}`;
   const skythreadInnerUri = innerUri ? `https://blue.mackuba.eu/skythread/?q=${innerUri}` : null;
   const skyviewUri = "https://skyview.social/?url=" + encodeURIComponent(atUri);
-  const { bskyUrl, clearskyHistoryUrl, deerUrl, klskyUrl, plcdirprofile, credblue} = atUriToUrls(atUri) || {};
+  const { bskyUrl, clearskyHistoryUrl, deerUrl, klskyUrl, plcdirprofile, credblue, toolify} = atUriToUrls(atUri) || {};
 
   // --- Embed/media rendering ---
   const did = record.repo || record.did || extractDidFromUri(record.uri);
@@ -1087,6 +1091,10 @@ function createRecordCard(record, collection, pds) {
   links.push(`<a href="${pdslsdevUrl}" target="_blank" rel="noopener">pdsls.dev</a>`);
   links.push(`<a href="${plcdirprofile}" target="_blank" rel="noopener">plc.directory</a>`);
   links.push(`<a href="${credblue}" target="_blank" rel="noopener">cred.blue</a>`);
+  links.push(`<a href="${toolify}" target="_blank" rel="noopener">toolify.blue</a>`);
+  
+  
+  
   
   if (innerUri && skythreadInnerUri) {
     links.push(`<a href="${skythreadInnerUri}" target="_blank" rel="noopener">SkyThread (value URI)</a>`);
