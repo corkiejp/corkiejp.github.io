@@ -1,4 +1,4 @@
-const CACHE_NAME = 'atproto-pwa-v1.15';
+const CACHE_NAME = 'atproto-pwa-v1.16';
 const URLS_TO_CACHE = [
   '/ATProtoViewer/',
   '/ATProtoViewer/index.html',
@@ -22,6 +22,7 @@ const URLS_TO_CACHE = [
 // Update of CSS for mobile display ~ Didn't work had to resort to old form layout!
 // And forgot about the likes option!
 // Added to instructions for presets.
+// Added lists display.
 // Install: Cache new assets ...
 
 self.addEventListener('activate', event => {

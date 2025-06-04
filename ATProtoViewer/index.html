@@ -258,6 +258,37 @@ li { margin-bottom: 1em; }
   outline: none;
 }
 
+/* Modal Overlay */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 10000;
+  left: 0; top: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.7);
+  align-items: center;
+  justify-content: center;
+}
+
+/* When modal is open, use display:flex for centering */
+.modal[style*="display: flex"] {
+  display: flex !important;
+}
+
+/* Modal Content */
+.modal-content {
+  background: white;
+  border-radius: 10px;
+  max-width: 500px;
+  width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  padding: 2em 1.5em 1.5em 1.5em;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+}
+
+
 
 
 
@@ -355,6 +386,7 @@ Just select the option to switch to this in select drop-down after the collectio
             <li>
               <label for="repo">Repo (DID):</label>
               <input type="text" name="repo" id="repo" placeholder="Repo DID">
+			  <button id="showListsBtn" type="button">Show Lists</button>
             </li>
             <li>
               <label for="collection">Collection:</label>
@@ -459,6 +491,16 @@ Just select the option to switch to this in select drop-down after the collectio
 </div>
 
 
+<!-- List Modal -->
+<div id="listModal" class="modal" style="display:none; align-items:center; justify-content:center;">
+  <div class="modal-content" style="position:relative; max-width:500px; width:95vw; max-height:90vh; overflow-y:auto;">
+    <button id="listModalClose" style="position:absolute;top:10px;right:10px;font-size:1.5em;">&times;</button>
+	<b>Note:-</b> Only shows the first 50 max on a list!
+    <div id="listModalContent"></div>
+  </div>
+</div>
+
+
 
 
 
@@ -551,7 +593,121 @@ on ${createdAt}
 }
 
 
+// Lists Code!
 
+async function fetchListsForActor(actorDid) {
+  const url = `https://public.api.bsky.app/xrpc/app.bsky.graph.getLists?actor=${encodeURIComponent(actorDid)}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  return data.lists || [];
+}
+
+function renderLists(lists) {
+  // Hide the record count/message
+  const recordCount = document.getElementById('record-count');
+  if (recordCount) recordCount.style.display = 'none';
+  //
+  const container = document.getElementById('records');
+  container.innerHTML = '';
+  if (!lists.length) {
+    container.innerHTML = '<p>No lists found.</p>';
+    return;
+  }
+  lists.forEach(list => {
+    const div = document.createElement('div');
+    div.className = 'record-card';
+    div.innerHTML = `
+      <h3>${list.name}</h3>
+      <p>${list.description || ''}</p>
+      <button class="view-list-members" data-list-uri="${list.uri}">View first 50 Members</button>
+    `;
+    container.appendChild(div);
+  });
+
+  // Attach click listeners for modal opening
+  container.querySelectorAll('.view-list-members').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const listUri = btn.getAttribute('data-list-uri');
+      openListModal(listUri);
+    });
+  });
+}
+
+
+async function openListModal(listUri) {
+  const content = document.getElementById('listModalContent');
+  content.innerHTML = '<em>Loading...</em>';
+  openModal('listModal');
+
+  // Fetch list members
+  const res = await fetch(`https://public.api.bsky.app/xrpc/app.bsky.graph.getList?list=${encodeURIComponent(listUri)}`);
+  const data = await res.json();
+
+  const count = data.items.length;
+
+  if (count === 0) {
+    content.innerHTML = '<p>No members found in this list.</p>';
+    return;
+  }
+
+  // (Build your membersHtml as before...)
+  const membersHtml = await Promise.all(data.items.map(async item => {
+    const did = item.subject.did;
+    let handle = item.subject.handle || did;
+    let avatar = item.subject.avatar || '';
+    if (!item.subject.handle) {
+      try {
+        const profRes = await fetch(`https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=${did}`);
+        const prof = await profRes.json();
+        handle = prof.handle || did;
+        avatar = prof.avatar || '';
+      } catch {}
+    }
+    return `
+      <div class="list-member" style="display:flex;align-items:center;gap:1em;margin:0.5em 0;">
+        ${avatar ? `<img src="${avatar}" alt="${handle}'s avatar" style="width:40px;height:40px;border-radius:50%;">` : ''}
+        <a href="?did=${encodeURIComponent(did)}">@${handle}</a>
+      </div>
+    `;
+  }));
+
+  content.innerHTML = `
+    <h3>List Members <span style="font-size:0.8em;color:#888;">(${count} shown)</span></h3>
+    ${membersHtml.join('')}
+  `;
+}
+
+
+
+
+
+// Modal close logic
+document.addEventListener('DOMContentLoaded', function() {
+  const listModal = document.getElementById('listModal');
+  if (listModal) {
+    listModal.addEventListener('click', function(e) {
+      if (e.target === listModal) closeModal('listModal');
+    });
+    const closeBtn = document.getElementById('listModalClose');
+    if (closeBtn) closeBtn.onclick = () => closeModal('listModal');
+  }
+});
+
+
+async function fetchAndDisplayLists(actorDid) {
+  const url = `https://public.api.bsky.app/xrpc/app.bsky.graph.getLists?actor=${encodeURIComponent(actorDid)}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Failed to fetch lists");
+  const data = await res.json();
+  const lists = data.lists || [];
+  renderLists(lists);
+}
+
+
+document.getElementById('showListsBtn').addEventListener('click', function() {
+  const did = document.getElementById('repo').value.trim();
+  fetchAndDisplayLists(did);
+});
 
 // Follows code!
 
