@@ -1,9 +1,10 @@
-const CACHE_NAME = 'atproto-pwa-v1.16';
+const CACHE_NAME = 'atproto-pwa-v1.17';
 const URLS_TO_CACHE = [
   '/ATProtoViewer/',
   '/ATProtoViewer/index.html',
   '/ATProtoViewer/BlueskyPostViewer.html',
   '/ATProtoViewer/Blueskyessentiallinks.html',
+  '/ATProtoViewer/ATProtoSimpleFeeds.html',
   '/ATProtoViewer/bookmarks.html',
   '/ATProtoViewer/manifest.json',
   '/ATProtoViewer/styles.css',
@@ -23,6 +24,7 @@ const URLS_TO_CACHE = [
 // And forgot about the likes option!
 // Added to instructions for presets.
 // Added lists display. + Linkto toolify.blue added.
+// Added a simple feed/list viewer
 // Install: Cache new assets ...
 
 self.addEventListener('activate', event => {

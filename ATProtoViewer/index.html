@@ -438,7 +438,8 @@ Just select the option to switch to this in select drop-down after the collectio
      data-alt="A dark circular logo featuring a stylized wave and a small circle. ~ Image for test purposes."
      class="modal-img"
      style="width:25px;cursor:pointer;" />  
-		<button type="button" id="linksListBtn" class="dropbtn">Bluesky Essential Links</button><br>
+		<button type="button" id="linksListBtn" class="dropbtn">Bluesky Essential Links</button>
+		<button type="button" id="linksListBtn2" class="dropbtn">ATProto Feed & List Viewer</button>
 		<button id="openBookmarksModalBtn" class="dropbtn" >★ Bookmarks</button>
 
 	<br><br>
@@ -2347,6 +2348,14 @@ document.getElementById('linksListBtn').addEventListener('click', function() {
   const params = new URLSearchParams(formData).toString();
   window.location.href = `Blueskyessentiallinks.html?${params}&mode=detail`;
 });
+
+document.getElementById('linksListBtn2').addEventListener('click', function() {
+  const form = document.getElementById('queryForm');
+  const formData = new FormData(form);
+  const params = new URLSearchParams(formData).toString();
+  window.location.href = `ATProtoSimpleFeeds.html?${params}&mode=detail`;
+});
+
 
 // setTimeout(() => {
 //  console.log("Global test: calling enhanceHandles...");
