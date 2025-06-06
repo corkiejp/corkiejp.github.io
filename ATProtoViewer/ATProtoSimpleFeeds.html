@@ -19,6 +19,7 @@
   </style>
 </head>
 <body>
+<a id="back-link" href="#" style="position: fixed; top: 16px; left: 16px;">⬅️ ATProto Viewer.</a>
   <div class="container">
     <h1>ATProto Simple Feed & List Viewer</h1>
     <div id="example-feeds">
@@ -150,6 +151,33 @@
         })[m];
       });
     }
+	
+	document.addEventListener('DOMContentLoaded', function() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const input = urlParams.get('input');
+  if (input) {
+    document.getElementById('feed-input').value = input;
+    loadFeed();
+  }
+});
   </script>
+  <script>
+// --- Link back to ATProto Viewer ---
+document.addEventListener('DOMContentLoaded', function() {
+  const backLink = document.getElementById('back-link');
+  backLink.href = `index.html${window.location.search}`;
+});
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./service-worker.js').then(function(registration) {
+      console.log('ServiceWorker registration successful:', registration.scope);
+    }, function(err) {
+      console.log('ServiceWorker registration failed:', err);
+    });
+  });
+}
+</script>
 </body>
 </html>

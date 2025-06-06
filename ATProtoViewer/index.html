@@ -288,7 +288,16 @@ li { margin-bottom: 1em; }
   box-shadow: 0 8px 32px rgba(0,0,0,0.25);
 }
 
+.list-actions {
+  display: flex;
+  gap: 1em;
+  margin-top: 1em;
+}
 
+.list-actions button {
+  flex: 1;
+  padding: 0.5em 1em;
+}
 
 
 
@@ -620,7 +629,10 @@ function renderLists(lists) {
     div.innerHTML = `
       <h3>${list.name}</h3>
       <p>${list.description || ''}</p>
-      <button class="view-list-members" data-list-uri="${list.uri}">View first 50 Members</button>
+      <div class="list-actions">
+        <button class="view-list-members" data-list-uri="${list.uri}">View first 50 Members</button>
+        <button class="view-list-feed" data-list-uri="${list.uri}">View List Feed</button>
+      </div>
     `;
     container.appendChild(div);
   });
@@ -632,6 +644,13 @@ function renderLists(lists) {
       openListModal(listUri);
     });
   });
+  
+  container.querySelectorAll('.view-list-feed').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const listUri = btn.getAttribute('data-list-uri');
+      window.open(`ATProtoSimpleFeeds.html?input=${encodeURIComponent(listUri)}`, '_Top');
+    });
+  });  
 }
 
 

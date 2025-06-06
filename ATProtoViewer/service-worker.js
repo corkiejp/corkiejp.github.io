@@ -1,4 +1,4 @@
-const CACHE_NAME = 'atproto-pwa-v1.17';
+const CACHE_NAME = 'atproto-pwa-v1.18';
 const URLS_TO_CACHE = [
   '/ATProtoViewer/',
   '/ATProtoViewer/index.html',
@@ -25,6 +25,7 @@ const URLS_TO_CACHE = [
 // Added to instructions for presets.
 // Added lists display. + Linkto toolify.blue added.
 // Added a simple feed/list viewer + a small edit to display handle on single posts + search for feeds instructions.
+// Integrated a view button on my lists display.
 // Install: Cache new assets ...
 
 self.addEventListener('activate', event => {
