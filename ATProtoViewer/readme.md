@@ -19,6 +19,8 @@ A privacy-focused Progressive Web App for exploring Bluesky/ATProtocol data with
 
 - **Advanced Features**
   - **Feed & List Viewer** (supports custom algorithms)
+  - Fast, client-side browsing of public Bluesky feeds and lists
+  - No authentication or local data caching (privacy-friendly)
   - DID ↔ Handle resolution
   - **Bookmark Manager** with editing
   - **List Member Browser** with avatars
