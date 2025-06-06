@@ -9,15 +9,21 @@ A privacy-focused Progressive Web App for exploring Bluesky/ATProtocol data with
 - **Full PWA Support**
   - Installable on mobile/home screen
   - Service worker caching for fast reloads
+  - Installable as a PWA for a native app-like experience.
+  - Requires an internet connection for all content and browsing.
+  - No offline browsing of posts or feeds.
+  
 - **Zero Authentication Required**
   - View public profiles, posts, likes, follows
   - Search handles/DIDs directly
+
 - **Advanced Features**
   - **Feed & List Viewer** (supports custom algorithms)
   - DID ↔ Handle resolution
   - **Bookmark Manager** with editing
   - **List Member Browser** with avatars
   - Post viewer with nested replies
+ 
 - **Privacy First**
   - No tracking
   - No server-side processing
