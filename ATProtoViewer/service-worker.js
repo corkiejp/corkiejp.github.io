@@ -26,6 +26,7 @@ const URLS_TO_CACHE = [
 // Added lists display. + Linkto toolify.blue added.
 // Added a simple feed/list viewer + a small edit to display handle on single posts + search for feeds instructions.
 // Integrated a view button on my lists display.
+// Bug fixes on feed/list viewer and addition of bskyinfo.com to links list.
 // Install: Cache new assets ...
 
 self.addEventListener('activate', event => {

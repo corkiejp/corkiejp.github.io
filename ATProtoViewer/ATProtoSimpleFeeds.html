@@ -36,7 +36,7 @@
         <!-- Add your own public lists here if you want -->
       </ul>
       <div style="font-size:0.95em;color:#888;">
-		Search for <a href="https://blueskydirectory.com/feeds" target="_Blank">Feeds</a> or <a href="https://blueskydirectory.com/lists" target="_Blank">Lists</a> and copy and paste the link, just use public ones!<br>
+		Search for <a href="https://blueskydirectory.com/feeds" target="_Blank">Feeds</a> / <a href="https://blueskydirectory.com/lists" target="_Blank">Lists</a> and <a href="https://www.bskyinfo.com/feeds/" target="_Blank">Feeds</a> and copy and paste the link, just use public ones!<br>
         Some feeds/lists may require login and will not display here.<br>
         Only public feeds/lists are supported.<br>
 		Limited to latest 30 posts, due to static github pages.<br>
@@ -75,17 +75,22 @@
         if (input.includes('/app.bsky.graph.list/')) return {type: 'list', uri: input};
       }
       // Feed generator web URL
-      let m = input.match(/^https:\/\/bsky\.app\/profile\/([^/]+)\/feed\/([^/?#]+)/);
-      if (m) {
-        const did = await handleToDid(m[1]);
-        return {type: 'feed', uri: `at://${did}/app.bsky.feed.generator/${m[2]}`};
-      }
+		let m = input.match(/^https:\/\/bsky\.app\/profile\/([^/]+)\/feed\/([^/?#]+)/);
+			if (m) {
+				const actor = m[1];
+				const feedId = m[2];
+				const did = actor.startsWith('did:') ? actor : await handleToDid(actor);
+			return {type: 'feed', uri: `at://${did}/app.bsky.feed.generator/${feedId}`};
+		}
+
       // List web URL
-      m = input.match(/^https:\/\/bsky\.app\/profile\/([^/]+)\/lists?\/([^/?#]+)/);
-      if (m) {
-        const did = await handleToDid(m[1]);
-        return {type: 'list', uri: `at://${did}/app.bsky.graph.list/${m[2]}`};
-      }
+m = input.match(/^https:\/\/bsky\.app\/profile\/([^/]+)\/lists?\/([^/?#]+)/);
+if (m) {
+  const actor = m[1];
+  const listId = m[2];
+  const did = actor.startsWith('did:') ? actor : await handleToDid(actor);
+  return {type: 'list', uri: `at://${did}/app.bsky.graph.list/${listId}`};
+}
       throw new Error("Unrecognized feed or list format.");
     }
 
