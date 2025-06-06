@@ -7,7 +7,6 @@ A privacy-focused Progressive Web App for exploring Bluesky/ATProtocol data with
 
 ## 🌟 Features
 - **Full PWA Support**
-  - Works offline after initial load
   - Installable on mobile/home screen
   - Service worker caching for fast reloads
 - **Zero Authentication Required**
@@ -35,7 +34,8 @@ A privacy-focused Progressive Web App for exploring Bluesky/ATProtocol data with
 2. Enter a Bluesky handle/DID/post URI
 3. Explore profiles, feeds, and lists
 
-
+## Downloadable to run locally
+Just download the 5 html files listed in the service work and place in a folder, you can then edit the hardcode links if any left in the html. Won't run locally as a PWA but you could put up on your own server? 
 
 ---
 
