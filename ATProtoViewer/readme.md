@@ -1,5 +1,55 @@
 <img src="https://r2cdn.perplexity.ai/pplx-full-logo-primary-dark%402x.png" class="logo" width="120"/>
 
+# ATProtoViewer - Bluesky PWA Client
+
+A privacy-focused Progressive Web App for exploring Bluesky/ATProtocol data without authentication.  
+[Live Demo](https://corkiejp.github.io/ATProtoViewer/) | [GitHub](https://github.com/corkiejp/corkiejp.github.io/tree/well-known/ATProtoViewer)
+
+## 🌟 Features
+- **Full PWA Support**
+  - Installable on mobile/home screen
+  - Service worker caching for fast reloads
+  - Installable as a PWA for a native app-like experience.
+  - Requires an internet connection for all content and browsing.
+  - No offline browsing of posts or feeds.
+  
+- **Zero Authentication Required**
+  - View public profiles, posts, likes, follows
+  - Search handles/DIDs directly
+
+- **Advanced Features**
+  - **Feed & List Viewer** (supports custom algorithms)
+  - Fast, client-side browsing of public Bluesky feeds and lists
+  - No authentication or local data caching (privacy-friendly)
+  - DID ↔ Handle resolution
+  - **Bookmark Manager** with editing
+  - **List Member Browser** with avatars
+  - Post viewer with nested replies
+ 
+- **Privacy First**
+  - No tracking
+  - No server-side processing
+  - All data stays in browser
+
+## Tech Stack
+- Vanilla JavaScript
+- Service Workers (offline support)
+- IndexedDB (bookmark storage)
+- Bluesky Public API
+
+## Usage
+1. Visit [the live demo](https://corkiejp.github.io/ATProtoViewer/)
+2. Enter a Bluesky handle/DID/post URI
+3. Explore profiles, feeds, and lists
+
+## Downloadable to run locally
+Just download the 5 html files listed in the service work and place in a folder, you can then edit the hardcode links if any left in the html. Won't run locally as a PWA but you could put up on your own server? 
+
+---
+
+Older version of the readme file supplied below here:- 
+
+---
 
 ## 📝 ATProto Record Viewer — Script Structure \& URL Parameters
 
@@ -55,14 +105,6 @@ https://corkiejp.github.io/ATProtoViewer/index.html?uri=at://did:plc:qxlh6bohvep
     - Click "Show This Record Only" to fetch a single record.
     - Click "Fetch Records" to list 100 latest records for the specified repo/collection.
     - Edit any form field and re-submit as needed.
-
----
-
-### 💡 **Maintaining the Code**
-
-- All logic is contained within a single `DOMContentLoaded` handler for clarity.
-- Helper functions are grouped for reusability.
-- To add new features or change defaults, update the constants and helper functions at the top of the script.
 
 ---
 
