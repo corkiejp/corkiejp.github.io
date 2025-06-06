@@ -38,7 +38,9 @@ A privacy-focused Progressive Web App for exploring Bluesky/ATProtocol data with
 
 
 ---
+
 Older version of the readme file supplied below here:- 
+
 ---
 
 ## 📝 ATProto Record Viewer — Script Structure \& URL Parameters
