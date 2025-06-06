@@ -24,7 +24,7 @@ const URLS_TO_CACHE = [
 // And forgot about the likes option!
 // Added to instructions for presets.
 // Added lists display. + Linkto toolify.blue added.
-// Added a simple feed/list viewer
+// Added a simple feed/list viewer + a small edit to display handle on single posts + search for feeds instructions.
 // Install: Cache new assets ...
 
 self.addEventListener('activate', event => {
