@@ -299,13 +299,41 @@ li { margin-bottom: 1em; }
   padding: 0.5em 1em;
 }
 
-
+#bskyinfo-badge {
+  position: absolute;
+   /* position: fixed; */
+  top: 16px;
+  right: 16px;
+  z-index: 1000;
+  background: none;
+  /* Optional: add a subtle drop shadow or background for visibility */
+  /* background: rgba(255,255,255,0.85); border-radius: 8px; */
+}
+#bskyinfo-badge img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
 
 
 
   </style>
 </head>
 <body>
+<div id="bskyinfo-badge">
+  <a href="https://www.bskyinfo.com/tools/atprotoviewer" 
+     title="ATProtoViewer - Listed on BskyInfo - The Most Comprehensive Bluesky Tools Directory"
+     rel="noopener nofollow"
+     aria-label="ATProtoViewer - Listed on BskyInfo - The Most Comprehensive Bluesky Tools Directory"
+     data-tool-id="cmblbmrnc0000jmneid0kb5fn"
+     data-tool-status="listed"
+     target="_blank">
+     <img src="assets/listed.svg" 
+          alt="ATProtoViewer - Listed on BskyInfo - The Most Comprehensive Bluesky Tools Directory" 
+          width="200" height="50"
+          loading="lazy">
+  </a>
+</div>
   <div class="container">
     <h1>ATProto Record Viewer (Multi-PDS)</h1>
 	<h2>Now with option to set your own presets, load likes and follows. See instructions.</h2>
