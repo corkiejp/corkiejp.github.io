@@ -4,7 +4,7 @@ I didn't set out to make this viewer, It evolved and developed from a simple way
 I was experimenting with creating 'a.bookmark.on.my.pds', code for which is still active in the page/PWA. The early version of it is still available
 [here](https://corkiejp.github.io/atproto-records.html).
 
-As it got developed, must of the features of it where slowly add over that time. As I created it I know how to utilize it to get to display the content I want. Which doesn't make it easy to write instructions on how to use it.
+As it got developed, most of the features of it where slowly add over that time. As I created it I know how to utilize it to get to display the content I want. Which doesn't make it easy to write instructions on how to use it.
 
 If you provide a post at uri or the did of account the other fields are automatically filled in and you can chose to view that record posts or the latest 100 posts by the account. Change the collection drop down and you can look at likes or follow records.
 
