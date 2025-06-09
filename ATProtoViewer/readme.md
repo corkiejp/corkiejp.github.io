@@ -3,8 +3,7 @@
 # ATProtoViewer - Bluesky PWA Client
 
 A privacy-focused Progressive Web App for exploring Bluesky/ATProtocol data without authentication.  
-[Live Demo](https://corkiejp.github.io/ATProtoViewer/) | [GitHub](https://github.com/corkiejp/corkiejp.github.io/tree/well-known/ATProtoViewer)
-
+[Live Demo](https://corkiejp.github.io/ATProtoViewer/) | [GitHub](https://github.com/corkiejp/corkiejp.github.io/tree/well-known/ATProtoViewer) | [Notes on it.](Notes-on-ATProtoViewer.md)
 ## 🌟 Features
 - **Full PWA Support**
   - Installable on mobile/home screen
