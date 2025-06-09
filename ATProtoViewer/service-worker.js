@@ -28,6 +28,7 @@ const URLS_TO_CACHE = [
 // Integrated a view button on my lists display.
 // Bug fixes on feed/list viewer and addition of bskyinfo.com to links list.
 // Listed with bskyinfo, added a badge to the page. (3)
+// Lists/Feeds display title when available.
 // Install: Cache new assets ...
 
 self.addEventListener('activate', event => {

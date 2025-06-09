@@ -94,55 +94,90 @@ if (m) {
       throw new Error("Unrecognized feed or list format.");
     }
 
-    // --- Main loader: fetch and render feed or list ---
-    async function loadFeed() {
-      const input = document.getElementById('feed-input').value.trim();
-      const container = document.getElementById('feed-container');
-      container.innerHTML = "<div>Loading...</div>";
-      try {
-        const {type, uri} = await resolveInputToFeedType(input);
-        let url;
-        if (type === 'feed') {
-          url = new URL('https://public.api.bsky.app/xrpc/app.bsky.feed.getFeed');
-          url.searchParams.set('feed', uri);
-        } else if (type === 'list') {
-          url = new URL('https://public.api.bsky.app/xrpc/app.bsky.feed.getListFeed');
-          url.searchParams.set('list', uri);
-        }
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`API error: ${res.status}`);
-        const data = await res.json();
-        renderFeed(data.feed || []);
-      } catch (err) {
-        container.innerHTML = `<div class="error">Error: ${err.message}</div>`;
+// --- Main loader: fetch and render feed or list ---
+async function loadFeed() {
+  const input = document.getElementById('feed-input').value.trim();
+  const container = document.getElementById('feed-container');
+  container.innerHTML = "<div>Loading...</div>";
+  try {
+    const {type, uri} = await resolveInputToFeedType(input);
+    let url, listMeta = null;
+
+    if (type === 'feed') {
+      url = new URL('https://public.api.bsky.app/xrpc/app.bsky.feed.getFeed');
+      url.searchParams.set('feed', uri);
+    } else if (type === 'list') {
+      url = new URL('https://public.api.bsky.app/xrpc/app.bsky.feed.getListFeed');
+      url.searchParams.set('list', uri);
+
+      // Fetch list metadata (name, description)
+      const metaRes = await fetch(
+        `https://public.api.bsky.app/xrpc/app.bsky.graph.getList?list=${encodeURIComponent(uri)}`
+      );
+      if (metaRes.ok) {
+        const metaData = await metaRes.json();
+        listMeta = metaData.list; // { name, description, ... }
       }
     }
 
-    // --- Render posts (simple) ---
-    function renderFeed(posts) {
-      const container = document.getElementById('feed-container');
-      if (!posts.length) {
-        container.innerHTML = "<p>No posts found in this feed/list.</p>";
-        return;
-      }
-      container.innerHTML = '';
-      posts.forEach(post => {
-        const p = post.post || post; // Some endpoints wrap in .post
-        const div = document.createElement('div');
-        div.className = 'post';
-        div.innerHTML = `
-          <a class="post-link"
-             href="index.html?uri=${encodeURIComponent(p.uri)}"
-             target="_Top">View Post</a>
-          <div class="post-text">${escapeHtml(p.record?.text || '')}</div>
-          <div class="meta">
-            By ${escapeHtml(p.author?.handle || p.author?.did || '')}
-            • ${p.record?.createdAt ? new Date(p.record.createdAt).toLocaleString() : ''}
-          </div>
-        `;
-        container.appendChild(div);
-      });
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`API error: ${res.status}`);
+    const data = await res.json();
+
+    // Clear the container and build the structure
+    container.innerHTML = ""; // Clear previous content
+
+    // --- Render header (always, if listMeta exists) ---
+    if (listMeta) {
+      const header = document.createElement('div');
+      header.innerHTML = `<h2>${escapeHtml(listMeta.name || 'Untitled List')}</h2>` +
+        (listMeta.description ? `<p>${escapeHtml(listMeta.description)}</p>` : "");
+      container.appendChild(header);
     }
+
+    // --- Render feed or "No posts" message ---
+    if (!data.feed || !data.feed.length) {
+      const msg = document.createElement('div');
+      msg.innerHTML = "<p>No posts found in this feed/list.</p>";
+      container.appendChild(msg);
+      return;
+    }
+    // Create a container for posts and render them
+    const feedDiv = document.createElement('div');
+    container.appendChild(feedDiv);
+    renderFeed(data.feed, feedDiv); // Pass feedDiv as target
+  } catch (err) {
+    container.innerHTML = `<div class="error">Error: ${err.message}</div>`;
+  }
+}
+
+
+
+    // --- Render posts (simple) ---
+    function renderFeed(posts, container = document.getElementById('feed-container')) {
+  if (!posts.length) {
+    container.innerHTML = "<p>No posts found in this feed/list.</p>";
+    return;
+  }
+  container.innerHTML = '';
+  posts.forEach(post => {
+    const p = post.post || post;
+    const div = document.createElement('div');
+    div.className = 'post';
+    div.innerHTML = `
+      <a class="post-link"
+         href="index.html?uri=${encodeURIComponent(p.uri)}"
+         target="_blank">View Post</a>
+      <div class="post-text">${escapeHtml(p.record?.text || '')}</div>
+      <div class="meta">
+        By ${escapeHtml(p.author?.handle || p.author?.did || '')}
+        • ${p.record?.createdAt ? new Date(p.record.createdAt).toLocaleString() : ''}
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
 
     // --- Escape HTML utility ---
     function escapeHtml(str) {
