@@ -167,7 +167,7 @@ async function loadFeed() {
     div.innerHTML = `
       <a class="post-link"
          href="index.html?uri=${encodeURIComponent(p.uri)}"
-         target="_blank">View Post</a>
+         target="_Top">View Post</a>
       <div class="post-text">${escapeHtml(p.record?.text || '')}</div>
       <div class="meta">
         By ${escapeHtml(p.author?.handle || p.author?.did || '')}
