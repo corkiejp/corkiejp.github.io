@@ -20,7 +20,7 @@ The addition of pulling lists and displaying them allowed me to look at the list
 
 The above means I can navigate around the ATProtoViewer without needing to open the Bluesky app, only doing so to reply or post content. And setup lists.
 
-As I have no analytics on my github pages and as the html is downloadable to be use locally, I have no way of knowing if others are utilizing the PWA/webpage or how. I would be interested in peoples feedback on there use of it in a reply on my threads on bluesky, or tag me in a post @corkiejp.github.io . Recently got the Page/PWA listed on [BskyInfo.com](https://www.bskyinfo.com/tools/atprotoviewer), so hopefully more people are finding it?
+As I have no analytics on my github pages and as the html is downloadable to be use locally, I have no way of knowing if others are utilizing the PWA/webpage or how. I would be interested in peoples feedback on their use of it in a reply on my threads on bluesky, or tag me in a post @corkiejp.github.io . Recently got the Page/PWA listed on [BskyInfo.com](https://www.bskyinfo.com/tools/atprotoviewer), so hopefully more people are finding it?
 
 I may make additions to these notes in the future.
 
