@@ -859,6 +859,7 @@ function atUriToUrls(atUri) {
 	const plcdirprofile = `https://plc.directory/${did}`;
 	const credblue = `https://cred.blue/${did}`;
 	const toolify = `https://toolify.blue/profile/${did}`;
+	const atplink = `https://atproto.at/viewer?uri=${did}`;	
 	
 	
     return {
@@ -872,6 +873,7 @@ function atUriToUrls(atUri) {
 	  plcdirprofile,
 	  credblue,
 	  toolify,
+	  atplink,
     };
   }
 
@@ -1097,7 +1099,7 @@ function createRecordCard(record, collection, pds) {
   const skythreadAtUri = `https://blue.mackuba.eu/skythread/?q=${atUri}`;
   const skythreadInnerUri = innerUri ? `https://blue.mackuba.eu/skythread/?q=${innerUri}` : null;
   const skyviewUri = "https://skyview.social/?url=" + encodeURIComponent(atUri);
-  const { bskyUrl, clearskyHistoryUrl, deerUrl, klskyUrl, plcdirprofile, credblue, toolify} = atUriToUrls(atUri) || {};
+  const { bskyUrl, clearskyHistoryUrl, deerUrl, klskyUrl, plcdirprofile, credblue, toolify, atplink} = atUriToUrls(atUri) || {};
 
   // --- Embed/media rendering ---
   const did = record.repo || record.did || extractDidFromUri(record.uri);
@@ -1142,6 +1144,8 @@ function createRecordCard(record, collection, pds) {
   links.push(`<a href="${plcdirprofile}" target="_blank" rel="noopener">plc.directory</a>`);
   links.push(`<a href="${credblue}" target="_blank" rel="noopener">cred.blue</a>`);
   links.push(`<a href="${toolify}" target="_blank" rel="noopener">toolify.blue</a>`);
+  links.push(`<a href="${atplink}" target="_blank" rel="noopener">atproto.at</a>`);  
+  
   
   
   
@@ -2281,7 +2285,7 @@ function closeImgModal() {
 function showLinksModal(linksHtml, handleOrDid) {
   const tagline = document.getElementById('linksModalTagline');
   tagline.innerHTML = `
-    Open this record/post <br> with the sites below<br>
+    Open this record/post/did <br> with the sites below<br>
     <span style="font-weight:normal; color:#555;">
       Account: <span style="font-family:monospace;">${handleOrDid}</span>
     </span>
