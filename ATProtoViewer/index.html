@@ -48,6 +48,7 @@ button:hover { background: #005fa3; }
 .embed-linkcard-desc { font-size:0.96em; color:#555; }
 @media (max-width: 600px) { .container { padding: 1em; } form { flex-direction: column; gap: 0.5em; } }
 .copy-at-uri-btn { margin-left: 8px; padding: 2px 6px; font-size: 0.6em; cursor: pointer; }
+.open-atproto-viewer-btn { margin-left: 8px; padding: 2px 6px; font-size: 0.6em; cursor: pointer; }
 label { display: block; margin-top: 10px; }
 input { width: 400px; }
 ul { list-style-type: none; padding: 0; }
@@ -1159,12 +1160,15 @@ function createRecordCard(record, collection, pds) {
     <div><strong>Text:</strong> ${text ? text : '<em>No text</em>'}</div>
     ${embedHtml}
     ${createdAt ? `<div><strong>Created:</strong> ${createdAt}</div>` : ''}
-    <div>
-      <strong>Record AT URI:</strong>
-      <code class="at-uri">${atUri}</code>
-      <button class="copy-at-uri-btn" type="button" title="Copy AT URI">Copy</button>
-      <span class="copy-feedback" style="display:none; color:green; margin-left:8px;">Copied!</span>
-    </div>
+<div>
+  <strong>Record AT URI:</strong>
+  <code class="at-uri" id="at-uri">${atUri}</code><br>
+  <button class="copy-at-uri-btn" type="button" title="Copy AT URI">Copy</button>
+  <span class="copy-feedback" style="display:none; color:green; margin-left:8px;">Copied!</span>
+  <button class="open-atproto-viewer-btn" type="button" title="Open in atproto.at" style="margin-left:8px;">
+    Open in atproto.at
+  </button>
+</div>
     ${innerUri ? `
       <div>
         <strong>Record Value URI:</strong>
@@ -1240,6 +1244,8 @@ if (moreBtn) {
 
 
 </script>
+
+
 			
 		
 <script>
@@ -1257,6 +1263,9 @@ function enhanceHandles() {
     });
   });
 }
+
+
+
 
 
   // --- Default values ---
@@ -1807,6 +1816,24 @@ document.addEventListener('click', function(e) {
     }
     return;
   }
+  
+  // --- Open in atproto.at ---
+if (e.target.closest('.open-atproto-viewer-btn')) {
+  const card = e.target.closest('.record-card');
+  if (!card) return;
+  const atUriElem = card.querySelector('.at-uri');
+  if (atUriElem) {
+    const atUri = atUriElem.textContent.trim();
+    if (atUri) {
+      const url = `https://atproto.at/viewer?uri=${encodeURIComponent(atUri)}`;
+      window.open(url, '_blank');
+    } else {
+      alert('AT URI not found!');
+    }
+  }
+  return;
+}
+
 });
 
 

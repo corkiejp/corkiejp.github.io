@@ -29,6 +29,7 @@ const URLS_TO_CACHE = [
 // Bug fixes on feed/list viewer and addition of bskyinfo.com to links list.
 // Listed with bskyinfo, added a badge to the page. (3)
 // Lists/Feeds display title when available. (2)
+// Added a link to https://atproto.at/viewer for records.
 // Install: Cache new assets ...
 
 self.addEventListener('activate', event => {
