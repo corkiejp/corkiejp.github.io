@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ttospwa-v1.05';
+const CACHE_NAME = 'ttospwa-v1.06';
 const URLS_TO_CACHE = [
   '/ttospwa/',
   '/ttospwa/index.html',

@@ -10,8 +10,21 @@
 </head>
 <body>
   <h1>Share Target Test PWA</h1>
+  <h2>Test</h2>
   <div id="output"></div>
   <script>
+  
+  // index.html or main.js
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  let output = '';
+  for (const [key, value] of params.entries()) {
+    output += `<b>${key}</b>: ${value}<br>`;
+  }
+  document.body.innerHTML += `<div><h3>Received Share Parameters:</h3>${output || "None"}</div>`;
+  console.log("Received share params:", Object.fromEntries(params.entries()));
+});
+
     function getParams() {
       const params = new URLSearchParams(window.location.search);
       const result = {};
