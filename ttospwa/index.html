@@ -7,6 +7,20 @@
   <meta name="theme-color" content="#0074d9">
   <link rel="icon" href="assets/icon-192.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <style>
+  .bsky-btn {
+  display: inline-block;
+  margin: 5px;
+  padding: 8px 15px;
+  background: #1185fe;
+  color: white;
+  border-radius: 4px;
+  text-decoration: none;
+  font-family: sans-serif;
+}
+
+  </style>
 </head>
 <body>
   <h1>Share Target Test PWA</h1>
@@ -34,21 +48,68 @@ window.addEventListener('DOMContentLoaded', () => {
       return result;
     }
 
-    function displayParams(params) {
-      const output = document.getElementById('output');
-      if (Object.keys(params).length === 0) {
-        output.textContent = "No share parameters received.";
-      } else {
-        output.innerHTML = '<pre>' + JSON.stringify(params, null, 2) + '</pre>';
-      }
-      console.log("Received share params:", params);
-    }
+function displayParams(params) {
+  const output = document.getElementById('output');
+  const links = generateLinks(params);
+
+  if (links) {
+    renderButtons(links);
+    output.innerHTML = `<pre>AT URI: ${Object.keys(links).map(k => links[k]).join('\n')}</pre>`;
+  } else {
+    output.textContent = "No valid Bluesky share parameters detected";
+  }
+}
+
 
     window.addEventListener('DOMContentLoaded', () => {
       const params = getParams();
       displayParams(params);
     });
-  </script>
+	
+function generateLinks(params) {
+  const atUri = params.url || params.text?.match(/at:\/\/[^ ]+/)?.[0];
+  if (!atUri) return null;
+
+  const [,, did, collection, rkey] = atUri.split('/');
+  const innerUri = `${did}/${collection}/${rkey}`;
+
+  return {
+    bsky: `https://bsky.app/profile/${did}/post/${rkey}`,
+    deer: `https://deer.social/profile/${did}/post/${rkey}`,
+    klsky: `https://klearsky.pages.dev/#/post?uri=at://${did}/${collection}/${rkey}`,
+    clearskyHistory: `https://clearsky.app/${did}/history`,
+    plcdir: `https://plc.directory/${did}`,
+    credblue: `https://cred.blue/${did}`,
+    toolify: `https://toolify.blue/profile/${did}`,
+    atprotoViewer: `https://atproto.at/viewer?uri=${did}`,
+    pdslsdev: `https://pdsls.dev/${atUri}`,
+    atpTools: `https://atp.tools/${atUri}`,
+    skythread: `https://blue.mackuba.eu/skythread/?q=${innerUri}`,
+    skyview: `https://skyview.social/?url=${encodeURIComponent(atUri)}`
+  };
+}
+
+function renderButtons(links) {
+  const container = document.createElement('div');
+  container.innerHTML = '<h3>Bluesky Links:</h3>';
+  
+  Object.entries(links).forEach(([service, url]) => {
+    if (!url) return;
+    
+    const btn = document.createElement('a');
+    btn.href = url;
+    btn.target = '_blank';
+    btn.className = 'bsky-btn';
+    btn.textContent = service.charAt(0).toUpperCase() + service.slice(1);
+    container.appendChild(btn);
+  });
+
+  document.body.appendChild(container);
+}
+	
+	
+	
+</script>
 
 
 <script>
