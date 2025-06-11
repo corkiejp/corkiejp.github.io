@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ttospwa-v1.08';
+const CACHE_NAME = 'ttospwa-v1.10';
 const URLS_TO_CACHE = [
   '/ttospwa/',
   '/ttospwa/index.html',
@@ -8,6 +8,31 @@ const URLS_TO_CACHE = [
   '/ttospwa/assets/icon-192.png',
   '/ttospwa/assets/icon-512.png'
 ];
+
+self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
+
+  // Adjust this path to match your share_target action
+  if (
+    event.request.method === 'POST' &&
+    url.pathname === '/ttospwa/'
+  ) {
+    event.respondWith(
+      (async () => {
+        const formData = await event.request.formData();
+        const text = formData.get('text');
+        // Send the shared text to all open clients (pages)
+        const clientsArr = await self.clients.matchAll({ type: 'window' });
+        for (const client of clientsArr) {
+          client.postMessage({ sharedText: text });
+        }
+        // Redirect user to your main page after sharing
+        return Response.redirect('/ttospwa/', 303);
+      })()
+    );
+  }
+});
+
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
