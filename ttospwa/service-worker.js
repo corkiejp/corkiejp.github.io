@@ -9,47 +9,12 @@ const URLS_TO_CACHE = [
   '/ttospwa/assets/icon-512.png'
 ];
 
-self.addEventListener('fetch', event => {
-  const url = new URL(event.request.url);
-
-  // Adjust this path to match your share_target action
-  if (
-    event.request.method === 'POST' &&
-    url.pathname === '/ttospwa/'
-  ) {
-    event.respondWith(
-      (async () => {
-        const formData = await event.request.formData();
-        const text = formData.get('text');
-        // Send the shared text to all open clients (pages)
-        const clientsArr = await self.clients.matchAll({ type: 'window' });
-        for (const client of clientsArr) {
-          client.postMessage({ sharedText: text });
-        }
-        // Redirect user to your main page after sharing
-        return Response.redirect('/ttospwa/', 303);
-      })()
-    );
-  }
-});
-
-
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => response || fetch(event.request))
-  );
-});
-
-
-
-// Index.html with debugging v2
 // Install: Cache new assets
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(URLS_TO_CACHE))
-      .then(() => self.skipWaiting()) // Force immediate activation
+      .then(() => self.skipWaiting())
   );
 });
 
@@ -62,15 +27,37 @@ self.addEventListener('activate', event => {
           .filter(cacheName => cacheName !== CACHE_NAME)
           .map(cacheName => caches.delete(cacheName))
       );
-    }).then(() => self.clients.claim()) // Control all clients immediately
+    }).then(() => self.clients.claim())
   );
 });
 
-// Fetch: Serve cached or network
+// Fetch: Handle share POST, otherwise serve cached/network
 self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
+
+  // Handle POST to share target
+  if (
+    event.request.method === 'POST' &&
+    url.pathname === '/ttospwa/'
+  ) {
+    event.respondWith(
+      (async () => {
+        const formData = await event.request.formData();
+        const text = formData.get('text');
+        // Broadcast to all open clients
+        const clientsArr = await self.clients.matchAll({ type: 'window' });
+        for (const client of clientsArr) {
+          client.postMessage({ sharedText: text });
+        }
+        // Redirect user to your main page after sharing
+        return Response.redirect('/ttospwa/', 303);
+      })()
+    );
+    return; // Stop further processing for this request
+  }
+
+  // For all other requests: serve cache, then network
   event.respondWith(
     caches.match(event.request).then(response => response || fetch(event.request))
   );
 });
-
-
