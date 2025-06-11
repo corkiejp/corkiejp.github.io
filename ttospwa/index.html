@@ -2,81 +2,67 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Bluesky Share Target Demo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Share Target Test PWA</title>
   <link rel="manifest" href="manifest.json">
-  <style>
-    .bsky-btn {
-      display: inline-block;
-      margin: 5px;
-      padding: 8px 15px;
-      background: #1185fe;
-      color: white;
-      border-radius: 4px;
-      text-decoration: none;
-      font-family: sans-serif;
-    }
-  </style>
+  <meta name="theme-color" content="#0074d9">
+  <link rel="icon" href="assets/icon-192.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-  <h1>Bluesky Share Target Demo</h1>
-  <div id="output">No shared text received.</div>
+  <h1>Share Target Test PWA</h1>
+  <h2>Test</h2>
+  <div id="output"></div>
   <script>
-    // Listen for messages from the service worker
-    navigator.serviceWorker?.addEventListener('message', event => {
-      if (event.data.sharedText) {
-        handleSharedText(event.data.sharedText);
+  
+  // index.html or main.js
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  let output = '';
+  for (const [key, value] of params.entries()) {
+    output += `<b>${key}</b>: ${value}<br>`;
+  }
+  document.body.innerHTML += `<div><h3>Received Share Parameters:</h3>${output || "None"}</div>`;
+  console.log("Received share params:", Object.fromEntries(params.entries()));
+});
+
+    function getParams() {
+      const params = new URLSearchParams(window.location.search);
+      const result = {};
+      for (const [key, value] of params.entries()) {
+        result[key] = value;
       }
+      return result;
+    }
+
+    function displayParams(params) {
+      const output = document.getElementById('output');
+      if (Object.keys(params).length === 0) {
+        output.textContent = "No share parameters received.";
+      } else {
+        output.innerHTML = '<pre>' + JSON.stringify(params, null, 2) + '</pre>';
+      }
+      console.log("Received share params:", params);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const params = getParams();
+      displayParams(params);
     });
-
-    // Fallback: If you want to support launchQueue for advanced browsers
-    if ('launchQueue' in window) {
-      window.launchQueue.setConsumer(launchParams => {
-        if (launchParams?.files?.length === 0 && launchParams.intent?.data?.text) {
-          handleSharedText(launchParams.intent.data.text);
-        }
-      });
-    }
-
-    function handleSharedText(text) {
-      document.getElementById('output').textContent = text;
-      // Parse and show Bluesky links if AT URI or Bluesky post
-      const atUriMatch = text.match(/at:\/\/([^/]+)\/([^/]+)\/([^/?#]+)/);
-      if (atUriMatch) {
-        const [_, did, collection, rkey] = atUriMatch;
-        const atUri = `at://${did}/${collection}/${rkey}`;
-        const links = {
-          bsky: `https://bsky.app/profile/${did}/post/${rkey}`,
-          deer: `https://deer.social/profile/${did}/post/${rkey}`,
-          klsky: `https://klearsky.pages.dev/#/post?uri=at://${did}/${collection}/${rkey}`,
-          clearskyHistory: `https://clearsky.app/${did}/history`,
-          plcdir: `https://plc.directory/${did}`,
-          credblue: `https://cred.blue/${did}`,
-          toolify: `https://toolify.blue/profile/${did}`,
-          atprotoViewer: `https://atproto.at/viewer?uri=${did}`,
-          pdslsdev: `https://pdsls.dev/${atUri}`,
-          atpTools: `https://atp.tools/${atUri}`,
-          skythread: `https://blue.mackuba.eu/skythread/?q=${did}/${collection}/${rkey}`,
-          skyview: `https://skyview.social/?url=${encodeURIComponent(atUri)}`
-        };
-        const container = document.createElement('div');
-        container.innerHTML = '<h3>Bluesky Links:</h3>';
-        Object.entries(links).forEach(([service, url]) => {
-          const btn = document.createElement('a');
-          btn.href = url;
-          btn.target = '_blank';
-          btn.className = 'bsky-btn';
-          btn.textContent = service.charAt(0).toUpperCase() + service.slice(1);
-          container.appendChild(btn);
-        });
-        document.body.appendChild(container);
-      }
-    }
-
-    // Register service worker
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/service-worker.js');
-    }
   </script>
+
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./service-worker.js').then(function(registration) {
+      console.log('ServiceWorker registration successful:', registration.scope);
+    }, function(err) {
+      console.log('ServiceWorker registration failed:', err);
+    });
+  });
+}
+</script>
+
+
 </body>
 </html>
