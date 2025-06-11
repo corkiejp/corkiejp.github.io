@@ -1253,17 +1253,6 @@ if (moreBtn) {
 			
 		
 <script>
-const params = new URLSearchParams(window.location.search);
-const shared = params.get('uri'); // not 'sharedText' or 'text'
-if (shared) {
-	showLinksModal(linksHtml, handleOrDid);
-  // Handle the shared content (e.g., open modal, display, etc.)
-}
-
-
-
-
-
 function enhanceHandles() {
   const spans = document.querySelectorAll('.handle-value[data-did]');
 //  console.log("enhanceHandles: found", spans.length, "spans");
