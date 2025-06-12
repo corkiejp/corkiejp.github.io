@@ -115,7 +115,7 @@ ${JSON.stringify(params, null, 2)}
     function displayParams(params) {
       const output = document.getElementById('output');
       if (Object.keys(params).length === 0) {
-        output.textContent = "No share parameters received.";
+        output.textContent = "No share parameters received. Only works as a Mobile PWA share target!";
       } else {
         output.innerHTML = '<pre>' + JSON.stringify(params, null, 2) + '</pre>';
       }
