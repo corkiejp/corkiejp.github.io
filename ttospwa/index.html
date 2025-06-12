@@ -12,7 +12,22 @@
   <h1>Share Target Test PWA</h1>
   <div id="output"></div>
   <script>
-  
+
+
+async function handleToDid(handle) {
+  handle = handle.replace(/^@/, '');
+  const url = `https://bsky.social/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(handle)}`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Failed to resolve handle");
+    const data = await response.json();
+    return data.did;
+  } catch (e) {
+    console.error("Handle resolution failed:", e);
+    return null;
+  }
+}
+
   // index.html or main.js
 window.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
@@ -29,7 +44,10 @@ for (const [key, value] of params.entries()) {
   if (value.startsWith('https://bsky.app/profile/')) {
     const urlParts = value.split('/');
     if (urlParts.length >= 7 && urlParts[5] === 'post') {
-      did = urlParts[4];
+		let did;
+		await handleToDid(urlParts[4]).then(resolvedDid => {
+		did = resolvedDid;
+	});
       rkey = urlParts[6];
       atUri = `at://${did}/app.bsky.feed.post/${rkey}`;
     }
