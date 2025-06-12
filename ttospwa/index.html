@@ -18,24 +18,47 @@ window.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
   let output = '';
 for (const [key, value] of params.entries()) {
-  output += `<b>${key}</b>: ${value}<br>Open in below<br><a href="${value}" target="_blank">Bluesky</a>`;
-  // Convert and add ATProto Viewer link
+  output += `<b>${key}</b>: ${value}<br><a href="${value}" target="_blank">Bluesky</a>`;
+
+  // Default: use the value as the AT URI (if it's already in AT URI format)
   let atUri = value;
+  let did = null;
+  let rkey = null;
+
+  // If it's a Bluesky web URL, try to extract the DID and rkey
   if (value.startsWith('https://bsky.app/profile/')) {
-    const parts = value.split('/');
-    if (parts.length >= 6) {
-      atUri = `at://${parts[4]}/app.bsky.feed.post/${parts[6] || parts[5]}`;
+    const urlParts = value.split('/');
+    if (urlParts.length >= 7 && urlParts[5] === 'post') {
+      did = urlParts[4];
+      rkey = urlParts[6];
+      atUri = `at://${did}/app.bsky.feed.post/${rkey}`;
+    }
+  } else if (value.startsWith('at://')) {
+    // If it's already an AT URI, extract DID and rkey if possible
+    const match = value.match(/^at:\/\/([^/]+)\/app\.bsky\.feed\.post\/([^/]+)/);
+    if (match) {
+      did = match[1];
+      rkey = match[2];
     }
   }
-  output += `<br><a href="https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(atUri)}" target="_blank">Corkiejps ATProtoViewer</a>
-  <br><a href="https://atproto.at/viewer?uri=${encodeURIComponent(atUri)}" target="_blank">ATProto at Viewer</a>
-  <br><a href="https://blue.mackuba.eu/skythread/?q=${encodeURIComponent(atUri)}" target="_blank">Skythread by Kuba</a>`;
-  output += `<br><a href="https://skyview.social/?url=${encodeURIComponent(atUri)}" target="_blank">Skyview Social</a>`;
-  output += "<br><br>Look up profiles<br>";
-  
-  
 
+  // Now you can safely use did and atUri for sites that require them
+  if (atUri) {
+    output += `<br><a href="https://atproto.at/viewer?uri=${encodeURIComponent(atUri)}" target="_blank">ATProto at Viewer</a>`;
+    output += `<br><a href="https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(atUri)}" target="_blank">Corkiejps ATProtoViewer</a>`;
+    output += `<br><a href="https://blue.mackuba.eu/skythread/?q=${encodeURIComponent(atUri)}" target="_blank">Skythread by Kuba</a>`;
+  }
+  if (did && rkey) {
+    output += `<br><a href="https://deer.social/profile/${did}/post/${rkey}" target="_blank">Deer Social</a>`;
+  }
+  if (did) {
+    output += `<br><a href="https://plc.directory/${did}" target="_blank">PLC Directory</a>`;
+    output += `<br><a href="https://cred.blue/${did}" target="_blank">Cred.blue</a>`;
+    output += `<br><a href="https://toolify.blue/profile/${did}" target="_blank">Toolify.blue</a>`;
+  }
+  output += "<br><br>";
 }
+
   document.body.innerHTML += `<div><h3>Received Share Parameters:</h3>${output || "None"}</div>`;
   console.log("Received share params:", Object.fromEntries(params.entries()));
 });
