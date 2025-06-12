@@ -48,9 +48,14 @@ for (const [key, value] of params.entries()) {
     output += `<br><a href="https://atproto.at/viewer?uri=${encodeURIComponent(atUri)}" target="_blank">ATProto.at Viewer</a>`;
     output += `<br><a href="https://blue.mackuba.eu/skythread/?q=${encodeURIComponent(atUri)}" target="_blank">Skythread by Kuba</a>`;
 	output += `<br><a href="https://skyview.social/?url=${encodeURIComponent(atUri)}" target="_blank">Skyview Social</a>`;
+	output += `<br><a href="https://pdsls.dev/${encodeURIComponent(atUri)}" target="_blank">pdsls.dev</a>`;	
+	output += `<br><a href="https://atp.tools/${encodeURIComponent(atUri)}" target="_blank">atp.tools</a>`;
+	
+	
   }
   if (did && rkey) {
     output += `<br><a href="https://deer.social/profile/${did}/post/${rkey}" target="_blank">Deer Social</a>`;
+    output += `<br><a href="https://klearsky.pages.dev/#/post?uri=at://${did}/app.bsky.feed.post/${rkey}" target="_blank">Deer Social</a>`;	
   }
   if (did) {
     output += "<br><br>Look up profiles below!<br>";
