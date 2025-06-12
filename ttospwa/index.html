@@ -18,8 +18,9 @@ window.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
   let output = '';
 for (const [key, value] of params.entries()) {
-  output += `<b>${key}</b>: ${value}<br>Open in below<br><a href="${value}" target="_blank">Bluesky</a>`;
-  // Convert and add ATProto Viewer link
+  output += `<b>${key}</b>: ${value}<br><a href="${value}" target="_blank">Bluesky</a>`;
+
+  // Convert and add ATProto Viewer links
   let atUri = value;
   if (value.startsWith('https://bsky.app/profile/')) {
     const parts = value.split('/');
@@ -27,16 +28,19 @@ for (const [key, value] of params.entries()) {
       atUri = `at://${parts[4]}/app.bsky.feed.post/${parts[6] || parts[5]}`;
     }
   }
-  output += `<br><a href="https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(atUri)}" target="_blank">Corkiejps ATProtoViewer</a>
-  <br><a href="https://atproto.at/viewer?uri=${encodeURIComponent(atUri)}" target="_blank">ATProto at Viewer</a>
-  <br><a href="https://blue.mackuba.eu/skythread/?q=${encodeURIComponent(atUri)}" target="_blank">Skythread by Kuba</a>`;
+
+  // Add as many links as you want, one per line for clarity
+  output += `<br><a href="https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(atUri)}" target="_blank">Corkiejps ATProtoViewer</a>`;
+  output += `<br><a href="https://atproto.at/viewer?uri=${encodeURIComponent(atUri)}" target="_blank">ATProto at Viewer</a>`;
+  output += `<br><a href="https://blue.mackuba.eu/skythread/?q=${encodeURIComponent(atUri)}" target="_blank">Skythread by Kuba</a>`;
   output += `<br><a href="https://skyview.social/?url=${encodeURIComponent(atUri)}" target="_blank">Skyview Social</a>`;
   output += `<br><a href="<https://deer.social/profile/${parts>[4]}/post/${parts[6] || parts[5]}" target="_blank">Deer Social</a>`;
-  output += "<br><br>Look up profiles<br>";
-  
-  
-
+  output += `<br><a href="<https://plc.directory/${parts>[4]}" target="_blank">PLC Directory</a>`;
+  output += `<br><a href="<https://cred.blue/${parts>[4]}" target="_blank">Cred.blue</a>`;
+  output += `<br><a href="<https://toolify.blue/profile/${parts>[4]}" target="_blank">Toolify.blue</a>`;
+  output += "<br><br>"; // Add a break between entries if you have more than one param
 }
+
   document.body.innerHTML += `<div><h3>Received Share Parameters:</h3>${output || "None"}</div>`;
   console.log("Received share params:", Object.fromEntries(params.entries()));
 });
