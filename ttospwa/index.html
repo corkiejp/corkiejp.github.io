@@ -59,9 +59,13 @@ for (const [key, value] of params.entries()) {
   }
   if (did) {
     output += "<br><br>Look up profiles below!<br>";
-    output += `<br><a href="https://plc.directory/${did}" target="_blank">PLC Directory ~ Not working due to looking up a Handle.</a>`;
+    output += `<br><a href="https://plc.directory/${did}" target="_blank">PLC Directory ~ Not working due to looking up a Handle.</a><br>`;
     output += `<br><a href="https://cred.blue/${did}" target="_blank">Cred.blue</a>`;
     output += `<br><a href="https://toolify.blue/profile/${did}" target="_blank">Toolify.blue</a>`;
+    output += `<br><a href="https://clearsky.app/${did}/history" target="_blank">clearsky</a>`;
+	output += `<br><a href="https://atproto.at/viewer?uri=${did}/history" target="_blank">atproto.at profile</a>`;
+
+
   }
   output += "<br><br>As noted handle lookup provided here doesn't work due to constraints of HTML/JS used, see my ATProtoViewer for those kind of look ups?";
 }
