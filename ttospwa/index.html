@@ -10,45 +10,81 @@
 </head>
 <body>
   <h1>Share Target Test PWA</h1>
-  <h2>Test</h2>
   <div id="output"></div>
-  <script>
-  
-  // index.html or main.js
+
+
+<script>
 window.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
-  let output = '';
-  for (const [key, value] of params.entries()) {
-    output += `<b>${key}</b>: ${value}<br><a href="${value}" target="_blank">Bluesky</a>`;
+  const sharedInput = params.get('uri'); // Get the shared value from "uri" parameter
+  
+  if (!sharedInput) {
+    document.getElementById('output').textContent = "No share parameters received.";
+    return;
   }
-  document.body.innerHTML += `<div><h3>Received Share Parameters:</h3>${output || "None"}</div>`;
-  console.log("Received share params:", Object.fromEntries(params.entries()));
+
+  // Parse both URL formats: bsky.app links and raw AT URIs
+  const { atUri, did, collection, rkey } = parseSharedInput(sharedInput);
+  
+  if (!atUri) {
+    document.getElementById('output').textContent = "Invalid Bluesky share format";
+    return;
+  }
+
+  // Generate viewer links
+  const viewers = {
+    "ATProto Viewer": `https://atproto.at/viewer?uri=${encodeURIComponent(atUri)}`,
+    "Skyview": `https://skyview.social/?url=${encodeURIComponent(atUri)}`,
+    "Deer Social": `https://deer.social/profile/${did}/post/${rkey}`,
+    "PDSLabs Dev": `https://pdsls.dev/${atUri}`,
+    "PLC Directory": `https://plc.directory/${did}`
+  };
+
+  // Display links
+  const output = document.getElementById('output');
+  output.innerHTML = `
+    <h3>View This On:</h3>
+    ${Object.entries(viewers).map(([name, url]) => `
+      <div style="margin: 10px 0;">
+        <a href="${url}" target="_blank" style="
+          display: inline-block;
+          padding: 8px 15px;
+          background: #1185fe;
+          color: white;
+          border-radius: 4px;
+          text-decoration: none;
+        ">${name}</a>
+      </div>
+    `).join('')}
+  `;
 });
 
-    function getParams() {
-      const params = new URLSearchParams(window.location.search);
-      const result = {};
-      for (const [key, value] of params.entries()) {
-        result[key] = value;
-      }
-      return result;
-    }
+function parseSharedInput(input) {
+  let did, collection, rkey;
+  
+  // Handle AT URI format: at://did/app.bsky.feed.post/rkey
+  if (input.startsWith('at://')) {
+    [,, did, collection, rkey] = input.split('/');
+    return { atUri: input, did, collection, rkey };
+  }
+  
+  // Handle web URL format: https://bsky.app/profile/did/post/rkey
+  const urlMatch = input.match(/https:\/\/bsky\.app\/profile\/([^/]+)\/post\/([^/?#]+)/);
+  if (urlMatch) {
+    [, did, rkey] = urlMatch;
+    collection = 'app.bsky.feed.post';
+    return {
+      atUri: `at://${did}/${collection}/${rkey}`,
+      did,
+      collection,
+      rkey
+    };
+  }
 
-    function displayParams(params) {
-      const output = document.getElementById('output');
-      if (Object.keys(params).length === 0) {
-        output.textContent = "No share parameters received.";
-      } else {
-        output.innerHTML = '<pre>' + JSON.stringify(params, null, 2) + '</pre>';
-      }
-      console.log("Received share params:", params);
-    }
+  return {}; // Invalid format
+}
+</script>
 
-    window.addEventListener('DOMContentLoaded', () => {
-      const params = getParams();
-      displayParams(params);
-    });
-  </script>
 
 
 <script>
