@@ -69,26 +69,26 @@ for (const [key, value] of params.entries()) {
 
   // Now you can safely use did and atUri for sites that require them
   if (atUri) {
-    output += `<br><a href="https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(atUri)}" target="_blank">Corkiejps ATProtoViewer</a>`;
-    output += `<br><a href="https://atproto.at/viewer?uri=${encodeURIComponent(atUri)}" target="_blank">ATProto.at Viewer</a>`;
-    output += `<br><a href="https://blue.mackuba.eu/skythread/?q=${encodeURIComponent(atUri)}" target="_blank">Skythread by Kuba</a>`;
-	output += `<br><a href="https://skyview.social/?url=${encodeURIComponent(atUri)}" target="_blank">Skyview Social</a>`;
-	output += `<br><a href="https://pdsls.dev/${encodeURIComponent(atUri)}" target="_blank">pdsls.dev</a>`;	
-	output += `<br><a href="https://atp.tools/${encodeURIComponent(atUri)}" target="_blank">atp.tools</a>`;
+    output += `<a href="https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(atUri)}" target="_blank">Corkiejps ATProtoViewer</a>`;
+    output += `<a href="https://atproto.at/viewer?uri=${encodeURIComponent(atUri)}" target="_blank">ATProto.at Viewer</a>`;
+    output += `<a href="https://blue.mackuba.eu/skythread/?q=${encodeURIComponent(atUri)}" target="_blank">Skythread by Kuba</a>`;
+	output += `<a href="https://skyview.social/?url=${encodeURIComponent(atUri)}" target="_blank">Skyview Social</a>`;
+	output += `<a href="https://pdsls.dev/${encodeURIComponent(atUri)}" target="_blank">pdsls.dev</a>`;	
+	output += `<a href="https://atp.tools/${encodeURIComponent(atUri)}" target="_blank">atp.tools</a>`;
 	
 	
   }
   if (did && rkey) {
-    output += `<br><a href="https://deer.social/profile/${did}/post/${rkey}" target="_blank">Deer Social</a>`;
-    output += `<br><a href="https://klearsky.pages.dev/#/post?uri=at://${did}/app.bsky.feed.post/${rkey}" target="_blank">Klearsky</a>`;	
+    output += `<a href="https://deer.social/profile/${did}/post/${rkey}" target="_blank">Deer Social</a>`;
+    output += `<a href="https://klearsky.pages.dev/#/post?uri=at://${did}/app.bsky.feed.post/${rkey}" target="_blank">Klearsky</a>`;	
   }
   if (did) {
     output += "<br><br>Look up profiles below!<br>";
-    output += `<br><a href="https://plc.directory/${did}" target="_blank">PLC Directory ~ Not working due to looking up a Handle.</a><br>`;
-    output += `<br><a href="https://cred.blue/${did}" target="_blank">Cred.blue</a>`;
-    output += `<br><a href="https://toolify.blue/profile/${did}" target="_blank">Toolify.blue</a>`;
-    output += `<br><a href="https://clearsky.app/${did}/history" target="_blank">clearsky</a>`;
-	output += `<br><a href="https://atproto.at/viewer?uri=${did}" target="_blank">atproto.at profile</a>`;
+    output += `<a href="https://plc.directory/${did}" target="_blank">PLC Directory ~ Not working due to looking up a Handle.</a><br>`;
+    output += `<a href="https://cred.blue/${did}" target="_blank">Cred.blue</a>`;
+    output += `<a href="https://toolify.blue/profile/${did}" target="_blank">Toolify.blue</a>`;
+    output += `<a href="https://clearsky.app/${did}/history" target="_blank">clearsky</a>`;
+	output += `<a href="https://atproto.at/viewer?uri=${did}" target="_blank">atproto.at profile</a>`;
 
 
   }
