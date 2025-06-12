@@ -26,7 +26,7 @@ window.addEventListener('DOMContentLoaded', () => {
     if (parts.length >= 6) {
       atUri = `at://${parts[4]}/app.bsky.feed.post/${parts[6] || parts[5]}`;
     }
-  output += `<br><a href="https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(atUri)}" target="_blank">Corkiejps ATProtoViewer</a><br><a href="https://atproto.at/viewer?uri=${encodeURIComponent(atUri)}" target="_blank">ATProto.at Viewer</a>`;
+  output += `<br><a href="https://atproto.at/viewer?uri=${encodeURIComponent(atUri)}" target="_blank">ATProto.at Viewer</a>`;
 }
   document.body.innerHTML += `<div><h3>Received Share Parameters:</h3>${output || "None"}</div>`;
   console.log("Received share params:", Object.fromEntries(params.entries()));
