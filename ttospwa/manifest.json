@@ -18,13 +18,14 @@
       "type": "image/png"
     }
   ],
-  "share_target": {
+	"share_target": {
     "action": "/ttospwa/",
-    "method": "POST",
-    "enctype": "multipart/form-data",
+    "method": "GET",
+	"enctype": "application/x-www-form-urlencoded",
     "params": {
-      "text": "text"
-    }
+		"text": "uri",
+		"url": "uri"
+	}
   }
 
 }
