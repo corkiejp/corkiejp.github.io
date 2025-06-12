@@ -47,7 +47,7 @@ for (const [key, value] of params.entries()) {
 		let did;
 		await handleToDid(urlParts[4]).then(resolvedDid => {
 		did = resolvedDid;
-	});
+	}
       rkey = urlParts[6];
       atUri = `at://${did}/app.bsky.feed.post/${rkey}`;
     }
