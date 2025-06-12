@@ -27,9 +27,12 @@ for (const [key, value] of params.entries()) {
       atUri = `at://${parts[4]}/app.bsky.feed.post/${parts[6] || parts[5]}`;
     }
   }
-  output += `<br><a href="https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(atUri)}" target="_blank">Corkiejps ATProtoViewer</a><br><a href="https://atproto.at/viewer?uri=${encodeURIComponent(atUri)}" target="_blank">ATProto at Viewer</a>`;
-  output += `<br><a href="https://blue.mackuba.eu/skythread/?q==${encodeURIComponent(atUri)}" target="_blank">Sky thread by Kuba</a>`;
-}                         }
+  output += `<br><a href="https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(atUri)}" target="_blank">Corkiejps ATProtoViewer</a>
+  <br><a href="https://atproto.at/viewer?uri=${encodeURIComponent(atUri)}" target="_blank">ATProto at Viewer</a>
+  <br><a href="https://blue.mackuba.eu/skythread/?q=${encodeURIComponent(atUri)}" target="_blank">Skythread by Kuba</a>`;
+  
+
+}
   document.body.innerHTML += `<div><h3>Received Share Parameters:</h3>${output || "None"}</div>`;
   console.log("Received share params:", Object.fromEntries(params.entries()));
 });
