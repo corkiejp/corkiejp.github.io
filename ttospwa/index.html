@@ -43,6 +43,10 @@ window.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
   let output = '';
 for (const [key, value] of params.entries()) {
+output += `<pre style="font-size:0.9em;color:#555;background:#f9f9f9;padding:0.5em;border-radius:0.3em;">
+[Developer Note] Raw share parameters received from Bluesky Share Target:
+${JSON.stringify(params, null, 2)}
+</pre>`;
   output += `<b>${key}</b>: ${value}<br>Open this post in below sites<br>`;
   output += `<br><a href="${value}" target="_blank">Bluesky</a>`;
   // Default: use the value as the AT URI (if it's already in AT URI format)
