@@ -28,7 +28,8 @@ for (const [key, value] of params.entries()) {
     }
   }
   output += `<br><a href="https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(atUri)}" target="_blank">Corkiejps ATProtoViewer</a><br><a href="https://atproto.at/viewer?uri=${encodeURIComponent(atUri)}" target="_blank">ATProto at Viewer</a>`;
-}
+  output += `<br><a href="https://blue.mackuba.eu/skythread/?q==${encodeURIComponent(atUri)}" target="_blank">Sky thread by Kuba</a>`;
+}                         }
   document.body.innerHTML += `<div><h3>Received Share Parameters:</h3>${output || "None"}</div>`;
   console.log("Received share params:", Object.fromEntries(params.entries()));
 });
