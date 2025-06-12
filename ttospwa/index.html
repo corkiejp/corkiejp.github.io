@@ -18,7 +18,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
   let output = '';
   for (const [key, value] of params.entries()) {
-  output += `<b>${key}</b>: ${value}<br><a href="${value}" target="_blank">Bluesky</a>`;
+  output += `<b>${key}</b>: ${value}<br>Open in below links: -<br><a href="${value}" target="_blank">Bluesky</a>`;
   // Convert and add ATProto Viewer link
   let atUri = value;
   if (value.startsWith('https://bsky.app/profile/')) {
@@ -26,7 +26,8 @@ window.addEventListener('DOMContentLoaded', () => {
     if (parts.length >= 6) {
       atUri = `at://${parts[4]}/app.bsky.feed.post/${parts[6] || parts[5]}`;
     }
-  }
+  
+  output += `<br><a href="https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(atUri)}" target="_blank">Corkiejp's ATProtoViewer</a>`;
   output += `<br><a href="https://atproto.at/viewer?uri=${encodeURIComponent(atUri)}" target="_blank">ATProto.at Viewer</a>`;
 }
   document.body.innerHTML += `<div><h3>Received Share Parameters:</h3>${output || "None"}</div>`;
