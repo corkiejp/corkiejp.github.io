@@ -42,15 +42,15 @@ for (const [key, value] of params.entries()) {
 
   // If it's a Bluesky web URL, try to extract the DID and rkey
   if (value.startsWith('https://bsky.app/profile/')) {
-    const urlParts = value.split('/');
-    if (urlParts.length >= 7 && urlParts[5] === 'post') {
-		let did;
-		await handleToDid(urlParts[4]).then(resolvedDid => {
-		did = resolvedDid;
-	}
-      rkey = urlParts[6];
-      atUri = `at://${did}/app.bsky.feed.post/${rkey}`;
-    }
+const urlParts = value.split('/');
+if (urlParts.length >= 7 && urlParts[5] === 'post') {
+  // Instead of: did = urlParts[4];
+  await handleToDid(urlParts[4]).then(resolvedDid => {
+    did = resolvedDid;
+  });
+  rkey = urlParts[6];
+  atUri = `at://${did}/app.bsky.feed.post/${rkey}`;
+}
   } else if (value.startsWith('at://')) {
     // If it's already an AT URI, extract DID and rkey if possible
     const match = value.match(/^at:\/\/([^/]+)\/app\.bsky\.feed\.post\/([^/]+)/);
