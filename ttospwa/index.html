@@ -44,14 +44,16 @@ for (const [key, value] of params.entries()) {
 
   // Now you can safely use did and atUri for sites that require them
   if (atUri) {
-    output += `<br><a href="https://atproto.at/viewer?uri=${encodeURIComponent(atUri)}" target="_blank">ATProto at Viewer</a>`;
     output += `<br><a href="https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(atUri)}" target="_blank">Corkiejps ATProtoViewer</a>`;
+    output += `<br><a href="https://atproto.at/viewer?uri=${encodeURIComponent(atUri)}" target="_blank">ATProto.at Viewer</a>`;
     output += `<br><a href="https://blue.mackuba.eu/skythread/?q=${encodeURIComponent(atUri)}" target="_blank">Skythread by Kuba</a>`;
+	output += `<br><a href="https://skyview.social/?url=${encodeURIComponent(atUri)}" target="_blank">Skyview Social</a>`;
   }
   if (did && rkey) {
     output += `<br><a href="https://deer.social/profile/${did}/post/${rkey}" target="_blank">Deer Social</a>`;
   }
   if (did) {
+    output += "<br><br>Look up profiles below!<br>";
     output += `<br><a href="https://plc.directory/${did}" target="_blank">PLC Directory</a>`;
     output += `<br><a href="https://cred.blue/${did}" target="_blank">Cred.blue</a>`;
     output += `<br><a href="https://toolify.blue/profile/${did}" target="_blank">Toolify.blue</a>`;
