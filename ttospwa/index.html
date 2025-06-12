@@ -12,22 +12,7 @@
   <h1>Share Target Test PWA</h1>
   <div id="output"></div>
   <script>
-
-
-async function handleToDid(handle) {
-  handle = handle.replace(/^@/, '');
-  const url = `https://bsky.social/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(handle)}`;
-  try {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error("Failed to resolve handle");
-    const data = await response.json();
-    return data.did;
-  } catch (e) {
-    console.error("Handle resolution failed:", e);
-    return null;
-  }
-}
-
+  
   // index.html or main.js
 window.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
@@ -42,15 +27,12 @@ for (const [key, value] of params.entries()) {
 
   // If it's a Bluesky web URL, try to extract the DID and rkey
   if (value.startsWith('https://bsky.app/profile/')) {
-const urlParts = value.split('/');
-if (urlParts.length >= 7 && urlParts[5] === 'post') {
-  // Instead of: did = urlParts[4];
-  await handleToDid(urlParts[4]).then(resolvedDid => {
-    did = resolvedDid;
-  });
-  rkey = urlParts[6];
-  atUri = `at://${did}/app.bsky.feed.post/${rkey}`;
-}
+    const urlParts = value.split('/');
+    if (urlParts.length >= 7 && urlParts[5] === 'post') {
+      did = urlParts[4];
+      rkey = urlParts[6];
+      atUri = `at://${did}/app.bsky.feed.post/${rkey}`;
+    }
   } else if (value.startsWith('at://')) {
     // If it's already an AT URI, extract DID and rkey if possible
     const match = value.match(/^at:\/\/([^/]+)\/app\.bsky\.feed\.post\/([^/]+)/);
@@ -72,11 +54,11 @@ if (urlParts.length >= 7 && urlParts[5] === 'post') {
   }
   if (did) {
     output += "<br><br>Look up profiles below!<br>";
-    output += `<br><a href="https://plc.directory/${did}" target="_blank">PLC Directory</a>`;
+    output += `<br><a href="https://plc.directory/${did}" target="_blank">PLC Directory ~ Not working due to looking up a Handle.</a>`;
     output += `<br><a href="https://cred.blue/${did}" target="_blank">Cred.blue</a>`;
     output += `<br><a href="https://toolify.blue/profile/${did}" target="_blank">Toolify.blue</a>`;
   }
-  output += "<br><br>";
+  output += "<br><br>As noted handle lookup provided here doesn't work due to constraints of HTML/JS used, see my ATProtoViewer for those kind of look ups?";
 }
 
   document.body.innerHTML += `<div><h3>Received Share Parameters:</h3>${output || "None"}</div>`;
