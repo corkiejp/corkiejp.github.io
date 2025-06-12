@@ -30,6 +30,11 @@ for (const [key, value] of params.entries()) {
   output += `<br><a href="https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(atUri)}" target="_blank">Corkiejps ATProtoViewer</a>
   <br><a href="https://atproto.at/viewer?uri=${encodeURIComponent(atUri)}" target="_blank">ATProto at Viewer</a>
   <br><a href="https://blue.mackuba.eu/skythread/?q=${encodeURIComponent(atUri)}" target="_blank">Skythread by Kuba</a>`;
+    output += `<br><a href="https://skyview.social/?url=${encodeURIComponent(atUri)}" target="_blank">Skyview Social</a>`;
+  output += `<br><a href="<https://deer.social/profile/${parts>[4]}/post/${parts[6] || parts[5]}" target="_blank">Deer Social</a>`;
+  output += `<br><a href="<https://plc.directory/${parts>[4]}" target="_blank">PLC Directory</a>`;
+  output += `<br><a href="<https://cred.blue/${parts>[4]}" target="_blank">Cred.blue</a>`;
+  output += `<br><a href="<https://toolify.blue/profile/${parts>[4]}" target="_blank">Toolify.blue</a>`;
   
 
 }
