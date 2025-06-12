@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ttospwa-v1.12';
+const CACHE_NAME = 'ttospwa-v1.13';
 const URLS_TO_CACHE = [
   '/ttospwa/',
   '/ttospwa/index.html',
@@ -10,6 +10,7 @@ const URLS_TO_CACHE = [
 ];
 
 // Install: Cache new assets
+// Hopefully this confirms what I am doing right?
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
