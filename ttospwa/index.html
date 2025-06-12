@@ -19,7 +19,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
   let output = '';
   for (const [key, value] of params.entries()) {
-    output += `<b>${key}</b>: ${value}<br><a href="${value}" target="_Top">Bluesky</a>`;
+    output += `<b>${key}</b>: ${value}<br><a href="${value}" target="_blank">Bluesky</a>`;
   }
   document.body.innerHTML += `<div><h3>Received Share Parameters:</h3>${output || "None"}</div>`;
   console.log("Received share params:", Object.fromEntries(params.entries()));
