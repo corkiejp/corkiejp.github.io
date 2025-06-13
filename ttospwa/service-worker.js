@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ttospwa-v1.15';
+const CACHE_NAME = 'ttospwa-v1.16';
 const URLS_TO_CACHE = [
   '/ttospwa/',
   '/ttospwa/index.html',
@@ -10,9 +10,7 @@ const URLS_TO_CACHE = [
 ];
 
 // Install: Cache new assets
-// Edit in a convert of handle for plc directory
-// Forcing a re cache so not of only working on android displays
-// Included a line of code that duplicated the output.
+// ATproto.at has a link to PLC Directory 
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
