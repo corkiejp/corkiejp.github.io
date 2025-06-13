@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ttospwa-v1.13';
+const CACHE_NAME = 'ttospwa-v1.14';
 const URLS_TO_CACHE = [
   '/ttospwa/',
   '/ttospwa/index.html',
@@ -10,7 +10,8 @@ const URLS_TO_CACHE = [
 ];
 
 // Install: Cache new assets
-// Hopefully this confirms what I am doing right?
+// Edit in a convert of handle for plc directory
+// Forcing a re cache so not of only working on android displays
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)

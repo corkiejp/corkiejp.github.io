@@ -36,7 +36,22 @@ a:hover, a:active, a:focus {
 <body>
   <h1>Share Target PWA</h1>
   <div id="output"></div>
-  <script>
+<script>
+
+async function resolveHandleToDid(handle) {
+  // Use the official Bluesky endpoint
+  const url = `https://bsky.social/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(handle)}`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Failed to resolve handle");
+    const data = await response.json();
+    return data.did; // Returns the DID string
+  } catch (e) {
+    console.error("Handle resolution failed:", e);
+    return null;
+  }
+}
+
   
   // index.html or main.js
 window.addEventListener('DOMContentLoaded', () => {
@@ -88,7 +103,26 @@ ${JSON.stringify(params, null, 2)}
   }
   if (did) {
     output += "<br><br>Look up profiles below!<br>";
-    output += `<a href="https://plc.directory/${did}" target="_blank">PLC Directory ~ Not working due to looking up a Handle.</a><br>`;
+	
+// Example usage inside your loop or after extracting 'did' or 'handle'
+if (did && did.startsWith('did:')) {
+  // Already a DID, safe to use
+  output += `<a href="https://plc.directory/${did}" target="_blank">PLC Directory</a>`;
+  // ...other links using the DID
+} else if (did) {
+  // It's a handle, so resolve it
+  resolveHandleToDid(did).then(resolvedDid => {
+    if (resolvedDid) {
+      output += `<a href="https://plc.directory/${resolvedDid}" target="_blank">PLC Directory</a>`;
+      // ...other links using the resolved DID
+      document.getElementById('output').innerHTML = output;
+    }
+  });
+}
+	
+	
+	
+//    output += `<a href="https://plc.directory/${did}" target="_blank">PLC Directory ~ Not working due to looking up a Handle.</a><br>`;
 	
     output += `<a href="https://bluefacts.app/profile/${did}" target="_blank">NEW | bluefacts.app</a>`;
 	
@@ -101,7 +135,8 @@ ${JSON.stringify(params, null, 2)}
 
 
   }
-  output += "<br><br>As noted handle lookup provided here doesn't work due to constraints of HTML/JS used, see my ATProtoViewer for those kind of look ups?";
+//  output += "<br><br>As noted handle lookup provided here doesn't work due to constraints of HTML/JS used, see my ATProtoViewer for 
+// those kind of look ups?";
 }
 
   document.body.innerHTML += `<div><h3>Received Share Parameters:</h3>${output || "None"}</div>`;
