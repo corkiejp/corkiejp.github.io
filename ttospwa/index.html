@@ -115,14 +115,11 @@ if (did && did.startsWith('did:')) {
     if (resolvedDid) {
       output += `<a href="https://plc.directory/${resolvedDid}" target="_blank">PLC Directory</a>`;
       // ...other links using the resolved DID
-      document.getElementById('output').innerHTML = output;
+//      document.getElementById('output').innerHTML = output;
     }
   });
 }
-	
-	
-	
-//    output += `<a href="https://plc.directory/${did}" target="_blank">PLC Directory ~ Not working due to looking up a Handle.</a><br>`;
+
 	
     output += `<a href="https://bluefacts.app/profile/${did}" target="_blank">NEW | bluefacts.app</a>`;
 	
@@ -135,8 +132,7 @@ if (did && did.startsWith('did:')) {
 
 
   }
-//  output += "<br><br>As noted handle lookup provided here doesn't work due to constraints of HTML/JS used, see my ATProtoViewer for 
-// those kind of look ups?";
+  output += "<br><br>I fixed the PLC Directory lookup by converting the handle to a DID in this one case!";
 }
 
   document.body.innerHTML += `<div><h3>Received Share Parameters:</h3>${output || "None"}</div>`;
