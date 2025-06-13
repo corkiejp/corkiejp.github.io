@@ -104,21 +104,12 @@ ${JSON.stringify(params, null, 2)}
   if (did) {
     output += "<br><br>Look up profiles below!<br>";
 	
-// Example usage inside your loop or after extracting 'did' or 'handle'
-if (did && did.startsWith('did:')) {
-  // Already a DID, safe to use
-  output += `<a href="https://plc.directory/${did}" target="_blank">PLC Directory</a>`;
-  // ...other links using the DID
-} else if (did) {
-  // It's a handle, so resolve it
+
   resolveHandleToDid(did).then(resolvedDid => {
     if (resolvedDid) {
-      output += `<a href="https://plc.directory/${resolvedDid}" target="_blank">PLC Directory</a>`;
-      // ...other links using the resolved DID
-//      document.getElementById('output').innerHTML = output;
+      output += `<a href="https://plc.directory/${resolvedDid}" target="_blank">PLC Directory</a><br><br>`;
     }
   });
-}
 
 	
     output += `<a href="https://bluefacts.app/profile/${did}" target="_blank">NEW | bluefacts.app</a>`;
