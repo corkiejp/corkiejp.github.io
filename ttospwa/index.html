@@ -104,19 +104,7 @@ ${JSON.stringify(params, null, 2)}
   if (did) {
     output += "<br><br>Look up profiles below!<br>";
 	
-
-  resolveHandleToDid(did).then(resolvedDid => {
-    if (resolvedDid) {
-      output += `<a href="https://plc.directory/${resolvedDid}" target="_blank">PLC Directory</a><br><br>`;
-    } else { 
-	output += `PLC Directory handle to did was not resolved!<br><br>';
-	}
-  });
-
-	
-    output += `<a href="https://bluefacts.app/profile/${did}" target="_blank">NEW | bluefacts.app</a>`;
-	
-	
+    output += `<a href="https://bluefacts.app/profile/${did}" target="_blank">NEW | bluefacts.app</a>`;	
     output += `<a href="https://cred.blue/${did}" target="_blank">Cred.blue</a>`;
     output += `<a href="https://toolify.blue/profile/${did}" target="_blank">Toolify.blue</a>`;
     output += `<a href="https://clearsky.app/${did}/history" target="_blank">clearsky</a>`;
@@ -125,7 +113,7 @@ ${JSON.stringify(params, null, 2)}
 
 
   }
-  output += "<br><br>I fixed the PLC Directory lookup by converting the handle to a DID in this one case!";
+  output += "<br><br>";
 }
 
   document.body.innerHTML += `<div><h3>Received Share Parameters:</h3>${output || "None"}</div>`;
