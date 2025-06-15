@@ -1,4 +1,4 @@
-const CACHE_NAME = 'atproto-pwa-v1.19';
+const CACHE_NAME = 'atproto-pwa-v1.20';
 const URLS_TO_CACHE = [
   '/ATProtoViewer/',
   '/ATProtoViewer/index.html',
@@ -30,7 +30,7 @@ const URLS_TO_CACHE = [
 // Listed with bskyinfo, added a badge to the page. (3)
 // Lists/Feeds display title when available. (2)
 // Added a link to https://atproto.at/viewer for records/did + added to list of links.
-// Updated hopefully to handle profile shares?
+// Updated hopefully to handle profile shares? Done!
 
 self.addEventListener('activate', event => {
   event.waitUntil(

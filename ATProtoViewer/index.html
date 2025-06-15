@@ -1733,8 +1733,8 @@ async function parseAtUri(atUri, fetchAfter = true) {
     }
   }
 
-  // --- Handle at:// URIs ---
-  const match = atUri.match(/^at:\/\/([^/]+)\/([^/]+)(?:\/([^/]+))?$/);
+  // --- Handle at:// URIs with collection/rkey ---
+  let match = atUri.match(/^at:\/\/([^/]+)\/([^/]+)(?:\/([^/]+))?$/);
   if (match) {
     const [, repo, collection, rkey] = match;
     document.querySelector('[name="repo"]').value = repo;
@@ -1756,11 +1756,38 @@ async function parseAtUri(atUri, fetchAfter = true) {
         });
     } else {
       if (fetchAfter) triggerFetchIfReady();
-    } 
-	return;
-  } else {
-    alert('Invalid AT URI format.');
+    }
+    return;
   }
+
+// --- Handle at:// URIs for profiles (just the DID) ---
+match = atUri.match(/^at:\/\/([^/]+)$/);
+if (match) {
+  const repo = match[1];
+  document.querySelector('[name="repo"]').value = repo;
+  // No need to set collection or rkey fields here
+
+  if (repo.startsWith('did:plc:')) {
+    fetch('https://plc.directory/' + repo)
+      .then(resp => resp.json())
+      .then(data => {
+        if (data && data.service && data.service[0] && data.service[0].serviceEndpoint) {
+          document.querySelector('[name="pds"]').value = data.service[0].serviceEndpoint.replace(/^https?:\/\//, '');
+        }
+        if (fetchAfter) triggerFetchIfReady();
+      })
+      .catch(() => {
+        if (fetchAfter) triggerFetchIfReady();
+      });
+  } else {
+    if (fetchAfter) triggerFetchIfReady();
+  }
+  return;
+}
+
+
+  // --- If nothing matched ---
+  alert('Invalid AT URI format.');
 }
 
   // --- Repo input change: auto-fill PDS if PLC DID ---
@@ -1880,25 +1907,33 @@ if (e.target.closest('.open-atproto-viewer-btn')) {
 if (params.has('uri')) {
   const atUri = params.get('uri').trim();
   if (atUri) {
-    // 1. Try AT URI
+    // 1. Try AT URI for post, feed, list, etc.
     let match = atUri.match(/^at:\/\/([^/]+)\/([^/]+)\/([^/]+)$/);
     if (match) {
       const repo = match[1];
       const collection = match[2];
       const rkey = match[3];
       const pds = params.get('pds') || document.querySelector('[name="pds"]').value || DEFAULT_PDS;
-//      console.log("[DEBUG] Calling fetchAndDisplaySingleRecord with:", pds, repo, collection, rkey);
       fetchAndDisplaySingleRecord(pds, repo, collection, rkey);
       alreadyFetched = true;
       return;
     }
 
-    // 2. Try Bluesky web URL
+    // 2. Try AT URI for account/profile (just at://did:plc:abc123)
+    match = atUri.match(/^at:\/\/([^/]+)$/);
+    if (match) {
+      const did = match[1];
+      // Call your profile loader function here
+      fetchAndDisplayProfile(did);
+      alreadyFetched = true;
+      return;
+    }
+
+    // 3. Try Bluesky web URL for post
     match = atUri.match(/^https:\/\/bsky\.app\/profile\/([^/]+)\/post\/([^/]+)$/);
     if (match) {
       const handle = match[1];
       const rkey = match[2];
-      // Resolve handle to DID
       fetch(`https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=${handle}`)
         .then(resp => resp.json())
         .then(data => {
@@ -1906,7 +1941,6 @@ if (params.has('uri')) {
           const repo = data.did;
           const collection = 'app.bsky.feed.post';
           const pds = 'bsky.social';
-//          console.log("[DEBUG] Calling fetchAndDisplaySingleRecord with:", pds, repo, collection, rkey);
           fetchAndDisplaySingleRecord(pds, repo, collection, rkey);
         })
         .catch(e => {
@@ -1916,11 +1950,46 @@ if (params.has('uri')) {
       return;
     }
 
-    // 3. If neither matched, show error
+    // 4. If neither matched, show error
     document.getElementById('records').innerHTML = `<p style="color:red;">XXX Invalid URI format. XXX</p>`;
     alreadyFetched = true;
   }
 }
+
+function fetchAndDisplayProfile(did) {
+  const container = document.getElementById('records');
+  container.innerHTML = "<p>Loading profile...</p>";
+
+  fetch(`https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=${encodeURIComponent(did)}`)
+    .then(resp => {
+      if (!resp.ok) throw new Error('Profile not found');
+      return resp.json();
+    })
+    .then(profile => {
+      // Build the link to the same page with ?did=...
+      const currentPath = window.location.pathname.replace(/\/+$/, ''); // remove trailing slash
+      const didLink = `${currentPath}?did=${encodeURIComponent(did)}`;
+
+      container.innerHTML = `
+        <div style="border:1px solid #ccc;padding:1em;">
+          ${profile.avatar ? `<img src="${profile.avatar}" alt="Avatar" style="width:64px;height:64px;border-radius:50%;">` : ''}
+          <h2>${profile.displayName || ''}</h2>
+          <p>@${profile.handle || did}</p>
+          ${profile.description ? `<p>${profile.description}</p>` : ''}
+          <p>
+            <a href="${didLink}" style="color:#1976d2;text-decoration:underline;">
+              View records for this account
+            </a>
+          </p>
+        </div>
+      `;
+    })
+    .catch(e => {
+      container.innerHTML = `<p style="color:red;">Could not load profile for DID: ${did}</p>`;
+    });
+}
+
+
 
 
   // 2. If no URI, try DID parameter
