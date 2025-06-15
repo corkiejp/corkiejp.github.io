@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ttospwa-v1.16';
+const CACHE_NAME = 'ttospwa-v1.17';
 const URLS_TO_CACHE = [
   '/ttospwa/',
   '/ttospwa/index.html',
@@ -11,6 +11,7 @@ const URLS_TO_CACHE = [
 
 // Install: Cache new assets
 // ATproto.at has a link to PLC Directory 
+// Share to feature note!
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
