@@ -11,7 +11,7 @@ const URLS_TO_CACHE = [
 
 // Install: Cache new assets
 // ATproto.at has a link to PLC Directory 
-// Share to feature note!
+// Share to feature note + another tweak!
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)

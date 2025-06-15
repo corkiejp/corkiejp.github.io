@@ -58,7 +58,7 @@ window.addEventListener('DOMContentLoaded', () => {
 [Developer Note] Raw share parameters received from Bluesky Share Target:
 ${JSON.stringify(params, null, 2)}
 </pre>`;
-    output += `<b>${key}</b>: ${value}<br>Open this post in below sites<br>`;
+    output += `<b>${key}</b>: ${value}<br><br>Open this post in below sites, if you didn't share from a post, see note appended at botom.<br>`;
     output += `<br><a href="${value}" target="_blank">Bluesky</a>`;
     // Default: use the value as the AT URI (if it's already in AT URI format)
     let atUri = value;
@@ -118,8 +118,9 @@ ${JSON.stringify(params, null, 2)}
         <div style="margin:1em 0; color:#d9534f; font-size:1em;">
           <strong>Note:</strong> This app currently only supports sharing Bluesky post links.<br>
           Profile shares or other formats may not work as expected.<br>
-          For profile lookups, use my other PWA instead: -
-          <a href="https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(value)}" target="_blank" style="color:#0074d9;text-decoration:underline;">ATProtoViewer</a>.
+          For profile lookups, use my other PWA directly instead: -
+          <a href="https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(value)}" target="_blank" style="color:#0074d9;text-decoration:underline;">ATProtoViewer not a DID</a>.
+		  <a href="https://corkiejp.github.io/ATProtoViewer/index.html?did=${encodeURIComponent(value)}" target="_blank" style="color:#0074d9;text-decoration:underline;">ATProtoViewer if a DID</a>.
         </div>
       `;
     }
