@@ -30,7 +30,7 @@ const URLS_TO_CACHE = [
 // Listed with bskyinfo, added a badge to the page. (3)
 // Lists/Feeds display title when available. (2)
 // Added a link to https://atproto.at/viewer for records/did + added to list of links.
-// Updated hopefully to handle profile shares? Done!
+// Updated hopefully to handle profile shares? Due to bluesky updates on the 5th June.
 
 self.addEventListener('activate', event => {
   event.waitUntil(

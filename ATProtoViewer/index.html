@@ -1358,15 +1358,16 @@ document.addEventListener('DOMContentLoaded', function() {
   const repo = params.get('repo');
   const did = params.get('did');
 
-  if (uri) {
-    parseAtUri(uri, false); // fill fields, don't auto-fetch
-  } else if (repo) {
-    document.getElementById('repo').value = repo;
-    // You might want to auto-fetch or fill other fields if needed
-  } else if (did) {
-    document.getElementById('repo').value = did;
-    // If you want to auto-fetch, call your fetch function here
-  }
+if (uri && typeof parseAtUri === "function") {
+  parseAtUri(uri, false);
+} else if (repo) {
+  document.getElementById('repo').value = repo;
+  // You might want to auto-fetch or fill other fields if needed
+} else if (did) {
+  document.getElementById('repo').value = did;
+  // If you want to auto-fetch, call your fetch function here
+}
+
 });
 
 
@@ -1707,12 +1708,11 @@ async function parseAtUri(atUri, fetchAfter = true) {
 
   // --- Handle Bluesky web URLs ---
   if (atUri.startsWith('https://bsky.app/')) {
-    // Example: https://bsky.app/profile/raxdflipnote.bsky.social/post/3lpyzwfpiic2k
     const urlParts = atUri.split('/');
+    // Handle post URLs: https://bsky.app/profile/handle/post/rkey
     if (urlParts.length >= 7 && urlParts[3] === 'profile' && urlParts[5] === 'post') {
       const handle = urlParts[4];
       const rkey = urlParts[6];
-      // Resolve handle to DID using public API
       try {
         const resp = await fetch(`https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=${handle}`);
         const data = await resp.json();
@@ -1720,17 +1720,40 @@ async function parseAtUri(atUri, fetchAfter = true) {
         document.querySelector('[name="repo"]').value = data.did;
         document.querySelector('[name="collection"]').value = 'app.bsky.feed.post';
         document.querySelector('[name="rkey"]').value = rkey;
-		document.querySelector('[name="pds"]').value = 'bsky.social';
+        document.querySelector('[name="pds"]').value = 'bsky.social';
         if (fetchAfter) triggerFetchIfReady();
         return;
       } catch (e) {
         alert('Failed to resolve Bluesky handle: ' + handle);
         return;
       }
-    } else {
-      alert('Unrecognized Bluesky post URL format.');
-      return;
     }
+    // Handle profile URLs: https://bsky.app/profile/handle or https://bsky.app/profile/did:plc:...
+    if (urlParts.length >= 5 && urlParts[3] === 'profile' && urlParts[4]) {
+      const handleOrDid = urlParts[4];
+      try {
+        let did = handleOrDid;
+        if (!did.startsWith('did:')) {
+          // Resolve handle to DID
+          const resp = await fetch(`https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=${handleOrDid}`);
+          const data = await resp.json();
+          if (!data.did) throw new Error('Could not resolve handle');
+          did = data.did;
+        }
+        document.querySelector('[name="repo"]').value = did;
+        // Optionally: clear collection/rkey for profile
+        if (document.querySelector('[name="collection"]')) document.querySelector('[name="collection"]').value = '';
+        if (document.querySelector('[name="rkey"]')) document.querySelector('[name="rkey"]').value = '';
+        document.querySelector('[name="pds"]').value = 'bsky.social';
+        if (fetchAfter) triggerFetchIfReady();
+        return;
+      } catch (e) {
+        alert('Failed to resolve Bluesky handle: ' + handleOrDid);
+        return;
+      }
+    }
+    alert('Unrecognized Bluesky URL format.');
+    return;
   }
 
   // --- Handle at:// URIs with collection/rkey ---
@@ -1760,35 +1783,36 @@ async function parseAtUri(atUri, fetchAfter = true) {
     return;
   }
 
-// --- Handle at:// URIs for profiles (just the DID) ---
-match = atUri.match(/^at:\/\/([^/]+)$/);
-if (match) {
-  const repo = match[1];
-  document.querySelector('[name="repo"]').value = repo;
-  // No need to set collection or rkey fields here
-
-  if (repo.startsWith('did:plc:')) {
-    fetch('https://plc.directory/' + repo)
-      .then(resp => resp.json())
-      .then(data => {
-        if (data && data.service && data.service[0] && data.service[0].serviceEndpoint) {
-          document.querySelector('[name="pds"]').value = data.service[0].serviceEndpoint.replace(/^https?:\/\//, '');
-        }
-        if (fetchAfter) triggerFetchIfReady();
-      })
-      .catch(() => {
-        if (fetchAfter) triggerFetchIfReady();
-      });
-  } else {
-    if (fetchAfter) triggerFetchIfReady();
+  // --- Handle at:// URIs for profiles (just the DID) ---
+  match = atUri.match(/^at:\/\/([^/]+)$/);
+  if (match) {
+    const repo = match[1];
+    document.querySelector('[name="repo"]').value = repo;
+    // Optionally: clear collection/rkey for profile
+    if (document.querySelector('[name="collection"]')) document.querySelector('[name="collection"]').value = '';
+    if (document.querySelector('[name="rkey"]')) document.querySelector('[name="rkey"]').value = '';
+    if (repo.startsWith('did:plc:')) {
+      fetch('https://plc.directory/' + repo)
+        .then(resp => resp.json())
+        .then(data => {
+          if (data && data.service && data.service[0] && data.service[0].serviceEndpoint) {
+            document.querySelector('[name="pds"]').value = data.service[0].serviceEndpoint.replace(/^https?:\/\//, '');
+          }
+          if (fetchAfter) triggerFetchIfReady();
+        })
+        .catch(() => {
+          if (fetchAfter) triggerFetchIfReady();
+        });
+    } else {
+      if (fetchAfter) triggerFetchIfReady();
+    }
+    return;
   }
-  return;
-}
-
 
   // --- If nothing matched ---
-  alert('Invalid AT URI format.');
+  alert('Invalid AT URI or Bluesky URL format.');
 }
+
 
   // --- Repo input change: auto-fill PDS if PLC DID ---
   const repoInput = document.getElementById('repo');
@@ -1904,6 +1928,7 @@ if (e.target.closest('.open-atproto-viewer-btn')) {
   let alreadyFetched = false;
 
 // 1. Try URI parameter first
+// 1. Try URI parameter first
 if (params.has('uri')) {
   const atUri = params.get('uri').trim();
   if (atUri) {
@@ -1923,7 +1948,6 @@ if (params.has('uri')) {
     match = atUri.match(/^at:\/\/([^/]+)$/);
     if (match) {
       const did = match[1];
-      // Call your profile loader function here
       fetchAndDisplayProfile(did);
       alreadyFetched = true;
       return;
@@ -1950,11 +1974,36 @@ if (params.has('uri')) {
       return;
     }
 
-    // 4. If neither matched, show error
+    // 4. Try Bluesky web URL for profile
+    match = atUri.match(/^https:\/\/bsky\.app\/profile\/([^/]+)$/);
+    if (match) {
+      const handleOrDid = match[1];
+      // If it's a DID, use it directly; otherwise, resolve handle to DID
+      if (handleOrDid.startsWith('did:')) {
+        fetchAndDisplayProfile(handleOrDid);
+        alreadyFetched = true;
+        return;
+      } else {
+        fetch(`https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=${handleOrDid}`)
+          .then(resp => resp.json())
+          .then(data => {
+            if (!data.did) throw new Error('Could not resolve handle');
+            fetchAndDisplayProfile(data.did);
+          })
+          .catch(e => {
+            document.getElementById('records').innerHTML = `<p style="color:red;">Failed to resolve handle: ${handleOrDid}</p>`;
+          });
+        alreadyFetched = true;
+        return;
+      }
+    }
+
+    // 5. If neither matched, show error
     document.getElementById('records').innerHTML = `<p style="color:red;">XXX Invalid URI format. XXX</p>`;
     alreadyFetched = true;
   }
 }
+
 
 function fetchAndDisplayProfile(did) {
   const container = document.getElementById('records');
