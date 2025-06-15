@@ -1,4 +1,4 @@
-const CACHE_NAME = 'atproto-pwa-v1.20';
+const CACHE_NAME = 'atproto-pwa-v1.21';
 const URLS_TO_CACHE = [
   '/ATProtoViewer/',
   '/ATProtoViewer/index.html',
@@ -6,7 +6,7 @@ const URLS_TO_CACHE = [
   '/ATProtoViewer/Blueskyessentiallinks.html',
   '/ATProtoViewer/ATProtoSimpleFeeds.html',
   '/ATProtoViewer/bookmarks.html',
-  '/ATProtoViewer/manifest.json',
+  '/ATProtoViewer/manifest.webmanifest',
   '/ATProtoViewer/styles.css',
   '/ATProtoViewer/main.js',
   '/ATProtoViewer/assets/icon-192.png',
@@ -31,16 +31,27 @@ const URLS_TO_CACHE = [
 // Lists/Feeds display title when available. (2)
 // Added a link to https://atproto.at/viewer for records/did + added to list of links.
 // Updated hopefully to handle profile shares? Due to bluesky updates on the 5th June.
+// Added support for iOS hopefully? safari-26
+// https://developer.apple.com/documentation/safari-release-notes/safari-26-release-notes#Web-Apps
 
+// Install: Pre-cache assets
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(URLS_TO_CACHE))
+  );
+  self.skipWaiting();
+});
+
+// Activate: Clean up old caches
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
+    caches.keys().then(cacheNames =>
+      Promise.all(
         cacheNames
           .filter(cacheName => cacheName !== CACHE_NAME)
           .map(cacheName => caches.delete(cacheName))
-      );
-    }).then(() => self.clients.claim())
+      )
+    ).then(() => self.clients.claim())
      .then(() => {
         // Notify all clients that SW is activated
         return self.clients.matchAll().then(clients => {
@@ -52,38 +63,32 @@ self.addEventListener('activate', event => {
   );
 });
 
-// sw.js (updated for ?did= and ?uri=)
+// Fetch: Handle redirects and serve cache/network
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
-  
+
   // Handle share redirect to /ATProtoViewer/
   if (url.pathname === '/ATProtoViewer/') {
-    const sharedData = url.searchParams.get('uri') || 
-                      url.searchParams.get('text') ||
-                      url.searchParams.get('url');
-    
+    const sharedData = url.searchParams.get('uri') ||
+                       url.searchParams.get('text') ||
+                       url.searchParams.get('url');
+
     let redirectUrl = '/ATProtoViewer/index.html';
-    
+
     if (sharedData) {
-      // Route DIDs to ?did=, others to ?uri=
       if (sharedData.startsWith('did:')) {
         redirectUrl += `?did=${encodeURIComponent(sharedData)}`;
       } else {
         redirectUrl += `?uri=${encodeURIComponent(sharedData)}`;
       }
     }
-    
-    return event.respondWith(Response.redirect(redirectUrl, 302));
+
+    event.respondWith(Response.redirect(redirectUrl, 302));
+    return;
   }
-});
 
-
-
-// Fetch: Serve cached or network
-self.addEventListener('fetch', event => {
+  // Default: serve from cache, then network
   event.respondWith(
     caches.match(event.request).then(response => response || fetch(event.request))
   );
 });
-
-
