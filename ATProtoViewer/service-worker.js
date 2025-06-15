@@ -1,4 +1,4 @@
-const CACHE_NAME = 'atproto-pwa-v1.18';
+const CACHE_NAME = 'atproto-pwa-v1.19';
 const URLS_TO_CACHE = [
   '/ATProtoViewer/',
   '/ATProtoViewer/index.html',
@@ -30,7 +30,7 @@ const URLS_TO_CACHE = [
 // Listed with bskyinfo, added a badge to the page. (3)
 // Lists/Feeds display title when available. (2)
 // Added a link to https://atproto.at/viewer for records/did + added to list of links.
-// Install: Cache new assets ...
+// Updated hopefully to handle profile shares?
 
 self.addEventListener('activate', event => {
   event.waitUntil(
@@ -51,6 +51,32 @@ self.addEventListener('activate', event => {
       })
   );
 });
+
+// sw.js (updated for ?did= and ?uri=)
+self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
+  
+  // Handle share redirect to /ATProtoViewer/
+  if (url.pathname === '/ATProtoViewer/') {
+    const sharedData = url.searchParams.get('uri') || 
+                      url.searchParams.get('text') ||
+                      url.searchParams.get('url');
+    
+    let redirectUrl = '/ATProtoViewer/index.html';
+    
+    if (sharedData) {
+      // Route DIDs to ?did=, others to ?uri=
+      if (sharedData.startsWith('did:')) {
+        redirectUrl += `?did=${encodeURIComponent(sharedData)}`;
+      } else {
+        redirectUrl += `?uri=${encodeURIComponent(sharedData)}`;
+      }
+    }
+    
+    return event.respondWith(Response.redirect(redirectUrl, 302));
+  }
+});
+
 
 
 // Fetch: Serve cached or network
