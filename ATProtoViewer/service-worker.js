@@ -1,4 +1,4 @@
-const CACHE_NAME = 'atproto-pwa-v1.23';
+const CACHE_NAME = 'atproto-pwa-v1.24';
 const URLS_TO_CACHE = [
   '/ATProtoViewer/',
   '/ATProtoViewer/index.html',
@@ -33,7 +33,7 @@ const URLS_TO_CACHE = [
 // Updated hopefully to handle profile shares? Due to bluesky updates on the 5th June.
 // Added support for iOS hopefully? safari-26
 // https://developer.apple.com/documentation/safari-release-notes/safari-26-release-notes#Web-Apps
-// Hope this latest change will detect feed shares? & List Feeds.
+// Hope this latest change will detect feed shares? & List Feeds. (2)
 
 // Install: Pre-cache assets
 self.addEventListener('install', event => {
