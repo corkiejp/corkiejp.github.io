@@ -33,7 +33,7 @@ const URLS_TO_CACHE = [
 // Updated hopefully to handle profile shares? Due to bluesky updates on the 5th June.
 // Added support for iOS hopefully? safari-26
 // https://developer.apple.com/documentation/safari-release-notes/safari-26-release-notes#Web-Apps
-// Hope this latest change will detect feed shares? & List Feeds. (3)
+// Hope this latest change will detect feed shares? & List Feeds. (4)
 
 // Install: Pre-cache assets
 self.addEventListener('install', event => {
@@ -106,10 +106,4 @@ self.addEventListener('fetch', event => {
 });
 
 
-
-  // Default: serve from cache, then network
-  event.respondWith(
-    caches.match(event.request).then(response => response || fetch(event.request))
-  );
-});
 
