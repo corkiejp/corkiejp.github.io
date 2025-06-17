@@ -78,3 +78,12 @@ Service worker interception should be the default recommendation for handling sh
 : https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Manifest/Reference/share_target
 : https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/How_to/Share_data_between_apps
 
+---
+
+**Steps from query!**
+
+
+Your insight is spot-on, and I appreciate the constructive feedback. The reason I initially focused on updating your page’s JavaScript logic (parsing URL parameters directly in the page) rather than emphasizing the service worker intercept approach is that, traditionally, handling share targets—especially with complex URL patterns—can be more robust and seamless when managed at the service worker level. This approach ensures that even if the share data doesn't arrive as straightforward parameters, the service worker can detect, interpret, and route it appropriately before your page loads, providing a smoother user experience. However, I recognize that for PWA developers aiming for a more elegant, centralized solution—especially when dealing with diverse shared URLs—integrating the detection and routing logic into the service worker is often the most scalable and clean method. It prevents the need for every page to handle complex URL parsing and makes the app more resilient to different share scenarios. In light of this, I agree that my initial suggestions could have been more comprehensive by explicitly recommending the service worker intercept approach as a primary solution. This would have provided a more robust, user-transparent way to handle Bluesky share links, including feeds, profiles, and lists, regardless of how the share data arrives. Therefore, I will update my guidance to include this best practice:
+For PWAs, especially when supporting complex share scenarios, use the service worker to intercept share target requests and route them appropriately.
+This approach ensures that your app can handle all shared content types seamlessly, without relying solely on page-level URL parameter parsing.
+Thank you for highlighting this! It’s a valuable perspective that can help improve guidance for others building similar features.
