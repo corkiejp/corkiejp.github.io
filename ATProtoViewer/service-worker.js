@@ -82,11 +82,8 @@ self.addEventListener('fetch', event => {
       // 2. Check for Bluesky list URL
       const isList = /^https:\/\/bsky\.app\/profile\/([^/]+)\/lists?\/([^/]+)/.test(sharedData);
 
-      if (isFeed) {
-        // Redirect to feed viewer
-        redirectUrl = `/ATProtoViewer/ATProtoSimpleFeeds.html?input=${encodeURIComponent(sharedData)}`;
-      } else if (isList) {
-        // Redirect to list viewer (you may need to create this page)
+      if (isFeed || isList) {
+        // Redirect both feeds and lists to the same viewer
         redirectUrl = `/ATProtoViewer/ATProtoSimpleFeeds.html?input=${encodeURIComponent(sharedData)}`;
       } else if (sharedData.startsWith('did:')) {
         redirectUrl += `?did=${encodeURIComponent(sharedData)}`;
@@ -98,6 +95,13 @@ self.addEventListener('fetch', event => {
     event.respondWith(Response.redirect(redirectUrl, 302));
     return;
   }
+
+  // Default: serve from cache, then network
+  event.respondWith(
+    caches.match(event.request).then(response => response || fetch(event.request))
+  );
+});
+
 
   // Default: serve from cache, then network
   event.respondWith(
