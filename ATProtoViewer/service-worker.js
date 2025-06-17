@@ -87,7 +87,7 @@ self.addEventListener('fetch', event => {
         redirectUrl = `/ATProtoViewer/ATProtoSimpleFeeds.html?input=${encodeURIComponent(sharedData)}`;
       } else if (isList) {
         // Redirect to list viewer (you may need to create this page)
-        redirectUrl = `/ATProtoViewer/ATProtoSimpleLists.html?input=${encodeURIComponent(sharedData)}`;
+        redirectUrl = `/ATProtoViewer/ATProtoSimpleFeeds.html?input=${encodeURIComponent(sharedData)}`;
       } else if (sharedData.startsWith('did:')) {
         redirectUrl += `?did=${encodeURIComponent(sharedData)}`;
       } else {
