@@ -1,4 +1,4 @@
-const CACHE_NAME = 'atproto-pwa-v1.24';
+const CACHE_NAME = 'atproto-pwa-v1.25';
 const URLS_TO_CACHE = [
   '/ATProtoViewer/',
   '/ATProtoViewer/index.html',
@@ -33,7 +33,7 @@ const URLS_TO_CACHE = [
 // Updated hopefully to handle profile shares? Due to bluesky updates on the 5th June.
 // Added support for iOS hopefully? safari-26
 // https://developer.apple.com/documentation/safari-release-notes/safari-26-release-notes#Web-Apps
-// Hope this latest change will detect feed shares? & List Feeds. (2)
+// Hope this latest change will detect feed shares? & List Feeds. (3)
 
 // Install: Pre-cache assets
 self.addEventListener('install', event => {
@@ -82,8 +82,11 @@ self.addEventListener('fetch', event => {
       // 2. Check for Bluesky list URL
       const isList = /^https:\/\/bsky\.app\/profile\/([^/]+)\/lists?\/([^/]+)/.test(sharedData);
 
-      if (isFeed || isList) {
-        // Redirect both feeds and lists to the same viewer
+      if (isFeed) {
+        // Redirect to feed viewer
+        redirectUrl = `/ATProtoViewer/ATProtoSimpleFeeds.html?input=${encodeURIComponent(sharedData)}`;
+      } else if (isList) {
+        // Redirect to list viewer (you may need to create this page)
         redirectUrl = `/ATProtoViewer/ATProtoSimpleFeeds.html?input=${encodeURIComponent(sharedData)}`;
       } else if (sharedData.startsWith('did:')) {
         redirectUrl += `?did=${encodeURIComponent(sharedData)}`;
@@ -101,6 +104,7 @@ self.addEventListener('fetch', event => {
     caches.match(event.request).then(response => response || fetch(event.request))
   );
 });
+
 
 
   // Default: serve from cache, then network
