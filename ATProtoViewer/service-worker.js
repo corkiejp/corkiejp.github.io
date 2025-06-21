@@ -34,7 +34,7 @@ const URLS_TO_CACHE = [
 // Added support for iOS hopefully? safari-26
 // https://developer.apple.com/documentation/safari-release-notes/safari-26-release-notes#Web-Apps
 // Hope this latest change will detect feed shares? & List Feeds. (4)
-// Changed Icon.
+// Changed Icon. and changed back!
 
 // Install: Pre-cache assets
 self.addEventListener('install', event => {
