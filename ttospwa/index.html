@@ -99,7 +99,9 @@ ${JSON.stringify(params, null, 2)}
     }
     if (did && rkey) {
       output += `<a href="https://deer.social/profile/${did}/post/${rkey}" target="_blank">Deer Social</a>`;
-      output += `<a href="https://klearsky.pages.dev/#/post?uri=at://${did}/app.bsky.feed.post/${rkey}" target="_blank">Klearsky</a>`;	
+      output += `<a href="https://klearsky.pages.dev/#/post?uri=at://${did}/app.bsky.feed.post/${rkey}" target="_blank">Klearsky</a>`;
+	  output += "<br><br>Only use below if post has a video!<br>";
+	  output += `<a href="https://blueskytomp4.com/?url=https://bsky.app/profile/${did}/post/${rkey}" target="_blank">blueskytomp4.com</a>`;	  
     }
     if (did) {
       output += "<br><br>Look up profiles below!<br>";
