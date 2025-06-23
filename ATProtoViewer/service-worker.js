@@ -35,6 +35,7 @@ const URLS_TO_CACHE = [
 // https://developer.apple.com/documentation/safari-release-notes/safari-26-release-notes#Web-Apps
 // Hope this latest change will detect feed shares? & List Feeds. (4)
 // Changed Icon. and changed back!
+// Added Button link to BlueskToMP4.com video downloader.
 
 // Install: Pre-cache assets
 self.addEventListener('install', event => {

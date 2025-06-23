@@ -53,6 +53,7 @@ button:hover { background: #005fa3; }
 @media (max-width: 600px) { .container { padding: 1em; } form { flex-direction: column; gap: 0.5em; } }
 .copy-at-uri-btn { margin-left: 8px; padding: 2px 6px; font-size: 0.6em; cursor: pointer; }
 .open-atproto-viewer-btn { margin-left: 8px; padding: 2px 6px; font-size: 0.6em; cursor: pointer; }
+.download-video-btn { margin-left: 8px; padding: 2px 6px; font-size: 0.6em; cursor: pointer; }
 label { display: block; margin-top: 10px; }
 input { width: 400px; }
 ul { list-style-type: none; padding: 0; }
@@ -1110,6 +1111,14 @@ function renderEmbedDid(embed, did, cdnBase) {
   return '';
 }
 
+function fetchHandleFromDid(did) {
+  return fetch(`https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=${did}`)
+    .then(resp => resp.json())
+    .then(data => data.handle || did)
+    .catch(() => did);
+}
+
+
 function createRecordCard(record, collection, pds) {
   // Support both {value: {...}} and plain {...}
   const value = (record && record.value) ? record.value : (record || {});
@@ -1135,17 +1144,9 @@ function createRecordCard(record, collection, pds) {
   const cdnBase = 'https://cdn.bsky.app';
   const embedObj = value.embed?.embed || value.embed;
   const embedHtml = renderEmbedDid(embedObj, did, cdnBase);
-  
-  // ... Is this the right spot for this?
-  // Handle ?did= parameter in URL
-// const urlParams = new URLSearchParams(window.location.search);
-// if (urlParams.has('did')) {
-//  const did = urlParams.get('did');
-//  document.getElementById('recordType').value = 'app.bsky.graph.follow';
-//  fetchAccountPosts(did);
-//}
-  // End of addition!
-  
+  const hasVideoEmbed = value.embed && value.embed.$type === "app.bsky.embed.video";
+  // Extract rkey from AT URI
+  const rkey = atUri.split('/').pop();
   
   
   
@@ -1224,7 +1225,7 @@ function createRecordCard(record, collection, pds) {
     ` : ''}
     <div class="record-links">
       ${collection === "app.bsky.feed.post" && bskyUrl ? `
-      Bsky Permalink: 
+      <br> Bsky Permalink: 
         <button type="button" class="copy-bsky-link-btn" title="Copy bsky.app link" style="background:none;border:none;vertical-align:middle;cursor:pointer;padding:0;">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" style="vertical-align:middle;">
             <rect x="9" y="9" width="13" height="13" rx="2" fill="#0074d9" fill-opacity="0.15" stroke="#0074d9" stroke-width="2"/>
@@ -1240,12 +1241,36 @@ function createRecordCard(record, collection, pds) {
   </svg>
 </button>
 
+<span class="download-video-btn-placeholder"></span>
+
 
       <button class="links-toggle-btn" type="button">⋯ More</button>
 	  
 
     </div>
   `;
+  
+  // If video embed is present, resolve the handle and add the button
+  if (hasVideoEmbed) {
+    fetchHandleFromDid(did).then(handle => {
+      const btnHtml = `
+        <a href="https://blueskytomp4.com/?url=https://bsky.app/profile/${handle}/post/${rkey}"
+           target="_blank"
+           rel="noopener"
+           class="download-video-btn"
+ //          style="margin-left:8px; background:#1976d2; color:#fff; border:none; border-radius:4px; padding:4px 8px; 
+ // text-decoration:none; font-size:0.95em;"
+           title="Download video from this post">
+          BlueskyToMP4.com Download Video
+        </a>
+      `;
+      // Insert the button into the placeholder
+      card.querySelector('.download-video-btn-placeholder').outerHTML = btnHtml;
+    });
+  } else {
+    // Remove the placeholder if no video
+    card.querySelector('.download-video-btn-placeholder').remove();
+  }
   
 const moreBtn = card.querySelector('.links-toggle-btn');
 if (moreBtn) {
