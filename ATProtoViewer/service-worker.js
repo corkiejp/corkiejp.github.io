@@ -36,6 +36,7 @@ const URLS_TO_CACHE = [
 // Hope this latest change will detect feed shares? & List Feeds. (4)
 // Changed Icon. and changed back!
 // Added Button link to BlueskToMP4.com video downloader.
+// Updated the essential links with the above.
 
 // Install: Pre-cache assets
 self.addEventListener('install', event => {
