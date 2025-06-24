@@ -37,6 +37,7 @@ const URLS_TO_CACHE = [
 // Changed Icon. and changed back!
 // Added Button link to BlueskToMP4.com video downloader.
 // Updated the essential links with the above.
+// Trying a different icon again
 
 // Install: Pre-cache assets
 self.addEventListener('install', event => {
