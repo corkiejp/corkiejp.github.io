@@ -38,6 +38,7 @@ const URLS_TO_CACHE = [
 // Added Button link to BlueskToMP4.com video downloader.
 // Updated the essential links with the above.
 // Trying a different icon again
+// Added a QR code to my page!
 
 // Install: Pre-cache assets
 self.addEventListener('install', event => {
