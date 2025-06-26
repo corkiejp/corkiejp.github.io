@@ -34,12 +34,6 @@ a:hover, a:active, a:focus {
 <body>
   <h1>Share Target PWA</h1>
   <div id="output"></div>
-  <div>Install PWA On Android with the below QR Code.<br>
-  <img src="assets/qrcode_corkiejp.github.io.ttospwa.png"
-     alt="QR Code of the PWA for install on Android!"
-     data-alt="QR Code of the PWA for install on Android!"
-     class="modal-img" />  
-  </div>
 <script>
 
 async function resolveHandleToDid(handle) {
@@ -147,15 +141,34 @@ function getParams() {
   return result;
 }
 
+function isDesktop() {
+  // Simple check for mobile devices
+  return !/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
 function displayParams(params) {
   const output = document.getElementById('output');
+  output.innerHTML = ""; // Clear previous content
+
   if (Object.keys(params).length === 0) {
-    output.textContent = "No share parameters received. Only works as a Mobile PWA share target!";
+    output.textContent = "No share parameters received. Only works as a Mobile PWA share target! Use the below QR Code to Install on mobile!";
+
+    // Only show image if on desktop
+    if (isDesktop()) {
+      const img = document.createElement('img');
+      img.src = 'assets/qrcode_corkiejp.github.io.ttospwa.png';
+      img.alt = 'QR Code of the PWA for install on Android!';
+      img.className = 'modal-img';
+      img.style.marginTop = '1em';
+      output.appendChild(document.createElement('br'));
+      output.appendChild(img);
+    }
   } else {
     output.innerHTML = '<pre>' + JSON.stringify(params, null, 2) + '</pre>';
   }
   console.log("Received share params:", params);
 }
+
 
 window.addEventListener('DOMContentLoaded', () => {
   const params = getParams();
