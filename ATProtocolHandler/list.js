@@ -25,7 +25,11 @@ const sites = [
   {
     name: "skyview.social",
     url: `https://skyview.social/?url=${aturl}`
-  }  
+  },
+  {
+    name: "Other parsed at uri",
+    url: `https://corkiejp.github.io/ttospwa/index.html?uri=${aturl}`
+  }    
 ];
 
 
