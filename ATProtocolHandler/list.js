@@ -7,10 +7,29 @@ const sites = [
     url: `https://atproto.at/viewer?uri=${aturl}`
   },
   {
-    name: "ATProtoviewer",
+    name: "ATProtoViewer",
     url: `https://corkiejp.github.io/ATProtoViewer/index.html?uri=${aturl}`
-  }
+  },
+  {
+    name: "SkyThread",
+    url: `https://blue.mackuba.eu/skythread/?q=${aturl}`
+  },
+  {
+    name: "pdsls",
+    url: `https://pdsls.dev/${aturl}`
+  },
+  {
+    name: "atp.tools",
+    url: `https://atp.tools/${aturl}`
+  },
+  {
+    name: "skyview.social",
+    url: `https://skyview.social/?url=${aturl}`
+  }  
 ];
+
+
+
 
 const ul = document.getElementById("site-list");
 sites.forEach(site => {
