@@ -13,7 +13,7 @@ const URLS_TO_CACHE = [
 // ATproto.at has a link to PLC Directory 
 // Share to feature note + another tweak!
 // Bluesky to MP4 added
-// QR Code added. + Only to display on desktop with no params. (3)
+// QR Code added. + Only to display on desktop with no params. (4)
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)

@@ -583,15 +583,6 @@ function extractDidFromAtUri(atUri) {
 
 
 
-async function getHandle(did) {
-  if (handleCache[did]) return handleCache[did];
-  let handle = await fetchHandleForDid(did);
-  if (!handle) handle = did;
-  handleCache[did] = handle;
-  return handle;
-}
-
-
 // Likes Code!
 
 // Extract DID from a URI like at://did:plc:xxx/app.bsky.feed.post/xxx
