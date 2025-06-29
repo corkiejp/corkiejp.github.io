@@ -3,23 +3,84 @@
 <head>
   <title>AT Protocol Sites</title>
   <meta charset="utf-8">
+  <style>
+    /* Style all links inside #site-list as buttons */
+    #site-list a {
+  display: block;
+  margin: 0.5em 0;
+  padding: 0.25em 0;
+  background: #0074d9;
+  color: #fff !important;
+  text-decoration: none;
+  border-radius: 0.5em;
+  font-size: 1.1em;
+  font-weight: 600;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+  transition: background 0.15s, transform 0.1s;
+    }
+
+    #site-list a:hover, #site-list a:focus {
+  background: #005fa3;
+  color: #fff !important;
+  transform: scale(1.03);
+    }
+	
+	#site-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+	
+	    /* Flex container for QR codes */
+    .qr-container {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 2em;
+      margin-top: 2em;
+    }
+    .qr-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .qr-block img {
+      margin-bottom: 0.5em;
+      border-radius: 0.5em;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.09);
+    }
+  </style>
 </head>
 <body>
   <h2>Sites that accept your at://did URL</h2>
   <ul id="site-list"></ul>
+
   <script src="list.js"></script>
-  <br>
-       <img src="https://corkiejp.github.io/ATProtoViewer/assets/qrcode_corkiejp.github.io.png" 
-          alt="ATProtoViewer - Android PWA which supports bluesky share feature." 
-          width="200" height="200"
-          loading="lazy"><br>
-		  ATProtoViewer ~ Android PWA Bsky share target!<br>
-		  
-	    <img src="https://corkiejp.github.io/ttospwa/assets/qrcode_corkiejp.github.io.ttospwa.png" 
-          alt="Share Target - Android PWA which supports bluesky share feature." 
-          width="200" height="200"
-          loading="lazy"><br>
-		  to share PWA ~ Android PWA Bsky share target!<br>
+  
+              <p align=center><small><b>Disclaimer:-</b> I'm not a developer, this extension was created <br> with the assistance of AI Powered search engine,<br>
+				<a href="https://www.perplexity.ai/" target='_blank'>https://www.perplexity.ai/</a><br>
+				 Github:- <a href="https://github.com/corkiejp/corkiejp.github.io/tree/well-known/ATProtocolHandler" target="_blank">Repo</a> | <a href="https://github.com/corkiejp/corkiejp.github.io/blob/well-known/ATProtocolHandler/readme.md" target="_blank">Handler Readme</a>  | <a href="https://github.com/corkiejp/corkiejp.github.io/blob/well-known/ATProtoViewer/readme.md" target="_blank">ATProtoViewer Readme</a> |  ~ <a href="https://bsky.app/profile/did:plc:qxlh6bohvep3taqhmtpipx4b" target="_blank">@corkiejp.github.io</a><br><br> 
+				 </small>Check out my below Android PWA's that accept bluesky share via/to target.<br>
+				 The ATProtoViewer may also function as a web app with iOS 26 [Untested so far]</p>
+
+  <div class="qr-container">
+    <div class="qr-block">
+      <img src="https://corkiejp.github.io/ATProtoViewer/assets/qrcode_corkiejp.github.io.png" 
+           alt="ATProtoViewer - Android PWA which supports bluesky share feature." 
+           width="200" height="200"
+           loading="lazy">
+      <div><a href="https://corkiejp.github.io/ATProtoViewer/" target="_blank">ATProtoViewer</a> ~ Android PWA Bsky share target!</div>
+    </div>
+    <div class="qr-block">
+      <img src="https://corkiejp.github.io/ttospwa/assets/qrcode_corkiejp.github.io.ttospwa.png" 
+           alt="Share Target - Android PWA which supports bluesky share feature." 
+           width="200" height="200"
+           loading="lazy">
+      <div><a href="https://corkiejp.github.io/ttospwa/" target="_blank">to share PWA</a> ~ Android PWA Bsky share target!</div>
+    </div>
+  </div>
   
 </body>
 </html>
