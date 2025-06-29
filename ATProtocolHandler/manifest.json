@@ -4,12 +4,11 @@
   "version": "1.0",
   "description": "Lists sites that accept at://did:plc... URLs",
   "omnibox": { "keyword": "at" },
-  "permissions": ["tabs"],
   "background": {
     "service_worker": "background.js"
   },
-  "host_permissions": ["<all_urls>"],
   "action": {
     "default_popup": "list.html"
   }
 }
+
