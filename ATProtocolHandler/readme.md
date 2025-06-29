@@ -3,7 +3,7 @@ POC/WIP Manual extension install only at present.
 Resolves to the below sites in image at present.
 Use: - 'at' as the keyword to put in the browser url, press space/tab to activate and then paste url!
 
-![atphandler](./assets/atphandler.png)
+![atphandler](./assets/atphandler-cws.png)
 
 This is a quick temporary readme!
 
