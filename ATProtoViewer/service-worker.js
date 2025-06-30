@@ -39,6 +39,7 @@ const URLS_TO_CACHE = [
 // Updated the essential links with the above.
 // Trying a different icon again
 // Added a QR code to my page! + Deletion of unused function.
+// Link to ttospwa which has additional links.
 
 // Install: Pre-cache assets
 self.addEventListener('install', event => {

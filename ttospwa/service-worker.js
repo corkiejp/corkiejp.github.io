@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ttospwa-v1.17';
+const CACHE_NAME = 'ttospwa-v1.18';
 const URLS_TO_CACHE = [
   '/ttospwa/',
   '/ttospwa/index.html',
@@ -14,6 +14,7 @@ const URLS_TO_CACHE = [
 // Share to feature note + another tweak!
 // Bluesky to MP4 added
 // QR Code added. + Only to display on desktop with no params. (4)
+// added additional links: - azsky.app, skytools.anon5r.com, blueviewer.pages.dev, skykit.blue, blueview.app & bskycopilot.com
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)

@@ -1128,6 +1128,7 @@ function createRecordCard(record, collection, pds) {
   const skythreadAtUri = `https://blue.mackuba.eu/skythread/?q=${atUri}`;
   const skythreadInnerUri = innerUri ? `https://blue.mackuba.eu/skythread/?q=${innerUri}` : null;
   const skyviewUri = "https://skyview.social/?url=" + encodeURIComponent(atUri);
+  const ttospwa = "https://corkiejp.github.io/ttospwa/index.html?uri=" + encodeURIComponent(atUri);
   const { bskyUrl, clearskyHistoryUrl, deerUrl, klskyUrl, plcdirprofile, credblue, toolify, atplink, bfacts} = atUriToUrls(atUri) || {};
 
   // --- Embed/media rendering ---
@@ -1166,7 +1167,10 @@ function createRecordCard(record, collection, pds) {
   links.push(`<a href="${credblue}" target="_blank" rel="noopener">cred.blue</a>`);
   links.push(`<a href="${toolify}" target="_blank" rel="noopener">toolify.blue</a>`);
   links.push(`<a href="${atplink}" target="_blank" rel="noopener">atproto.at</a>`);  
-  links.push(`<a href="${bfacts}" target="_blank" rel="noopener">Bluefacts.app</a>`);  
+  links.push(`<a href="${bfacts}" target="_blank" rel="noopener">Bluefacts.app</a>`);
+  links.push(`<a href="${ttospwa}" target="_blank" rel="noopener">Above + Additional links!</a>`);
+
+
   
   
   
