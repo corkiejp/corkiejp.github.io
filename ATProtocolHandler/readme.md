@@ -5,6 +5,8 @@ Use: - 'at' as the keyword to put in the browser url, press space/tab to activat
 
 ![atphandler](./assets/atphandler-cws.png)
 
+[Live example output with 'aturl' parameter passed to it](https://corkiejp.github.io/ATProtocolHandler/list.html?aturl=at://did:plc:vovinwhtulbsx4mwfw26r5ni/app.bsky.feed.post/3lssubf2d6b2c)
+
 This is a quick temporary readme!
 
 To install take the four files in this folder background.js, list.html, list.js and manifest.json. Then place them in a folder on your computer, and load unpack with 'chrome://extensions/'.
