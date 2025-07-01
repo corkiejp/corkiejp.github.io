@@ -526,7 +526,7 @@ Just select the option to switch to this in select drop-down after the collectio
 <!-- Image Modal -->
 <div id="imgModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:10000;">
   <div style="background:#fff; border-radius:10px; box-shadow:0 4px 16px rgba(0,0,0,0.2); padding:1em; max-width:90vw; max-height:90vh; overflow:auto; position:relative;">
-    <button id="imgModalClose" style="position:absolute; top:10px; right:10px; background:none; border:none; font-size:1.5em; cursor:pointer;">✖</button>
+    <button id="imgModalClose" class="modal-close" style="position:absolute; top:10px; right:10px; background:none; border:none; font-size:1.5em; cursor:pointer;">✖</button>
     <img id="modalImg" src="" alt="" style="max-width:100%; max-height:70vh; display:block; margin:0 auto;">
     <div id="modalAltText" style="margin-top:1em; text-align:center; color:#333;"></div>
   </div>
@@ -537,7 +537,7 @@ Just select the option to switch to this in select drop-down after the collectio
 <!-- Links Modal -->
 <div id="linksModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:10000;">
   <div style="background:#fff; border-radius:10px; box-shadow:0 4px 16px rgba(0,0,0,0.2); padding:2em 1em; max-width:95vw; max-height:90vh; overflow-y:auto; position:relative;">
-    <button id="linksModalClose" style="position:absolute; top:10px; right:10px; background:none; border:none; font-size:1.5em; cursor:pointer;">✖</button>
+    <button id="linksModalClose" class="modal-close" style="position:absolute; top:10px; right:10px; background:none; border:none; font-size:1.5em; cursor:pointer;">✖</button>
     <div id="linksModalTagline" style="margin-bottom:1em; font-weight:bold; font-size:1.1em;">
   <!-- Tagline and account handle will be set by JS -->
 	</div>
@@ -550,7 +550,7 @@ Just select the option to switch to this in select drop-down after the collectio
 <!-- Bookmarks Modal -->
 <div id="bookmarksModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:10000;">
   <div style="background:#fff; border-radius:10px; box-shadow:0 4px 16px rgba(0,0,0,0.2); padding:1em; max-width:95vw; max-height:90vh; overflow-y:auto; position:relative;">
-    <button id="bookmarksModalClose" aria-label="Close" style="position:absolute; top:10px; right:10px; width:44px; height:44px; font-size:2em; border-radius:50%; background:rgba(255,255,255,0.85); color:#333; border:none; cursor:pointer; z-index:2; box-shadow:0 2px 6px rgba(0,0,0,0.15);">✖</button>
+    <button id="bookmarksModalClose" class="modal-close" aria-label="Close" style="position:absolute; top:10px; right:10px; width:44px; height:44px; font-size:2em; border-radius:50%; background:rgba(255,255,255,0.85); color:#333; border:none; cursor:pointer; z-index:2; box-shadow:0 2px 6px rgba(0,0,0,0.15);">✖</button>
     <div style="margin-bottom:1em; font-weight:bold; font-size:1.1em;">
       ATProto Viewer Bookmarks.<br>
       <a href="./bookmarks.html" target="_top" style=" font-size:0.9em; color:#0074d9; text-decoration:underline;">Manage your bookmarks.</a>
@@ -564,7 +564,7 @@ Just select the option to switch to this in select drop-down after the collectio
 <!-- List Modal -->
 <div id="listModal" class="modal" style="display:none; align-items:center; justify-content:center;">
   <div class="modal-content" style="position:relative; max-width:500px; width:95vw; max-height:90vh; overflow-y:auto;">
-    <button id="listModalClose" style="position:absolute;top:10px;right:10px;font-size:1.5em;">&times;</button>
+    <button id="listModalClose" class="modal-close" style="position:absolute;top:10px;right:10px;font-size:1.5em;">&times;</button>
 	<b>Note:-</b> Only shows the first 50 max on a list!
     <div id="listModalContent"></div>
   </div>
@@ -2424,11 +2424,17 @@ function closeAllModals() {
 }
 
 function openModal(modalId) {
-  closeAllModals(); // Always close others first
+  closeAllModals();
   const modal = document.getElementById(modalId);
   if (modal) {
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
+    setTimeout(() => {
+      modal.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Optionally focus the close button for accessibility
+      // const closeBtn = modal.querySelector('.modal-close');
+      // if (closeBtn) closeBtn.focus();
+    }, 50);
   }
 }
 
@@ -2450,6 +2456,19 @@ document.addEventListener('keydown', function(e) {
       closeModal(modals[modals.length - 1].id);
     }
   }
+});
+
+// === Attach click-outside-to-close and close button for all modals ===
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.modal').forEach(modal => {
+    // Click outside (background) closes modal
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) closeModal(modal.id);
+    });
+    // Close button inside modal
+    const closeBtn = modal.querySelector('.modal-close');
+    if (closeBtn) closeBtn.onclick = () => closeModal(modal.id);
+  });
 });
 
 // === Image Modal Logic ===
@@ -2479,114 +2498,29 @@ function showLinksModal(linksHtml, handleOrDid) {
   openModal('linksModal');
 }
 
-
-function closeLinksModal() {
-  closeModal('linksModal');
-}
-
 // === Bluesky Embed Modal Logic ===
-
-// Open the Bluesky embed modal with the given AT URI
 function openBskyEmbedModal(atUri) {
-  const modal = document.getElementById('bskyModal');
   const modalContent = document.getElementById('bskyModalContent');
-  if (modal && modalContent) {
+  if (modalContent) {
     modalContent.innerHTML = `
       <blockquote class="bluesky-embed" data-bluesky-uri="${atUri}"></blockquote>
     `;
     openModal('bskyModal');
-    // Trigger Bluesky embed rendering after DOM update
     setTimeout(() => {
       if (typeof scan === 'function') scan();
     }, 50);
   }
 }
 
-// Close the Bluesky embed modal and clear content
-function closeBskyEmbedModal() {
-  closeModal('bskyModal');
-  const modalContent = document.getElementById('bskyModalContent');
-  if (modalContent) modalContent.innerHTML = '';
-}
-
-// Attach click-outside-to-close for the Bluesky modal
-document.addEventListener('DOMContentLoaded', function() {
-  const bskyModal = document.getElementById('bskyModal');
-  if (bskyModal) {
-    bskyModal.addEventListener('click', function(e) {
-      // Only close if the click is on the background, not the content
-      if (e.target === bskyModal) closeBskyEmbedModal();
-    });
-    // Optional: close button inside modal
-    const closeBtn = bskyModal.querySelector('.modal-close, .bsky-modal-close');
-    if (closeBtn) closeBtn.onclick = closeBskyEmbedModal;
-  }
-});
-
-// When rendering your "Show Embed" button, use this handler:
-document.addEventListener('click', function(e) {
-  if (e.target.classList.contains('show-embed-btn')) {
-    const atUri = e.target.getAttribute('data-at-uri');
-    openBskyEmbedModal(atUri);
-  }
-});
-
-
-// === Attach Modal Event Listeners After DOM is Ready ===
-document.addEventListener('DOMContentLoaded', function() {
-  // Image modal close button and background
-  const imgModal = document.getElementById('imgModal');
-  if (imgModal) {
-    imgModal.addEventListener('click', function(e) {
-      if (e.target === imgModal) closeImgModal();
-    });
-    const imgModalClose = document.getElementById('imgModalClose');
-    if (imgModalClose) imgModalClose.onclick = closeImgModal;
-  }
-
-  // Links modal close button and background
-  const linksModal = document.getElementById('linksModal');
-  if (linksModal) {
-    linksModal.addEventListener('click', function(e) {
-      if (e.target === linksModal) closeLinksModal();
-    });
-    const linksModalClose = document.getElementById('linksModalClose');
-    if (linksModalClose) linksModalClose.onclick = closeLinksModal;
-  }
-});
-
-function openModal(modalId) {
-  closeAllModals();
-  const modal = document.getElementById(modalId);
-  if (modal) {
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-    setTimeout(() => {
-      modal.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      // Optionally focus the close button for accessibility:
-//      const closeBtn = modal.querySelector('button[aria-label="Close"], button[id$="Close"]');
-//      if (closeBtn) closeBtn.focus();
-    }, 50);
-  }
-}
-
-bskyEmbedModal.addEventListener('click', function(e) {
-  if (e.target === bskyEmbedModal) {
-    closeModal('bskyEmbedModal');
-  }
-});
-
-
-// --- Bookmarks Modal Logic (uses only bskyBookmarks) ---
+// === Bookmarks Modal Logic ===
 function getBookmarks() {
   return JSON.parse(localStorage.getItem('bskyBookmarks') || '[]');
 }
 
-// Show the bookmarks modal
 function showBookmarksModal() {
   const list = document.getElementById('bookmarksModalList');
   const emptyMsg = document.getElementById('bookmarksModalEmpty');
-  const bookmarks = JSON.parse(localStorage.getItem('bskyBookmarks') || "[]").slice().reverse();
+  const bookmarks = getBookmarks().slice().reverse();
 
   if (bookmarks.length === 0) {
     list.innerHTML = '';
@@ -2610,44 +2544,15 @@ function showBookmarksModal() {
       </li>
     `).join('');
   }
-  // Show the modal (use your modal manager or just set display)
   openModal('bookmarksModal');
-  
 }
 
-function closeBookmarksModal() {
-  document.getElementById('bookmarksModal').style.display = 'none';
-}
-
-
-
-document.getElementById('openBookmarksModalBtn').onclick = showBookmarksModal;
-
-// Modal close button and background click
+// === Modal open triggers ===
 document.addEventListener('DOMContentLoaded', function() {
-  const bookmarksModal = document.getElementById('bookmarksModal');
-  if (bookmarksModal) {
-    bookmarksModal.addEventListener('click', function(e) {
-      if (e.target === bookmarksModal) closeModal('bookmarksModal');
-    });
-    const closeBtn = document.getElementById('bookmarksModalClose');
-    if (closeBtn) closeBtn.onclick = () => closeModal('bookmarksModal');
-  }
-});
+  // Bookmarks modal open button
+  const openBookmarksBtn = document.getElementById('openBookmarksModalBtn');
+  if (openBookmarksBtn) openBookmarksBtn.onclick = showBookmarksModal;
 
-
-
-
-document.addEventListener('click', function(e) {
-  // Adjust the selector below if your embedded images use a different class
-  const img = e.target.closest('.modal-img');
-  if (img) {
-    openImgModal(img.src, img.getAttribute('data-alt') || img.alt || '');
-  }
-});
-
-
-document.addEventListener('DOMContentLoaded', function() {
   // Attach click handler to all images with class 'modal-img'
   document.querySelectorAll('.modal-img').forEach(img => {
     img.addEventListener('click', function() {
@@ -2656,13 +2561,19 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
+// === Delegated event listeners for dynamically created buttons ===
 document.addEventListener('click', function(e) {
+  // Show Bluesky embed modal
   if (e.target.classList.contains('show-embed-btn')) {
     const atUri = e.target.getAttribute('data-at-uri');
     openBskyEmbedModal(atUri);
   }
+  // Show image modal (for dynamically created images)
+  const img = e.target.closest('.modal-img');
+  if (img) {
+    openImgModal(img.src, img.getAttribute('data-alt') || img.alt || '');
+  }
 });
-
 
 </script>
 
