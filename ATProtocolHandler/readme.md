@@ -1,5 +1,10 @@
-## AT Protocol Handler ~ Chrome extension to open at did urls
-POC/WIP Manual extension install only at present.
+# AT Protocol Handler ~ Chrome extension to open at did urls
+## Now available on Chrome Webstore.
+
+[AT Protocol Handler - Chrome Webstore](https://chromewebstore.google.com/detail/at-protocol-handler/foippfcmhngnjdlfhgaifppajnhlmafk)
+
+
+POC/WIP ~~Manual extension install only~~ at present.
 Resolves to the below sites in image at present.
 Use: - 'at' as the keyword to put in the browser url, press space/tab to activate and then paste url!
 
