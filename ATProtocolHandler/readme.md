@@ -21,4 +21,4 @@ Or alternatively download the .src file, un zip it to a folder, then unpack it.
 
 Proof of concept and possibly a work in progress, If I find more utilise that accept an at url as a parameter, I may add more links.
 
-If you know of others please share? Manual install only at present, waiting on chrome webstore to approve my extension.
+If you know of others please share? ~~Manual install only at present, waiting on chrome webstore to approve my extension.~~
