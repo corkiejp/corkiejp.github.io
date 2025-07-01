@@ -1,4 +1,4 @@
-const CACHE_NAME = 'atproto-pwa-v1.25';
+const CACHE_NAME = 'atproto-pwa-v1.26';
 const URLS_TO_CACHE = [
   '/ATProtoViewer/',
   '/ATProtoViewer/index.html',
@@ -40,6 +40,7 @@ const URLS_TO_CACHE = [
 // Trying a different icon again
 // Added a QR code to my page! + Deletion of unused function.
 // Link to ttospwa which has additional links.
+// Bluesky Embeds modal popup integrated. Thanks to @baileytownsend.dev resolving a bug with a single line of code.
 
 // Install: Pre-cache assets
 self.addEventListener('install', event => {

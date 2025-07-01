@@ -347,6 +347,8 @@ li { margin-bottom: 1em; }
 
 
   </style>
+  
+<script src="https://embed.bsky.app/static/embed.js" charset="utf-8"></script>
 </head>
 <body>
 <div id="bskyinfo-badge">
@@ -565,6 +567,17 @@ Just select the option to switch to this in select drop-down after the collectio
     <button id="listModalClose" style="position:absolute;top:10px;right:10px;font-size:1.5em;">&times;</button>
 	<b>Note:-</b> Only shows the first 50 max on a list!
     <div id="listModalContent"></div>
+  </div>
+</div>
+
+
+<!-- Bluesky Embed Modal -->
+
+
+<div id="bskyModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:#fff; border-radius:8px; max-width:95vw; max-height:90vh; min-width:320px; min-height:200px; overflow:auto; padding:1em; position:relative;">
+    <button class="modal-close" style="position:absolute; top:8px; right:8px;">✖</button>
+    <div id="bskyModalContent"></div>
   </div>
 </div>
 
@@ -1237,6 +1250,9 @@ function createRecordCard(record, collection, pds) {
 </button>
 
 <span class="download-video-btn-placeholder"></span>
+
+<button class="show-embed-btn" data-at-uri="${atUri}">Show Embed</button>
+
 
 
       <button class="links-toggle-btn" type="button">⋯ More</button>
@@ -2468,6 +2484,54 @@ function closeLinksModal() {
   closeModal('linksModal');
 }
 
+// === Bluesky Embed Modal Logic ===
+
+// Open the Bluesky embed modal with the given AT URI
+function openBskyEmbedModal(atUri) {
+  const modal = document.getElementById('bskyModal');
+  const modalContent = document.getElementById('bskyModalContent');
+  if (modal && modalContent) {
+    modalContent.innerHTML = `
+      <blockquote class="bluesky-embed" data-bluesky-uri="${atUri}"></blockquote>
+    `;
+    openModal('bskyModal');
+    // Trigger Bluesky embed rendering after DOM update
+    setTimeout(() => {
+      if (typeof scan === 'function') scan();
+    }, 50);
+  }
+}
+
+// Close the Bluesky embed modal and clear content
+function closeBskyEmbedModal() {
+  closeModal('bskyModal');
+  const modalContent = document.getElementById('bskyModalContent');
+  if (modalContent) modalContent.innerHTML = '';
+}
+
+// Attach click-outside-to-close for the Bluesky modal
+document.addEventListener('DOMContentLoaded', function() {
+  const bskyModal = document.getElementById('bskyModal');
+  if (bskyModal) {
+    bskyModal.addEventListener('click', function(e) {
+      // Only close if the click is on the background, not the content
+      if (e.target === bskyModal) closeBskyEmbedModal();
+    });
+    // Optional: close button inside modal
+    const closeBtn = bskyModal.querySelector('.modal-close, .bsky-modal-close');
+    if (closeBtn) closeBtn.onclick = closeBskyEmbedModal;
+  }
+});
+
+// When rendering your "Show Embed" button, use this handler:
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('show-embed-btn')) {
+    const atUri = e.target.getAttribute('data-at-uri');
+    openBskyEmbedModal(atUri);
+  }
+});
+
+
 // === Attach Modal Event Listeners After DOM is Ready ===
 document.addEventListener('DOMContentLoaded', function() {
   // Image modal close button and background
@@ -2505,6 +2569,13 @@ function openModal(modalId) {
     }, 50);
   }
 }
+
+bskyEmbedModal.addEventListener('click', function(e) {
+  if (e.target === bskyEmbedModal) {
+    closeModal('bskyEmbedModal');
+  }
+});
+
 
 // --- Bookmarks Modal Logic (uses only bskyBookmarks) ---
 function getBookmarks() {
@@ -2584,6 +2655,14 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 });
+
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('show-embed-btn')) {
+    const atUri = e.target.getAttribute('data-at-uri');
+    openBskyEmbedModal(atUri);
+  }
+});
+
 
 </script>
 
