@@ -16,6 +16,29 @@
     #example-feeds ul { margin: 0.5em 0 1.5em 0; padding: 0; }
     #example-feeds li { list-style: none; margin-bottom: 0.2em; }
     #example-feeds a { color: #005fa3; text-decoration: underline; cursor: pointer; }
+
+
+button.view-post-btn, button.show-embed-btn {
+  padding: 0.4em 1em;
+  font-size: 1em;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-bottom: 0.2em;
+}
+button.view-post-btn {
+  background: #0074d9;
+  color: #fff;
+  border: none;
+}
+button.show-embed-btn {
+  background: #e6f0fa;
+  color: #0074d9;
+  border: 1px solid #0074d9;
+  margin-left: 1em;
+}
+
+	
   </style>
 </head>
 <body>
@@ -154,7 +177,7 @@ async function loadFeed() {
 
 
     // --- Render posts (simple) ---
-    function renderFeed(posts, container = document.getElementById('feed-container')) {
+function renderFeed(posts, container = document.getElementById('feed-container')) {
   if (!posts.length) {
     container.innerHTML = "<p>No posts found in this feed/list.</p>";
     return;
@@ -165,11 +188,14 @@ async function loadFeed() {
     const div = document.createElement('div');
     div.className = 'post';
     div.innerHTML = `
-      <a class="post-link"
-         href="index.html?uri=${encodeURIComponent(p.uri)}"
-         target="_Top">View Post</a>
-      <div class="post-text">${escapeHtml(p.record?.text || '')}</div>
-      <div class="meta">
+      <button class="view-post-btn" data-uri="${p.uri}" style="background:#0074d9;color:#fff;border:none;border-radius:6px;padding:0.4em 1em;font-size:1em;cursor:pointer;font-weight:600;">
+        View Post
+      </button>
+      <button class="show-embed-btn" data-at-uri="${p.uri}" style="margin-left:1em;background:#e6f0fa;color:#0074d9;border:1px solid #0074d9;border-radius:6px;padding:0.4em 1em;font-size:1em;cursor:pointer;font-weight:600;">
+        Show Embed
+      </button>
+      <div class="post-text" style="margin-top:0.7em;">${escapeHtml(p.record?.text || '')}</div>
+      <div class="meta" style="font-size:0.95em;color:#555;">
         By ${escapeHtml(p.author?.handle || p.author?.did || '')}
         • ${p.record?.createdAt ? new Date(p.record.createdAt).toLocaleString() : ''}
       </div>
@@ -177,6 +203,8 @@ async function loadFeed() {
     container.appendChild(div);
   });
 }
+
+
 
 
     // --- Escape HTML utility ---
@@ -219,5 +247,94 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+<!-- Bluesky Embed Modal -->
+<div id="bskyModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:#fff; border-radius:8px; max-width:95vw; max-height:90vh; min-width:320px; min-height:200px; overflow:auto; padding:1em; position:relative;">
+    <button class="modal-close" style="position:absolute; top:8px; right:8px;">✖</button>
+    <div id="bskyModalContent"></div>
+  </div>
+</div>
+<!-- Bluesky Embed Script -->
+<script src="https://embed.bsky.app/static/embed.js" charset="utf-8"></script>
+<script>
+// === Modal Manager ===
+function closeAllModals() {
+  document.querySelectorAll('.modal').forEach(modal => {
+    modal.style.display = 'none';
+  });
+  document.body.style.overflow = '';
+}
+function openModal(modalId) {
+  closeAllModals();
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+}
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) modal.style.display = 'none';
+  // Only restore scroll if no other modal is open
+  const anyOpen = Array.from(document.querySelectorAll('.modal'))
+    .some(m => m.style.display === 'flex' || m.style.display === 'block');
+  if (!anyOpen) document.body.style.overflow = '';
+}
+// ESC closes modal
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const modals = Array.from(document.querySelectorAll('.modal'))
+      .filter(m => m.style.display === 'flex' || m.style.display === 'block');
+    if (modals.length) {
+      closeModal(modals[modals.length - 1].id);
+    }
+  }
+});
+// Click-outside and close button
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.modal').forEach(modal => {
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) closeModal(modal.id);
+    });
+    const closeBtn = modal.querySelector('.modal-close');
+    if (closeBtn) closeBtn.onclick = () => closeModal(modal.id);
+  });
+});
+
+// === Bluesky Embed Modal Logic ===
+function openBskyEmbedModal(atUri) {
+  const modalContent = document.getElementById('bskyModalContent');
+  if (modalContent) {
+    modalContent.innerHTML = `
+      <blockquote class="bluesky-embed" data-bluesky-uri="${atUri}"></blockquote>
+    `;
+    openModal('bskyModal');
+    setTimeout(() => {
+      if (typeof scan === 'function') scan();
+    }, 50);
+  }
+}
+</script>
+
+<script>
+
+
+document.addEventListener('click', function(e) {
+  // "Show Embed" button
+  if (e.target.classList.contains('show-embed-btn')) {
+    const atUri = e.target.getAttribute('data-at-uri');
+    openBskyEmbedModal(atUri);
+  }
+  // "View Post" button
+  if (e.target.classList.contains('view-post-btn')) {
+    const uri = e.target.getAttribute('data-uri');
+    // Navigate to the post viewer page (adjust as needed)
+    window.location.href = `index.html?uri=${encodeURIComponent(uri)}`;
+  }
+});
+
+</script>
+
+
 </body>
 </html>
