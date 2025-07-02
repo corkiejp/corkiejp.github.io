@@ -41,7 +41,7 @@ const URLS_TO_CACHE = [
 // Added a QR code to my page! + Deletion of unused function.
 // Link to ttospwa which has additional links.
 // Bluesky Embeds modal popup integrated. Thanks to @baileytownsend.dev resolving a bug with a single line of code.
-// Bug fixes from previous commit. + also on the simple feeds viewer now
+// Bug fixes from previous commit. + also on the simple feeds viewer now (2)
 // Install: Pre-cache assets
 self.addEventListener('install', event => {
   event.waitUntil(
