@@ -188,7 +188,7 @@ function displayParams(params) {
   output.innerHTML = ""; // Clear previous content
 
   if (Object.keys(params).length === 0) {
-    output.textContent = "No share parameters received. Only works as a Mobile PWA share target! Use the below QR Code to Install on mobile! If on mobile already just choose the option from menu to 'Add to home screen'";
+    output.textContent = "No share parameters received. Only works as a Mobile PWA share target or when linked from my main PWA and Chrome Extension! Use the below QR Code to Install on mobile! If on mobile already just choose the option from menu to 'Add to home screen'";
 
     // Only show image if on desktop
     if (isDesktop()) {
