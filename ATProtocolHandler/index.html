@@ -17,12 +17,41 @@ body { font-family: system-ui, sans-serif; background: #f5f6fa; margin: 0; paddi
 .container { max-width: 700px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding: 2em; }
 h1,h2 { text-align: center; color: #333; margin-top: 0; }
 
+#bskyinfo-badge {
+  position: absolute;
+   /* position: fixed; */
+  top: 16px;
+  right: 16px;
+  z-index: 1000;
+  background: none;
+  /* Optional: add a subtle drop shadow or background for visibility */
+  /* background: rgba(255,255,255,0.85); border-radius: 8px; */
+}
+#bskyinfo-badge img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
 
 
   </style>
 </head>
 <body>
-
+<div id="bskyinfo-badge">
+<a href="https://www.bskyinfo.com/tools/at-protocol-handler" 
+   title="AT Protocol Handler - Listed on BskyInfo - The Most Comprehensive Bluesky Tools Directory"
+   rel="noopener nofollow"
+   aria-label="AT Protocol Handler - Listed on BskyInfo - The Most Comprehensive Bluesky Tools Directory"
+   data-tool-id="cmckn7bvw0003rutnydbxrs6a"
+   data-tool-status="listed"
+   target="_blank">
+   <img src="../ATProtoViewer/assets/listed.svg"  
+        alt="AT Protocol Handler - Listed on BskyInfo - The Most Comprehensive Bluesky Tools Directory" 
+        width="200" height="50"
+        loading="lazy">
+</a>
+</div>
     <h1>AT Protocol Handler</h1>
 	<h2>Chrome extension to open at did urls</h2>
 	
