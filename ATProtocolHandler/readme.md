@@ -3,6 +3,14 @@
 
 [AT Protocol Handler - Chrome Webstore](https://chromewebstore.google.com/detail/at-protocol-handler/foippfcmhngnjdlfhgaifppajnhlmafk)
 
+## How to get the at did (or at uri) urls from Bluesky
+
+You need to enable 'Developer Mode' in bluesky website. (Can also be done on mobile app.)
+
+See this [Bluesky Thread](https://bsky.app/profile/did:plc:qxlh6bohvep3taqhmtpipx4b/post/3lqvaakn4u25g)
+
+If on mobile you don't need access to the Chrome Extension you can just share the link to my main PWA.
+
 
 POC/WIP ~~Manual extension install only~~ at present.
 Resolves to the below sites in image at present.
