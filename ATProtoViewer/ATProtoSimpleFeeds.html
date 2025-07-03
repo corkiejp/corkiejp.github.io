@@ -11,36 +11,49 @@
     input[type="text"] { flex: 1; padding: 0.5em; border: 1px solid #bbb; border-radius: 6px; }
     button { padding: 0.7em 1.5em; background: #0074d9; color: #fff; border: none; border-radius: 6px; font-size: 1em; cursor: pointer; font-weight: 600; }
     .post { margin-bottom: 1.5em; border-bottom: 1px solid #eee; padding-bottom: 1em; }
-    .post-link { color: #0074d9; text-decoration: none; }
     .error { color: #dc2626; background: #fee2e2; padding: 1em; border-radius: 6px; margin-bottom: 1em; }
-    #example-feeds ul { margin: 0.5em 0 1.5em 0; padding: 0; }
-    #example-feeds li { list-style: none; margin-bottom: 0.2em; }
-    #example-feeds a { color: #005fa3; text-decoration: underline; cursor: pointer; }
-
-
-button.view-post-btn, button.show-embed-btn {
-  padding: 0.4em 1em;
-  font-size: 1em;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  margin-bottom: 0.2em;
-}
-button.view-post-btn {
-  background: #0074d9;
-  color: #fff;
-  border: none;
-}
-button.show-embed-btn {
-  background: #e6f0fa;
-  color: #0074d9;
-  border: 1px solid #0074d9;
-  margin-left: 1em;
-}
-
-	
+    button.view-post-btn, button.show-embed-btn, button.show-feed-embed-btn {
+      padding: 0.4em 1em;
+      font-size: 1em;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-bottom: 0.2em;
+    }
+    button.view-post-btn {
+      background: #0074d9;
+      color: #fff;
+      border: none;
+    }
+    button.show-embed-btn {
+      background: #e6f0fa;
+      color: #0074d9;
+      border: 1px solid #0074d9;
+      margin-left: 1em;
+    }
+    button.show-feed-embed-btn {
+      background: #e6f0fa;
+      color: #0074d9;
+      border: 1px solid #0074d9;
+      margin-left: 0.4em;
+      font-size: 0.95em;
+      padding: 0.3em 0.9em;
+    }
+    #showFeedEmbedBtn {
+      background: #e6f0fa;
+      color: #0074d9;
+      border: none;
+      border-radius: 6px;
+      padding: 0.5em 1.2em;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 1em;
+      margin-top: 0.5em;
+    }
   </style>
 </head>
+
 <body>
 <a id="back-link" href="#" style="position: fixed; top: 16px; left: 16px;">⬅️ ATProto Viewer.</a>
   <div class="container">
@@ -48,40 +61,89 @@ button.show-embed-btn {
     <div id="example-feeds">
       <b>Example Feeds:</b>
       <ul>
-        <li><a onclick="setFeed('at://did:plc:z72i7hdynmk6r22z27h6tvur/app.bsky.feed.generator/whats-hot')">What's Hot (public)</a></li>
-        <li><a onclick="setFeed('at://did:plc:z72i7hdynmk6r22z27h6tvur/app.bsky.feed.generator/hot-classic')">What's Hot Classic (public)</a></li>
-        <li><a onclick="setFeed('at://did:plc:z72i7hdynmk6r22z27h6tvur/app.bsky.feed.generator/bsky-team')">Bluesky Team (public)</a></li>
-		<li><a onclick="setFeed('https://bsky.app/profile/corkiejp.posts.fyi/feed/aaajzjhofqxjc')">Corkiejp's PushPins</a></li>
+        <li>
+          <a href="#" class="example-feed-link" data-feed="at://did:plc:z72i7hdynmk6r22z27h6tvur/app.bsky.feed.generator/whats-hot">What's Hot (public)</a>
+          <button type="button" class="show-feed-embed-btn" data-feed-uri="at://did:plc:z72i7hdynmk6r22z27h6tvur/app.bsky.feed.generator/whats-hot">Show in bsky-embed</button>
+        </li>
+        <li>
+          <a href="#" class="example-feed-link" data-feed="at://did:plc:z72i7hdynmk6r22z27h6tvur/app.bsky.feed.generator/hot-classic">What's Hot Classic (public)</a>
+          <button type="button" class="show-feed-embed-btn" data-feed-uri="at://did:plc:z72i7hdynmk6r22z27h6tvur/app.bsky.feed.generator/hot-classic">Show in bsky-embed</button>
+        </li>
+        <li>
+          <a href="#" class="example-feed-link" data-feed="at://did:plc:z72i7hdynmk6r22z27h6tvur/app.bsky.feed.generator/bsky-team">Bluesky Team (public)</a>
+          <button type="button" class="show-feed-embed-btn" data-feed-uri="at://did:plc:z72i7hdynmk6r22z27h6tvur/app.bsky.feed.generator/bsky-team">Show in bsky-embed</button>
+        </li>
+        <li>
+          <a href="#" class="example-feed-link" data-feed="https://bsky.app/profile/corkiejp.posts.fyi/feed/aaajzjhofqxjc">Corkiejp's PushPins</a>
+          <button type="button" class="show-feed-embed-btn" data-feed-uri="https://bsky.app/profile/corkiejp.posts.fyi/feed/aaajzjhofqxjc">Show in bsky-embed</button>
+        </li>
       </ul>
       <b>Example Lists:</b>
       <ul>
-        <li><a onclick="setFeed('https://bsky.app/profile/corkiejp.posts.fyi/lists/3li64ziv5342h')">MEPs 2024-2029</a></li>
-        <!-- Add your own public lists here if you want -->
+        <li>
+          <a href="#" class="example-feed-link" data-feed="at://did:plc:lgjvdkqeeutvf7zj6wow3jro/app.bsky.graph.list/3li64ziv5342h">MEPs 2024-2029</a>
+        </li>
       </ul>
       <div style="font-size:0.95em;color:#888;">
-		Search for <a href="https://blueskydirectory.com/feeds" target="_Blank">Feeds</a> / <a href="https://blueskydirectory.com/lists" target="_Blank">Lists</a> and <a href="https://www.bskyinfo.com/feeds/" target="_Blank">Feeds</a> and copy and paste the link, just use public ones!<br>
+        Search for <a href="https://blueskydirectory.com/feeds" target="_Blank">Feeds</a> / <a href="https://blueskydirectory.com/lists" target="_Blank">Lists</a> and <a href="https://www.bskyinfo.com/feeds/" target="_Blank">Feeds</a> and copy and paste the link, just use public ones!<br>
         Some feeds/lists may require login and will not display here.<br>
         Only public feeds/lists are supported.<br>
-		Limited to latest 30 posts, due to static github pages.<br>
-		Click on view post to see it in ATProtoViewer.
+        Limited to latest 30 posts, due to static github pages.<br>
+        Click on view post to see it in ATProtoViewer.<br>
+		The embed button below only works for feeds and not list feeds.
       </div>
     </div>
-    <form onsubmit="event.preventDefault(); loadFeed();">
-      <input type="text" id="feed-input"
-             placeholder="Enter Feed or List URI/URL (e.g. at://... or https://bsky.app/...)">
-      <button type="submit">Load</button>
-    </form>
+<form onsubmit="event.preventDefault(); loadFeed();">
+  <input type="text" id="feed-input" placeholder="Enter Feed or List URI/URL (e.g. at://... or https://bsky.app/...)">
+  <button type="submit">Load</button>
+  <br><br>
+<button id="showFeedEmbedBtn" type="button">
+  Show This Feed in an embed!
+</button>
+</form>
+
     <div id="feed-container"></div>
+
+
+  <!-- Modal for bsky-embed (feed/list) -->
+  <div id="bskyFeedModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:8px; max-width:95vw; max-height:90vh; min-width:320px; min-height:200px; overflow:auto; padding:1em; position:relative;">
+      <button class="modal-close" style="position:absolute; top:8px; right:8px;">✖</button>
+      <div id="bskyFeedModalContent"></div>
+    </div>
+  </div>
+  <!-- Modal for single post embed -->
+  <div id="bskyModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:8px; max-width:95vw; max-height:90vh; min-width:320px; min-height:200px; overflow:auto; padding:1em; position:relative;">
+      <button class="modal-close" style="position:absolute; top:8px; right:8px;">✖</button>
+      <div id="bskyModalContent"></div>
+    </div>
   </div>
 
+  <!-- bsky-embed web component -->
+  <script src="https://cdn.jsdelivr.net/npm/bsky-embed@latest/dist/bsky-embed.es.js"></script>
+  <script src="https://embed.bsky.app/static/embed.js" charset="utf-8"></script>
   <script>
-    // --- Helper: Set feed input and load ---
-    function setFeed(uri) {
-      document.getElementById('feed-input').value = uri;
-      loadFeed();
+    // Modal logic for both modals
+    function openModal(modalId) {
+      document.getElementById(modalId).style.display = 'flex';
+      document.body.style.overflow = 'hidden';
     }
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+      document.body.style.overflow = '';
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.modal').forEach(function(modal) {
+        modal.addEventListener('click', function(e) {
+          if (e.target === modal) closeModal(modal.id);
+        });
+        var closeBtn = modal.querySelector('.modal-close');
+        closeBtn.onclick = function() { closeModal(modal.id); };
+      });
+    });
 
-    // --- Resolve handle to DID using Bluesky identity service ---
+    // --- Handle to DID ---
     async function handleToDid(handle) {
       const res = await fetch(
         `https://bsky.social/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(handle)}`
@@ -91,123 +153,214 @@ button.show-embed-btn {
       return data.did;
     }
 
-    // --- Detect and resolve input to feed/list type and AT URI ---
+    // --- Convert input to AT URI ---
+    async function toAtUri(input) {
+      if (input.startsWith('at://')) return input;
+      let m = input.match(/^https:\/\/bsky\.app\/profile\/([^/]+)\/feed\/([^/?#]+)/);
+      if (m) {
+        const actor = m[1];
+        const feedId = m[2];
+        const did = actor.startsWith('did:') ? actor : await handleToDid(actor);
+        return `at://${did}/app.bsky.feed.generator/${feedId}`;
+      }
+      m = input.match(/^https:\/\/bsky\.app\/profile\/([^/]+)\/lists?\/([^/?#]+)/);
+      if (m) {
+        const actor = m[1];
+        const listId = m[2];
+        const did = actor.startsWith('did:') ? actor : await handleToDid(actor);
+        return `at://${did}/app.bsky.graph.list/${listId}`;
+      }
+      throw new Error("Unrecognized feed/list URL or AT URI.");
+    }
+
+    // --- Open the modal and insert bsky-embed (feed/list) ---
+async function openBskyFeedEmbedModal(input) {
+  try {
+    const atUri = await toAtUri(input);
+    const modalContent = document.getElementById('bskyFeedModalContent');
+    modalContent.innerHTML = `
+      <bsky-embed
+        feed="${atUri}"
+        limit="30"
+        link-image="true"
+        link-target="_blank"
+        load-more="true">
+      </bsky-embed>
+    `;
+    openModal('bskyFeedModal');
+  } catch (err) {
+    alert('Could not convert to AT URI: ' + err.message);
+  }
+}
+
+
+    // --- Open the modal and insert bsky post embed (single post) ---
+    function openBskyEmbedModal(atUri) {
+      const modalContent = document.getElementById('bskyModalContent');
+      modalContent.innerHTML = `<blockquote class="bluesky-embed" data-bluesky-uri="${atUri}"></blockquote>`;
+      openModal('bskyModal');
+      setTimeout(function() {
+        if (typeof scan === 'function') scan();
+      }, 50);
+    }
+
+    // --- Attach click event to all show-feed-embed buttons and example links (delegated) ---
+    document.addEventListener('click', function(e) {
+      // Show in bsky-embed modal for example feeds/lists
+      if (e.target.classList.contains('show-feed-embed-btn')) {
+        const feedUri = e.target.getAttribute('data-feed-uri');
+        openBskyFeedEmbedModal(feedUri);
+      }
+      // Example feed/list links: load into viewer
+      if (e.target.classList.contains('example-feed-link')) {
+        e.preventDefault();
+        const uri = e.target.getAttribute('data-feed');
+        document.getElementById('feed-input').value = uri;
+        loadFeed();
+      }
+      // "Show Embed" button (single post)
+      if (e.target.classList.contains('show-embed-btn')) {
+        const atUri = e.target.getAttribute('data-at-uri');
+        openBskyEmbedModal(atUri);
+      }
+      // "View Post" button
+      if (e.target.classList.contains('view-post-btn')) {
+        const uri = e.target.getAttribute('data-uri');
+        window.location.href = `index.html?uri=${encodeURIComponent(uri)}`;
+      }
+    });
+
+    // --- Show Feed Embed button logic for input field ---
+    var showFeedEmbedBtn = document.getElementById('showFeedEmbedBtn');
+    var feedInput = document.getElementById('feed-input');
+    var lastLoadedFeedInput = '';
+    showFeedEmbedBtn.onclick = function() {
+      openBskyFeedEmbedModal(lastLoadedFeedInput);
+    };
+
+    async function updateShowFeedEmbedBtn() {
+      var input = feedInput.value.trim();
+      try {
+        await toAtUri(input);
+        showFeedEmbedBtn.style.display = '';
+        lastLoadedFeedInput = input;
+      } catch {
+        showFeedEmbedBtn.style.display = 'none';
+      }
+    }
+    feedInput.addEventListener('input', updateShowFeedEmbedBtn);
+    document.addEventListener('DOMContentLoaded', updateShowFeedEmbedBtn);
+
+    // --- Full feed loader and renderer ---
     async function resolveInputToFeedType(input) {
       if (input.startsWith('at://')) {
         if (input.includes('/app.bsky.feed.generator/')) return {type: 'feed', uri: input};
         if (input.includes('/app.bsky.graph.list/')) return {type: 'list', uri: input};
       }
       // Feed generator web URL
-		let m = input.match(/^https:\/\/bsky\.app\/profile\/([^/]+)\/feed\/([^/?#]+)/);
-			if (m) {
-				const actor = m[1];
-				const feedId = m[2];
-				const did = actor.startsWith('did:') ? actor : await handleToDid(actor);
-			return {type: 'feed', uri: `at://${did}/app.bsky.feed.generator/${feedId}`};
-		}
-
+      let m = input.match(/^https:\/\/bsky\.app\/profile\/([^/]+)\/feed\/([^/?#]+)/);
+      if (m) {
+        const actor = m[1];
+        const feedId = m[2];
+        const did = actor.startsWith('did:') ? actor : await handleToDid(actor);
+        return {type: 'feed', uri: `at://${did}/app.bsky.feed.generator/${feedId}`};
+      }
       // List web URL
-m = input.match(/^https:\/\/bsky\.app\/profile\/([^/]+)\/lists?\/([^/?#]+)/);
-if (m) {
-  const actor = m[1];
-  const listId = m[2];
-  const did = actor.startsWith('did:') ? actor : await handleToDid(actor);
-  return {type: 'list', uri: `at://${did}/app.bsky.graph.list/${listId}`};
-}
+      m = input.match(/^https:\/\/bsky\.app\/profile\/([^/]+)\/lists?\/([^/?#]+)/);
+      if (m) {
+        const actor = m[1];
+        const listId = m[2];
+        const did = actor.startsWith('did:') ? actor : await handleToDid(actor);
+        return {type: 'list', uri: `at://${did}/app.bsky.graph.list/${listId}`};
+      }
       throw new Error("Unrecognized feed or list format.");
     }
 
-// --- Main loader: fetch and render feed or list ---
-async function loadFeed() {
-  const input = document.getElementById('feed-input').value.trim();
-  const container = document.getElementById('feed-container');
-  container.innerHTML = "<div>Loading...</div>";
-  try {
-    const {type, uri} = await resolveInputToFeedType(input);
-    let url, listMeta = null;
+    async function loadFeed() {
+      var input = document.getElementById('feed-input').value.trim();
+      var container = document.getElementById('feed-container');
+      container.innerHTML = "<div>Loading...</div>";
+      try {
+        var result = await resolveInputToFeedType(input);
+        var type = result.type, uri = result.uri;
+        var url, listMeta = null;
 
-    if (type === 'feed') {
-      url = new URL('https://public.api.bsky.app/xrpc/app.bsky.feed.getFeed');
-      url.searchParams.set('feed', uri);
-    } else if (type === 'list') {
-      url = new URL('https://public.api.bsky.app/xrpc/app.bsky.feed.getListFeed');
-      url.searchParams.set('list', uri);
+        if (type === 'feed') {
+          url = new URL('https://public.api.bsky.app/xrpc/app.bsky.feed.getFeed');
+          url.searchParams.set('feed', uri);
+        } else if (type === 'list') {
+          url = new URL('https://public.api.bsky.app/xrpc/app.bsky.feed.getListFeed');
+          url.searchParams.set('list', uri);
 
-      // Fetch list metadata (name, description)
-      const metaRes = await fetch(
-        `https://public.api.bsky.app/xrpc/app.bsky.graph.getList?list=${encodeURIComponent(uri)}`
-      );
-      if (metaRes.ok) {
-        const metaData = await metaRes.json();
-        listMeta = metaData.list; // { name, description, ... }
+          // Fetch list metadata (name, description)
+          var metaRes = await fetch(
+            `https://public.api.bsky.app/xrpc/app.bsky.graph.getList?list=${encodeURIComponent(uri)}`
+          );
+          if (metaRes.ok) {
+            var metaData = await metaRes.json();
+            listMeta = metaData.list; // { name, description, ... }
+          }
+        }
+
+        var res = await fetch(url);
+        if (!res.ok) throw new Error(`API error: ${res.status}`);
+        var data = await res.json();
+
+        // Clear the container and build the structure
+        container.innerHTML = ""; // Clear previous content
+
+        // --- Render header (always, if listMeta exists) ---
+        if (listMeta) {
+          var header = document.createElement('div');
+          header.innerHTML = `<h2>${escapeHtml(listMeta.name || 'Untitled List')}</h2>` +
+            (listMeta.description ? `<p>${escapeHtml(listMeta.description)}</p>` : "");
+          container.appendChild(header);
+        }
+
+        // --- Render feed or "No posts" message ---
+        if (!data.feed || !data.feed.length) {
+          var msg = document.createElement('div');
+          msg.innerHTML = "<p>No posts found in this feed/list.</p>";
+          container.appendChild(msg);
+          return;
+        }
+        // Create a container for posts and render them
+        var feedDiv = document.createElement('div');
+        container.appendChild(feedDiv);
+        renderFeed(data.feed, feedDiv); // Pass feedDiv as target
+      } catch (err) {
+        container.innerHTML = `<div class="error">Error: ${err.message}</div>`;
       }
+      updateShowFeedEmbedBtn();
     }
 
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`API error: ${res.status}`);
-    const data = await res.json();
-
-    // Clear the container and build the structure
-    container.innerHTML = ""; // Clear previous content
-
-    // --- Render header (always, if listMeta exists) ---
-    if (listMeta) {
-      const header = document.createElement('div');
-      header.innerHTML = `<h2>${escapeHtml(listMeta.name || 'Untitled List')}</h2>` +
-        (listMeta.description ? `<p>${escapeHtml(listMeta.description)}</p>` : "");
-      container.appendChild(header);
+    function renderFeed(posts, container) {
+      if (!posts.length) {
+        container.innerHTML = "<p>No posts found in this feed/list.</p>";
+        return;
+      }
+      container.innerHTML = '';
+      posts.forEach(function(post) {
+        var p = post.post || post;
+        var div = document.createElement('div');
+        div.className = 'post';
+        div.innerHTML = `
+          <button class="view-post-btn" data-uri="${p.uri}" style="background:#0074d9;color:#fff;border:none;border-radius:6px;padding:0.4em 1em;font-size:1em;cursor:pointer;font-weight:600;">
+            View Post
+          </button>
+          <button class="show-embed-btn" data-at-uri="${p.uri}" style="margin-left:1em;background:#e6f0fa;color:#0074d9;border:1px solid #0074d9;border-radius:6px;padding:0.4em 1em;font-size:1em;cursor:pointer;font-weight:600;">
+            Show Embed
+          </button>
+          <div class="post-text" style="margin-top:0.7em;">${escapeHtml(p.record?.text || '')}</div>
+          <div class="meta" style="font-size:0.95em;color:#555;">
+            By ${escapeHtml(p.author?.handle || p.author?.did || '')}
+            • ${p.record?.createdAt ? new Date(p.record.createdAt).toLocaleString() : ''}
+          </div>
+        `;
+        container.appendChild(div);
+      });
     }
 
-    // --- Render feed or "No posts" message ---
-    if (!data.feed || !data.feed.length) {
-      const msg = document.createElement('div');
-      msg.innerHTML = "<p>No posts found in this feed/list.</p>";
-      container.appendChild(msg);
-      return;
-    }
-    // Create a container for posts and render them
-    const feedDiv = document.createElement('div');
-    container.appendChild(feedDiv);
-    renderFeed(data.feed, feedDiv); // Pass feedDiv as target
-  } catch (err) {
-    container.innerHTML = `<div class="error">Error: ${err.message}</div>`;
-  }
-}
-
-
-
-    // --- Render posts (simple) ---
-function renderFeed(posts, container = document.getElementById('feed-container')) {
-  if (!posts.length) {
-    container.innerHTML = "<p>No posts found in this feed/list.</p>";
-    return;
-  }
-  container.innerHTML = '';
-  posts.forEach(post => {
-    const p = post.post || post;
-    const div = document.createElement('div');
-    div.className = 'post';
-    div.innerHTML = `
-      <button class="view-post-btn" data-uri="${p.uri}" style="background:#0074d9;color:#fff;border:none;border-radius:6px;padding:0.4em 1em;font-size:1em;cursor:pointer;font-weight:600;">
-        View Post
-      </button>
-      <button class="show-embed-btn" data-at-uri="${p.uri}" style="margin-left:1em;background:#e6f0fa;color:#0074d9;border:1px solid #0074d9;border-radius:6px;padding:0.4em 1em;font-size:1em;cursor:pointer;font-weight:600;">
-        Show Embed
-      </button>
-      <div class="post-text" style="margin-top:0.7em;">${escapeHtml(p.record?.text || '')}</div>
-      <div class="meta" style="font-size:0.95em;color:#555;">
-        By ${escapeHtml(p.author?.handle || p.author?.did || '')}
-        • ${p.record?.createdAt ? new Date(p.record.createdAt).toLocaleString() : ''}
-      </div>
-    `;
-    container.appendChild(div);
-  });
-}
-
-
-
-
-    // --- Escape HTML utility ---
     function escapeHtml(str) {
       return String(str).replace(/[&<>"']/g, function(m) {
         return ({
@@ -219,122 +372,24 @@ function renderFeed(posts, container = document.getElementById('feed-container')
         })[m];
       });
     }
-	
-	document.addEventListener('DOMContentLoaded', function() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const input = urlParams.get('input');
-  if (input) {
-    document.getElementById('feed-input').value = input;
-    loadFeed();
-  }
-});
+
+    // --- On page load, handle ?input=... param ---
+    document.addEventListener('DOMContentLoaded', async function() {
+      var urlParams = new URLSearchParams(window.location.search);
+      var input = urlParams.get('input');
+      if (input) {
+        document.getElementById('feed-input').value = input;
+        await loadFeed();
+        await updateShowFeedEmbedBtn();
+      }
+    });
   </script>
-  <script>
-// --- Link back to ATProto Viewer ---
-document.addEventListener('DOMContentLoaded', function() {
-  const backLink = document.getElementById('back-link');
-  backLink.href = `index.html${window.location.search}`;
-});
-</script>
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function() {
-    navigator.serviceWorker.register('./service-worker.js').then(function(registration) {
-      console.log('ServiceWorker registration successful:', registration.scope);
-    }, function(err) {
-      console.log('ServiceWorker registration failed:', err);
+    <script>
+    // --- Link back to ATProto Viewer ---
+    document.addEventListener('DOMContentLoaded', function() {
+      const backLink = document.getElementById('back-link');
+      backLink.href = `index.html${window.location.search}`;
     });
-  });
-}
-</script>
-<!-- Bluesky Embed Modal -->
-<div id="bskyModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
-  <div style="background:#fff; border-radius:8px; max-width:95vw; max-height:90vh; min-width:320px; min-height:200px; overflow:auto; padding:1em; position:relative;">
-    <button class="modal-close" style="position:absolute; top:8px; right:8px;">✖</button>
-    <div id="bskyModalContent"></div>
-  </div>
-</div>
-<!-- Bluesky Embed Script -->
-<script src="https://embed.bsky.app/static/embed.js" charset="utf-8"></script>
-<script>
-// === Modal Manager ===
-function closeAllModals() {
-  document.querySelectorAll('.modal').forEach(modal => {
-    modal.style.display = 'none';
-  });
-  document.body.style.overflow = '';
-}
-function openModal(modalId) {
-  closeAllModals();
-  const modal = document.getElementById(modalId);
-  if (modal) {
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-  }
-}
-function closeModal(modalId) {
-  const modal = document.getElementById(modalId);
-  if (modal) modal.style.display = 'none';
-  // Only restore scroll if no other modal is open
-  const anyOpen = Array.from(document.querySelectorAll('.modal'))
-    .some(m => m.style.display === 'flex' || m.style.display === 'block');
-  if (!anyOpen) document.body.style.overflow = '';
-}
-// ESC closes modal
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
-    const modals = Array.from(document.querySelectorAll('.modal'))
-      .filter(m => m.style.display === 'flex' || m.style.display === 'block');
-    if (modals.length) {
-      closeModal(modals[modals.length - 1].id);
-    }
-  }
-});
-// Click-outside and close button
-document.addEventListener('DOMContentLoaded', function() {
-  document.querySelectorAll('.modal').forEach(modal => {
-    modal.addEventListener('click', function(e) {
-      if (e.target === modal) closeModal(modal.id);
-    });
-    const closeBtn = modal.querySelector('.modal-close');
-    if (closeBtn) closeBtn.onclick = () => closeModal(modal.id);
-  });
-});
-
-// === Bluesky Embed Modal Logic ===
-function openBskyEmbedModal(atUri) {
-  const modalContent = document.getElementById('bskyModalContent');
-  if (modalContent) {
-    modalContent.innerHTML = `
-      <blockquote class="bluesky-embed" data-bluesky-uri="${atUri}"></blockquote>
-    `;
-    openModal('bskyModal');
-    setTimeout(() => {
-      if (typeof scan === 'function') scan();
-    }, 50);
-  }
-}
-</script>
-
-<script>
-
-
-document.addEventListener('click', function(e) {
-  // "Show Embed" button
-  if (e.target.classList.contains('show-embed-btn')) {
-    const atUri = e.target.getAttribute('data-at-uri');
-    openBskyEmbedModal(atUri);
-  }
-  // "View Post" button
-  if (e.target.classList.contains('view-post-btn')) {
-    const uri = e.target.getAttribute('data-uri');
-    // Navigate to the post viewer page (adjust as needed)
-    window.location.href = `index.html?uri=${encodeURIComponent(uri)}`;
-  }
-});
-
-</script>
-
-
+  </script>
 </body>
 </html>
