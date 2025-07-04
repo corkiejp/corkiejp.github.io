@@ -111,7 +111,12 @@ if (did && rkey) {
   output += `<a href="https://azsky.app/profile/${did}/post/${rkey}" target="_blank">Azsky</a>`;
   output += `<a href="https://bsky.app/profile/${did}/post/${rkey}" target="_blank">Bluesky</a>`;
   output += `<a href="https://deer.social/profile/${did}/post/${rkey}" target="_blank">Deer Social</a>`;
+
+  
   output += `<a href="https://klearsky.pages.dev/#/post?uri=at://${did}/app.bsky.feed.post/${rkey}" target="_blank">Klearsky</a>`;
+  
+  output += `<a href="https://reddwarf.whey.party/profile/${did}/post/${rkey}" target="_blank">Red Dwarf Lite ~ (direct PDS queries)</a>`;  
+  
   // Add the placeholder
   output += `<span id="blueskytomp4-link-${rkey}"></span>`;
   // ... other output

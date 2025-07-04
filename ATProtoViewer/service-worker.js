@@ -43,6 +43,7 @@ const URLS_TO_CACHE = [
 // Bluesky Embeds modal popup integrated. Thanks to @baileytownsend.dev resolving a bug with a single line of code.
 // Bug fixes from previous commit. + also on the simple feeds viewer now (2)
 // Feeds embed modal and some style on record at uri so it wraps! + Recent feeds/list remembered
+// Added RedDwarfLIte link
 // Install: Pre-cache assets
 self.addEventListener('install', event => {
   event.waitUntil(

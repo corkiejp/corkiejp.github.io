@@ -15,6 +15,7 @@ const URLS_TO_CACHE = [
 // Bluesky to MP4 added
 // QR Code added. + Only to display on desktop with no params. (4)
 // added additional links: - azsky.app, skytools.anon5r.com, blueviewer.pages.dev, skykit.blue, blueview.app & bskycopilot.com
+// + Red Dwarf Lite
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)

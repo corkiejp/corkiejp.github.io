@@ -904,6 +904,11 @@ function atUriToUrls(atUri) {
 	const klskyUrl = (collection === 'app.bsky.feed.post')
       ? `https://klearsky.pages.dev/#/post?uri=at://${did}/app.bsky.feed.post/${rkey}`
       : null;
+	const reddwarfliteUrl = (collection === 'app.bsky.feed.post')
+      ? `https://reddwarf.whey.party/profile/${did}/post/${rkey}`
+      : null;
+
+	  
     const clearskyHistoryUrl = `https://clearsky.app/${did}/history`;
 	const plcdirprofile = `https://plc.directory/${did}`;
 	const credblue = `https://cred.blue/${did}`;
@@ -919,6 +924,7 @@ function atUriToUrls(atUri) {
       bskyUrl,
 	  deerUrl,
 	  klskyUrl,
+	  reddwarfliteUrl,
       clearskyHistoryUrl,
 	  plcdirprofile,
 	  credblue,
@@ -1159,7 +1165,7 @@ function createRecordCard(record, collection, pds) {
   const skythreadInnerUri = innerUri ? `https://blue.mackuba.eu/skythread/?q=${innerUri}` : null;
   const skyviewUri = "https://skyview.social/?url=" + encodeURIComponent(atUri);
   const ttospwa = "https://corkiejp.github.io/ttospwa/index.html?uri=" + encodeURIComponent(atUri);
-  const { bskyUrl, clearskyHistoryUrl, deerUrl, klskyUrl, plcdirprofile, credblue, toolify, atplink, bfacts} = atUriToUrls(atUri) || {};
+  const { bskyUrl, clearskyHistoryUrl, deerUrl, klskyUrl, reddwarfliteUrl, plcdirprofile, credblue, toolify, atplink, bfacts} = atUriToUrls(atUri) || {};
 
   // --- Embed/media rendering ---
   const did = record.repo || record.did || extractDidFromUri(record.uri);
@@ -1186,6 +1192,10 @@ function createRecordCard(record, collection, pds) {
     links.push(`<a href="${bskyUrl}" target="_blank" rel="noopener" class="bsky-link">bsky.app</a>`);
     links.push(`<a href="${deerUrl}" target="_blank" rel="noopener" class="bsky-link">deer.social</a>`);
 	links.push(`<a href="${klskyUrl}" target="_blank" rel="noopener" class="bsky-link">klearsky.pages.dev</a>`);
+	links.push(`<a href="${reddwarfliteUrl}" target="_blank" rel="noopener" class="bsky-link">red dwarf lite</a>`);	
+	
+	reddwarfliteUrl
+	
     links.push(`<a href="${clearskyHistoryUrl}" target="_blank" rel="noopener">Clearsky</a>`);
     links.push(`<a href="${skythreadAtUri}" target="_blank" rel="noopener">SkyThread</a>`);
     links.push(`<a href="${skyviewUri}" target="_blank" rel="noopener">Skyview</a>`);
