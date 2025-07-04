@@ -101,6 +101,13 @@
   Show This Feed in an embed!
 </button>
 </form>
+<label for="feed-history" style="font-size:0.95em;">Recent feeds/lists:</label>
+<select id="feed-history" style="margin-bottom:0.5em; width:100%;">
+  <option value="">-- Select a previous feed/list --</option>
+</select>
+<button type="button" onclick="localStorage.removeItem('bskyFeedHistory'); loadFeedHistory();">
+  Clear History
+</button>
 
     <div id="feed-container"></div>
 
@@ -123,6 +130,59 @@
   <!-- bsky-embed web component -->
   <script src="https://cdn.jsdelivr.net/npm/bsky-embed@latest/dist/bsky-embed.es.js"></script>
   <script src="https://embed.bsky.app/static/embed.js" charset="utf-8"></script>
+  <script>
+  const FEED_HISTORY_KEY = 'bskyFeedHistory';
+const feedInput = document.getElementById('feed-input');
+const feedHistorySelect = document.getElementById('feed-history');
+
+// Load history from localStorage
+function loadFeedHistory() {
+  const history = JSON.parse(localStorage.getItem(FEED_HISTORY_KEY) || '[]');
+  feedHistorySelect.innerHTML = '<option value="">-- Select a previous feed/list --</option>';
+  history.forEach(uri => {
+    const opt = document.createElement('option');
+    opt.value = uri;
+    opt.textContent = uri;
+    feedHistorySelect.appendChild(opt);
+  });
+}
+
+// Save a new feed to history
+function saveFeedToHistory(uri) {
+  let history = JSON.parse(localStorage.getItem(FEED_HISTORY_KEY) || '[]');
+  // Remove if already present (to avoid duplicates)
+  history = history.filter(item => item !== uri);
+  // Add to the top
+  history.unshift(uri);
+  // Limit history to 10 items
+  history = history.slice(0, 10);
+  localStorage.setItem(FEED_HISTORY_KEY, JSON.stringify(history));
+  loadFeedHistory();
+}
+
+// When user selects from history, fill input and optionally load
+feedHistorySelect.addEventListener('change', function() {
+  if (this.value) {
+    feedInput.value = this.value;
+    // Optionally auto-load:
+    // loadFeed();
+  }
+});
+
+// When user submits a new feed, save to history
+document.querySelector('form').addEventListener('submit', function() {
+  const uri = feedInput.value.trim();
+  if (uri) saveFeedToHistory(uri);
+});
+
+// On page load, populate the dropdown
+loadFeedHistory();
+
+  
+  
+  </script>
+  
+  
   <script>
     // Modal logic for both modals
     function openModal(modalId) {
@@ -233,7 +293,7 @@ async function openBskyFeedEmbedModal(input) {
 
     // --- Show Feed Embed button logic for input field ---
     var showFeedEmbedBtn = document.getElementById('showFeedEmbedBtn');
-    var feedInput = document.getElementById('feed-input');
+//    var feedInput = document.getElementById('feed-input');
     var lastLoadedFeedInput = '';
     showFeedEmbedBtn.onclick = function() {
       openBskyFeedEmbedModal(lastLoadedFeedInput);
