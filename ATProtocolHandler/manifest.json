@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "AT Protocol Handler",
-  "version": "1.01",
+  "version": "1.02",
   "description": "Lists sites that accept at://did:plc... URLs",
   "omnibox": { "keyword": "at" },
   "background": {
