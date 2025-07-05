@@ -4,10 +4,25 @@
   <title>AT Protocol Sites</title>
   <meta charset="utf-8">
   <style>
-    /* Style all links inside #site-list as buttons */
-    #site-list a {
+body {
+  background: #f7f7f7;
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, Arial, sans-serif;
+}
+
+#site-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#site-list a {
   display: block;
-  margin: 0.5em 0;
+  margin: 0.5em auto;
   padding: 0.25em 0;
   background: #0074d9;
   color: #fff !important;
@@ -18,43 +33,54 @@
   text-align: center;
   box-shadow: 0 2px 6px rgba(0,0,0,0.07);
   transition: background 0.15s, transform 0.1s;
-    }
+  max-width: 340px;
+}
 
-    #site-list a:hover, #site-list a:focus {
+#site-list a:hover,
+#site-list a:focus {
   background: #005fa3;
   color: #fff !important;
   transform: scale(1.03);
-    }
-	
-	#site-list {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
 }
-	
-	    /* Flex container for QR codes */
-    .qr-container {
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      gap: 2em;
-      margin-top: 2em;
-    }
-    .qr-block {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
-    .qr-block img {
-      margin-bottom: 0.5em;
-      border-radius: 0.5em;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.09);
-    }
+
+/* Responsive: full width on mobile */
+@media (max-width: 600px) {
+  #site-list {
+    max-width: 100vw;
+    padding: 0 0.5em;
+  }
+  #site-list a {
+    max-width: 100%;
+    border-radius: 0.5em;
+  }
+}
+
+/* Flex container for QR codes */
+.qr-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2em;
+  margin-top: 2em;
+}
+.qr-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.qr-block img {
+  margin-bottom: 0.5em;
+  border-radius: 0.5em;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.09);
+}
+
   </style>
 </head>
 <body>
   <h2>Sites that accept your at://did URL</h2>
+  
+
   <ul id="site-list"></ul>
 
   <script src="list.js"></script>
