@@ -9,9 +9,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
 <style>
+body {
+  background: #f7f7f7;
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, Arial, sans-serif;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+.main-container {
+  max-width: 420px;
+  margin: 2em auto;
+  padding: 1.2em;
+  background: #fff;
+  border-radius: 1em;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  box-sizing: border-box;
+}
+
+#output {
+  width: 100%;
+  box-sizing: border-box;
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  max-width: 100vw;
+}
+
 a {
   display: block;
-  margin: 0.5em 0;
+  margin: 0.5em auto;
   padding: 0.25em 0;
   background: #0074d9;
   color: #fff !important;
@@ -22,18 +48,76 @@ a {
   text-align: center;
   box-shadow: 0 2px 6px rgba(0,0,0,0.07);
   transition: background 0.15s, transform 0.1s;
+  max-width: 340px;
 }
+
 a:hover, a:active, a:focus {
   background: #005fa3;
   color: #fff !important;
   transform: scale(1.03);
 }
+
+/* Ensure all pre/code blocks wrap and don't overflow */
+pre, code {
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow-x: auto;
+  max-width: 100vw;
+  box-sizing: border-box;
+}
+
+/* Wrap long words/URIs in output and other elements */
+.output-wrap, b, span, div {
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  box-sizing: border-box;
+  max-width: 100vw;
+}
+
+@media (max-width: 600px) {
+  .main-container {
+    max-width: 100vw;
+    margin: 0;
+    padding: 0.5em;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  a {
+    max-width: 100%;
+    border-radius: 0.5em;
+  }
+  pre, code, #output, .output-wrap {
+    font-size: 1em;
+  }
+}
+
+.main-container,
+#output {
+  text-align: center;
+}
+
+pre {
+  text-align: left;   /* Keeps code/JSON readable */
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
+
+.center-note {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
 </style>
 
 </head>
 <body>
+<div class="main-container">
   <h1>Share Target PWA</h1>
   <div id="output"></div>
+</div>
 <script>
 
 async function resolveHandleToDid(handle) {
@@ -61,10 +145,10 @@ window.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
   let output = '';
   for (const [key, value] of params.entries()) {
-    output += `<pre style="font-size:0.9em;color:#555;background:#f9f9f9;padding:0.5em;border-radius:0.3em;">
+    output += `<div class="center-note">
 [Developer Note] Raw share parameters received from Bluesky Share Target:
 ${JSON.stringify(params, null, 2)}
-</pre>`;
+</div>`;
     output += `<b>${key}</b>: ${value}<br><br>Open this post in below sites, if you didn't share from a post, see note appended at botom.<br>`;
 //    output += `<br><a href="${value}" target="_blank">Bluesky</a>`; scripted better below!
     // Default: use the value as the AT URI (if it's already in AT URI format)
@@ -107,7 +191,7 @@ ${JSON.stringify(params, null, 2)}
 
 if (did && rkey) {
   output += `<a href="https://blueviewer.pages.dev/view?actor=${did}&rkey=${rkey}" target="_blank">blueviewer.pages.dev</a>`;
-  output += "<br><br>AppViews<br>";
+  output += "<div class=\"center-note\">AppViews</div>";
   output += `<a href="https://azsky.app/profile/${did}/post/${rkey}" target="_blank">Azsky</a>`;
   output += `<a href="https://bsky.app/profile/${did}/post/${rkey}" target="_blank">Bluesky</a>`;
   output += `<a href="https://deer.social/profile/${did}/post/${rkey}" target="_blank">Deer Social</a>`;
@@ -125,17 +209,15 @@ if (did && rkey) {
   // Now fetch and insert just the mp4 link
   fetchHandleFromDid(did).then(handle => {
     const blueskyMp4Html = `
-      <br><br>Only use below if post has a video! And page was opened from bluesky share of the post!<br>
+      <div class="center-note">Only use below if post has a video! And page was opened from bluesky share of the post!</div>
       <a href="https://blueskytomp4.com/?url=https://bsky.app/profile/${handle}/post/${rkey}" target="_blank">blueskytomp4.com</a>
-	  <br><br>Look up profiles below!<br>
+	  <div class="center-note">Look up profiles below!</div>
 	  <a href="https://bskycopilot.com/?handle=${handle}" target="_blank">bskycopilot.com</a>
 	  
     `;
     document.getElementById(`blueskytomp4-link-${rkey}`).innerHTML = blueskyMp4Html;
   });
 }
-
-https://bskycopilot.com/?handle=corkiejp.github.io
 
 
     if (did) {
@@ -154,7 +236,7 @@ https://bskycopilot.com/?handle=corkiejp.github.io
 
       output += `<br><br><a href="https://corkiejp.github.io/ATProtoViewer/Blueskyessentiallinks.html" target="_blank">Bluesky essential links</a>`;
     }
-    output += "<br><br><b>Note: -</b> PLC Directory lookup requires a DID string and this script only has handles, But atproto.at has a display of that info and a link to that information. So click on DID Doc there? So no need to provide a direct link here?";
+    output += '<div class="center-note"><b>Note: -</b> PLC Directory lookup requires a DID string and this script only has handles.<br> But atproto.at has a display of that info and a link to that information.<br> So click on DID Doc there? So no need to provide a direct link here? <br><a href="https://github.com/corkiejp/corkiejp.github.io/blob/well-known/ttospwa/noteonthispwa.md" target="_blank">More Notes</a></div>';
 
     // --- Show a note if neither accepted condition is met ---
     if (!isBlueskyPostUrl && !isPostAtUri) {
@@ -170,7 +252,7 @@ https://bskycopilot.com/?handle=corkiejp.github.io
     }
   }
 
-  document.body.innerHTML += `<div><h3>Received Share Parameters:</h3>${output || "None"}</div>`;
+  document.body.innerHTML += `<div class="center-note"><h3>Received Share Parameters:</h3>${output || "None"}</div>`;
   console.log("Received share params:", Object.fromEntries(params.entries()));
 });
 

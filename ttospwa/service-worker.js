@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ttospwa-v1.18';
+const CACHE_NAME = 'ttospwa-v1.19';
 const URLS_TO_CACHE = [
   '/ttospwa/',
   '/ttospwa/index.html',
@@ -16,6 +16,7 @@ const URLS_TO_CACHE = [
 // QR Code added. + Only to display on desktop with no params. (4)
 // added additional links: - azsky.app, skytools.anon5r.com, blueviewer.pages.dev, skykit.blue, blueview.app & bskycopilot.com
 // + Red Dwarf Lite
+// Added styling for desktop display.
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
