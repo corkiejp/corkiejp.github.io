@@ -26,7 +26,7 @@ Use: - 'at' as the keyword to put in the browser url, press space/tab to activat
 
 This is a quick temporary readme!
 
-**Manual Install:** To install take the four files in this folder background.js, list.html, list.js and manifest.json. Then place them in a folder on your computer, and load unpack with 'chrome://extensions/'.
+**Manual Install:** To install take the five files in this folder background.js, list.html, inst.html, list.js and manifest.json. Then place them in a folder on your computer, and load unpack with 'chrome://extensions/'.
 You can also manage your own set of links by making similar additions to list.js. Downside you would need to manually update the extension.
 
 Or alternatively download the .src file, un zip it to a folder, then unpack it.
