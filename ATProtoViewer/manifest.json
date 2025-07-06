@@ -26,7 +26,13 @@
 		"text": "uri",
 		"url": "uri"
 	}
+  },
+  "protocol_handlers": [
+  {
+    "protocol": "web+at",
+    "url": "/index.html/?aturi=%s"
   }
+]  
 }
 
 

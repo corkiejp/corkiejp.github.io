@@ -1,4 +1,4 @@
-const CACHE_NAME = 'atproto-pwa-v1.28';
+const CACHE_NAME = 'atproto-pwa-v1.29';
 const URLS_TO_CACHE = [
   '/ATProtoViewer/',
   '/ATProtoViewer/index.html',
@@ -44,6 +44,7 @@ const URLS_TO_CACHE = [
 // Bug fixes from previous commit. + also on the simple feeds viewer now (2)
 // Feeds embed modal and some style on record at uri so it wraps! + Recent feeds/list remembered
 // Added RedDwarfLIte link
+// Hopefully at a protocol 'web+at' for this PWA.
 // Install: Pre-cache assets
 self.addEventListener('install', event => {
   event.waitUntil(
