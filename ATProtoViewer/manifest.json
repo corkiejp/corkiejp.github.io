@@ -28,12 +28,12 @@
     }
   },
   "protocol_handlers": [
-  {
-    "protocol": "web+at",
-    "url": "/ATProtoViewer/router.html?full=%s"
-  }
-]
-
+    {
+      "protocol": "web+at",
+      "url": "/ATProtoViewer/index.html?uri=%s"
+    }
+  ]
+}
 
 
 
