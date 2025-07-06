@@ -1,11 +1,10 @@
-const CACHE_NAME = 'atproto-pwa-v1.29';
+const CACHE_NAME = 'atproto-pwa-v1.30';
 const URLS_TO_CACHE = [
   '/ATProtoViewer/',
   '/ATProtoViewer/index.html',
   '/ATProtoViewer/BlueskyPostViewer.html',
   '/ATProtoViewer/Blueskyessentiallinks.html',
   '/ATProtoViewer/ATProtoSimpleFeeds.html',
-  '/ATProtoViewer/router.html',
   '/ATProtoViewer/bookmarks.html',
   '/ATProtoViewer/manifest.webmanifest',
   '/ATProtoViewer/styles.css',
