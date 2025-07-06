@@ -624,15 +624,9 @@ Just select the option to switch to this in select drop-down after the collectio
 
 
 const params = new URLSearchParams(window.location.search);
-const uri = params.get('uri');
-if (uri) {
-  if (uri.startsWith('at://')) {
-    // Handle as AT URI
-  } else if (uri.startsWith('https://bsky.app/')) {
-    // Handle as Bluesky web URL
-  } else {
-    // Invalid or unsupported format
-  }
+const atUri = params.get('uri');
+if (atUri && atUri.startsWith('at://')) {
+  // Process the AT URI as needed
 }
 
 
