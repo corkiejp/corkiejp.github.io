@@ -13,7 +13,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   
   
-  
+<script>
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const raw = params.get('uri');
+  if (raw && raw.startsWith('web+at:')) {
+    // Replace the query param in the URL with the cleaned AT URI
+    const clean = raw.slice('web+at:'.length);
+    params.set('uri', clean);
+    // Update the URL in the browser without reloading the page
+    const newUrl = window.location.pathname + '?' + params.toString() + window.location.hash;
+    window.history.replaceState({}, '', newUrl);
+  }
+})();
+</script>
+
   
   
   <style>
