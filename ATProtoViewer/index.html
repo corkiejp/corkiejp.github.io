@@ -13,15 +13,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   
   
+
 <script>
 (function() {
   const params = new URLSearchParams(window.location.search);
   const raw = params.get('uri');
   if (raw && raw.startsWith('web+at:')) {
-    // Replace the query param in the URL with the cleaned AT URI
+    // Remove the web+at: prefix
     const clean = raw.slice('web+at:'.length);
     params.set('uri', clean);
-    // Update the URL in the browser without reloading the page
+    // Update the URL in the browser bar (no reload)
     const newUrl = window.location.pathname + '?' + params.toString() + window.location.hash;
     window.history.replaceState({}, '', newUrl);
   }
@@ -623,12 +624,15 @@ Just select the option to switch to this in select drop-down after the collectio
 
 
 const params = new URLSearchParams(window.location.search);
-const raw = params.get('uri');
-if (raw && raw.startsWith('web+at:')) {
-  // Remove the "web+at:" prefix
-  const atUri = raw.slice('web+at:'.length);
-  // atUri is now: at://did:plc:qxlh6bohvep3taqhmtpipx4b/app.bsky.feed.post/3ltc6lbdots27
-  // Use atUri as needed
+const uri = params.get('uri');
+if (uri) {
+  if (uri.startsWith('at://')) {
+    // Handle as AT URI
+  } else if (uri.startsWith('https://bsky.app/')) {
+    // Handle as Bluesky web URL
+  } else {
+    // Invalid or unsupported format
+  }
 }
 
 
