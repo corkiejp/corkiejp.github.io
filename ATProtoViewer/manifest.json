@@ -30,7 +30,7 @@
   "protocol_handlers": [
     {
       "protocol": "web+at",
-      "url": "/ATProtoViewer/?uri==%s"
+      "url": "/ATProtoViewer/?uri=%s"
     }
   ]
 }
