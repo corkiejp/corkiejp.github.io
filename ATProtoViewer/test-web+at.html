@@ -1,6 +1,27 @@
-Test link!
+<h1>Test web+at protocol handling!</h1>
 
+<a href="https://corkiejp.github.io/ATProtoViewer/index.html" target="_Blank">Install PWA for Testing On desktop only!</a><br><br>
 
+This protocol handling not supported on android or iOS!<br><br>
+
+This idea of doing this got from:- <br>
+<a href="https://developer.chrome.com/docs/web-platform/best-practices/url-protocol-handler" target="_Blank">URL protocol handler registration for PWAs</a><br><br>
+
+Link below to:- <br>
+web+at:at://did:plc:qxlh6bohvep3taqhmtpipx4b/app.bsky.feed.post/3ltc6lbdots27<br><br>
 <a href="web+at:at://did:plc:qxlh6bohvep3taqhmtpipx4b/app.bsky.feed.post/3ltc6lbdots27">Open in PWA</a><br><br>
 
-<a href="web+at:https://bsky.app/profile/did:plc:oio4hkxaop4ao4wz2pp3f4cr/feed/atproto">Open feed in PWA</a>
+
+Link below to:- <br>
+web+at:https://bsky.app/profile/did:plc:oio4hkxaop4ao4wz2pp3f4cr/feed/atproto<br><br>
+
+<a href="web+at:https://bsky.app/profile/did:plc:oio4hkxaop4ao4wz2pp3f4cr/feed/atproto">Open feed in PWA</a><br><br>
+
+Key Points from Current Platform Support
+Desktop Chrome/Edge: Protocol handlers registered via the manifest work as expected.
+
+Android Chrome: As of now, protocol handler support via the manifest (protocol_handlers) is not implemented or not functional on Android Chrome. Even with a correct manifest, clicking a web+at: link on Android will not launch the installed PWA.
+
+Other Android browsers: The situation is the same or worse—PWAs generally do not get protocol handler support via the manifest on mobile browsers.
+
+iOS: Protocol handler support for PWAs is not available.
