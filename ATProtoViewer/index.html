@@ -607,7 +607,7 @@ Just select the option to switch to this in select drop-down after the collectio
 
 <script>
 const params = new URLSearchParams(window.location.search);
-const aturi = params.get('aturi');
+const aturi = params.get('uri');
 if (aturi && aturi.startsWith('web+at:')) {
   const atUriValue = aturi.slice('web+at:'.length);
   // Now atUriValue is your original at://... URI
