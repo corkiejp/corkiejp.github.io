@@ -21,18 +21,19 @@
   "share_target": {
     "action": "/ATProtoViewer/",
     "method": "GET",
-	"enctype": "application/x-www-form-urlencoded",
+    "enctype": "application/x-www-form-urlencoded",
     "params": {
-		"text": "uri",
-		"url": "uri"
-	}
+      "text": "uri",
+      "url": "uri"
+    }
   },
   "protocol_handlers": [
-  {
-    "protocol": "web+at",
-    "url": "/index.html/?aturi=%s"
-  }
-]  
+    {
+      "protocol": "web+at",
+      "url": "/ATProtoViewer/?aturi=%s"
+    }
+  ]
 }
+
 
 
