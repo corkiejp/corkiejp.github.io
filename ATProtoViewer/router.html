@@ -21,7 +21,7 @@
       } else if (full.startsWith('web+at:https://bsky.app/')) {
         // It's a Bluesky feed URL
         const feedUrl = full.slice('web+at:'.length); // remove web+at:
-        dest = '/ATProtoSimpleFeeds.html?input=' + encodeURIComponent(feedUrl);
+        dest = '/ATProtoViewer/ATProtoSimpleFeeds.html?input=' + encodeURIComponent(feedUrl);
       } else {
         // Fallback: treat as AT URI
         dest = '/ATProtoViewer/index.html?uri=' + encodeURIComponent(full.slice('web+at:'.length));

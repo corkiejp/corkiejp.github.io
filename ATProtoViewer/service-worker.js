@@ -5,6 +5,7 @@ const URLS_TO_CACHE = [
   '/ATProtoViewer/BlueskyPostViewer.html',
   '/ATProtoViewer/Blueskyessentiallinks.html',
   '/ATProtoViewer/ATProtoSimpleFeeds.html',
+  '/ATProtoViewer/router.html',
   '/ATProtoViewer/bookmarks.html',
   '/ATProtoViewer/manifest.webmanifest',
   '/ATProtoViewer/styles.css',
