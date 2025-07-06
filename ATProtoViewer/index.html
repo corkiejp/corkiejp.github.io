@@ -606,11 +606,15 @@ Just select the option to switch to this in select drop-down after the collectio
 
 
 <script>
+
+
 const params = new URLSearchParams(window.location.search);
-const aturi = params.get('uri');
-if (aturi && aturi.startsWith('web+at:')) {
-  const atUriValue = aturi.slice('web+at:'.length);
-  // Now atUriValue is your original at://... URI
+const raw = params.get('uri');
+if (raw && raw.startsWith('web+at:')) {
+  // Remove the "web+at:" prefix
+  const atUri = raw.slice('web+at:'.length);
+  // atUri is now: at://did:plc:qxlh6bohvep3taqhmtpipx4b/app.bsky.feed.post/3ltc6lbdots27
+  // Use atUri as needed
 }
 
 
