@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Redirecting…</title>
+  <script>
+    // Run as soon as possible
+    (function() {
+      const params = new URLSearchParams(window.location.search);
+      const full = params.get('full');
+      if (!full) {
+        // Optional: show a fallback message or redirect to home
+        window.location.replace('/ATProtoViewer/index.html');
+        return;
+      }
+      let dest;
+      if (full.startsWith('web+at:at://')) {
+        // It's an AT URI record
+        const atUri = full.slice('web+at:'.length); // remove web+at:
+        dest = '/ATProtoViewer/index.html?uri=' + encodeURIComponent(atUri);
+      } else if (full.startsWith('web+at:https://bsky.app/')) {
+        // It's a Bluesky feed URL
+        const feedUrl = full.slice('web+at:'.length); // remove web+at:
+        dest = '/ATProtoViewer/ATProtoSimpleFeeds.html?input=' + encodeURIComponent(feedUrl);
+      } else {
+        // Fallback: treat as AT URI
+        dest = '/ATProtoViewer/index.html?uri=' + encodeURIComponent(full.slice('web+at:'.length));
+      }
+      window.location.replace(dest);
+    })();
+  </script>
+  <style>
+    body { font-family: sans-serif; text-align: center; margin-top: 3em; }
+  </style>
+</head>
+<body>
+  <noscript>
+    <p>This page requires JavaScript for redirection.</p>
+  </noscript>
+  <p>Redirecting…</p>
+</body>
+</html>
