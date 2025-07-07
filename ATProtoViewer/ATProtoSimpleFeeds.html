@@ -213,25 +213,28 @@ loadFeedHistory();
       return data.did;
     }
 
-    // --- Convert input to AT URI ---
-    async function toAtUri(input) {
-      if (input.startsWith('at://')) return input;
-      let m = input.match(/^https:\/\/bsky\.app\/profile\/([^/]+)\/feed\/([^/?#]+)/);
-      if (m) {
-        const actor = m[1];
-        const feedId = m[2];
-        const did = actor.startsWith('did:') ? actor : await handleToDid(actor);
-        return `at://${did}/app.bsky.feed.generator/${feedId}`;
-      }
-      m = input.match(/^https:\/\/bsky\.app\/profile\/([^/]+)\/lists?\/([^/?#]+)/);
-      if (m) {
-        const actor = m[1];
-        const listId = m[2];
-        const did = actor.startsWith('did:') ? actor : await handleToDid(actor);
-        return `at://${did}/app.bsky.graph.list/${listId}`;
-      }
-      throw new Error("Unrecognized feed/list URL or AT URI.");
-    }
+// --- Convert input to AT URI (supports bsky.app and deer.social) ---
+async function toAtUri(input) {
+  if (input.startsWith('at://')) return input;
+
+  // Feed generator web URL (bsky.app or deer.social)
+  let m = input.match(/^https:\/\/(bsky\.app|deer\.social)\/profile\/([^/]+)\/feed\/([^/?#]+)/);
+  if (m) {
+    const actor = m[2];
+    const feedId = m[3];
+    const did = actor.startsWith('did:') ? actor : await handleToDid(actor);
+    return `at://${did}/app.bsky.feed.generator/${feedId}`;
+  }
+  // List web URL (bsky.app or deer.social)
+  m = input.match(/^https:\/\/(bsky\.app|deer\.social)\/profile\/([^/]+)\/lists?\/([^/?#]+)/);
+  if (m) {
+    const actor = m[2];
+    const listId = m[3];
+    const did = actor.startsWith('did:') ? actor : await handleToDid(actor);
+    return `at://${did}/app.bsky.graph.list/${listId}`;
+  }
+  throw new Error("Unrecognized feed/list URL or AT URI.");
+}
 
     // --- Open the modal and insert bsky-embed (feed/list) ---
 async function openBskyFeedEmbedModal(input) {
@@ -313,29 +316,30 @@ async function openBskyFeedEmbedModal(input) {
     document.addEventListener('DOMContentLoaded', updateShowFeedEmbedBtn);
 
     // --- Full feed loader and renderer ---
-    async function resolveInputToFeedType(input) {
-      if (input.startsWith('at://')) {
-        if (input.includes('/app.bsky.feed.generator/')) return {type: 'feed', uri: input};
-        if (input.includes('/app.bsky.graph.list/')) return {type: 'list', uri: input};
-      }
-      // Feed generator web URL
-      let m = input.match(/^https:\/\/bsky\.app\/profile\/([^/]+)\/feed\/([^/?#]+)/);
-      if (m) {
-        const actor = m[1];
-        const feedId = m[2];
-        const did = actor.startsWith('did:') ? actor : await handleToDid(actor);
-        return {type: 'feed', uri: `at://${did}/app.bsky.feed.generator/${feedId}`};
-      }
-      // List web URL
-      m = input.match(/^https:\/\/bsky\.app\/profile\/([^/]+)\/lists?\/([^/?#]+)/);
-      if (m) {
-        const actor = m[1];
-        const listId = m[2];
-        const did = actor.startsWith('did:') ? actor : await handleToDid(actor);
-        return {type: 'list', uri: `at://${did}/app.bsky.graph.list/${listId}`};
-      }
-      throw new Error("Unrecognized feed or list format.");
-    }
+// --- Resolve input to feed or list type (supports bsky.app and deer.social) ---
+async function resolveInputToFeedType(input) {
+  if (input.startsWith('at://')) {
+    if (input.includes('/app.bsky.feed.generator/')) return {type: 'feed', uri: input};
+    if (input.includes('/app.bsky.graph.list/')) return {type: 'list', uri: input};
+  }
+  // Feed generator web URL (bsky.app or deer.social)
+  let m = input.match(/^https:\/\/(bsky\.app|deer\.social)\/profile\/([^/]+)\/feed\/([^/?#]+)/);
+  if (m) {
+    const actor = m[2];
+    const feedId = m[3];
+    const did = actor.startsWith('did:') ? actor : await handleToDid(actor);
+    return {type: 'feed', uri: `at://${did}/app.bsky.feed.generator/${feedId}`};
+  }
+  // List web URL (bsky.app or deer.social)
+  m = input.match(/^https:\/\/(bsky\.app|deer\.social)\/profile\/([^/]+)\/lists?\/([^/?#]+)/);
+  if (m) {
+    const actor = m[2];
+    const listId = m[3];
+    const did = actor.startsWith('did:') ? actor : await handleToDid(actor);
+    return {type: 'list', uri: `at://${did}/app.bsky.graph.list/${listId}`};
+  }
+  throw new Error("Unrecognized feed or list format.");
+}
 
     async function loadFeed() {
       var input = document.getElementById('feed-input').value.trim();
