@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "AT Protocol Handler",
-  "version": "1.05",
+  "version": "1.06",
   "description": "Lists sites that accept at://did:plc... URLs",
   "omnibox": { "keyword": "at" },
   "background": {
@@ -13,13 +13,15 @@
   "permissions": [],
   "host_permissions": [
     "https://bsky.app/*",
-    "https://deer.social/*"
+    "https://deer.social/*",
+	"https://klearsky.pages.dev/*"
   ],
   "content_scripts": [
     {
       "matches": [
         "https://bsky.app/*",
-        "https://deer.social/*"
+        "https://deer.social/*",
+		"https://klearsky.pages.dev/*"
       ],
       "js": ["content.js"]
     }

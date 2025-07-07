@@ -1,12 +1,12 @@
 console.log("AT Protocol Handler content script loaded on", window.location.href);
 
-// Remove any existing popup
+// --- Utility: Remove any existing popup
 function removePopup() {
   const old = document.getElementById('atproto-popup');
   if (old) old.remove();
 }
 
-// Show the popup with all links
+// --- Utility: Show the popup with all links and snooze button
 function showPopup(aturl, x, y) {
   removePopup();
 
@@ -26,17 +26,25 @@ function showPopup(aturl, x, y) {
   popup.style.fontFamily = 'sans-serif';
   popup.style.minWidth = '220px';
 
-  popup.innerHTML = `
-    <b>Open at:// URI with:</b><br>
-    <a href="https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(aturl)}" target="_blank" style="display:block; margin-top:8px;">ATProtoViewer</a>
-    <a href="https://corkiejp.github.io/ttospwa/index.html?uri=${encodeURIComponent(aturl)}" target="_blank" style="display:block; margin-top:4px;">List of sites to open!</a>
-    <a href="${extensionListUrl}" target="_blank" style="display:block; margin-top:4px;">Extension List Page</a>
-    <button id="atproto-popup-close" style="margin-top:12px;display:block;">Close</button>
-  `;
+popup.innerHTML = `
+  <h3 style="margin-top:0;margin-bottom:0.5em;">ATProtocol Handler</h3>
+  <b>Open at:// URI with:</b><br>
+  <a href="https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(aturl)}" target="_blank" style="display:block; margin-top:8px;">ATProtoViewer</a>
+  <a href="https://corkiejp.github.io/ttospwa/index.html?uri=${encodeURIComponent(aturl)}" target="_blank" style="display:block; margin-top:4px;">List of sites to open!</a>
+  <a href="${extensionListUrl}" target="_blank" style="display:block; margin-top:4px;">Extension List Page</a>
+  <button id="atproto-popup-close" style="margin-top:12px;display:block;">Close</button>
+  <button id="atproto-popup-snooze" style="margin-top:8px;display:block;">Don’t show again this session</button>
+`;
+
 
   document.body.appendChild(popup);
 
   document.getElementById('atproto-popup-close').onclick = removePopup;
+  document.getElementById('atproto-popup-snooze').onclick = function() {
+    sessionStorage.setItem('atprotoPopupSnooze', '1');
+    removePopup();
+  };
+
   setTimeout(() => {
     document.addEventListener('mousedown', function handler(e) {
       if (!popup.contains(e.target)) {
@@ -47,7 +55,7 @@ function showPopup(aturl, x, y) {
   }, 100);
 }
 
-// Main event listener for copy button clicks (ONLY for post copy buttons)
+// --- Main event listener for copy button clicks (ONLY for post copy buttons)
 document.body.addEventListener('click', async (e) => {
   let el = e.target;
   // Traverse up the DOM tree to check for the right attributes
@@ -70,9 +78,9 @@ document.body.addEventListener('click', async (e) => {
     }
     el = el.parentElement;
   }
-}); // <-- THIS WAS MISSING
+}); 
 
-// Keydown shortcut for posts and feeds (Alt+C)
+// --- Keydown shortcut for posts and feeds (Alt+C)
 document.addEventListener('keydown', async function(e) {
   if (e.altKey && e.key.toLowerCase() === 'c') {
     const url = window.location.href;
@@ -112,3 +120,37 @@ document.addEventListener('keydown', async function(e) {
     }
   }
 });
+
+// --- KLEASKY: Show popup when navigating to a post (hash-based SPA navigation), with snooze
+if (window.location.hostname === 'klearsky.pages.dev') {
+  function getAtUriFromHash() {
+    const hash = window.location.hash;
+    const match = hash.match(/[?&]uri=([^&]+)/);
+    return match ? decodeURIComponent(match[1]) : null;
+  }
+
+  let lastHash = '';
+  function maybeShowPopupForPost() {
+    if (
+      window.location.hash.startsWith('#/post') &&
+      window.location.hash !== lastHash &&
+      !sessionStorage.getItem('atprotoPopupSnooze')
+    ) {
+      lastHash = window.location.hash;
+      const aturl = getAtUriFromHash();
+      if (aturl) {
+        showPopup(aturl, window.innerWidth / 2 - 120, 80);
+      }
+    }
+  }
+
+  // Listen for hashchange
+  window.addEventListener('hashchange', maybeShowPopupForPost);
+
+  // Fallback: observe DOM changes for SPA navigation quirks
+  const observer = new MutationObserver(maybeShowPopupForPost);
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  // Also check on initial load
+  maybeShowPopupForPost();
+}
