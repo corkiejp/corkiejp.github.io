@@ -1816,14 +1816,22 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // --- Helper to trigger fetch if all fields are filled ---
-  function triggerFetchIfReady() {
-    const pds = document.querySelector('[name="pds"]').value.trim();
-    const repo = document.querySelector('[name="repo"]').value.trim();
-    const collection = document.querySelector('[name="collection"]').value.trim();
-    if (pds && repo && collection) {
-      fetchAndDisplayRecords(pds, repo, collection);
-    }
+function triggerFetchIfReady() {
+  const repo = document.getElementById('repo').value.trim();
+  const collection = document.getElementById('collection').value.trim();
+  const rkey = document.getElementById('rkey').value.trim();
+  const pds = document.getElementById('pds').value.trim();
+
+  if (repo && collection && rkey && pds) {
+    // All fields present: fetch a single record
+    fetchAndDisplaySingleRecord(pds, repo, collection, rkey);
+  } else if (repo && collection && pds && !rkey) {
+    // No rkey: fetch all records in the collection
+    fetchAndDisplayAllRecords(pds, repo, collection);
   }
+  // else: not enough info to fetch anything yet
+}
+
 
  // --- Parse AT URI function ---
 async function parseAtUri(atUri, fetchAfter = true) {
