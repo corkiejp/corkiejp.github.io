@@ -70,4 +70,45 @@ document.body.addEventListener('click', async (e) => {
     }
     el = el.parentElement;
   }
+}); // <-- THIS WAS MISSING
+
+// Keydown shortcut for posts and feeds (Alt+C)
+document.addEventListener('keydown', async function(e) {
+  if (e.altKey && e.key.toLowerCase() === 'c') {
+    const url = window.location.href;
+
+    // Patterns for posts
+    const isDeerPost = url.startsWith('https://deer.social/') && url.includes('/post/');
+    const isBskyPost = url.startsWith('https://bsky.app/profile/') && url.includes('/post/');
+
+    // Patterns for feeds/lists
+    const isDeerFeed = url.startsWith('https://deer.social/') && url.includes('/feed/');
+    const isBskyFeed = url.startsWith('https://bsky.app/profile/') && url.includes('/feed/');
+
+    try {
+      // Copy the URL in all cases
+      if (isDeerPost || isBskyPost || isDeerFeed || isBskyFeed) {
+        await navigator.clipboard.writeText(url);
+      }
+
+      // Open the right viewer
+      if (isDeerPost || isBskyPost) {
+        // Open post in ATProtoViewer
+        window.open(
+          `https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(url)}`,
+          '_blank'
+        );
+        console.log('Post URL copied and viewer opened:', url);
+      } else if (isDeerFeed || isBskyFeed) {
+        // Open feed/list in ATProtoSimpleFeeds
+        window.open(
+          `https://corkiejp.github.io/ATProtoViewer/ATProtoSimpleFeeds.html?input=${encodeURIComponent(url)}`,
+          '_blank'
+        );
+        console.log('Feed URL copied and viewer opened:', url);
+      }
+    } catch (err) {
+      console.error('Clipboard write failed:', err);
+    }
+  }
 });

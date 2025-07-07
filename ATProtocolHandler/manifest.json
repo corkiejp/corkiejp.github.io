@@ -13,13 +13,13 @@
   "permissions": [],
   "host_permissions": [
     "https://bsky.app/*",
-    "https://dear.social/*"
+    "https://deer.social/*"
   ],
   "content_scripts": [
     {
       "matches": [
         "https://bsky.app/*",
-        "https://dear.social/*"
+        "https://deer.social/*"
       ],
       "js": ["content.js"]
     }
