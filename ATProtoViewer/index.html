@@ -2054,6 +2054,42 @@ function fetchAndDisplayProfile(did) {
 
 
 
+  // 2. If no URI, try DID parameter
+  if (!alreadyFetched && params.has('did')) {
+    const did = params.get('did').trim();
+    if (did) {
+      document.querySelector('[name="repo"]').value = did;
+      if (did.startsWith('did:plc:')) {
+        fetch('https://plc.directory/' + did)
+          .then(resp => resp.json())
+          .then(data => {
+            if (data?.service?.[0]?.serviceEndpoint) {
+              document.querySelector('[name="pds"]').value = data.service[0].serviceEndpoint.replace(/^https?:\/\//, '');
+            }
+            triggerFetchIfReady();
+          })
+          .catch(() => triggerFetchIfReady());
+      } else {
+        triggerFetchIfReady();
+      }
+      alreadyFetched = true;
+    }
+  }
+
+  // 3. Check for individual parameters (repo, collection, pds)
+  if (!alreadyFetched && (params.has('repo') || params.has('collection') || params.has('pds'))) {
+    if (params.has('pds')) {
+      document.querySelector('[name="pds"]').value = params.get('pds');
+    }
+    if (params.has('repo')) {
+      document.querySelector('[name="repo"]').value = params.get('repo');
+    }
+    if (params.has('collection')) {
+      document.querySelector('[name="collection"]').value = params.get('collection');
+    }
+    triggerFetchIfReady();
+    alreadyFetched = true;
+  }
 	
 
 function displayRecords(records, collection, pds, handle) {
@@ -2212,7 +2248,11 @@ async function createFollowRecordCard(record, pds) {
   
   
 
-
+  // --- Auto-fetch on page load if nothing handled above ---
+//  if (!alreadyFetched) {
+//    fetchAndDisplayRecords(DEFAULT_PDS, DEFAULT_REPO, DEFAULT_COLLECTION);
+//	 }
+});
 
 
 
