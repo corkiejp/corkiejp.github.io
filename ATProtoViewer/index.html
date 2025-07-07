@@ -622,6 +622,46 @@ Just select the option to switch to this in select drop-down after the collectio
 
 <script>
 
+// IDs of your required fields
+const requiredFields = ['pds', 'repo', 'collection', 'rkey'];
+
+// Helper: Check if all required fields are non-empty
+function allFieldsFilled() {
+  return requiredFields.every(id => {
+    const el = document.getElementById(id);
+    return el && el.value.trim() !== '';
+  });
+}
+
+// Main: Set up listeners
+requiredFields.forEach(id => {
+  const el = document.getElementById(id);
+  if (el) {
+    // Use 'input' event for real-time detection
+    el.addEventListener('input', tryAutoFetch);
+    // Also listen for 'change' event (covers dropdowns, etc.)
+    el.addEventListener('change', tryAutoFetch);
+  }
+});
+
+let autoFetched = false; // Prevent duplicate fetches
+
+function tryAutoFetch() {
+  if (allFieldsFilled() && !autoFetched) {
+    autoFetched = true;
+    // Replace with your actual fetch function:
+    fetchAndDisplaySingleRecord(
+      document.getElementById('pds').value.trim(),
+      document.getElementById('repo').value.trim(),
+      document.getElementById('collection').value.trim(),
+      document.getElementById('rkey').value.trim()
+    );
+  } else if (!allFieldsFilled()) {
+    autoFetched = false; // Reset if any field is cleared
+  }
+}
+
+
 
 
 
@@ -1443,7 +1483,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const did = params.get('did');
 
   if (uri && typeof parseAtUri === "function") {
-    parseAtUri(uri, false); // fill fields, don't auto-fetch
+    parseAtUri(uri, true); // fill fields, don't auto-fetch
   } else if (repo) {
     document.getElementById('repo').value = repo;
     // Optionally auto-fetch or fill other fields if needed
@@ -1654,7 +1694,7 @@ document.addEventListener('DOMContentLoaded', function() {
 const params = new URLSearchParams(window.location.search);
 const uri = params.get('uri');
 if (uri) {
-  parseAtUri(uri, false); // fill fields, don't auto-fetch
+  parseAtUri(uri, true); // fill fields, don't auto-fetch
   // If you want to auto-fetch as well, use: parseAtUri(uri, true);
 }
 
