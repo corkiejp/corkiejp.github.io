@@ -1,6 +1,8 @@
 # AT Protocol Handler ~ Chrome extension to open at did urls
 ## Now available on Chrome Webstore.
 
+**NOTE: -** Extension now works on Bluesky, Dear and Klearsky for getting to at urls? See Below.
+
 [AT Protocol Handler - Chrome Webstore](https://chromewebstore.google.com/detail/at-protocol-handler/foippfcmhngnjdlfhgaifppajnhlmafk)
 
 ## How to get the at did (or at uri) urls from Bluesky?
@@ -12,6 +14,13 @@ See this [Bluesky Thread](https://bsky.app/profile/did:plc:qxlh6bohvep3taqhmtpip
 If on mobile you don't need access to the Chrome Extension you can just share the link to my main PWA.
 Other websites/utilise also provided away to copy the urls.
 
+## Latest Improvements
+
+Still waiting on chromestore review for an ealier submitted update. But in the manual instal method I now have enabled coping/activating AT URL links popup,
+in Bluesky, Deer and Klearsky. It works differently on Klearsky due to how the site is scripted, there is a popup that opens automatically when You look at any post.
+If this is annoying choose to turn it on/off in browser extension settings by choosing to activate/deactivate on extension click only.
+
+Additional keyboard shortcut for Post and Feeds on Bluesky and Deer. Press '**alt+C**' to open my ATProtoViewer when looking at a post/feeds.
 
 ## Instructions
 
