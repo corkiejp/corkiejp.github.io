@@ -32,17 +32,58 @@ popup.innerHTML = `
   <a href="https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(aturl)}" target="_blank" style="display:block; margin-top:8px;">ATProtoViewer</a>
   <a href="https://corkiejp.github.io/ttospwa/index.html?uri=${encodeURIComponent(aturl)}" target="_blank" style="display:block; margin-top:4px;">List of sites to open!</a>
   <a href="${extensionListUrl}" target="_blank" style="display:block; margin-top:4px;">Extension List Page</a>
-  <button id="atproto-popup-close" style="margin-top:12px;display:block;">Close</button>
+  <button id="atproto-popup-mobile" style="margin-top:8px;display:block;">List in Mobile View</button>
   <button id="atproto-popup-snooze" style="margin-top:8px;display:block;">Don’t show again this session</button>
+  <button id="atproto-popup-close" style="margin-top:12px;display:block;">Close</button>
+  <div style="margin-top:1em;text-align:left;">
+    <b>Keyboard shortcuts:</b>
+    <ul style="margin:0 0 0 1.2em; padding:0;">
+      <li>Posts/feeds: <b>Alt+C</b></li>
+      <li>Mobile View list: <b>Alt+L</b></li>
+    </ul>
+  </div>
 `;
 
 
   document.body.appendChild(popup);
 
+  // Draggable logic
+  const header = popup.querySelector('h3');
+  let isDragging = false;
+  let offsetX = 0, offsetY = 0;
+  header.style.cursor = 'move';
+
+  header.onmousedown = function(e) {
+    isDragging = true;
+    offsetX = e.clientX - popup.offsetLeft;
+    offsetY = e.clientY - popup.offsetTop;
+    document.body.style.userSelect = 'none';
+  };
+
+  document.onmousemove = function(e) {
+    if (isDragging) {
+      popup.style.left = (e.clientX - offsetX) + 'px';
+      popup.style.top = (e.clientY - offsetY) + 'px';
+    }
+  };
+
+  document.onmouseup = function() {
+    isDragging = false;
+    document.body.style.userSelect = '';
+  };
+
+  // ...rest of your button handlers...
   document.getElementById('atproto-popup-close').onclick = removePopup;
   document.getElementById('atproto-popup-snooze').onclick = function() {
     sessionStorage.setItem('atprotoPopupSnooze', '1');
     removePopup();
+  };
+  document.getElementById('atproto-popup-mobile').onclick = function() {
+    window.open(
+      `https://corkiejp.github.io/ttospwa/index.html?uri=${encodeURIComponent(aturl)}`,
+      '_blank',
+      'width=400,height=700,menubar=no,toolbar=no,location=no,status=no'
+    );
   };
 
   setTimeout(() => {
@@ -54,6 +95,7 @@ popup.innerHTML = `
     });
   }, 100);
 }
+
 
 // --- Main event listener for copy button clicks (ONLY for post copy buttons)
 document.body.addEventListener('click', async (e) => {
@@ -154,3 +196,36 @@ if (window.location.hostname === 'klearsky.pages.dev') {
   // Also check on initial load
   maybeShowPopupForPost();
 }
+
+document.addEventListener('keydown', function(e) {
+  // Alt+L for opening the external popup
+  if (e.altKey && e.key.toLowerCase() === 'l') {
+    let url = null;
+
+    // For bsky.app and deer.social, just use the current URL if it's a post
+    if (
+      (window.location.hostname === 'bsky.app' && window.location.pathname.startsWith('/profile/') && window.location.pathname.includes('/post/')) ||
+      (window.location.hostname === 'deer.social' && window.location.pathname.includes('/post/'))
+    ) {
+      url = window.location.href;
+    }
+
+    // For klearsky, extract the Bluesky or at:// url from the hash
+    if (window.location.hostname === 'klearsky.pages.dev') {
+      const hash = window.location.hash;
+      // Try to get a Bluesky or at:// URL from the hash
+      const match = hash.match(/[?&]uri=([^&]+)/);
+      if (match) url = decodeURIComponent(match[1]);
+    }
+
+    if (url) {
+      window.open(
+        `https://corkiejp.github.io/ttospwa/index.html?uri=${encodeURIComponent(url)}`,
+        '_blank',
+        'width=400,height=700,menubar=no,toolbar=no,location=no,status=no'
+      );
+    } else {
+      alert('Not on a supported post page.');
+    }
+  }
+});
