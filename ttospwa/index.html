@@ -150,8 +150,7 @@ window.addEventListener('DOMContentLoaded', () => {
 ${JSON.stringify(params, null, 2)}
 </div>`;
     output += `<b>${key}</b>: ${value}<br><br>Open this post in below sites, if you didn't share from a post, see note appended at botom.<br>`;
-//    output += `<br><a href="${value}" target="_blank">Bluesky</a>`; scripted better below!
-    // Default: use the value as the AT URI (if it's already in AT URI format)
+
     let atUri = value;
     let did = null;
     let rkey = null;
@@ -160,7 +159,7 @@ ${JSON.stringify(params, null, 2)}
     let isBlueskyPostUrl = false;
     let isPostAtUri = false;
 
-    // If it's a Bluesky web URL, try to extract the DID and rkey
+    // Bluesky web URL
     if (value.startsWith('https://bsky.app/profile/')) {
       const urlParts = value.split('/');
       if (urlParts.length >= 7 && urlParts[5] === 'post') {
@@ -169,8 +168,19 @@ ${JSON.stringify(params, null, 2)}
         atUri = `at://${did}/app.bsky.feed.post/${rkey}`;
         isBlueskyPostUrl = true;
       }
-    } else if (value.startsWith('at://')) {
-      // If it's already an AT URI, extract DID and rkey if possible
+    }
+    // Deer Social web URL
+    else if (value.startsWith('https://deer.social/profile/')) {
+      const urlParts = value.split('/');
+      if (urlParts.length >= 7 && urlParts[5] === 'post') {
+        did = urlParts[4];
+        rkey = urlParts[6];
+        atUri = `at://${did}/app.bsky.feed.post/${rkey}`;
+        isBlueskyPostUrl = true; // treat as post URL for output
+      }
+    }
+    // at:// URI
+    else if (value.startsWith('at://')) {
       const match = value.match(/^at:\/\/([^/]+)\/app\.bsky\.feed\.post\/([^/]+)/);
       if (match) {
         did = match[1];
@@ -179,6 +189,7 @@ ${JSON.stringify(params, null, 2)}
       }
     }
 
+    // ... (rest of your output logic remains unchanged)
     // Now you can safely use did and atUri for sites that require them
     if (atUri) {
       output += `<a href="https://atp.tools/${atUri}" target="_blank">atp.tools</a>`;	
@@ -189,51 +200,36 @@ ${JSON.stringify(params, null, 2)}
       output += `<a href="https://pdsls.dev/${atUri}" target="_blank">pdsls.dev</a>`;
     }
 
-if (did && rkey) {
-  output += `<a href="https://blueviewer.pages.dev/view?actor=${did}&rkey=${rkey}" target="_blank">blueviewer.pages.dev</a>`;
-  output += "<div class=\"center-note\">AppViews</div>";
-  output += `<a href="https://azsky.app/profile/${did}/post/${rkey}" target="_blank">Azsky</a>`;
-  output += `<a href="https://bsky.app/profile/${did}/post/${rkey}" target="_blank">Bluesky</a>`;
-  output += `<a href="https://deer.social/profile/${did}/post/${rkey}" target="_blank">Deer Social</a>`;
-
-  
-  output += `<a href="https://klearsky.pages.dev/#/post?uri=at://${did}/app.bsky.feed.post/${rkey}" target="_blank">Klearsky</a>`;
-  
-  output += `<a href="https://reddwarf.whey.party/profile/${did}/post/${rkey}" target="_blank">Red Dwarf Lite ~ (direct PDS queries)</a>`;  
-  
-  // Add the placeholder
-  output += `<span id="blueskytomp4-link-${rkey}"></span>`;
-  // ... other output
-  // Set the main output ONCE
-  document.getElementById('output').innerHTML = output;
-  // Now fetch and insert just the mp4 link
-  fetchHandleFromDid(did).then(handle => {
-    const blueskyMp4Html = `
-      <div class="center-note">Only use below if post has a video! And page was opened from bluesky share of the post!</div>
-      <a href="https://blueskytomp4.com/?url=https://bsky.app/profile/${handle}/post/${rkey}" target="_blank">blueskytomp4.com</a>
-	  <div class="center-note">Look up profiles below!</div>
-	  <a href="https://bskycopilot.com/?handle=${handle}" target="_blank">bskycopilot.com</a>
-	  
-    `;
-    document.getElementById(`blueskytomp4-link-${rkey}`).innerHTML = blueskyMp4Html;
-  });
-}
-
+    if (did && rkey) {
+      output += `<a href="https://blueviewer.pages.dev/view?actor=${did}&rkey=${rkey}" target="_blank">blueviewer.pages.dev</a>`;
+      output += "<div class=\"center-note\">AppViews</div>";
+      output += `<a href="https://azsky.app/profile/${did}/post/${rkey}" target="_blank">Azsky</a>`;
+      output += `<a href="https://bsky.app/profile/${did}/post/${rkey}" target="_blank">Bluesky</a>`;
+      output += `<a href="https://deer.social/profile/${did}/post/${rkey}" target="_blank">Deer Social</a>`;
+      output += `<a href="https://klearsky.pages.dev/#/post?uri=at://${did}/app.bsky.feed.post/${rkey}" target="_blank">Klearsky</a>`;
+      output += `<a href="https://reddwarf.whey.party/profile/${did}/post/${rkey}" target="_blank">Red Dwarf Lite ~ (direct PDS queries)</a>`;
+      output += `<span id="blueskytomp4-link-${rkey}"></span>`;
+      document.getElementById('output').innerHTML = output;
+      fetchHandleFromDid(did).then(handle => {
+        const blueskyMp4Html = `
+          <div class="center-note">Only use below if post has a video! And page was opened from bluesky share of the post!</div>
+          <a href="https://blueskytomp4.com/?url=https://bsky.app/profile/${handle}/post/${rkey}" target="_blank">blueskytomp4.com</a>
+          <div class="center-note">Look up profiles below!</div>
+          <a href="https://bskycopilot.com/?handle=${handle}" target="_blank">bskycopilot.com</a>
+        `;
+        document.getElementById(`blueskytomp4-link-${rkey}`).innerHTML = blueskyMp4Html;
+      });
+    }
 
     if (did) {
-
-	  output += `<a href="https://atproto.at/viewer?uri=${did}" target="_blank">atproto.at profile</a>`;
+      output += `<a href="https://atproto.at/viewer?uri=${did}" target="_blank">atproto.at profile</a>`;
       output += `<a href="https://bluefacts.app/profile/${did}" target="_blank">bluefacts.app</a>`;
-
       output += `<a href="https://blueview.app/public/${did}" target="_blank">blueview.app</a>`;
-	  
       output += `<a href="https://clearsky.app/${did}/history" target="_blank">clearsky</a>`;	  
       output += `<a href="https://cred.blue/${did}" target="_blank">Cred.blue</a>`;
       output += `<a href="https://skykit.blue/${did}" target="_blank">skykit.blue</a>`;	  
       output += `<a href="https://skytools.anon5r.com/profile/${did}" target="_blank">skytools.anon5r.com`;	  
       output += `<a href="https://toolify.blue/profile/${did}" target="_blank">Toolify.blue</a>`;
-
-
       output += `<br><br><a href="https://corkiejp.github.io/ATProtoViewer/Blueskyessentiallinks.html" target="_blank">Bluesky essential links</a>`;
     }
     output += '<div class="center-note"><b>Note: -</b> PLC Directory lookup requires a DID string and this script only has handles.<br> But atproto.at has a display of that info and a link to that information.<br> So click on DID Doc there? So no need to provide a direct link here? <br><a href="https://github.com/corkiejp/corkiejp.github.io/blob/well-known/ttospwa/noteonthispwa.md" target="_blank">More Notes</a></div>';
@@ -242,11 +238,11 @@ if (did && rkey) {
     if (!isBlueskyPostUrl && !isPostAtUri) {
       output += `
         <div style="margin:1em 0; color:#d9534f; font-size:1em;">
-          <strong>Note:</strong> This app currently only supports sharing Bluesky post links.<br>
+          <strong>Note:</strong> This app currently only supports sharing Bluesky or Deer Social post links.<br>
           Profile shares or other formats may not work as expected.<br>
           For profile lookups, use my other PWA directly instead: -
           <a href="https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(value)}" target="_blank" style="color:#0074d9;text-decoration:underline;">ATProtoViewer not a DID</a>.
-		  <a href="https://corkiejp.github.io/ATProtoViewer/index.html?did=${encodeURIComponent(value)}" target="_blank" style="color:#0074d9;text-decoration:underline;">ATProtoViewer if a DID</a>.
+          <a href="https://corkiejp.github.io/ATProtoViewer/index.html?did=${encodeURIComponent(value)}" target="_blank" style="color:#0074d9;text-decoration:underline;">ATProtoViewer if a DID</a>.
         </div>
       `;
     }
@@ -255,6 +251,7 @@ if (did && rkey) {
   document.body.innerHTML += `<div class="center-note"><h3>Received Share Parameters:</h3>${output || "None"}</div>`;
   console.log("Received share params:", Object.fromEntries(params.entries()));
 });
+
 
 function getParams() {
   const params = new URLSearchParams(window.location.search);

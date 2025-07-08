@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ttospwa-v1.19';
+const CACHE_NAME = 'ttospwa-v1.20';
 const URLS_TO_CACHE = [
   '/ttospwa/',
   '/ttospwa/index.html',
@@ -17,6 +17,7 @@ const URLS_TO_CACHE = [
 // added additional links: - azsky.app, skytools.anon5r.com, blueviewer.pages.dev, skykit.blue, blueview.app & bskycopilot.com
 // + Red Dwarf Lite
 // Added styling for desktop display.
+// Support deer social links
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
