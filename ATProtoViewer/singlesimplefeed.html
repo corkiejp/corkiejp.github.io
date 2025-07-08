@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bluesky Feed Embed (with URL conversion)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.jsdelivr.net/npm/bsky-embed@latest/dist/bsky-embed.es.js"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #f5f6fa; margin: 0; padding: 2em 0; }
+    .container { max-width: 700px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding: 2em; }
+    h1 { text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Bluesky Feed Embed</h1>
+    <div id="embed-container"></div>
+  </div>
+  <script>
+  
+// ******** Change the const below to the feed you want to use? *********  
+    // 1. Set your Bluesky feed link here (web URL or AT URI)
+    const FEED_LINK = "https://bsky.app/profile/corkiejp.posts.fyi/feed/aaanlwyxmscma";
+
+    // Example: "at://did:plc:lgjvdkqeeutvf7zj6wow3jro/app.bsky.feed.generator/aaanlwyxmscma"
+	
+// ****** Nothing else below this needs changing!	
+
+    // 2. Helper to resolve handle to DID if needed
+    async function handleToDid(handle) {
+      const res = await fetch(
+        `https://bsky.social/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(handle)}`
+      );
+      if (!res.ok) throw new Error("Handle not found: " + handle);
+      const data = await res.json();
+      return data.did;
+    }
+
+    // 3. Convert web URL to AT URI if needed
+    async function toAtUri(input) {
+      if (input.startsWith('at://')) return input;
+      let m = input.match(/^https:\/\/(bsky\.app|deer\.social)\/profile\/([^/]+)\/feed\/([^/?#]+)/);
+      if (m) {
+        const actor = m[2];
+        const feedId = m[3];
+        const did = actor.startsWith('did:') ? actor : await handleToDid(actor);
+        return `at://${did}/app.bsky.feed.generator/${feedId}`;
+      }
+      throw new Error("Unrecognized or unsupported Bluesky feed URL.");
+    }
+
+    // 4. On page load, convert and embed
+    (async () => {
+      try {
+        const atUri = await toAtUri(FEED_LINK);
+        document.getElementById('embed-container').innerHTML = `
+          <bsky-embed
+            feed="${atUri}"
+            limit="30"
+            link-image="true"
+            link-target="_blank"
+            load-more="true"
+            disable-autoplay="true">
+          </bsky-embed>
+        `;
+      } catch (err) {
+        document.getElementById('embed-container').innerHTML = `<div style="color:#dc2626;">${err.message}</div>`;
+      }
+    })();
+  </script>
+</body>
+</html>
