@@ -1,8 +1,6 @@
 # AT Protocol Handler ~ Chrome extension to open at did urls
 ## Now available on Chrome Webstore.
 
-**NOTE: -** Extension now works on Bluesky, Dear and Klearsky for getting to at urls? See Below.
-
 [AT Protocol Handler - Chrome Webstore](https://chromewebstore.google.com/detail/at-protocol-handler/foippfcmhngnjdlfhgaifppajnhlmafk)
 
 ## How to get the at did (or at uri) urls from Bluesky?
@@ -13,6 +11,26 @@ See this [Bluesky Thread](https://bsky.app/profile/did:plc:qxlh6bohvep3taqhmtpip
 
 If on mobile you don't need access to the Chrome Extension you can just share the link to my main PWA.
 Other websites/utilise also provided away to copy the urls.
+
+## Overview
+
+**AT Protocol Handler** is a handy browser extension that helps you open and share [at://] URLs (DID URIs) across the growing ecosystem of Bluesky, Deer Social, and other AT Protocol-compatible apps.
+
+### Features
+
+- **Instantly lists sites that accept at://did:plc... URLs**
+Paste your at:// URI and get a curated list of compatible web apps and viewers.
+- **Address Bar Quick Action**
+Type `at` in the address bar, hit space or tab, and paste your at:// URL to activate the extension.
+- **One-Click Copy and Share**
+On supported sites (Bluesky, Deer Social, Klearsky), click the “Copy at:// URI” button or use keyboard shortcuts to quickly open or share posts and feeds.
+- **Keyboard Shortcuts for Power Users**
+    - **Alt+C** – Instantly open the current post or feed in an external viewer (works on Bluesky, Deer Social, and Klearsky).
+    - **Alt+L** – Open the current post in a mobile-friendly “List of Sites to Open” view.
+- **Session Snooze**
+Optionally hide the popup for the current session with a single click.
+- **Mobile and Desktop Friendly**
+Designed for seamless use on both desktop and mobile browsers.
 
 ## Latest Improvements
 
