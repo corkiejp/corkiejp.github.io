@@ -27,7 +27,13 @@ function showPopup(aturl, x, y) {
   popup.style.minWidth = '220px';
 
   popup.innerHTML = `
-    <h3 style="margin-top:0;margin-bottom:0.5em;">ATProtocol Handler</h3>
+  <h3 title="Drag to move" style="margin-top:0;margin-bottom:0.5em;cursor:move;user-select:none;">
+    <span style="font-size:1.2em;vertical-align:middle;opacity:0.6;margin-right:0.3em;">&#9776;</span>
+    ATProtocol Handler
+  </h3>
+  <div style="font-size:0.95em;color:#666;margin-bottom:0.5em;">
+    <em>Tip: Drag the title bar to move this popup</em>
+  </div>
     <b>Open at:// URI with:</b><br>
     <a href="https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(aturl)}" target="_blank" style="display:block; margin-top:8px;">ATProtoViewer</a>
     <a href="https://corkiejp.github.io/ttospwa/index.html?uri=${encodeURIComponent(aturl)}" target="_blank" style="display:block; margin-top:4px;">List of sites to open!</a>
