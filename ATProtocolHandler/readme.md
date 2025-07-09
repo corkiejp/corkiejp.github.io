@@ -39,6 +39,10 @@ You need to enable 'Developer Mode' in bluesky website. (Can also be done on mob
 
 See this [Bluesky Thread](https://bsky.app/profile/did:plc:qxlh6bohvep3taqhmtpipx4b/post/3lqvaakn4u25g)
 
+Or
+
+[This Video post of mine on bluesky.](https://bsky.app/profile/corkiejp.github.io/post/3ltc6lbdots27)
+
 If on mobile you don't need access to the Chrome Extension you can just share the link to my main PWA.
 Other websites/utilise also provided away to copy the urls.
 Resolves to the below sites in image at present.
