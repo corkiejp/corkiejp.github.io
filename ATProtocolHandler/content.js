@@ -47,30 +47,64 @@ popup.innerHTML = `
 
   document.body.appendChild(popup);
 
-  // Draggable logic
-  const header = popup.querySelector('h3');
-  let isDragging = false;
-  let offsetX = 0, offsetY = 0;
-  header.style.cursor = 'move';
+// Draggable logic (mouse + touch) with viewport limiting
+const header = popup.querySelector('h3');
+let isDragging = false;
+let offsetX = 0, offsetY = 0;
 
-  header.onmousedown = function(e) {
+// Utility to keep popup inside the viewport
+function clamp(val, min, max) {
+  return Math.max(min, Math.min(max, val));
+}
+
+// Mouse events
+header.style.cursor = 'move';
+header.onmousedown = function(e) {
+  isDragging = true;
+  offsetX = e.clientX - popup.offsetLeft;
+  offsetY = e.clientY - popup.offsetTop;
+  document.body.style.userSelect = 'none';
+};
+
+document.onmousemove = function(e) {
+  if (isDragging) {
+    const left = clamp(e.clientX - offsetX, 0, window.innerWidth - popup.offsetWidth);
+    const top = clamp(e.clientY - offsetY, 0, window.innerHeight - popup.offsetHeight);
+    popup.style.left = left + 'px';
+    popup.style.top = top + 'px';
+  }
+};
+
+document.onmouseup = function() {
+  isDragging = false;
+  document.body.style.userSelect = '';
+};
+
+// Touch events
+header.ontouchstart = function(e) {
+  if (e.touches.length === 1) {
     isDragging = true;
-    offsetX = e.clientX - popup.offsetLeft;
-    offsetY = e.clientY - popup.offsetTop;
+    offsetX = e.touches[0].clientX - popup.offsetLeft;
+    offsetY = e.touches[0].clientY - popup.offsetTop;
     document.body.style.userSelect = 'none';
-  };
+  }
+};
 
-  document.onmousemove = function(e) {
-    if (isDragging) {
-      popup.style.left = (e.clientX - offsetX) + 'px';
-      popup.style.top = (e.clientY - offsetY) + 'px';
-    }
-  };
+document.ontouchmove = function(e) {
+  if (isDragging && e.touches.length === 1) {
+    const left = clamp(e.touches[0].clientX - offsetX, 0, window.innerWidth - popup.offsetWidth);
+    const top = clamp(e.touches[0].clientY - offsetY, 0, window.innerHeight - popup.offsetHeight);
+    popup.style.left = left + 'px';
+    popup.style.top = top + 'px';
+  }
+};
 
-  document.onmouseup = function() {
-    isDragging = false;
-    document.body.style.userSelect = '';
-  };
+document.ontouchend = function() {
+  isDragging = false;
+  document.body.style.userSelect = '';
+};
+
+
 
   // ...rest of your button handlers...
   document.getElementById('atproto-popup-close').onclick = removePopup;
@@ -141,27 +175,48 @@ document.addEventListener('keydown', async function(e) {
         await navigator.clipboard.writeText(url);
       }
 
-      // Open the right viewer
+      // Open the right viewer for posts
       if (isDeerPost || isBskyPost) {
-        // Open post in ATProtoViewer
         window.open(
           `https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(url)}`,
           '_blank'
         );
         console.log('Post URL copied and viewer opened:', url);
-      } else if (isDeerFeed || isBskyFeed) {
-        // Open feed/list in ATProtoSimpleFeeds
+      }
+      // Open the right viewer for feeds/lists
+      else if (isDeerFeed || isBskyFeed) {
         window.open(
           `https://corkiejp.github.io/ATProtoViewer/ATProtoSimpleFeeds.html?input=${encodeURIComponent(url)}`,
           '_blank'
         );
         console.log('Feed URL copied and viewer opened:', url);
       }
+      // --- Klearsky support ---
+      else if (window.location.hostname === 'klearsky.pages.dev') {
+        // Try to extract the at:// URI from the hash
+        const hash = window.location.hash;
+        const match = hash.match(/[?&]uri=([^&]+)/);
+        if (match) {
+          const aturl = decodeURIComponent(match[1]);
+          await navigator.clipboard.writeText(aturl);
+
+          // Open the post in ATProtoViewer
+          window.open(
+            `https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(aturl)}`,
+            '_blank'
+          );
+          console.log('Klearsky at:// URI copied and viewer opened:', aturl);
+        } else {
+          // Optionally, handle feeds or lists if you want (klearsky doesn't have a standard feed/list URL pattern)
+          alert('No at:// post URI found in the current Klearsky page.');
+        }
+      }
     } catch (err) {
       console.error('Clipboard write failed:', err);
     }
   }
 });
+
 
 // --- KLEASKY: Show popup when navigating to a post (hash-based SPA navigation), with snooze
 if (window.location.hostname === 'klearsky.pages.dev') {
