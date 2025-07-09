@@ -26,87 +26,90 @@ function showPopup(aturl, x, y) {
   popup.style.fontFamily = 'sans-serif';
   popup.style.minWidth = '220px';
 
-popup.innerHTML = `
-  <h3 style="margin-top:0;margin-bottom:0.5em;">ATProtocol Handler</h3>
-  <b>Open at:// URI with:</b><br>
-  <a href="https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(aturl)}" target="_blank" style="display:block; margin-top:8px;">ATProtoViewer</a>
-  <a href="https://corkiejp.github.io/ttospwa/index.html?uri=${encodeURIComponent(aturl)}" target="_blank" style="display:block; margin-top:4px;">List of sites to open!</a>
-  <a href="${extensionListUrl}" target="_blank" style="display:block; margin-top:4px;">Extension List Page</a>
-  <button id="atproto-popup-mobile" style="margin-top:8px;display:block;">List in Mobile View</button>
-  <button id="atproto-popup-snooze" style="margin-top:8px;display:block;">Don’t show again this session</button>
-  <button id="atproto-popup-close" style="margin-top:12px;display:block;">Close</button>
-  <div style="margin-top:1em;text-align:left;">
-    <b>Keyboard shortcuts:</b>
-    <ul style="margin:0 0 0 1.2em; padding:0;">
-      <li>Posts/feeds: <b>Alt+C</b></li>
-      <li>Mobile View list: <b>Alt+L</b></li>
-    </ul>
-  </div>
-`;
-
+  popup.innerHTML = `
+    <h3 style="margin-top:0;margin-bottom:0.5em;">ATProtocol Handler</h3>
+    <b>Open at:// URI with:</b><br>
+    <a href="https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(aturl)}" target="_blank" style="display:block; margin-top:8px;">ATProtoViewer</a>
+    <a href="https://corkiejp.github.io/ttospwa/index.html?uri=${encodeURIComponent(aturl)}" target="_blank" style="display:block; margin-top:4px;">List of sites to open!</a>
+    <a href="${extensionListUrl}" target="_blank" style="display:block; margin-top:4px;">Extension List Page</a>
+    <button id="atproto-popup-mobile" style="margin-top:8px;display:block;">List in Mobile View</button>
+    <button id="atproto-popup-snooze" style="margin-top:8px;display:block;">Don’t show again this session</button>
+    <button id="atproto-popup-close" style="margin-top:12px;display:block;">Close</button>
+    <div style="margin-top:1em;text-align:left;">
+      <b>Keyboard shortcuts:</b>
+      <ul style="margin:0 0 0 1.2em; padding:0;">
+        <li>Posts/feeds: <b>Alt+C</b></li>
+        <li>Mobile View list: <b>Alt+L</b></li>
+      </ul>
+    </div>
+  `;
 
   document.body.appendChild(popup);
 
-// Draggable logic (mouse + touch) with viewport limiting
-const header = popup.querySelector('h3');
-let isDragging = false;
-let offsetX = 0, offsetY = 0;
+  // --- Draggable logic (mouse + touch, with viewport limiting) ---
+  const header = popup.querySelector('h3');
+  header.style.cursor = 'move';
+  header.style.userSelect = 'none';
 
-// Utility to keep popup inside the viewport
-function clamp(val, min, max) {
-  return Math.max(min, Math.min(max, val));
-}
+  let isDragging = false;
+  let offsetX = 0, offsetY = 0;
 
-// Mouse events
-header.style.cursor = 'move';
-header.onmousedown = function(e) {
-  isDragging = true;
-  offsetX = e.clientX - popup.offsetLeft;
-  offsetY = e.clientY - popup.offsetTop;
-  document.body.style.userSelect = 'none';
-};
-
-document.onmousemove = function(e) {
-  if (isDragging) {
-    const left = clamp(e.clientX - offsetX, 0, window.innerWidth - popup.offsetWidth);
-    const top = clamp(e.clientY - offsetY, 0, window.innerHeight - popup.offsetHeight);
-    popup.style.left = left + 'px';
-    popup.style.top = top + 'px';
+  function clamp(val, min, max) {
+    return Math.max(min, Math.min(max, val));
   }
-};
 
-document.onmouseup = function() {
-  isDragging = false;
-  document.body.style.userSelect = '';
-};
+  // Mouse drag
+  header.addEventListener('mousedown', function(e) {
+    isDragging = true;
+    offsetX = e.clientX - popup.offsetLeft;
+    offsetY = e.clientY - popup.offsetTop;
+    document.body.style.userSelect = 'none';
 
-// Touch events
-header.ontouchstart = function(e) {
-  if (e.touches.length === 1) {
+    function onMouseMove(e) {
+      if (isDragging) {
+        const left = clamp(e.clientX - offsetX, 0, window.innerWidth - popup.offsetWidth);
+        const top = clamp(e.clientY - offsetY, 0, window.innerHeight - popup.offsetHeight);
+        popup.style.left = left + 'px';
+        popup.style.top = top + 'px';
+      }
+    }
+    function onMouseUp() {
+      isDragging = false;
+      document.body.style.userSelect = '';
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    }
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  });
+
+  // Touch drag
+  header.addEventListener('touchstart', function(e) {
+    if (e.touches.length !== 1) return;
     isDragging = true;
     offsetX = e.touches[0].clientX - popup.offsetLeft;
     offsetY = e.touches[0].clientY - popup.offsetTop;
     document.body.style.userSelect = 'none';
-  }
-};
 
-document.ontouchmove = function(e) {
-  if (isDragging && e.touches.length === 1) {
-    const left = clamp(e.touches[0].clientX - offsetX, 0, window.innerWidth - popup.offsetWidth);
-    const top = clamp(e.touches[0].clientY - offsetY, 0, window.innerHeight - popup.offsetHeight);
-    popup.style.left = left + 'px';
-    popup.style.top = top + 'px';
-  }
-};
+    function onTouchMove(e) {
+      if (!isDragging || e.touches.length !== 1) return;
+      e.preventDefault(); // Prevent page scroll
+      const left = clamp(e.touches[0].clientX - offsetX, 0, window.innerWidth - popup.offsetWidth);
+      const top = clamp(e.touches[0].clientY - offsetY, 0, window.innerHeight - popup.offsetHeight);
+      popup.style.left = left + 'px';
+      popup.style.top = top + 'px';
+    }
+    function onTouchEnd() {
+      isDragging = false;
+      document.body.style.userSelect = '';
+      document.removeEventListener('touchmove', onTouchMove, {passive:false});
+      document.removeEventListener('touchend', onTouchEnd);
+    }
+    document.addEventListener('touchmove', onTouchMove, {passive:false});
+    document.addEventListener('touchend', onTouchEnd);
+  }, {passive: false});
 
-document.ontouchend = function() {
-  isDragging = false;
-  document.body.style.userSelect = '';
-};
-
-
-
-  // ...rest of your button handlers...
+  // --- Button handlers ---
   document.getElementById('atproto-popup-close').onclick = removePopup;
   document.getElementById('atproto-popup-snooze').onclick = function() {
     sessionStorage.setItem('atprotoPopupSnooze', '1');
@@ -120,6 +123,7 @@ document.ontouchend = function() {
     );
   };
 
+  // --- Dismiss popup when clicking outside ---
   setTimeout(() => {
     document.addEventListener('mousedown', function handler(e) {
       if (!popup.contains(e.target)) {
