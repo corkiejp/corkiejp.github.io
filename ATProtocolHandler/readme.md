@@ -3,15 +3,6 @@
 
 [AT Protocol Handler - Chrome Webstore](https://chromewebstore.google.com/detail/at-protocol-handler/foippfcmhngnjdlfhgaifppajnhlmafk)
 
-## How to get the at did (or at uri) urls from Bluesky?
-
-You need to enable 'Developer Mode' in bluesky website. (Can also be done on mobile app.)
-
-See this [Bluesky Thread](https://bsky.app/profile/did:plc:qxlh6bohvep3taqhmtpipx4b/post/3lqvaakn4u25g)
-
-If on mobile you don't need access to the Chrome Extension you can just share the link to my main PWA.
-Other websites/utilise also provided away to copy the urls.
-
 ## Overview
 
 **AT Protocol Handler** is a handy browser extension that helps you open and share [at://] URLs (DID URIs) across the growing ecosystem of Bluesky, Deer Social, and other AT Protocol-compatible apps.
@@ -38,12 +29,18 @@ Still waiting on chromestore review for an ealier submitted update. But in the m
 in Bluesky, Deer and Klearsky. It works differently on Klearsky due to how the site is scripted, there is a popup that opens automatically when You look at any post.
 If this is annoying choose to turn it on/off in browser extension settings by choosing to activate/deactivate on extension click only.
 
-Additional keyboard shortcut for Post and Feeds on Bluesky and Deer. Press '**alt+C**' to open my ATProtoViewer when looking at a post/feeds.
 
 ## Instructions
 
 
-POC/WIP ~~Manual extension install only at present~~.
+### How to get the at did (or at uri) urls from Bluesky?
+
+You need to enable 'Developer Mode' in bluesky website. (Can also be done on mobile app.)
+
+See this [Bluesky Thread](https://bsky.app/profile/did:plc:qxlh6bohvep3taqhmtpipx4b/post/3lqvaakn4u25g)
+
+If on mobile you don't need access to the Chrome Extension you can just share the link to my main PWA.
+Other websites/utilise also provided away to copy the urls.
 Resolves to the below sites in image at present.
 Use: - 'at' as the keyword to put in the browser url, press space/tab to activate and then paste url!
 
