@@ -1111,61 +1111,68 @@ function renderEmbedAtUri(embed, atUri, cdnBase) {
   return html;
 }
 
-function renderEmbedDid(embed, did, cdnBase) {
+function renderEmbedDid(embed, did, cdnBase, rkey) {
   if (!embed) return '';
 
   // External link card
-  if (embed.$type === 'app.bsky.embed.external' && embed.external) {
-    const ext = embed.external;
-    let thumbHtml = '';
-    if (ext.thumb?.ref?.$link) {
-      const blob = ext.thumb.ref.$link;
-      const mimeType = ext.thumb.mimeType?.split('/')[1] || 'jpeg';
-      const thumbUrl = `${cdnBase}/img/feed_thumbnail/plain/${did}/${blob}@${mimeType}`;
-      thumbHtml = `<img src="${thumbUrl}" alt="Embed thumbnail" class="modal-img" data-source="LinkCard"
-                     style="max-width:96px;max-height:96px;border-radius:8px;margin-right:8px;"
-                     onerror="this.style.display='none';">`;
-    }
-    return `
-      <div class="embed-card" style="margin-top:12px;border:1px solid #eee;padding:12px;border-radius:8px;">
-        <div style="display:flex;gap:12px;">
-          ${thumbHtml}
-          <div style="flex:1;">
-            <a href="${ext.uri}" target="_blank" rel="noopener"
-               style="font-weight:500;text-decoration:none;color:#0074d9;">
-              ${ext.title || ext.uri}
-            </a>
-            ${ext.description ? `<div style="margin-top:4px;color:#666;font-size:0.9em;">${ext.description}</div>` : ''}
-          </div>
+if (embed.$type === 'app.bsky.embed.external' && embed.external) {
+  const ext = embed.external;
+  let thumbHtml = '';
+  if (ext.thumb?.ref?.$link) {
+    const blob = ext.thumb.ref.$link;
+    const mimeType = ext.thumb.mimeType?.split('/')[1] || 'jpeg';
+    const thumbUrl = `${cdnBase}/img/feed_thumbnail/plain/${did}/${blob}@${mimeType}`;
+    // No Scrapboard link here!
+    thumbHtml = `<img src="${thumbUrl}" alt="Embed thumbnail" class="modal-img" data-source="LinkCard"
+                   style="max-width:96px;max-height:96px;border-radius:8px;margin-right:8px;"
+                   onerror="this.style.display='none';">`;
+  }
+  return `
+    <div class="embed-card" style="margin-top:12px;border:1px solid #eee;padding:12px;border-radius:8px;">
+      <div style="display:flex;gap:12px;">
+        ${thumbHtml}
+        <div style="flex:1;">
+          <a href="${ext.uri}" target="_blank" rel="noopener"
+             style="font-weight:500;text-decoration:none;color:#0074d9;">
+            ${ext.title || ext.uri}
+          </a>
+          ${ext.description ? `<div style="margin-top:4px;color:#666;font-size:0.9em;">${ext.description}</div>` : ''}
         </div>
       </div>
-    `;
-  }
+    </div>
+  `;
+}
+
 
 
   // Image embeds
-  if (embed.$type === 'app.bsky.embed.images' && Array.isArray(embed.images)) {
-    return `
-      <div class="embed-images" style="margin-top:12px;display:flex;gap:8px;">
-        ${embed.images.map(img => {
-          if (img.image?.ref?.$link) {
-            const blob = img.image.ref.$link;
-            const mimeType = img.image.mimeType?.split('/')[1] || 'jpeg';
-            const imgUrl = `${cdnBase}/img/feed_fullsize/plain/${did}/${blob}@${mimeType}`;
-				return `<img src="${imgUrl}" alt="${img.alt || ''}" 
-					class="modal-img" data-source="Did"
-					data-alt="${img.alt || ''}"
-					style="max-width:180px;max-height:180px;border-radius:8px;"
-					onerror="this.style.display='none';">`;
+if (embed.$type === 'app.bsky.embed.images' && Array.isArray(embed.images)) {
+  return `
+    <div class="embed-images" style="margin-top:12px;display:flex;gap:8px;">
+      ${embed.images.map((img, idx) => {
+        if (img.image?.ref?.$link) {
+          const blob = img.image.ref.$link;
+          const mimeType = img.image.mimeType?.split('/')[1] || 'jpeg';
+          const imgUrl = `${cdnBase}/img/feed_fullsize/plain/${did}/${blob}@${mimeType}`;
+          let scrapboardUrl = '';
+          if (did && rkey) {
+            scrapboardUrl = `https://scrapboard.org/profile/${did}/post/${encodeURIComponent(rkey)}?image=${idx}`;
           }
-		  
+          return `<div style="display:inline-block;text-align:center;">
+            <img src="${imgUrl}" alt="${img.alt || ''}" 
+              class="modal-img" data-source="Did"
+              data-alt="${img.alt || ''}"
+              style="max-width:180px;max-height:180px;border-radius:8px;display:block;margin:auto;"
+              onerror="this.style.display='none';">
+            ${scrapboardUrl ? `<a href="${scrapboardUrl}" target="_blank" style="display:inline-block;margin-top:4px;font-size:0.95em;">View on Scrapboard</a>` : ''}
+          </div>`;
+        }
+        return '';
+      }).join('')}
+    </div>
+  `;
+}
 
-		  
-          return '';
-        }).join('')}
-      </div>
-    `;
-  }
 
   // Record embeds (simple, shows text and a link)
   if (embed.$type === 'app.bsky.embed.record' && embed.record?.value) {
@@ -1184,16 +1191,30 @@ function renderEmbedDid(embed, did, cdnBase) {
   }
 
   // Record with media (shows record and media)
-  if (embed.$type === 'app.bsky.embed.recordWithMedia') {
-	const recHtml = embed.record ? renderEmbedDid({ $type: 'app.bsky.embed.record', record: embed.record }, did, cdnBase) : '';
-	const mediaHtml = embed.media ? renderEmbedDid(embed.media, did, cdnBase) : '';
-    return `
-      <div class="embed-recordwithmedia" style="margin-top:12px;">
-        ${recHtml}
-        ${mediaHtml}
-      </div>
-    `;
-  }
+if (embed.$type === 'app.bsky.embed.images' && Array.isArray(embed.images)) {
+  return `
+    <div class="embed-images" style="margin-top:12px;display:flex;gap:8px;">
+      ${embed.images.map((img, idx) => {
+        if (img.image?.ref?.$link) {
+          const blob = img.image.ref.$link;
+          const mimeType = img.image.mimeType?.split('/')[1] || 'jpeg';
+          const imgUrl = `${cdnBase}/img/feed_fullsize/plain/${did}/${blob}@${mimeType}`;
+
+          return `<div style="display:inline-block;text-align:center;">
+            <img src="${imgUrl}" alt="${img.alt || ''}" 
+              class="modal-img" data-source="Did"
+              data-alt="${img.alt || ''}"
+              style="max-width:180px;max-height:180px;border-radius:8px;display:block;margin:auto;"
+              onerror="this.style.display='none';">
+            ${scrapboardUrl ? `<a href="${scrapboardUrl}" target="_blank" style="display:inline-block;margin-top:4px;font-size:0.95em;">View on Scrapboard</a>` : ''}
+          </div>`;
+        }
+        return '';
+      }).join('')}
+    </div>
+  `;
+}
+
 
   return '';
 }
@@ -1231,10 +1252,13 @@ function createRecordCard(record, collection, pds) {
   const did = record.repo || record.did || extractDidFromUri(record.uri);
   const cdnBase = 'https://cdn.bsky.app';
   const embedObj = value.embed?.embed || value.embed;
-  const embedHtml = renderEmbedDid(embedObj, did, cdnBase);
+  const rkey = record.rkey || (record.uri ? record.uri.split('/').pop() : (atUri ? atUri.split('/').pop() : undefined));
+  const embedHtml = renderEmbedDid(embedObj, did, cdnBase, rkey);
   const hasVideoEmbed = value.embed && value.embed.$type === "app.bsky.embed.video";
   // Extract rkey from AT URI
-  const rkey = atUri.split('/').pop();
+  // const rkey = atUri.split('/').pop();
+  
+
   
   
   

@@ -45,6 +45,7 @@ const URLS_TO_CACHE = [
 // Feeds embed modal and some style on record at uri so it wraps! + Recent feeds/list remembered
 // Added RedDwarfLIte link
 // Hopefully at a protocol 'web+at' for this PWA.
+// Added links to https://scrapboard.org/ for accounts images posts.
 // Install: Pre-cache assets
 self.addEventListener('install', event => {
   event.waitUntil(
