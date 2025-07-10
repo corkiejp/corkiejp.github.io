@@ -51,6 +51,89 @@ function showPopup(aturl, x, y) {
   `;
 
   document.body.appendChild(popup);
+  
+  
+// Inject robust CSS for popup and buttons, including dark mode support
+if (!document.getElementById('atproto-popup-style')) {
+  const style = document.createElement('style');
+  style.id = 'atproto-popup-style';
+  style.textContent = `
+    #atproto-popup {
+      background: #fff !important;
+      color: #222 !important;
+      border-radius: 8px !important;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15) !important;
+      z-index: 99999 !important;
+      min-width: 220px !important;
+      font-family: sans-serif !important;
+      padding: 1em !important;
+      border: 1px solid #0074d9 !important;
+    }
+    #atproto-popup button {
+      display: block !important;
+      width: 100% !important;
+      margin: 8px 0 0 0 !important;
+      background: #0074d9 !important;
+      color: #fff !important;
+      border: none !important;
+      border-radius: 4px !important;
+      padding: 0.5em 1em !important;
+      font-size: 1em !important;
+      cursor: pointer !important;
+      box-sizing: border-box !important;
+      transition: background 0.2s;
+    }
+    #atproto-popup button:hover, #atproto-popup button:focus {
+      background: #005fa3 !important;
+    }
+    #atproto-popup a {
+      color: #0074d9 !important;
+      text-decoration: underline !important;
+      word-break: break-all !important;
+    }
+    #atproto-popup ul {
+      margin: 0 0 0 1.2em !important;
+      padding: 0 !important;
+    }
+    #atproto-popup h3 {
+      margin-top: 0 !important;
+      margin-bottom: 0.5em !important;
+      cursor: move !important;
+      user-select: none !important;
+      font-size: 1.1em !important;
+      font-weight: bold !important;
+      display: flex;
+      align-items: center;
+      gap: 0.3em;
+    }
+    #atproto-popup em {
+      color: #666 !important;
+    }
+    @media (prefers-color-scheme: dark) {
+      #atproto-popup {
+        background: #222 !important;
+        color: #fff !important;
+        border: 1px solid #39a9ff !important;
+      }
+      #atproto-popup button {
+        background: #39a9ff !important;
+        color: #222 !important;
+      }
+      #atproto-popup button:hover, #atproto-popup button:focus {
+        background: #0074d9 !important;
+        color: #fff !important;
+      }
+      #atproto-popup a {
+        color: #39a9ff !important;
+      }
+      #atproto-popup em {
+        color: #aaa !important;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+}
+  
 
   // --- Draggable logic (mouse + touch, with viewport limiting) ---
   const header = popup.querySelector('h3');
