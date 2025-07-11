@@ -613,6 +613,16 @@ Just select the option to switch to this in select drop-down after the collectio
   </div>
 </div>
 
+<!-- scrapboard note Modal -->
+<div id="scrapboardModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:10000;">
+  <div class="modal-content" style="background:#fff; padding:2em; border-radius:8px; max-width:400px; margin:auto;">
+    <p>Scrapboard list found for this account! Check link in ...more option! 🎉</p>
+    <button id="scrapboardSnoozeBtn">Don't show again this session</button>
+    <button id="scrapboardCloseBtn">Close</button>
+  </div>
+</div>
+
+
 
 
 
@@ -2212,18 +2222,45 @@ function displayRecords(records, collection, pds, handle) {
 
 
 async function fetchAndDisplaySingleRecord(pds, repo, collection, rkey) {
-  const url = `https://${pds}/xrpc/com.atproto.repo.getRecord?repo=${encodeURIComponent(repo)}&collection=${encodeURIComponent(collection)}&rkey=${encodeURIComponent(rkey)}`;
   const container = document.getElementById('records');
   const countDiv = document.getElementById('record-count');
   container.innerHTML = "<em>Loading...</em>";
   countDiv.textContent = "";
 
-	
+  // --- Normalize PDS host ---
+  let pdsHost = pds;
+  if (!/^https?:\/\//i.test(pdsHost)) pdsHost = 'https://' + pdsHost;
+  pdsHost = pdsHost.replace(/\/$/, '');
 
-  let handle = null;
-  if (repo.startsWith('did:plc:')) {
-    handle = await fetchHandleForDid(repo);
+  // --- Resolve handle to DID if needed ---
+  let did = repo;
+  let handle = repo;
+  if (!repo.startsWith('did:')) {
+    try {
+      did = await resolveHandleToDid(repo);
+      if (!did || !did.startsWith('did:')) throw new Error();
+      handle = repo;
+    } catch (e) {
+      container.innerHTML = `<p style="color:red;">Error: Could not resolve handle to DID for "${repo}".</p>`;
+      countDiv.textContent = "Showing 0 records.";
+      return;
+    }
+  } else {
+    // If repo is a DID, fetch handle for display
+    try {
+      handle = await fetchHandleFromDid(repo);
+    } catch (e) {
+      handle = repo;
+    }
   }
+
+  // --- Scrapboard modal check (only if we have a valid DID) ---
+  if (did) {
+    checkAndShowScrapboardModal(did, pdsHost);
+  }
+
+  // --- Use DID for the record API call ---
+  const url = `https://${pds}/xrpc/com.atproto.repo.getRecord?repo=${encodeURIComponent(did)}&collection=${encodeURIComponent(collection)}&rkey=${encodeURIComponent(rkey)}`;
 
   try {
     const res = await fetch(url);
@@ -2243,22 +2280,51 @@ async function fetchAndDisplaySingleRecord(pds, repo, collection, rkey) {
   }
   enhanceHandles();
 }
+
   
 
-  // --- Fetch and display records ---
-// --- Fetch and display records ---
+ 
 async function fetchAndDisplayRecords(pds, repo, collection) {
-  const url = `https://${pds}/xrpc/com.atproto.repo.listRecords?repo=${encodeURIComponent(repo)}&collection=${encodeURIComponent(collection)}&limit=100`;
   const container = document.getElementById('records');
   const countDiv = document.getElementById('record-count');
   container.innerHTML = "<em>Loading...</em>";
   countDiv.textContent = "";
 
-  // Fetch handle for display
-  let handle = null;
-  if (repo.startsWith('did:plc:')) {
-    handle = await fetchHandleForDid(repo);
+  // --- Normalize PDS host ---
+  let pdsHost = pds;
+  if (!/^https?:\/\//i.test(pdsHost)) pdsHost = 'https://' + pdsHost;
+  pdsHost = pdsHost.replace(/\/$/, '');
+
+  // --- Resolve handle to DID if needed ---
+  let did = repo;
+  let handle = repo;
+  if (!repo.startsWith('did:')) {
+    try {
+      did = await resolveHandleToDid(repo);
+      if (!did || !did.startsWith('did:')) throw new Error();
+      // Try to use the original handle for display
+      handle = repo;
+    } catch (e) {
+      container.innerHTML = `<p style="color:red;">Error: Could not resolve handle to DID for "${repo}".</p>`;
+      countDiv.textContent = "Showing 0 records.";
+      return;
+    }
+  } else {
+    // If repo is a DID, try to fetch the handle for display
+    try {
+      handle = await fetchHandleFromDid(repo);
+    } catch (e) {
+      handle = repo;
+    }
   }
+
+  // --- Scrapboard modal check (only if we have a valid DID) ---
+  if (did) {
+    checkAndShowScrapboardModal(did, pdsHost);
+  }
+
+  // --- Use DID for the records API call ---
+  const url = `https://${pds}/xrpc/com.atproto.repo.listRecords?repo=${encodeURIComponent(did)}&collection=${encodeURIComponent(collection)}&limit=100`;
 
   try {
     const res = await fetch(url);
@@ -2317,6 +2383,14 @@ async function fetchAndDisplayRecords(pds, repo, collection) {
       : `Showing 0 records from ${repo}`;
   }
   enhanceHandles();
+}
+
+async function resolveHandleToDid(handle) {
+  const url = `https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(handle)}`;
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error('Could not resolve handle');
+  const data = await resp.json();
+  return data.did;
 }
 
 
@@ -2479,6 +2553,10 @@ function importBookmarks(event) {
 
 
 
+
+
+
+
 </script>
 
 
@@ -2596,6 +2674,27 @@ async function showLinksModal(linksHtml, handleOrDid) {
   openModal('linksModal');
 }
 
+
+
+// === scrapboard Modal Logic ===
+async function checkAndShowScrapboardModal(did, pdsHost) {
+  if (sessionStorage.getItem('scrapboardPopupSnoozed')) return;
+  if (await hasScrapboardList(did, pdsHost)) {
+    showScrapboardModal();
+  }
+}
+
+function showScrapboardModal() {
+  openModal('scrapboardModal');
+}
+
+document.getElementById('scrapboardSnoozeBtn').onclick = function() {
+  sessionStorage.setItem('scrapboardPopupSnoozed', '1');
+  closeModal('scrapboardModal');
+};
+document.getElementById('scrapboardCloseBtn').onclick = function() {
+  closeModal('scrapboardModal');
+};
 
 
 
