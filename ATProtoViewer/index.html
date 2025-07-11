@@ -2553,27 +2553,41 @@ function closeImgModal() {
 }
 
 // === Links Modal Logic ===
-async function showLinksModal(linksHtml, handleOrDid, did) {
+async function showLinksModal(linksHtml, handleOrDid) {
+  // Determine if input is a DID or handle
+  let did = handleOrDid;
+  let handle = handleOrDid;
+
+  // If it's not a DID, resolve to DID; if it is, fetch handle for display/link
+  if (!handleOrDid.startsWith('did:')) {
+    try {
+      did = await resolveHandleToDid(handleOrDid);
+    } catch (e) {
+      did = null;
+    }
+  } else {
+    handle = await fetchHandleFromDid(handleOrDid);
+  }
+
   const tagline = document.getElementById('linksModalTagline');
   tagline.innerHTML = `
     Open this record/post/did <br> with the sites below<br>
     <span style="font-weight:normal; color:#555;">
-      Account: <span style="font-family:monospace;">${handleOrDid}</span>
+      Account: <span style="font-family:monospace;">${handle}</span>
     </span>
   `;
 
-  // Clone the links array so we can add to it
   let links = [...linksHtml];
 
-  // 👇 Get the PDS host from the input field
+  // Get the PDS host from the input field
   let pdsHost = document.getElementById('pds').value.trim();
   if (!/^https?:\/\//i.test(pdsHost)) pdsHost = 'https://' + pdsHost;
   pdsHost = pdsHost.replace(/\/$/, '');
 
-  // Only add Scrapboard profile link if the account has a Scrapboard list record
+  // Only add Scrapboard link if records exist (API check uses DID, link uses handle)
   if (did && await hasScrapboardList(did, pdsHost)) {
     links.push(
-      `<a href="https://scrapboard.org/profile/${did}/" target="_blank" rel="noopener">Scrapboard Profile</a>`
+      `<a href="https://scrapboard.org/profile/${handle}/" target="_blank" rel="noopener">Scrapboard Profile</a>`
     );
   }
 
@@ -2581,6 +2595,7 @@ async function showLinksModal(linksHtml, handleOrDid, did) {
   list.innerHTML = links.map(link => `<li style="margin:0.2em 0;">${link}</li>`).join('');
   openModal('linksModal');
 }
+
 
 
 
