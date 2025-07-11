@@ -1227,6 +1227,28 @@ function fetchHandleFromDid(did) {
 }
 
 
+
+async function hasScrapboardList(did, pdsHost) {
+  // Ensure host starts with https:// and has no trailing slash
+  let base = pdsHost.trim();
+  if (!/^https?:\/\//i.test(base)) base = 'https://' + base;
+  base = base.replace(/\/$/, '');
+
+  const url = `${base}/xrpc/com.atproto.repo.listRecords?repo=${did}&collection=org.scrapboard.list&limit=1`;
+  try {
+    const resp = await fetch(url);
+    if (!resp.ok) return false;
+    const data = await resp.json();
+    return Array.isArray(data.records) && data.records.length > 0;
+  } catch (e) {
+    return false;
+  }
+}
+
+
+
+
+
 function createRecordCard(record, collection, pds) {
   // Support both {value: {...}} and plain {...}
   const value = (record && record.value) ? record.value : (record || {});
@@ -1399,7 +1421,8 @@ if (moreBtn) {
   moreBtn.addEventListener('click', function(e) {
     e.preventDefault();
     // Use the handle if available, otherwise show the DID
-    showLinksModal(links, card.dataset.handle || card.dataset.did || 'unknown');
+	console.log('Calling showLinksModal with did:', did);
+    showLinksModal(links, card.dataset.handle || card.dataset.did || 'unknown', did);
   });
 }  
   
@@ -1813,7 +1836,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // No need to return; the form remains usable!
   }
 
-  // ...rest of your logic for multi-record or default view...
+
 });
 
 
@@ -2530,7 +2553,7 @@ function closeImgModal() {
 }
 
 // === Links Modal Logic ===
-function showLinksModal(linksHtml, handleOrDid) {
+async function showLinksModal(linksHtml, handleOrDid, did) {
   const tagline = document.getElementById('linksModalTagline');
   tagline.innerHTML = `
     Open this record/post/did <br> with the sites below<br>
@@ -2538,10 +2561,28 @@ function showLinksModal(linksHtml, handleOrDid) {
       Account: <span style="font-family:monospace;">${handleOrDid}</span>
     </span>
   `;
+
+  // Clone the links array so we can add to it
+  let links = [...linksHtml];
+
+  // 👇 Get the PDS host from the input field
+  let pdsHost = document.getElementById('pds').value.trim();
+  if (!/^https?:\/\//i.test(pdsHost)) pdsHost = 'https://' + pdsHost;
+  pdsHost = pdsHost.replace(/\/$/, '');
+
+  // Only add Scrapboard profile link if the account has a Scrapboard list record
+  if (did && await hasScrapboardList(did, pdsHost)) {
+    links.push(
+      `<a href="https://scrapboard.org/profile/${did}/" target="_blank" rel="noopener">Scrapboard Profile</a>`
+    );
+  }
+
   const list = document.getElementById('linksModalList');
-  list.innerHTML = linksHtml.map(link => `<li style="margin:0.2em 0;">${link}</li>`).join('');
+  list.innerHTML = links.map(link => `<li style="margin:0.2em 0;">${link}</li>`).join('');
   openModal('linksModal');
 }
+
+
 
 // === Bluesky Embed Modal Logic ===
 function openBskyEmbedModal(atUri) {
