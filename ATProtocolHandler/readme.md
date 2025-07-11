@@ -22,7 +22,7 @@ On supported sites (Bluesky, Deer Social, Klearsky), click the “Copy at:// URI
 Optionally hide the popup for the current session with a single click.
 - **Mobile and Desktop Friendly**
 Designed for seamless use on both desktop and mobile browsers.
-On Android, supported by alternative browsers such as Kiwi, Yandex, or Mises (not Chrome itself).
+On Android, supported by alternative browsers such as Quetta (not Chrome itself).
 
 ## Latest Improvements
 
