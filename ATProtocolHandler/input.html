@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>AT Protocol Handler</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2em;
+      background: #f9f9f9;
+    }
+    input {
+      width: 100%;
+      padding: 0.5em;
+      font-size: 1em;
+    }
+    button {
+      margin-top: 1em;
+      padding: 0.5em 1em;
+      font-size: 1em;
+    }
+  </style>
+</head>
+<body>
+  <h2>Paste your at:// URI</h2>
+  <input type="text" id="aturl" placeholder="at://did:plc..." />
+  <button onclick="openHandler()">Open</button>
+
+  <script>
+    function openHandler() {
+      const aturl = document.getElementById('aturl').value.trim();
+      if (aturl.startsWith('at://')) {
+        const encoded = encodeURIComponent(aturl);
+        window.open(`https://corkiejp.github.io/ATProtocolHandler/list.html?aturl=${encoded}`, '_blank');
+      } else {
+        alert('Please enter a valid at:// URI');
+      }
+    }
+  </script>
+</body>
+</html>
