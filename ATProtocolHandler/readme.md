@@ -28,7 +28,7 @@ Optionally hide the popup for the current session with a single click.
 - **Mobile and Desktop Friendly**
 Designed for seamless use on both desktop and mobile browsers.
 On Android, supported by alternative browsers such as Quetta (not Chrome itself).
-For Firefox on Androic, didn't want to test it with debbuging my phone contected to laptop, so not available, unless someone wants to tesr for me?
+For Firefox on Android, didn't want to test it with debbuging my phone contected to laptop, so not available, unless someone wants to tesr for me?
 
 ## Latest Improvements
 
