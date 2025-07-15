@@ -1,4 +1,4 @@
-# AT Protocol Handler ~ Chrome extension to open at did urls
+# AT Protocol Handler ~ CExtension to open at did urls
 ## Now available on Chrome Webstore/FireFox ADDon.
 
 [AT Protocol Handler - Chrome Webstore](https://chromewebstore.google.com/detail/at-protocol-handler/foippfcmhngnjdlfhgaifppajnhlmafk)
