@@ -54,13 +54,18 @@ h1,h2 { text-align: center; color: #333; margin-top: 0; }
 </div>
 <br><br>
     <h1>AT Protocol Handler</h1>
-	<h2>Chrome extension to open at did urls</h2>
+	<h2>Extension to open at did urls</h2>
 	
 	
-	<div align=center>As of the 1st July 2025, now published and accepted by the Chrome Webstore!<br><br>
+	<div align=center>
 	<a href="https://chromewebstore.google.com/detail/foippfcmhngnjdlfhgaifppajnhlmafk" target="_Top">AT Protocol Handler ~ Chrome Webstore.</a><br><br>
+	<a href="https://addons.mozilla.org/en-US/firefox/addon/at-protocol-handler/" target="_Top">AT Protocol Handler ~ Firefox ADDon.</a> ~ Waiting on review!<br><br>
+	<a href="input.html" target="_Top">Test basic/primary function of it?</a><br><br>
+	  <h3>Paste your at:// URI</h3>
+  <input type="text" id="aturl" placeholder="at://did:plc..." />
+  <button onclick="openHandler()">Open</button>
 	
-	
+	<br><br>
 	<a href="https://corkiejp.github.io/ATProtocolHandler/list.html?aturl=at://did:plc:vovinwhtulbsx4mwfw26r5ni/app.bsky.feed.post/3lssubf2d6b2c" target="_Top">Live example output with 'aturl' parameter passed to it</a><br><br>
 	<a href="https://github.com/corkiejp/corkiejp.github.io/tree/well-known/ATProtocolHandler" target="_Top">Click here to open the github readme for instructions for how to use.</a><br><br>
 	<img src="./assets/atphandler-cws.png" alt="Chrome Extension to handle pasting of at urls in the address bar of chrome browser. + Resulting web page showing a list of sites that accept the at://did URL, including atproto.at, ATProtoViewer, SkyThread, and others." />
@@ -72,7 +77,17 @@ h1,h2 { text-align: center; color: #333; margin-top: 0; }
 		
 
 
-
+  <script>
+    function openHandler() {
+      const aturl = document.getElementById('aturl').value.trim();
+      if (aturl.startsWith('at://')) {
+        const encoded = encodeURIComponent(aturl);
+        window.open(`https://corkiejp.github.io/ATProtocolHandler/list.html?aturl=${encoded}`, '_blank');
+      } else {
+        alert('Please enter a valid at:// URI');
+      }
+    }
+  </script>
 		
 
 
