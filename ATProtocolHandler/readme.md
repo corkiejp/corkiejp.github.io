@@ -1,7 +1,13 @@
-# AT Protocol Handler ~ Chrome extension to open at did urls
-## Now available on Chrome Webstore.
+# AT Protocol Handler ~ Extension to open at did urls
+## Now available on Chrome Webstore/FireFox ADDon.
 
 [AT Protocol Handler - Chrome Webstore](https://chromewebstore.google.com/detail/at-protocol-handler/foippfcmhngnjdlfhgaifppajnhlmafk)
+
+[AT Protocol Handler - FireFox ADDon](https://addons.mozilla.org/en-US/firefox/addon/at-protocol-handler/) 
+
+^^ ~ Waiting on the review process! May have jumped the gun on updating this readme, it can take weeks to review?
+
+When I update the [webpage](https://corkiejp.github.io/ATProtocolHandler/index.html), there should be a input field to test primary function of it
 
 ## Overview
 
@@ -12,7 +18,8 @@
 - **Instantly lists sites that accept at://did:plc... URLs**
 Paste your at:// URI and get a curated list of compatible web apps and viewers.
 - **Address Bar Quick Action**
-Type `at` in the address bar, hit space or tab, and paste your at:// URL to activate the extension.
+Type `at` in the address bar, hit space or tab, and paste your at:// URL to activate the extension. ~ Chrome Only omnibox feature.
+Firefox click on the extension and paste url, or alternatively use keyboard shortcut:- Ctrl+Shift+Y
 - **One-Click Copy and Share**
 On supported sites (Bluesky, Deer Social, Klearsky), click the “Copy at:// URI” button or use keyboard shortcuts to quickly open or share posts and feeds.
 - **Keyboard Shortcuts for Power Users**
@@ -23,6 +30,7 @@ Optionally hide the popup for the current session with a single click.
 - **Mobile and Desktop Friendly**
 Designed for seamless use on both desktop and mobile browsers.
 On Android, supported by alternative browsers such as Quetta (not Chrome itself).
+For Firefox on Android, didn't want to test it with debbuging my phone contected to laptop, so not available, unless someone wants to tesr for me?
 
 ## Latest Improvements
 
@@ -59,6 +67,8 @@ This is a quick temporary readme!
 You can also manage your own set of links by making similar additions to list.js. Downside you would need to manually update the extension.
 
 Or alternatively download the .src file, un zip it to a folder, then unpack it.
+
+If people want it, I can also provide the .xpi file for Firefox manual install
 
 **Proof of concept** and possibly a work in progress, If I find more utilise that accept an at url as a parameter, I may add more links.
 
