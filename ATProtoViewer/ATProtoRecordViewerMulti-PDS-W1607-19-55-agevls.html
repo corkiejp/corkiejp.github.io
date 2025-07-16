@@ -375,28 +375,6 @@ li { margin-bottom: 1em; }
 
   </style>
   
-  <!-- QR Scanner Library -->
-<script src="https://unpkg.com/html5-qrcode@2.0.9/dist/html5-qrcode.min.js"></script>
-
-<style>
-#ageModal {
-  display: none;
-  position: fixed; z-index: 99999;
-  left: 0; top: 0; width: 100vw; height: 100vh;
-  background: rgba(0, 0, 0, 0.75); display: flex; justify-content: center; align-items: center;
-}
-#ageModal .modal-content {
-  background: #fff; padding: 2em; border-radius: 10px; text-align: center;
-  max-width: 400px; width: 90%;
-}
-#qr-reader {
-  width: 100%; max-width: 300px; margin: 10px auto; display: none;
-}
-#qr-controls {
-  margin-top: 10px;
-}
-</style>
-  
 <script src="https://embed.bsky.app/static/embed.js" charset="utf-8"></script>
 </head>
 <body>
@@ -414,27 +392,6 @@ li { margin-bottom: 1em; }
           loading="lazy">
   </a>
 </div><br><br>
-<!-- Modal HTML -->
-<div id="ageModal">
-  <div class="modal-content">
-    <h2>Age Verification</h2>
-    <p>
-      Enter the access code from
-      <a href="https://www.reddit.com/r/ATProtoViewer/" target="_blank">r/ATProtoViewer</a>
-    </p>
-    <input type="password" id="ageCodeInput" placeholder="Enter code" autocomplete="off" style="width: 90%; font-size: 120%;" />
-    <div id="qr-controls">
-      <button id="scanBtn">Scan QR Code</button>
-      <input type="file" id="qrUpload" accept="image/*" style="margin-top:5px;" />
-    </div>
-    <div id="qr-reader"></div>
-    <br>
-    <button id="ageSubmitBtn">Submit</button>
-    <p id="ageError" style="color:red;display:none;">Incorrect code. Try again.</p>
-  </div>
-</div>
-
-
   <div class="container">
     <h1>ATProto Record Viewer (Multi-PDS)</h1>
 	<h2>Other Utilities provided by corkiejp.</h2>
@@ -669,104 +626,7 @@ Just select the option to switch to this in select drop-down after the collectio
 
 
 
-<script>
-const CODE_HASH = "7290ae0727f9f65e4dc12a4813d62747eb48c32b08e677fc829097266e5ff766"; // 🔁 Replace with actual SHA-256 hash
-const SESSION_KEY = "ageGateSessionPassed";
 
-async function sha256(str) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str.trim()));
-  return Array.from(new Uint8Array(buf)).map(x => x.toString(16).padStart(2, '0')).join('');
-}
-
-function showAgeModal() {
-  document.getElementById('ageModal').style.display = "flex";
-}
-function hideAgeModal() {
-  document.getElementById('ageModal').style.display = "none";
-  document.body.style.overflow = '';
-}
-
-function checkCode(code) {
-  return sha256(code).then(hash => hash === CODE_HASH);
-}
-
-// On page load
-window.addEventListener('DOMContentLoaded', () => {
-  if (sessionStorage.getItem(SESSION_KEY) === "true") return;
-
-  showAgeModal();
-  document.body.style.overflow = "hidden";
-
-  const input = document.getElementById('ageCodeInput');
-  const submit = document.getElementById('ageSubmitBtn');
-  const error = document.getElementById('ageError');
-
-  submit.addEventListener('click', async () => {
-    const isValid = await checkCode(input.value);
-    if (isValid) {
-      sessionStorage.setItem(SESSION_KEY, "true");
-      hideAgeModal();
-    } else {
-      error.style.display = "block";
-    }
-  });
-
-  input.addEventListener('keydown', e => {
-    if (e.key === "Enter") submit.click();
-  });
-
-  // ✨ QR Code Scanner Integration
-  const qrBtn = document.getElementById('scanBtn');
-  const qrReader = document.getElementById('qr-reader');
-  let qrScanner;
-
-  qrBtn.addEventListener('click', async () => {
-    qrReader.style.display = "block";
-    qrScanner = new Html5Qrcode("qr-reader");
-    try {
-      await qrScanner.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: 200 },
-        async (decodedText) => {
-          input.value = decodedText;
-          const valid = await checkCode(decodedText);
-          if (valid) {
-            await qrScanner.stop();
-            sessionStorage.setItem(SESSION_KEY, "true");
-            hideAgeModal();
-          } else {
-            error.style.display = "block";
-          }
-        }
-      );
-    } catch (err) {
-      alert("Camera access failed: " + err);
-    }
-  });
-
-  // ✨ QR Code File Upload Support
-  document.getElementById('qrUpload').addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    qrScanner = new Html5Qrcode("qr-reader");
-    qrScanner.scanFile(file, true)
-      .then(async (decodedText) => {
-        input.value = decodedText;
-        const valid = await checkCode(decodedText);
-        if (valid) {
-          sessionStorage.setItem(SESSION_KEY, "true");
-          hideAgeModal();
-        } else {
-          error.style.display = "block";
-        }
-      })
-      .catch(err => {
-        alert("Could not read QR code from file: " + err);
-      });
-  });
-});
-</script>
 
 
 
@@ -2961,6 +2821,186 @@ if ('serviceWorker' in navigator) {
     }
   });
 }
+</script>
+
+<!-- Include QR Code Scanner Library -->
+<script src="https://unpkg.com/html5-qrcode@2.0.9/dist/html5-qrcode.min.js"></script>
+
+<!-- Modal Styles -->
+<style>
+#ageModal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0; top: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex; justify-content: center; align-items: center;
+}
+#ageModal .modal-content {
+  background: #fff;
+  padding: 2em;
+  text-align: center;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+}
+#qr-reader {
+  width: 100%;
+  max-width: 300px;
+  margin: 10px auto;
+  display: none;
+}
+#qr-controls {
+  margin-top: 10px;
+}
+</style>
+
+<!-- Modal HTML -->
+<div id="ageModal">
+  <div class="modal-content">
+    <h2>Age Verification</h2>
+    <p>Enter the access code or scan the QR from 
+      <a href="https://www.reddit.com/r/ATProtoViewer/" target="_blank" rel="noopener">r/ATProtoViewer</a>:
+    </p>
+    <input type="password" id="ageCodeInput" placeholder="Enter code" autocomplete="off" style="width: 90%; font-size: 120%;" />
+    
+    <div id="qr-controls">
+      <button id="scanBtn">Scan QR Code</button><br>
+      <input type="file" id="qrUpload" accept="image/*" />
+    </div>
+
+    <div id="qr-reader"></div><br>
+    <button id="ageSubmitBtn">Submit</button>
+    <p id="ageError" style="color: red; display: none;">Incorrect code. Try again.</p>
+  </div>
+</div>
+
+<!-- Main Script -->
+<script>
+const CODE_HASH = "7290ae0727f9f65e4dc12a4813d62747eb48c32b08e677fc829097266e5ff766"; // 👈 Replace with your SHA-256 hash
+const STORAGE_KEY = "ageGateLimited";
+const EXPIRY_DAYS = 3;
+
+function getExpiryDate(days) {
+  return Date.now() + days * 24 * 60 * 60 * 1000;
+}
+
+function isVerified() {
+  try {
+    const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (!data) return false;
+    if (Date.now() < data.expiry) return true;
+    localStorage.removeItem(STORAGE_KEY);
+    return false;
+  } catch {
+    localStorage.removeItem(STORAGE_KEY);
+    return false;
+  }
+}
+
+function setVerified(days) {
+  const data = { expiry: getExpiryDate(days) };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+// SHA-256 hashing
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str.trim()));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Validate code
+async function checkCode(code) {
+  const inputHash = await sha256(code);
+  return inputHash === CODE_HASH;
+}
+
+// Modal display functions
+function showModal() {
+  document.getElementById('ageModal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function hideModal() {
+  document.getElementById('ageModal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+// Page logic
+window.addEventListener('DOMContentLoaded', () => {
+  if (isVerified()) return;
+
+  const input = document.getElementById('ageCodeInput');
+  const submitBtn = document.getElementById('ageSubmitBtn');
+  const errorMsg = document.getElementById('ageError');
+  const scanBtn = document.getElementById('scanBtn');
+  const uploadInput = document.getElementById('qrUpload');
+  const qrReaderDiv = document.getElementById('qr-reader');
+  let qrScanner;
+
+  showModal();
+
+  submitBtn.addEventListener('click', async () => {
+    const code = input.value.trim();
+    if (!code) return;
+    const valid = await checkCode(code);
+    if (valid) {
+      setVerified(EXPIRY_DAYS);
+      hideModal();
+    } else {
+      errorMsg.style.display = 'block';
+    }
+  });
+
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') submitBtn.click();
+  });
+
+  // QR Scanner via webcam
+  scanBtn.addEventListener('click', async () => {
+    qrReaderDiv.style.display = 'block';
+    qrScanner = new Html5Qrcode("qr-reader");
+    try {
+      await qrScanner.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: 200 },
+        async (decodedText) => {
+          input.value = decodedText;
+          const valid = await checkCode(decodedText);
+          if (valid) {
+            setVerified(EXPIRY_DAYS);
+            await qrScanner.stop();
+            hideModal();
+          } else {
+            errorMsg.style.display = "block";
+          }
+        }
+      );
+    } catch (err) {
+      alert("QR scan failed: " + err);
+    }
+  });
+
+  // QR from uploaded image
+  uploadInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    qrScanner = new Html5Qrcode("qr-reader");
+    try {
+      const decodedText = await qrScanner.scanFile(file, true);
+      input.value = decodedText;
+      const valid = await checkCode(decodedText);
+      if (valid) {
+        setVerified(EXPIRY_DAYS);
+        hideModal();
+      } else {
+        errorMsg.style.display = "block";
+      }
+    } catch (err) {
+      alert("Could not read QR code from file.");
+    }
+  });
+});
 </script>
 
 
