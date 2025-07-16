@@ -1,4 +1,4 @@
-const CACHE_NAME = 'atproto-pwa-v1.35';
+const CACHE_NAME = 'atproto-pwa-v1.36';
 const URLS_TO_CACHE = [
   '/ATProtoViewer/',
   '/ATProtoViewer/index.html',
@@ -46,6 +46,7 @@ const URLS_TO_CACHE = [
 // Added RedDwarfLIte link
 // Hopefully at a protocol 'web+at' for this PWA.
 // Added links to https://scrapboard.org/ for accounts images posts. + Profile links when active in more menu. (3)
+// Prep for EU age verification.
 // Install: Pre-cache assets
 self.addEventListener('install', event => {
   event.waitUntil(
