@@ -17,7 +17,7 @@ When I update the [webpage](https://corkiejp.github.io/ATProtocolHandler/index.h
 Paste your at:// URI and get a curated list of compatible web apps and viewers.
 - **Address Bar Quick Action**
 Type `at` in the address bar, hit space or tab, and paste your at:// URL to activate the extension. ~ Chrome Only omnibox feature.
-Firefox click on the extension and paste url, or alternatively use keyboard shortcut:- ctrl+space+s
+Firefox click on the extension and paste url, or alternatively use keyboard shortcut:- Ctrl+Shift+Y
 - **One-Click Copy and Share**
 On supported sites (Bluesky, Deer Social, Klearsky), click the “Copy at:// URI” button or use keyboard shortcuts to quickly open or share posts and feeds.
 - **Keyboard Shortcuts for Power Users**
