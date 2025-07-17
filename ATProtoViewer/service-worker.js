@@ -46,7 +46,7 @@ const URLS_TO_CACHE = [
 // Added RedDwarfLIte link
 // Hopefully at a protocol 'web+at' for this PWA.
 // Added links to https://scrapboard.org/ for accounts images posts. + Profile links when active in more menu. (3)
-// Prep for EU age verification.
+// Prep for EU age verification. + Disclaimer
 // Install: Pre-cache assets
 self.addEventListener('install', event => {
   event.waitUntil(
