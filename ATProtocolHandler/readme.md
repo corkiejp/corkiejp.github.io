@@ -5,8 +5,6 @@
 
 [AT Protocol Handler - FireFox ADDon](https://addons.mozilla.org/en-US/firefox/addon/at-protocol-handler/) 
 
-^^ ~ Waiting on the review process! May have jumped the gun on updating this readme, it can take weeks to review?
-
 When I update the [webpage](https://corkiejp.github.io/ATProtocolHandler/index.html), there should be a input field to test primary function of it
 
 ## Overview
