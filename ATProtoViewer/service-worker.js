@@ -47,7 +47,7 @@ const URLS_TO_CACHE = [
 // Hopefully at a protocol 'web+at' for this PWA.
 // Added links to https://scrapboard.org/ for accounts images posts. + Profile links when active in more menu. (3)
 // Prep for EU age verification. + Disclaimer
-// Change example feeds provided! ~ Age gated through YouTube short NSFW 18+
+// Change example feeds provided! ~ Age gated through YouTube short NSFW 18+ (2)
 // Install: Pre-cache assets
 self.addEventListener('install', event => {
   event.waitUntil(
