@@ -48,6 +48,7 @@ const URLS_TO_CACHE = [
 // Added links to https://scrapboard.org/ for accounts images posts. + Profile links when active in more menu. (3)
 // Prep for EU age verification. + Disclaimer
 // Change example feeds provided! ~ Age gated through YouTube short NSFW 18+ (3) ~ New code 2207
+// Redditors example feed added
 // Install: Pre-cache assets
 self.addEventListener('install', event => {
   event.waitUntil(
