@@ -1,4 +1,4 @@
-const CACHE_NAME = 'atproto-pwa-v1.36';
+const CACHE_NAME = 'atproto-pwa-v1.37';
 const URLS_TO_CACHE = [
   '/ATProtoViewer/',
   '/ATProtoViewer/index.html',
@@ -49,6 +49,7 @@ const URLS_TO_CACHE = [
 // Prep for EU age verification. + Disclaimer
 // Change example feeds provided! ~ Age gated through YouTube short NSFW 18+ (3) ~ New code 2207
 // Redditors example feed added
+// Switch from youtube video to bluesky post for age gate code!
 // Install: Pre-cache assets
 self.addEventListener('install', event => {
   event.waitUntil(
