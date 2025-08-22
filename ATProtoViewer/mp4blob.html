@@ -81,7 +81,7 @@
         alert('Please enter both DID and CID');
         return;
       }
-      const videoUrl = `https://poisonpie.us-west.host.bsky.network/xrpc/com.atproto.sync.getBlob?did=${encodeURIComponent(did)}&cid=${encodeURIComponent(cid)}`;
+      const videoUrl = `https://bsky.social/xrpc/com.atproto.sync.getBlob?did=${encodeURIComponent(did)}&cid=${encodeURIComponent(cid)}`;
       const videoElem = document.getElementById('video');
       videoElem.src = videoUrl;
       videoElem.style.display = 'block';
