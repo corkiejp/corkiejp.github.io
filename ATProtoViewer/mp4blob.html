@@ -2,12 +2,132 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Display MP4 Video</title>
+  <title>Dynamic PDSls MP4 blob Player</title>
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #f6f9fc;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 24px;
+      font-weight: 700;
+      font-size: 2rem;
+      color: #333;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+      background: #fff;
+      padding: 32px 36px 36px 36px;
+      border-radius: 16px;
+      box-shadow: 0 6px 30px rgba(0,0,0,0.08);
+    }
+    label {
+      font-weight: bold;
+      margin-right: 6px;
+    }
+    input[type="text"] {
+      padding: 6px 10px;
+      border-radius: 4px;
+      border: 1px solid #bbb;
+    }
+    button {
+      padding: 8px 18px;
+      border-radius: 6px;
+      border: none;
+      background: #377ef9;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin: 0 3px;
+    }
+    button:disabled {
+      background: #bbb;
+      cursor: not-allowed;
+    }
+    button:hover:not(:disabled) {
+      background: #2351a2;
+    }
+    video {
+      margin-top: 12px;
+      background: #000;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    }
+  </style>
+  <script>
+    function getParam(name) {
+      return new URLSearchParams(window.location.search).get(name) || '';
+    }
+
+    function loadVideo() {
+      const did = document.getElementById('did').value.trim();
+      const cid = document.getElementById('cid').value.trim();
+      if (!did || !cid) {
+        alert('Please enter both DID and CID');
+        return;
+      }
+      const videoUrl = `https://poisonpie.us-west.host.bsky.network/xrpc/com.atproto.sync.getBlob?did=${encodeURIComponent(did)}&cid=${encodeURIComponent(cid)}`;
+      const videoElem = document.getElementById('video');
+      videoElem.src = videoUrl;
+      videoElem.style.display = 'block';
+      document.getElementById('fullscreenBtn').style.display = 'inline-block';
+    }
+
+    function goFullScreen() {
+      const videoElem = document.getElementById('video');
+      if (videoElem.requestFullscreen) {
+        videoElem.requestFullscreen();
+      } else if (videoElem.webkitRequestFullscreen) {
+        videoElem.webkitRequestFullscreen();
+      } else if (videoElem.msRequestFullscreen) {
+        videoElem.msRequestFullscreen();
+      }
+    }
+
+    window.onload = function() {
+      const didParam = getParam('did');
+      const cidParam = getParam('cid');
+      document.getElementById('did').value = didParam;
+      document.getElementById('cid').value = cidParam;
+      if (didParam && cidParam) {
+        loadVideo();
+      }
+    }
+  </script>
 </head>
 <body>
-  <video width="640" height="360" controls>
-    <source src="https://poisonpie.us-west.host.bsky.network/xrpc/com.atproto.sync.getBlob?did=did:plc:qxlh6bohvep3taqhmtpipx4b&cid=bafkreibou5uvafc4x5okhq6xfc555g5tc5uhxn3bglortmfhtjjm4o6o5e" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
+  <h1>Dynamic PDSls MP4 blob Player</h1>
+  <div class="container">
+    <div>
+      <label for="did">DID:</label>
+      <input type="text" id="did" placeholder="Enter DID here">
+    </div>
+    <div>
+      <label for="cid">CID:</label>
+      <input type="text" id="cid" placeholder="Enter CID here">
+    </div>
+    <div>
+      <button onclick="loadVideo()">Load Video</button>
+      <button id="fullscreenBtn" onclick="goFullScreen()" style="display:none;">Full Screen</button>
+    </div>
+    <video id="video" width="640" height="360" controls style="display:none;">
+      Your browser does not support the video tag.
+    </video>
+  </div>
 </body>
 </html>
