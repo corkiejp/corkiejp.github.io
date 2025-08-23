@@ -43,6 +43,7 @@
       padding: 6px 10px;
       border-radius: 4px;
       border: 1px solid #bbb;
+      min-width: 320px;
     }
     button {
       padding: 8px 18px;
@@ -73,21 +74,31 @@
     function getParam(name) {
       return new URLSearchParams(window.location.search).get(name) || '';
     }
-
+    function ensureNoTrailingSlash(str) {
+      return str.replace(/\/+$/, '');
+    }
+    function ensureNoProtocol(host) {
+      // Remove any protocol if user happens to paste it
+      return host.replace(/^https?:\/\//, '').replace(/\/+$/, '');
+    }
     function loadVideo() {
+      let pdsHost = ensureNoProtocol(document.getElementById('pds').value.trim());
+      if (!pdsHost) {
+        alert('Please enter PDS Host');
+        return;
+      }
       const did = document.getElementById('did').value.trim();
       const cid = document.getElementById('cid').value.trim();
       if (!did || !cid) {
-        alert('Please enter both DID and CID');
+        alert('Please enter DID and CID');
         return;
       }
-      const videoUrl = `https://bsky.social/xrpc/com.atproto.sync.getBlob?did=${encodeURIComponent(did)}&cid=${encodeURIComponent(cid)}`;
+      const videoUrl = `https://${pdsHost}/xrpc/com.atproto.sync.getBlob?did=${encodeURIComponent(did)}&cid=${encodeURIComponent(cid)}`;
       const videoElem = document.getElementById('video');
       videoElem.src = videoUrl;
       videoElem.style.display = 'block';
       document.getElementById('fullscreenBtn').style.display = 'inline-block';
     }
-
     function goFullScreen() {
       const videoElem = document.getElementById('video');
       if (videoElem.requestFullscreen) {
@@ -98,13 +109,16 @@
         videoElem.msRequestFullscreen();
       }
     }
-
     window.onload = function() {
+      // Default host (host name only, no protocol)
+      const defaultPDS = "bsky.social";
+      const pdsParam = getParam('pds');
       const didParam = getParam('did');
       const cidParam = getParam('cid');
+      document.getElementById('pds').value = pdsParam || defaultPDS;
       document.getElementById('did').value = didParam;
       document.getElementById('cid').value = cidParam;
-      if (didParam && cidParam) {
+      if ((pdsParam || defaultPDS) && didParam && cidParam) {
         loadVideo();
       }
     }
@@ -113,6 +127,10 @@
 <body>
   <h1>Dynamic PDSls MP4 blob Player</h1>
   <div class="container">
+    <div>
+      <label for="pds">PDS Host:</label>
+      <input type="text" id="pds" placeholder="e.g. bsky.social">
+    </div>
     <div>
       <label for="did">DID:</label>
       <input type="text" id="did" placeholder="Enter DID here">
