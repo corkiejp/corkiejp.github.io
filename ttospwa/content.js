@@ -510,6 +510,84 @@ window.addEventListener('keydown', function(e) {
   }
 });
 
+(function() {
+  'use strict';
+
+  let featureEnabled = true; // Feature enabled by default
+
+  // Core function to toggle quotes feature on or off
+  function toggleQuotesFeature(enabled) {
+    document.querySelectorAll('article.css-1hlhx5t-quoteEmbed-body').forEach(article => {
+      const prev = article.previousElementSibling;
+      const hasToggleLink = prev && prev.classList && prev.classList.contains('quoteToggleLink');
+      const userAnchor = article.querySelector('.css-19hcwt0-Metas-styles-meta-UserLabel-classes-userName a[data-link-type="legacy"]');
+      if (!userAnchor) return;
+      const username = userAnchor.textContent.trim();
+
+      if (enabled) {
+        if (!hasToggleLink) {
+          // Hide quote initially
+          article.style.display = 'none';
+
+          // Create toggle link
+          const placeholderLink = document.createElement('a');
+          placeholderLink.href = '#';
+          placeholderLink.textContent = `Display quote of ${username}`;
+          placeholderLink.className = 'quoteToggleLink';
+          placeholderLink.style.cssText = 'cursor:pointer;color:#007bff;text-decoration:underline;display:block;margin:10px 0;';
+
+          // Insert toggle link before quote
+          article.parentNode.insertBefore(placeholderLink, article);
+
+          // Add click event to toggle
+          placeholderLink.addEventListener('click', e => {
+            e.preventDefault();
+            if (article.style.display === 'none') {
+              article.style.display = '';
+              placeholderLink.textContent = `Hide quote of ${username}`;
+            } else {
+              article.style.display = 'none';
+              placeholderLink.textContent = `Display quote of ${username}`;
+            }
+          });
+        }
+      } else {
+        // Disable feature: show quotes, remove toggle links
+        if (hasToggleLink) {
+          prev.remove();
+        }
+        article.style.display = '';
+      }
+    });
+  }
+
+  // Run toggleQuotesFeature when page is fully loaded and after some delay to catch dynamic loading
+  function initialize() {
+    toggleQuotesFeature(featureEnabled);
+    // Optional: you can watch for new quote inserts with MutationObserver if needed
+  }
+
+  // Wait for document ready state complete to run initialize
+  if (document.readyState === 'complete') {
+    initialize();
+  } else {
+    window.addEventListener('load', () => {
+      // Delay a bit to allow scripts and dynamic content to settle
+      setTimeout(initialize, 1000);
+    });
+  }
+
+  // Keyboard shortcut window listener to toggle feature on/off with Alt+2
+  window.addEventListener('keydown', e => {
+    if (e.altKey && !e.shiftKey && !e.ctrlKey && !e.metaKey && e.key === '2') {
+      featureEnabled = !featureEnabled;
+      toggleQuotesFeature(featureEnabled);
+      alert(`Quote toggle feature is now ${featureEnabled ? 'ENABLED' : 'DISABLED'}.`);
+    }
+  });
+})();
+
+
 
 
 // Other keyboard shortcuts to open Boards.ie links (unchanged)
