@@ -579,11 +579,11 @@ threadBitDivs.forEach(div => {
 
   // Declare or update minDelay and stableDuration
   if (typeof window._overlayMinDelay === 'undefined') {
-    window._overlayMinDelay = isAndroid() ? 7000 : 3000;      // ms
+    window._overlayMinDelay = isAndroid() ? 9000 : 3000;      // ms
   }
 
   if (typeof window._overlayStableDuration === 'undefined') {
-    window._overlayStableDuration = isAndroid() ? 1500 : 500; // ms
+    window._overlayStableDuration = isAndroid() ? 1800 : 600; // ms
   }
 
   // Declare or update lastChangeTime
