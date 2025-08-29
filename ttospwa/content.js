@@ -572,4 +572,64 @@ threadBitDivs.forEach(div => {
   div.style.cursor = 'pointer';
 });
 
+(function() {
+  function isAndroid() {
+    return /android/i.test(navigator.userAgent);
+  }
+
+  // Declare or update minDelay and stableDuration
+  if (typeof window._overlayMinDelay === 'undefined') {
+    window._overlayMinDelay = isAndroid() ? 7000 : 3000;      // ms
+  }
+
+  if (typeof window._overlayStableDuration === 'undefined') {
+    window._overlayStableDuration = isAndroid() ? 1500 : 500; // ms
+  }
+
+  // Declare or update lastChangeTime
+  if (typeof window._lastChangeTime === 'undefined') {
+    window._lastChangeTime = performance.now();
+  } else {
+    window._lastChangeTime = performance.now();
+  }
+
+  // Declare or initialize MutationObserver
+  if (typeof window._stabilityObserver === 'undefined') {
+    window._stabilityObserver = new MutationObserver(() => {
+      window._lastChangeTime = performance.now();
+    });
+    window._stabilityObserver.observe(document.documentElement, { childList: true, subtree: true });
+  }
+
+  // Stability check function
+  function checkIfStable(loader) {
+    const now = performance.now();
+    if (now - window._lastChangeTime >= window._overlayStableDuration && now >= window._overlayMinDelay) {
+      document.documentElement.classList.remove('overlay-hide');
+      if (loader && loader.parentNode) loader.parentNode.removeChild(loader);
+      window._stabilityObserver.disconnect();
+      console.log("Overlay removed after stability check");
+    } else {
+      requestAnimationFrame(() => checkIfStable(loader));
+    }
+  }
+
+  // Example overlay creation (ensure "loader" exists in your code before call)
+  let loader = document.getElementById('custom-loader');
+  if (loader) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+          requestAnimationFrame(() => checkIfStable(loader));
+        }, isAndroid() ? 1000 : 0);
+      });
+    } else {
+      setTimeout(() => {
+        requestAnimationFrame(() => checkIfStable(loader));
+      }, isAndroid() ? 1000 : 0);
+    }
+  }
+})();
+
+
 }
