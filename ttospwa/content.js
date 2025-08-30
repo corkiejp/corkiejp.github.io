@@ -514,84 +514,92 @@ window.addEventListener('keydown', function(e) {
   'use strict';
 
   let featureEnabled = true;
+  const processedAttr = 'data-quote-processed';
 
-  // Hide quotes and add toggle links
-  function toggleQuotesFeature(enabled) {
+  function processQuotes(enabled) {
     document.querySelectorAll('article.css-1hlhx5t-quoteEmbed-body').forEach(article => {
-      const prev = article.previousElementSibling;
-      const hasToggleLink = prev && prev.classList && prev.classList.contains('quoteToggleLink');
       const userAnchor = article.querySelector('a[data-link-type="legacy"]');
       if (!userAnchor) return;
       const username = userAnchor.textContent.trim();
 
       if (enabled) {
-        if (!hasToggleLink) {
+        // Only handle if not processed, or if all quotes are visible but links are absent
+        if (article.getAttribute(processedAttr) !== 'true') {
           article.style.display = 'none';
+          const toggleLink = document.createElement('a');
+          toggleLink.href = '#';
+          toggleLink.textContent = `Display quote of ${username}`;
+          toggleLink.style.cursor = 'pointer';
+          toggleLink.style.color = '#007bff';
+          toggleLink.style.textDecoration = 'underline';
+          toggleLink.style.display = 'block';
+          toggleLink.style.margin = '10px 0';
 
-          const placeholderLink = document.createElement('a');
-          placeholderLink.href = '#';
-          placeholderLink.textContent = `Display quote of ${username}`;
-          placeholderLink.className = 'quoteToggleLink';
-          placeholderLink.style.cssText = 'cursor:pointer;color:#007bff;text-decoration:underline;display:block;margin:10px 0;';
-          article.parentNode.insertBefore(placeholderLink, article);
-
-          placeholderLink.addEventListener('click', e => {
+          toggleLink.addEventListener('click', e => {
             e.preventDefault();
             if (article.style.display === 'none') {
               article.style.display = '';
-              placeholderLink.textContent = `Hide quote of ${username}`;
+              toggleLink.textContent = `Hide quote of ${username}`;
             } else {
               article.style.display = 'none';
-              placeholderLink.textContent = `Display quote of ${username}`;
+              toggleLink.textContent = `Display quote of ${username}`;
             }
           });
+
+          article.parentNode.insertBefore(toggleLink, article);
+          article.setAttribute(processedAttr, 'true');
         }
       } else {
-        if (hasToggleLink) {
+        // Always show, always remove the links, always remove the processed attribute
+        article.style.display = '';
+        const prev = article.previousElementSibling;
+        if (prev && prev.tagName === 'A' && prev.textContent.startsWith('Display quote of')) {
           prev.remove();
         }
-        article.style.display = '';
+        article.removeAttribute(processedAttr);
       }
     });
   }
 
-  // Observe dynamically added quote blocks (useful for mobile or infinite scroll)
-  const observer = new MutationObserver(mutations => {
-    mutations.forEach(mutation => {
-      mutation.addedNodes.forEach(node => {
-        if (node.nodeType === Node.ELEMENT_NODE && node.matches && node.matches('article.css-1hlhx5t-quoteEmbed-body')) {
-          if (featureEnabled) {
-            toggleQuotesFeature(true);
-          }
-        }
-      });
-    });
+  // Use debounce to efficiently process batches of mutations on the DOM
+  let debounceTimeout;
+  const observer = new MutationObserver(() => {
+    if (debounceTimeout) clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(() => {
+      processQuotes(featureEnabled);
+    }, 300);
   });
+  observer.observe(document.body, { childList: true, subtree: true });
 
-  observer.observe(document.body, {childList: true, subtree: true});
-
-  // Initialize toggling on load
+  // Initial batch processing, plus delayed retries for slow/batched loads
   function initialize() {
-    toggleQuotesFeature(featureEnabled);
-  }
+    processQuotes(featureEnabled);
 
+    let retryCount = 0;
+    const maxRetries = 5;
+    const retryInterval = setInterval(() => {
+      if (retryCount++ >= maxRetries) clearInterval(retryInterval);
+      processQuotes(featureEnabled);
+    }, 2000);
+  }
   if (document.readyState === 'complete') {
     initialize();
   } else {
     window.addEventListener('load', () => setTimeout(initialize, 1000));
   }
 
-  // Keyboard shortcut (Alt+2) toggle, desktop only
+  // Desktop only: Alt+2 toggles full quote hiding feature
   if (!(/android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent))) {
     window.addEventListener('keydown', e => {
       if (e.altKey && !e.shiftKey && !e.ctrlKey && !e.metaKey && e.key === '2') {
         featureEnabled = !featureEnabled;
-        toggleQuotesFeature(featureEnabled);
+        processQuotes(featureEnabled);
         alert(`Quote toggle feature is now ${featureEnabled ? 'ENABLED' : 'DISABLED'}.`);
       }
     });
   }
 })();
+
 
 
 
