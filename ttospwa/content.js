@@ -86,6 +86,27 @@ async function showActivation() {
         "2": "Access granted!",
         "3": "Boards.ie Cleaner by corkie!"
       };
+	  
+	  const delayOptions = {
+  "0": 0,
+  "3": 3000,
+  "7": 7000,
+  "9": 9000,
+  "12": 12000
+};
+
+let delayMessage = "Choose delay for Overlay:\n" +
+  "0: None\n" +
+  "3: 3 seconds\n" +
+  "7: 7 seconds\n" +
+  "9: 9 seconds\n" +
+  "12: 12 seconds\n\n(Default = 3)";
+
+let selectedDelay = prompt(delayMessage, "3"); // Default pre-selected
+let delay = delayOptions[selectedDelay] ?? 3000; // Fallback to 3s default
+
+localStorage.setItem('boardsCleanerDelay', delay);
+
 
       if (!message) {
         message = 'Boards.ie Cleaner | Created by corkie! | Thanks for supporting the site | Loading...';
@@ -152,7 +173,8 @@ document.documentElement.classList.add('overlay-hide');
     lastChangeTime = performance.now();
   });
   stabilityObserver.observe(document.documentElement, { childList: true, subtree: true });
-  const minDelay = 3000; // ms
+//  const minDelay = 3000; // ms
+  const minDelay = Number(localStorage.getItem('boardsCleanerDelay')) || 3000;
   const stableDuration = 500; // ms
   function checkIfStable() {
     const now = performance.now();
