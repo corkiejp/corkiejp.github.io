@@ -333,7 +333,7 @@ window.addEventListener('keydown', (e) => {
       position: 'absolute',
       zIndex: '100000',
       top: '-40px',
-      left: '220px',
+      left: '0',
       padding: '6px 12px',
       fontSize: '14px',
       backgroundColor: '#007bff',
