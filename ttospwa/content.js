@@ -175,7 +175,7 @@ document.documentElement.classList.add('overlay-hide');
   stabilityObserver.observe(document.documentElement, { childList: true, subtree: true });
 //  const minDelay = 3000; // ms
   const minDelay = Number(localStorage.getItem('boardsCleanerDelay')) || 3000;
-  const stableDuration = 500; // ms
+  const stableDuration = 00; // ms
   function checkIfStable() {
     const now = performance.now();
     if (now - lastChangeTime >= stableDuration && now >= minDelay) {
@@ -286,6 +286,181 @@ function toggleProfileLinks() {
 }
 
 
+const delayOptions = [0, 3000, 7000, 9000, 12000]; // in ms
+const storageKey = 'boardsCleanerDelay';
+
+// Initialize delay in localStorage if not set
+if (!localStorage.getItem(storageKey)) {
+  localStorage.setItem(storageKey, delayOptions[1]); // default 3 seconds
+}
+
+// Function to get current delay index
+function getCurrentDelayIndex() {
+  const delay = Number(localStorage.getItem(storageKey));
+  return delayOptions.indexOf(delay);
+}
+
+// Function to increment and update delay
+function incrementDelay() {
+  let currentIndex = getCurrentDelayIndex();
+  let nextIndex = (currentIndex + 1) % delayOptions.length;
+  localStorage.setItem(storageKey, delayOptions[nextIndex]);
+  alert(`BoardsCleaner delay set to: ${delayOptions[nextIndex] / 1000} seconds`);
+}
+
+// Listen for Alt + '+' keypress
+window.addEventListener('keydown', (e) => {
+  // Normalize '+' key detection across keyboards
+  if (e.altKey && (e.key === '+' || e.key === '=')) {
+    e.preventDefault();
+    incrementDelay();
+  }
+});
+
+
+(function() {
+  const formSelector = '.MessageForm.CommentForm'; // The full comment form container
+
+  // Add "Edit in Modal" floating button near (appended inside) the full form container
+  function addFloatingButton() {
+    const container = document.querySelector(formSelector);
+    if (!container || document.getElementById('boardsCleanerFloatingBtn')) return;
+
+    // Create floating button
+    const btn = document.createElement('button');
+    btn.id = 'boardsCleanerFloatingBtn';
+    btn.textContent = 'Edit in Modal';
+    Object.assign(btn.style, {
+      position: 'absolute',
+      zIndex: '100000',
+      top: '-40px',
+      right: '0',
+      padding: '6px 12px',
+      fontSize: '14px',
+      backgroundColor: '#007bff',
+      color: 'white',
+      border: 'none',
+      borderRadius: '4px',
+      cursor: 'pointer',
+      boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
+    });
+    btn.title = 'Open modal editor';
+
+    // Ensure container has relative position for button positioning
+    container.style.position = 'relative';
+    container.appendChild(btn);
+
+    // Button click handler - prevent nav and open modal
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      openModalWithForm(formSelector);
+    });
+  }
+
+  // Open modal and move the full form into it
+  function openModalWithForm(selector) {
+    const formContainer = document.querySelector(selector);
+    if (!formContainer) return;
+
+    // Save original parent and sibling for restore
+    const originalParent = formContainer.parentNode;
+    const originalNextSibling = formContainer.nextSibling;
+
+    // Create modal backdrop
+    const modalBg = document.createElement('div');
+    Object.assign(modalBg.style, {
+      position: 'fixed',
+      top: '0',
+      left: '0',
+      width: '100vw',
+      height: '100vh',
+      background: 'rgba(0,0,0,0.5)',
+      zIndex: '2147483647',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      overflow: 'auto',
+      padding: '20px',
+      boxSizing: 'border-box'
+    });
+
+    // Create modal content box
+    const modalBox = document.createElement('div');
+    Object.assign(modalBox.style, {
+      background: 'white',
+      borderRadius: '8px',
+      maxWidth: '800px',
+      width: '100%',
+      maxHeight: '90vh',
+      overflowY: 'auto',
+      padding: '15px',
+      boxShadow: '0 6px 32px rgba(0,0,0,0.18)',
+      display: 'flex',
+      flexDirection: 'column',
+      position: 'relative'
+    });
+
+    // Move the form container into the modal box
+    modalBox.appendChild(formContainer);
+
+    // Add close button at bottom right
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = 'Close & Return';
+    Object.assign(closeBtn.style, {
+      alignSelf: 'flex-end',
+      marginTop: '12px',
+      padding: '8px 16px',
+      fontSize: '14px',
+      backgroundColor: '#007bff',
+      color: 'white',
+      border: 'none',
+      borderRadius: '4px',
+      cursor: 'pointer',
+      boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
+    });
+    closeBtn.title = 'Close modal and return editor to page';
+
+    closeBtn.addEventListener('click', () => {
+      // Restore form container to its original place
+      if (originalNextSibling) {
+        originalParent.insertBefore(formContainer, originalNextSibling);
+      } else {
+        originalParent.appendChild(formContainer);
+      }
+      document.body.removeChild(modalBg);
+
+      // Focus the inner editor or textarea after restore
+      const editable = formContainer.querySelector('[contenteditable="true"], textarea');
+      if (editable) editable.focus();
+    });
+
+    modalBox.appendChild(closeBtn);
+    modalBg.appendChild(modalBox);
+    document.body.appendChild(modalBg);
+
+    // Focus editor/textarea inside modal on open
+    const editable = formContainer.querySelector('[contenteditable="true"], textarea');
+    if (editable) editable.focus();
+
+    // Close modal if user clicks outside modal box
+    modalBg.addEventListener('click', e => {
+      if (e.target === modalBg) closeBtn.click();
+    });
+  }
+
+  // Initialize with retrial for delayed form load
+  function init() {
+    addFloatingButton();
+  }
+
+  let tries = 0;
+  const maxTries = 30;
+  const interval = setInterval(() => {
+    init();
+    if (++tries > maxTries) clearInterval(interval);
+  }, 300);
+})();
 
 
 
@@ -447,6 +622,7 @@ function insertToggleButton() {
 	  <li><b>Info this popup</b> Alt + i </li>
       <li><b>Toggle Profiles:</b> Alt + p </li>
 	  <li><b>Clear activation and overlay msg!</b> Alt + q </li>
+	  <li><b>Cycle overlay delay</b> Alt + '+' </li>
       <li><b>Bookmarks:</b> <a href="https://www.boards.ie/discussions/bookmarked" target="_top">Alt + 8</a></li>
       <li><b>Mike Comments:</b> <a href="https://www.boards.ie/profile/comments/Boards.ie%3A%20Mike" target="_top">Alt + m</a></li>
       <li><b>Odhran Comments:</b> <a href="https://www.boards.ie/profile/comments/Boards.ie%3A%20Odhran" target="_top">Alt + o</a></li>
