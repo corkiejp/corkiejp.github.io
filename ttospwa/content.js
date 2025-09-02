@@ -317,24 +317,23 @@ window.addEventListener('keydown', (e) => {
   }
 });
 
-
 (function() {
-  const formSelector = '.MessageForm.CommentForm'; // The full comment form container
+  // Selector for the full comment form container on Boards.ie
+  const formSelector = '.MessageForm.CommentForm';
 
-  // Add "Edit in Modal" floating button near (appended inside) the full form container
+  // Add the floating "Edit in Modal" button near the full comment form container
   function addFloatingButton() {
     const container = document.querySelector(formSelector);
     if (!container || document.getElementById('boardsCleanerFloatingBtn')) return;
 
-    // Create floating button
     const btn = document.createElement('button');
     btn.id = 'boardsCleanerFloatingBtn';
     btn.textContent = 'Edit in Modal';
     Object.assign(btn.style, {
       position: 'absolute',
       zIndex: '100000',
-      top: '-20px',
-      left: '0',
+      top: '-40px',
+      left: '220px',
       padding: '6px 12px',
       fontSize: '14px',
       backgroundColor: '#007bff',
@@ -346,28 +345,24 @@ window.addEventListener('keydown', (e) => {
     });
     btn.title = 'Open modal editor';
 
-    // Ensure container has relative position for button positioning
     container.style.position = 'relative';
     container.appendChild(btn);
 
-    // Button click handler - prevent nav and open modal
     btn.addEventListener('click', e => {
       e.preventDefault();
       e.stopPropagation();
-      openModalWithForm(formSelector);
+      openModalWithForm();
     });
   }
 
-  // Open modal and move the full form into it
-  function openModalWithForm(selector) {
-    const formContainer = document.querySelector(selector);
+  // Opens the modal and moves the full form into it
+  function openModalWithForm() {
+    const formContainer = document.querySelector(formSelector);
     if (!formContainer) return;
 
-    // Save original parent and sibling for restore
     const originalParent = formContainer.parentNode;
     const originalNextSibling = formContainer.nextSibling;
 
-    // Create modal backdrop
     const modalBg = document.createElement('div');
     Object.assign(modalBg.style, {
       position: 'fixed',
@@ -385,7 +380,6 @@ window.addEventListener('keydown', (e) => {
       boxSizing: 'border-box'
     });
 
-    // Create modal content box
     const modalBox = document.createElement('div');
     Object.assign(modalBox.style, {
       background: 'white',
@@ -401,10 +395,9 @@ window.addEventListener('keydown', (e) => {
       position: 'relative'
     });
 
-    // Move the form container into the modal box
+    // Move form container into modal
     modalBox.appendChild(formContainer);
 
-    // Add close button at bottom right
     const closeBtn = document.createElement('button');
     closeBtn.textContent = 'Close & Return';
     Object.assign(closeBtn.style, {
@@ -422,7 +415,6 @@ window.addEventListener('keydown', (e) => {
     closeBtn.title = 'Close modal and return editor to page';
 
     closeBtn.addEventListener('click', () => {
-      // Restore form container to its original place
       if (originalNextSibling) {
         originalParent.insertBefore(formContainer, originalNextSibling);
       } else {
@@ -430,7 +422,6 @@ window.addEventListener('keydown', (e) => {
       }
       document.body.removeChild(modalBg);
 
-      // Focus the inner editor or textarea after restore
       const editable = formContainer.querySelector('[contenteditable="true"], textarea');
       if (editable) editable.focus();
     });
@@ -439,17 +430,155 @@ window.addEventListener('keydown', (e) => {
     modalBg.appendChild(modalBox);
     document.body.appendChild(modalBg);
 
-    // Focus editor/textarea inside modal on open
     const editable = formContainer.querySelector('[contenteditable="true"], textarea');
     if (editable) editable.focus();
 
-    // Close modal if user clicks outside modal box
+    // Allow modal close on clicking outside content
     modalBg.addEventListener('click', e => {
       if (e.target === modalBg) closeBtn.click();
     });
   }
 
-  // Initialize with retrial for delayed form load
+  // Initialize with retries to wait for form to load
+  function init() {
+    addFloatingButton();
+  }
+
+  let tries = 0;
+  const maxTries = 30;
+  const interval = setInterval(() => {
+    init();
+    if (++tries > maxTries) clearInterval(interval);
+  }, 300);
+})();
+
+
+
+
+
+(function() {
+  // Selector for the full comment form container on Boards.ie
+  const formSelector = '.MessageForm.CommentForm';
+
+  // Add the floating "Edit in Modal" button near the full comment form container
+  function addFloatingButton() {
+    const container = document.querySelector(formSelector);
+    if (!container || document.getElementById('boardsCleanerFloatingBtn')) return;
+
+    const btn = document.createElement('button');
+    btn.id = 'boardsCleanerFloatingBtn';
+    btn.textContent = 'Edit in Modal';
+    Object.assign(btn.style, {
+      position: 'absolute',
+      zIndex: '100000',
+      top: '-40px',
+      right: '0',
+      padding: '6px 12px',
+      fontSize: '14px',
+      backgroundColor: '#007bff',
+      color: 'white',
+      border: 'none',
+      borderRadius: '4px',
+      cursor: 'pointer',
+      boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
+    });
+    btn.title = 'Open modal editor';
+
+    container.style.position = 'relative';
+    container.appendChild(btn);
+
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      openModalWithForm();
+    });
+  }
+
+  // Opens the modal and moves the full form into it
+  function openModalWithForm() {
+    const formContainer = document.querySelector(formSelector);
+    if (!formContainer) return;
+
+    const originalParent = formContainer.parentNode;
+    const originalNextSibling = formContainer.nextSibling;
+
+    const modalBg = document.createElement('div');
+    Object.assign(modalBg.style, {
+      position: 'fixed',
+      top: '0',
+      left: '0',
+      width: '100vw',
+      height: '100vh',
+      background: 'rgba(0,0,0,0.5)',
+      zIndex: '2147483647',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      overflow: 'auto',
+      padding: '20px',
+      boxSizing: 'border-box'
+    });
+
+    const modalBox = document.createElement('div');
+    Object.assign(modalBox.style, {
+      background: 'white',
+      borderRadius: '8px',
+      maxWidth: '800px',
+      width: '100%',
+      maxHeight: '90vh',
+      overflowY: 'auto',
+      padding: '15px',
+      boxShadow: '0 6px 32px rgba(0,0,0,0.18)',
+      display: 'flex',
+      flexDirection: 'column',
+      position: 'relative'
+    });
+
+    // Move form container into modal
+    modalBox.appendChild(formContainer);
+
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = 'Close & Return';
+    Object.assign(closeBtn.style, {
+      alignSelf: 'flex-end',
+      marginTop: '12px',
+      padding: '8px 16px',
+      fontSize: '14px',
+      backgroundColor: '#007bff',
+      color: 'white',
+      border: 'none',
+      borderRadius: '4px',
+      cursor: 'pointer',
+      boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
+    });
+    closeBtn.title = 'Close modal and return editor to page';
+
+    closeBtn.addEventListener('click', () => {
+      if (originalNextSibling) {
+        originalParent.insertBefore(formContainer, originalNextSibling);
+      } else {
+        originalParent.appendChild(formContainer);
+      }
+      document.body.removeChild(modalBg);
+
+      const editable = formContainer.querySelector('[contenteditable="true"], textarea');
+      if (editable) editable.focus();
+    });
+
+    modalBox.appendChild(closeBtn);
+    modalBg.appendChild(modalBox);
+    document.body.appendChild(modalBg);
+
+    const editable = formContainer.querySelector('[contenteditable="true"], textarea');
+    if (editable) editable.focus();
+
+    // Allow modal close on clicking outside content
+    modalBg.addEventListener('click', e => {
+      if (e.target === modalBg) closeBtn.click();
+    });
+  }
+
+  // Initialize with retries to wait for form to load
   function init() {
     addFloatingButton();
   }
