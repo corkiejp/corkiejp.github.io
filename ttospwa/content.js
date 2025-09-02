@@ -333,8 +333,8 @@ window.addEventListener('keydown', (e) => {
     Object.assign(btn.style, {
       position: 'absolute',
       zIndex: '100000',
-      top: '-40px',
-      right: '0',
+      top: '-100px',
+      left: '0',
       padding: '6px 12px',
       fontSize: '14px',
       backgroundColor: '#007bff',
