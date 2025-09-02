@@ -173,15 +173,38 @@ document.documentElement.classList.add('overlay-hide');
     lastChangeTime = performance.now();
   });
   stabilityObserver.observe(document.documentElement, { childList: true, subtree: true });
-//  const minDelay = 3000; // ms
-  const minDelay = Number(localStorage.getItem('boardsCleanerDelay')) || 3000;
-  const stableDuration = 00; // ms
+
+  const storedValue = localStorage.getItem('boardsCleanerDelay');
+  const minDelay = storedValue !== null ? Number(storedValue) : 3000;
+  
+  
+  
+  let stableDuration = 500; // default value
+  
+  if (typeof window._overlayMinDelay === 'undefined') {
+  const storedDelay = localStorage.getItem('boardsCleanerDelay');
+  window._overlayMinDelay = storedDelay !== null ? Number(storedDelay) : 3000;
+}
+
+  
+  console.log('Overlay min delay:', window._overlayMinDelay);
+if (window._overlayMinDelay === 0) {
+  stableDuration = 0;
+  console.log('stableDuration set to 0');
+} else {
+  console.log('stableDuration remains at', stableDuration);
+}
+
+  
+  console.log('minDelay from localStorage:', minDelay);
+  console.log('stableDuration:', stableDuration);
   function checkIfStable() {
     const now = performance.now();
     if (now - lastChangeTime >= stableDuration && now >= minDelay) {
       document.documentElement.classList.remove('overlay-hide');
       loader.remove();
       stabilityObserver.disconnect();
+	  console.log("Overlay removed after stability check. Delay used:", window._overlayMinDelay, "ms, Stable Duration:", window._overlayStableDuration, "ms");
       console.log("Overlay removed after stability check");
     } else {
       requestAnimationFrame(checkIfStable);
@@ -993,18 +1016,24 @@ threadBitDivs.forEach(div => {
 });
 
 (function() {
+
+  
+  
   function isAndroid() {
-    return /android/i.test(navigator.userAgent);
-  }
+  return /android/i.test(navigator.userAgent);
+}
 
-  // Declare or update minDelay and stableDuration
-  if (typeof window._overlayMinDelay === 'undefined') {
-    window._overlayMinDelay = isAndroid() ? 9000 : 3000;      // ms
-  }
+let storedDelay = Number(localStorage.getItem('boardsCleanerDelay'));
+let storedStable = Number(localStorage.getItem('boardsCleanerStableDuration'));
 
-  if (typeof window._overlayStableDuration === 'undefined') {
-    window._overlayStableDuration = isAndroid() ? 1800 : 600; // ms
-  }
+window._overlayMinDelay = (typeof storedDelay === 'number' && storedDelay > 0) 
+  ? storedDelay 
+  : (isAndroid() ? 9000 : 3000);
+
+window._overlayStableDuration = (typeof storedStable === 'number' && storedStable > 0) 
+  ? storedStable 
+  : (isAndroid() ? 1800 : 600);
+
 
   // Declare or update lastChangeTime
   if (typeof window._lastChangeTime === 'undefined') {
