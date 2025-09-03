@@ -8,15 +8,30 @@ style.textContent = `
   position: fixed;
   left: 0; top: 0; width: 100vw; height: 100vh;
   z-index: 9999;
-  background: white;
+  background: #3c5587;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: #fff;
   font-size: 2em;
+  background-image: url('https://us.v-cdn.net/6034073/uploads/CRMQG2RAVE82/boards-logo.png?v=68936b38');
+    background-repeat: no-repeat;
+    background-position: center 2em; /* Adjust as needed */
+    background-size: 280px auto;     /* Adjust size as needed */
+    flex-direction: column;
+    text-align: center;
+    padding-top: 50px; /* Offset text if image is above text */
+  }
 }
+
   /* Add other overlay.css rules... */
 `;
+
+
 document.head.appendChild(style);
+
+
+
 
 
   // Hash function: SHA-256 for code validation
