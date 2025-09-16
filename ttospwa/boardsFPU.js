@@ -64,6 +64,13 @@
     body.modal-active, html.modal-active {
       overflow: hidden !important;
     }
+	
+.css-kjovb1-reportModal-classes-scrollableArea {
+  max-height: 50vh !important; /* adjust height as needed */
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important; /* smooth scrolling on mobile iOS */
+}
+	
   `;
 
   // Inject CSS once
@@ -105,3 +112,4 @@
   });
 
 })();
+
