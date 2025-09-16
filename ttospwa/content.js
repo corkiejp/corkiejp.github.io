@@ -63,9 +63,7 @@ style.textContent = `
     flex-direction: column !important;
     box-sizing: border-box !important;
   }
-  body, html {
-    overflow: hidden !important;
-  }
+
   .css-105zbr5-frameStyles-headerWrap,
   .css-1usqrh9-frameStyles-bodyWrap,
   .frameHeader,
