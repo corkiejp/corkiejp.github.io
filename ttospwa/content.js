@@ -1,56 +1,114 @@
 (async () => { 
 
-const style = document.createElement('style');
-style.textContent = `
-  /* Your overlay.css content goes here */
-  body.overlay-hide { opacity: 0 !important; }
-#custom-loader {
-  position: fixed;
-  left: 0; top: 0; width: 100vw; height: 100vh;
-  z-index: 9999;
-  background: #3c5587;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 2em;
-  background-image: url('https://us.v-cdn.net/6034073/uploads/CRMQG2RAVE82/boards-logo.png?v=68936b38');
-    background-repeat: no-repeat;
-    background-position: center 2em; /* Adjust as needed */
-    background-size: 280px auto;     /* Adjust size as needed */
-    flex-direction: column;
-    text-align: center;
-    padding-top: 50px; /* Offset text if image is above text */
+
+function injectExtensionCSS() {
+  const existingStyle = document.getElementById('boards-cleaner-style');
+  const cssContent = `
+    /* Overlay styles */
+    body.overlay-hide { opacity: 0 !important; }
+    #custom-loader {
+      position: fixed;
+      left: 0; top: 0; width: 100vw; height: 100vh;
+      z-index: 9999;
+      background: #3c5587;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 2em;
+      background-image: url('https://us.v-cdn.net/6034073/uploads/CRMQG2RAVE82/boards-logo.png?v=68936b38');
+      background-repeat: no-repeat;
+      background-position: center 2em;
+      background-size: 280px auto;
+      flex-direction: column;
+      text-align: center;
+      padding-top: 50px;
+    }
+
+    /* Inline buttons */
+    .Options {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+    }
+    .Options > a,
+    .Options > span.ToggleFlyout {
+      display: inline-flex !important;
+      align-items: center !important;
+    }
+
+    /* Fullscreen modal overlay */
+    .css-141gbze-modal-overlayContent {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      max-width: 100vw !important;
+      max-height: 100vh !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+      z-index: 2147483647 !important;
+      background: rgba(255,255,255,0.9) !important;
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
+    }
+    .css-q5q25-modal {
+      position: relative !important;
+      width: 100% !important;
+      height: 100% !important;
+      max-width: 100% !important;
+      max-height: 100% !important;
+      margin: 0 !important;
+      border-radius: 0 !important;
+      overflow: hidden !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+    .frame.css-ab90li-frameStyles-root {
+      flex: 1 1 auto !important;
+      width: 100% !important;
+      height: 100% !important;
+      max-width: 100% !important;
+      max-height: 100% !important;
+      overflow-y: auto !important;
+      box-sizing: border-box !important;
+    }
+    .css-1usqrh9-frameStyles-bodyWrap {
+      flex: 1 1 auto !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+    }
+    .buttonClose, .closeButton {
+      position: absolute !important;
+      top: 8px !important;
+      right: 8px !important;
+      z-index: 2147483648 !important;
+      background: transparent;
+    }
+    body.modal-active, html.modal-active {
+      overflow: hidden !important;
+    }
+  `;
+
+  if (existingStyle) {
+    // Append CSS if needed (avoid duplicates)
+    if (!existingStyle.textContent.includes('.Options')) {
+      existingStyle.textContent += cssContent;
+    }
+  } else {
+    const style = document.createElement('style');
+    style.id = 'boards-cleaner-style';
+    style.textContent = cssContent;
+    document.head.appendChild(style);
   }
 }
 
+// Call the function early in your content.js
+injectExtensionCSS();
 
-
-
-
-
-  /* Add other overlay.css rules... */
-`
-;
-
-style.textContent = `
-  .Options {
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-  }
-  .Options > a,
-  .Options > span.ToggleFlyout {
-    display: inline-flex !important;
-    align-items: center !important;
-  }
-`;
-
-
-
-
-
-document.head.appendChild(style);
 
 
 
