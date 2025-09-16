@@ -24,8 +24,65 @@ style.textContent = `
   }
 }
 
+
+
+
+
+
   /* Add other overlay.css rules... */
+`
+;
+
+style.textContent = `
+  .Options {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+  .Options > a,
+  .Options > span.ToggleFlyout {
+    display: inline-flex !important;
+    align-items: center !important;
+  }
 `;
+
+
+
+style.textContent = `
+  .frame.css-ab90li-frameStyles-root {
+    position: fixed !important;
+    top: 0 !important; left: 0 !important;
+    width: 100vw !important; height: 100vh !important;
+    max-width: 100vw !important; max-height: 100vh !important;
+    min-width: 100vw !important; min-height: 100vh !important;
+    margin: 0 !important; padding: 0 !important;
+    z-index: 2147483647 !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+    display: flex !important;
+    flex-direction: column !important;
+    box-sizing: border-box !important;
+  }
+  body, html {
+    overflow: hidden !important;
+  }
+  .css-105zbr5-frameStyles-headerWrap,
+  .css-1usqrh9-frameStyles-bodyWrap,
+  .frameHeader,
+  .frameBody {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .buttonClose, .closeButton {
+    position: absolute !important;
+    top: 8px !important;
+    right: 8px !important;
+    z-index: 2147483648 !important;
+    background: transparent;
+  }
+`;
+
+
 
 
 document.head.appendChild(style);
@@ -354,6 +411,9 @@ window.addEventListener('keydown', (e) => {
     incrementDelay();
   }
 });
+
+
+
 
 (function() {
   // Selector for the full comment form container on Boards.ie
@@ -874,6 +934,11 @@ window.addEventListener('keydown', function(e) {
     }
   }
 });
+
+
+
+
+
 
 (function() {
   'use strict';
