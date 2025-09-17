@@ -826,6 +826,65 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
+
+function makeProfileToggleButtonDraggable(btn) {
+  let dragging = false;
+  let startX, startY, origX = 0, origY = 0;
+
+  // Read initial offset from last move or start at initial CSS (bottom/right)
+  function getOffsets() {
+    // If data-x/y on button, use those; else, compute from CSS and set them.
+    let dx = parseFloat(btn.getAttribute('data-x')) || 0;
+    let dy = parseFloat(btn.getAttribute('data-y')) || 0;
+    return [dx, dy];
+  }
+
+  function dragStart(e) {
+    dragging = true;
+    const pointer = e.touches ? e.touches[0] : e;
+    [origX, origY] = getOffsets();
+    startX = pointer.clientX;
+    startY = pointer.clientY;
+    document.addEventListener('mousemove', dragMove);
+    document.addEventListener('mouseup', dragEnd);
+    document.addEventListener('touchmove', dragMove, {passive: false});
+    document.addEventListener('touchend', dragEnd);
+    e.preventDefault();
+  }
+  function dragMove(e) {
+    if (!dragging) return;
+    const pointer = e.touches ? e.touches[0] : e;
+    let dx = origX + (pointer.clientX - startX);
+    let dy = origY + (pointer.clientY - startY);
+
+    // Clamp so button stays on screen
+    dx = Math.max(0, Math.min(window.innerWidth - btn.offsetWidth, dx));
+    dy = Math.max(0, Math.min(window.innerHeight - btn.offsetHeight, dy));
+
+    btn.style.transform = `translate(${dx}px,${dy}px)`;
+    btn.setAttribute('data-x', dx);
+    btn.setAttribute('data-y', dy);
+    // Remove bottom/right/top/left CSS so translate takes effect
+    btn.style.left = '';
+    btn.style.right = '';
+    btn.style.top = '';
+    btn.style.bottom = '';
+    e.preventDefault();
+  }
+  function dragEnd() {
+    dragging = false;
+    document.removeEventListener('mousemove', dragMove);
+    document.removeEventListener('mouseup', dragEnd);
+    document.removeEventListener('touchmove', dragMove);
+    document.removeEventListener('touchend', dragEnd);
+  }
+  btn.addEventListener('mousedown', dragStart);
+  btn.addEventListener('touchstart', dragStart, {passive: false});
+}
+
+
+
+
 function insertToggleButton() {
   // Create the Toggle Profiles button
   const btn = document.createElement('button');
@@ -849,6 +908,7 @@ function insertToggleButton() {
         toggleProfileLinks();
       }
     }
+	makeProfileToggleButtonDraggable(btn);
   });
 
   // Create the info icon next to the toggle button
@@ -880,6 +940,8 @@ function insertToggleButton() {
       <li><b>Subbed Members:</b> <a href="https://www.boards.ie/search?domain=members&sort=dateInserted&scope=site&roleIDs[0]=95&source=community" target="_top">Alt + s</a></li>
       <li><b>Subbed Forum:</b> <a href="https://www.boards.ie/group/1878-subscribers-forum" target="_top">Alt + #</a></li>
       <li><b>Notifications:</b> <a href="https://www.boards.ie/profile/notifications" target="_top">Alt + n</a></li>
+	  
+	  <li><b>Drafts:</b> <a href="https://www.boards.ie/drafts" target="_top">Alt + x</a></li>
     </ul>
   `;
   dialog.appendChild(content);
@@ -923,6 +985,8 @@ window.addEventListener('keydown', function(e) {
 }
 
 insertToggleButton();
+
+
 
 
 
@@ -1088,6 +1152,10 @@ window.addEventListener('keydown', function(event) {
       break;
     case 'n':
       window.open('https://www.boards.ie/profile/notifications', '_top');
+      event.preventDefault();
+      break;
+    case 'x':
+      window.open('https://www.boards.ie/drafts', '_top');
       event.preventDefault();
       break;	  
 	  
