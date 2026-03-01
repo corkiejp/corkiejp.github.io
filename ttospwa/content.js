@@ -43,7 +43,7 @@ function injectExtensionCSS() {
       justify-content: center !important;
       align-items: center !important;
     }
-    .css-q5q25-modal {
+    .css-z6n287-modal {
       position: relative !important;
       width: 100% !important;
       height: 100% !important;
