@@ -25,18 +25,6 @@ function injectExtensionCSS() {
       padding-top: 50px;
     }
 
-    /* Inline buttons */
-    .Options {
-      display: inline-flex !important;
-      align-items: center !important;
-      gap: 8px !important;
-    }
-    .Options > a,
-    .Options > span.ToggleFlyout {
-      display: inline-flex !important;
-      align-items: center !important;
-    }
-
     /* Fullscreen modal overlay */
     .css-141gbze-modal-overlayContent {
       position: fixed !important;
@@ -91,6 +79,9 @@ function injectExtensionCSS() {
     body.modal-active, html.modal-active {
       overflow: hidden !important;
     }
+
+	
+	
   `;
 
   if (existingStyle) {
@@ -246,10 +237,14 @@ document.documentElement.appendChild(loader);
 document.documentElement.classList.add('overlay-hide');
 
   // Remove Boards.ie warning banner & similar
-  function removeWarning() {
-    document.querySelectorAll('.DismissMessage.WarningMessage').forEach(el => el.remove());
-  }
-  removeWarning();
+function removeWarning() {
+  document
+    .querySelectorAll('.DismissMessage.WarningMessage, .DismissMessage.AlertMessage, .DismissMessage.WarningMessage')
+    .forEach(el => el.remove());
+}
+
+removeWarning();
+
 
   // Inject ad-hiding CSS
   (function() {
@@ -319,30 +314,48 @@ function isFirefox() {
   return navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 }
 
-function replacePacEmoji() {
-  const pacMap = { ':pac:': 'https://i.imgur.com/JYORVpC.png' };
+function replaceCustomEmojis() {
+  const emojiMap = {
+    ':pac:': 'https://i.imgur.com/JYORVpC.png',
+    ':poop:': '\u{1F4A9}' // Unicode poop emoji 💩
+  };
   const posts = document.querySelectorAll('.userContent > p');
-  
+
   posts.forEach(post => {
     const childNodes = Array.from(post.childNodes);
     childNodes.forEach(node => {
-      if (node.nodeType === Node.TEXT_NODE && node.textContent.includes(':pac:')) {
-        const fragments = node.textContent.split(':pac:');
-        const fragmentNodes = [];
+      if (node.nodeType === Node.TEXT_NODE) {
+        let updated = false;
+        let txt = node.textContent;
 
-        fragments.forEach((text, index) => {
-          if (text) fragmentNodes.push(document.createTextNode(text));
-          if (index < fragments.length - 1) {
-            const img = document.createElement('img');
-            img.src = pacMap[':pac:'];
-            img.alt = ':pac:';
-            img.className = 'emoji';
-            fragmentNodes.push(img);
+        Object.keys(emojiMap).forEach(code => {
+          if (txt.includes(code)) {
+            updated = true;
+            const fragments = txt.split(code);
+            const fragmentNodes = [];
+
+            fragments.forEach((text, idx) => {
+              if (text) fragmentNodes.push(document.createTextNode(text));
+              if (idx < fragments.length - 1) {
+                const replacement = emojiMap[code];
+                if (replacement.startsWith('http')) {
+                  const img = document.createElement('img');
+                  img.src = replacement;
+                  img.alt = code;
+                  img.className = 'emoji';
+                  fragmentNodes.push(img);
+                } else {
+                  const span = document.createElement('span');
+                  span.textContent = replacement;
+                  span.className = 'emoji';
+                  fragmentNodes.push(span);
+                }
+              }
+            });
+            fragmentNodes.forEach(n => post.insertBefore(n, node));
+            post.removeChild(node);
           }
         });
-
-        fragmentNodes.forEach(n => post.insertBefore(n, node));
-        post.removeChild(node);
       }
     });
   });
@@ -351,14 +364,15 @@ function replacePacEmoji() {
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     if (!isFirefox()) {
-      replacePacEmoji();
+      replaceCustomEmojis();
     }
   });
 } else {
   if (!isFirefox()) {
-    replacePacEmoji();
+    replaceCustomEmojis();
   }
 }
+
 
 
   // Prevent 'Quote' button scrolling page to top
@@ -791,6 +805,16 @@ style.textContent = `
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     cursor: pointer;
   }
+  /* Wrapper for the three icons */
+.infoIconWrapper {
+  position: fixed;
+  bottom: 70px;      /* same vertical anchor as your old icon */
+  right: 10px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
   .infoIcon {
     cursor: pointer;
     font-weight: bold;
@@ -802,12 +826,25 @@ style.textContent = `
     line-height: 18px;
     font-size: 14px;
     user-select: none;
-    position: fixed;
-    bottom: 70px;
-    right: 10px;
-    background-color: white;
-    z-index: 99999;
   }
+  .navIcon {
+  cursor: pointer;
+  font-weight: bold;
+  border: 1px solid #888;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  text-align: center;
+  line-height: 18px;
+  font-size: 14px;
+  user-select: none;
+  background-color: white;
+}
+
+/* Optional: tweak specific ones */
+.navIcon {
+  font-size: 12px;   /* if you want slightly different glyph sizing */
+}
   dialog#shortcutDialog {
     padding: 1em 1.5em;
     border-radius: 8px;
@@ -823,6 +860,38 @@ style.textContent = `
     padding: 0.3em 1em;
     cursor: pointer;
   }
+	
+	
+	.PageControls.Top, .PageControls.Bottom {
+  position: static !important; /* or relative */		
+ background: #3c5587; /* or site background so it doesn’t look transparent */
+  z-index: 2;
+	
+	}
+	
+	.DataTableWrap {
+	margin-top: 70px;    /* adjust value to taste */
+	z-index: 1;
+	}
+	
+	.Pager.PagerLinkCount-11.NumberedPager, .ButtonGroup.discussion-sort-filter-module.pull-left {
+	background: #fff;	
+	}
+
+
+    /* Inline buttons */
+    .Options {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+    }
+    .Options > a,
+    .Options > span.ToggleFlyout {
+      display: inline-flex !important;
+      align-items: center !important;
+    }
+
+  
 `;
 document.head.appendChild(style);
 
@@ -912,12 +981,38 @@ function insertToggleButton() {
   });
 
   // Create the info icon next to the toggle button
-  const infoIcon = document.createElement('span');
-  infoIcon.className = 'infoIcon';
-  infoIcon.textContent = 'i';
-  infoIcon.setAttribute('role', 'button');
-  infoIcon.setAttribute('tabindex', '0');
-  document.body.appendChild(infoIcon);
+// Create wrapper
+const infoWrapper = document.createElement('div');
+infoWrapper.className = 'infoIconWrapper';
+
+// Home icon (scroll to top)
+const homeIcon = document.createElement('span');
+homeIcon.className = 'navIcon';
+homeIcon.textContent = '⭡'; // or 'H'
+homeIcon.setAttribute('role', 'button');
+homeIcon.setAttribute('tabindex', '0');
+
+// Info icon (existing)
+const infoIcon = document.createElement('span');
+infoIcon.className = 'infoIcon';
+infoIcon.textContent = 'i';
+infoIcon.setAttribute('role', 'button');
+infoIcon.setAttribute('tabindex', '0');
+
+// End icon (scroll to bottom)
+const endIcon = document.createElement('span');
+endIcon.className = 'navIcon';
+endIcon.textContent = '⭳'; // or 'E'
+endIcon.setAttribute('role', 'button');
+endIcon.setAttribute('tabindex', '0');
+
+// Build vertical stack: home above, info middle, end below
+infoWrapper.appendChild(homeIcon);
+infoWrapper.appendChild(infoIcon);
+infoWrapper.appendChild(endIcon);
+
+document.body.appendChild(infoWrapper);
+
 
   // Create the modal dialog
   const dialog = document.createElement('dialog');
@@ -931,6 +1026,7 @@ function insertToggleButton() {
     <ul>
 	  <li><b>Info this popup</b> Alt + i </li>
       <li><b>Toggle Profiles:</b> Alt + p </li>
+	  <li><b>Toggle Quotes:</b> Alt + 2 </li>
 	  <li><b>Clear activation and overlay msg!</b> Alt + q </li>
 	  <li><b>Cycle overlay delay</b> Alt + '+' </li>
       <li><b>Bookmarks:</b> <a href="https://www.boards.ie/discussions/bookmarked" target="_top">Alt + 8</a></li>
@@ -954,6 +1050,26 @@ window.addEventListener('keydown', function(e) {
     dialog.showModal();
   }
 });
+
+homeIcon.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+endIcon.addEventListener('click', () => {
+  const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+  window.scrollTo({ top: maxScroll, behavior: 'smooth' });
+});
+
+// Optional keyboard support (Enter/Space)
+[homeIcon, endIcon].forEach(el => {
+  el.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      el.click();
+    }
+  });
+});
+
 
 
   // Add a close button inside the dialog
