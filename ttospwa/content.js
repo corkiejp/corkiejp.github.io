@@ -800,7 +800,7 @@ style.textContent = `
     color: white;
     border: none;
     border-radius: 5px;
-    z-index: 99999;
+    z-index: 2147483647;
     font-size: 16px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     cursor: pointer;
@@ -810,7 +810,7 @@ style.textContent = `
   position: fixed;
   bottom: 70px;      /* same vertical anchor as your old icon */
   right: 10px;
-  z-index: 99999;
+  z-index: 2147483647;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -894,6 +894,9 @@ style.textContent = `
   
 `;
 document.head.appendChild(style);
+
+
+
 
 
 function makeProfileToggleButtonDraggable(btn) {
@@ -1012,6 +1015,9 @@ infoWrapper.appendChild(infoIcon);
 infoWrapper.appendChild(endIcon);
 
 document.body.appendChild(infoWrapper);
+
+
+
 
 
   // Create the modal dialog
