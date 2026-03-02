@@ -991,7 +991,7 @@ infoWrapper.className = 'infoIconWrapper';
 // Home icon (scroll to top)
 const homeIcon = document.createElement('span');
 homeIcon.className = 'navIcon';
-homeIcon.textContent = '⭡'; // or 'H'
+homeIcon.textContent = '▲'; // or 'H'  '⭡'  ˄
 homeIcon.setAttribute('role', 'button');
 homeIcon.setAttribute('tabindex', '0');
 
@@ -1005,7 +1005,7 @@ infoIcon.setAttribute('tabindex', '0');
 // End icon (scroll to bottom)
 const endIcon = document.createElement('span');
 endIcon.className = 'navIcon';
-endIcon.textContent = '⭳'; // or 'E'
+endIcon.textContent = '▼'; // or 'E'  '⭳'  '˅'
 endIcon.setAttribute('role', 'button');
 endIcon.setAttribute('tabindex', '0');
 
