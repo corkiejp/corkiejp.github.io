@@ -239,7 +239,7 @@ document.documentElement.classList.add('overlay-hide');
   // Remove Boards.ie warning banner & similar
 function removeWarning() {
   document
-    .querySelectorAll('.DismissMessage.WarningMessage, .DismissMessage.AlertMessage, .DismissMessage.WarningMessage')
+    .querySelectorAll('.DismissMessage.WarningMessage, .DismissMessage.AlertMessage')
     .forEach(el => el.remove());
 }
 
@@ -250,8 +250,84 @@ removeWarning();
   (function() {
     const adsStyle = document.createElement('style');
     adsStyle.textContent = '.mid-ad, .ad-container, .ad-text { display: none !important; }';
+	
+	
     document.head.appendChild(adsStyle);
   })();
+  
+  
+  // CMP toggle state (global so all functions can access)
+let cmpDismissEnabled = localStorage.getItem('cmpDismissEnabled') === 'true';
+  
+  // Auto-dismiss Quantcast CMP by clicking DISAGREE
+function dismissQuantcast() {
+  if (!cmpDismissEnabled) return false;
+  
+  const disagreeBtns = document.querySelectorAll('.qc-cmp2-footer button[mode="secondary"]');
+  if (disagreeBtns[1]) {
+    disagreeBtns[1].click();
+    console.log('Clicked DISAGREE');
+    
+    // SCROLL TO TOP after click
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 100);  // small delay lets CMP finish
+    
+    return true;
+  }
+  
+  // Same for other fallbacks...
+  const allBtns = document.querySelectorAll('button');
+  for (let btn of allBtns) {
+    if (btn.textContent.includes('DISAGREE')) {
+      btn.click();
+      
+      // SCROLL TO TOP
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 100);
+      
+      console.log('Clicked DISAGREE (text match)');
+      return true;
+    }
+  }
+  
+  // AGREE fallback too...
+  const agreeBtn = document.querySelector('button[mode="primary"], .css-47sehv');
+  if (agreeBtn) {
+    agreeBtn.click();
+    
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 100);
+    
+    console.log('Clicked AGREE (fallback)');
+    return true;
+  }
+  
+  return false;
+}
+
+
+// Auto-dismiss Quantcast CMP by clicking DISAGREE (IIFE keeps observer)
+(function() {
+  // Try immediately
+  if (dismissQuantcast()) return;
+
+  // Watch for popup load
+  const observer = new MutationObserver(() => {
+    if (dismissQuantcast()) {
+      observer.disconnect();
+    }
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+  
+  // Delay for late load
+  setTimeout(dismissQuantcast, 2000);
+})();
+
+
+  
 
   // Watch DOM for dynamic banner insertion
   const warningObserver = new MutationObserver(removeWarning);
@@ -995,6 +1071,14 @@ homeIcon.textContent = '▲'; // or 'H'  '⭡'  ˄
 homeIcon.setAttribute('role', 'button');
 homeIcon.setAttribute('tabindex', '0');
 
+// CMP toggle icon (above info)
+const cmpIcon = document.createElement('span');
+cmpIcon.className = 'navIcon';
+cmpIcon.textContent = '🍪';  // or '🍪' 'C'
+cmpIcon.title = 'Toggle Quantcast CMP auto-dismiss';
+cmpIcon.setAttribute('role', 'button');
+cmpIcon.setAttribute('tabindex', '0');
+
 // Info icon (existing)
 const infoIcon = document.createElement('span');
 infoIcon.className = 'infoIcon';
@@ -1011,12 +1095,41 @@ endIcon.setAttribute('tabindex', '0');
 
 // Build vertical stack: home above, info middle, end below
 infoWrapper.appendChild(homeIcon);
+infoWrapper.appendChild(cmpIcon);
 infoWrapper.appendChild(infoIcon);
 infoWrapper.appendChild(endIcon);
 
 document.body.appendChild(infoWrapper);
 
 
+let cmpDismissEnabled = localStorage.getItem('cmpDismissEnabled') === 'true';
+updateCmpIcon();
+
+cmpIcon.addEventListener('click', () => {
+  cmpDismissEnabled = !cmpDismissEnabled;
+  localStorage.setItem('cmpDismissEnabled', cmpDismissEnabled);
+  updateCmpIcon();
+  
+  if (cmpDismissEnabled) {
+    dismissQuantcast();  // run once if enabled
+  }
+});
+
+function updateCmpIcon() {
+  cmpIcon.style.backgroundColor = cmpDismissEnabled ? '#28a745' : '#dc3545';
+  cmpIcon.style.color = 'white';
+  cmpIcon.title = cmpDismissEnabled 
+    ? 'CMP auto-dismiss ON (click to disable)' 
+    : 'CMP auto-dismiss OFF (click to enable)';
+}
+
+// Keyboard support
+cmpIcon.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    cmpIcon.click();
+  }
+});
 
 
 
