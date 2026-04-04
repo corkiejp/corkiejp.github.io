@@ -8,12 +8,17 @@ self.addEventListener('install', event => {
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   
+  // FIXED: Handle URL-encoded colons (%3A)
   if (url.pathname.startsWith('/at/')) {
-    event.respondWith(handleAtUri(url.pathname.slice(4)));
+    const encodedAtUri = url.pathname.slice(4);  // "at%3A%2F%2Fdid%3A..."
+    const atUri = decodeURIComponent(encodedAtUri);  // "at://did:..."
+    
+    event.respondWith(handleAtUri(atUri));
   }
 });
 
 async function handleAtUri(atUri) {
+	console.log('Handling AT URI:', atUri);  // Debug log
   const html = `
 <!DOCTYPE html>
 <html>
