@@ -77,15 +77,17 @@ async function handleAtUri(atUri) {
   <div class="section">
     <h3>⚡ Starter Links</h3>
     <div class="starter">
-      <a href="https://corkiejp.github.io/ATProtoViewer/?uri=${encodeURIComponent(atUri)}" class="link" target="_blank">
-        👁️ ATProtoViewer (Yours)
-      </a>
-      <a href="https://atproto.at/${encodeURIComponent(atUri)}" class="link" target="_blank">
-        🔍 atproto.at
-      </a>
-      <a href="https://blue.mackuba.eu/skythread/?q=${encodeURIComponent(atUri)}" class="link" target="_blank">
-        🧵 Skythread (Mackuba)
-      </a>
+<a href="https://corkiejp.github.io/ATProtoViewer/?uri=${encodeURIComponent(atUri)}" class="link" target="_blank">
+  👁️ ATProtoViewer 
+</a>
+
+<a href="https://atproto.at/viewer?uri=${encodeURIComponent(atUri)}" class="link" target="_blank">
+  🔍 atproto.at
+</a>
+
+<a href="https://blue.mackuba.eu/skythread/?q=${encodeURIComponent(atUri)}" class="link" target="_blank">
+  🧵 Skythread (Mackuba)
+</a>
     </div>
   </div>
   
