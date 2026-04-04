@@ -7,13 +7,15 @@ self.addEventListener('install', event => {
 
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
-  
-  // FIXED: Handle URL-encoded colons (%3A)
-  if (url.pathname.startsWith('/at/')) {
-    const encodedAtUri = url.pathname.slice(4);  // "at%3A%2F%2Fdid%3A..."
-    const atUri = decodeURIComponent(encodedAtUri);  // "at://did:..."
-    
-    event.respondWith(handleAtUri(atUri));
+  const prefix = '/ATProtocolHandler/';
+
+  if (url.pathname.startsWith(prefix)) {
+    const tail = url.pathname.slice(prefix.length);
+
+    if (tail.startsWith('at://')) {
+      event.respondWith(handleAtUri(tail));
+      return;
+    }
   }
 });
 
