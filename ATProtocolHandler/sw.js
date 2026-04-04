@@ -46,6 +46,7 @@ async function handleAtUri(atUri) {
       --warning-bg: #fff8e6;
       --shadow: 0 8px 24px rgba(16, 24, 40, 0.08);
       --radius: 12px;
+      --overlay: rgba(15, 23, 42, 0.55);
     }
 
     @media (prefers-color-scheme: dark) {
@@ -64,6 +65,7 @@ async function handleAtUri(atUri) {
         --warning: #ffd98a;
         --warning-bg: #3b3020;
         --shadow: none;
+        --overlay: rgba(0, 0, 0, 0.72);
       }
     }
 
@@ -95,6 +97,7 @@ async function handleAtUri(atUri) {
     h1, h2, h3 { margin: 0 0 .75rem; }
     h1 { font-size: 1.6rem; }
     h2 { font-size: 1.1rem; }
+    h3 { font-size: 1rem; }
     p { margin: .5rem 0; }
 
     .uri-box {
@@ -108,13 +111,15 @@ async function handleAtUri(atUri) {
     }
 
     .starter-links,
-    .custom-links {
+    .custom-links,
+    .preset-group-list {
       display: grid;
       gap: .75rem;
     }
 
     .starter-link,
-    .saved-link-card {
+    .saved-link-card,
+    .preset-group {
       border: 1px solid var(--border);
       border-radius: 10px;
       background: var(--surface);
@@ -252,13 +257,91 @@ async function handleAtUri(atUri) {
       flex-wrap: wrap;
     }
 
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: var(--overlay);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 9999;
+    }
+
+    .modal-backdrop.open { display: flex; }
+
+    .modal {
+      width: min(760px, 100%);
+      max-height: 90vh;
+      overflow: auto;
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 1rem;
+    }
+
+    .modal-header,
+    .modal-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: .75rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .modal-footer { margin-top: 1rem; margin-bottom: 0; }
+
+    .close-modal-btn {
+      width: auto;
+      background: var(--surface-2);
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .preset-group {
+      padding: .85rem;
+    }
+
+    .preset-item {
+      display: flex;
+      align-items: flex-start;
+      gap: .75rem;
+      padding: .5rem 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .preset-item:first-of-type { border-top: 0; }
+
+    .preset-item input[type="checkbox"] {
+      width: 1.1rem;
+      height: 1.1rem;
+      margin-top: .2rem;
+      flex: 0 0 auto;
+    }
+
+    .preset-label {
+      display: grid;
+      gap: .2rem;
+    }
+
+    .preset-label strong { color: var(--text); }
+
+    .preset-label span {
+      color: var(--muted);
+      font-size: .9rem;
+      word-break: break-word;
+    }
+
     @media (max-width: 700px) {
       .saved-link-card {
         flex-direction: column;
         align-items: stretch;
       }
 
-      .remove-link-btn, .primary-btn, .secondary-btn {
+      .remove-link-btn, .primary-btn, .secondary-btn, .close-modal-btn {
         width: 100%;
       }
     }
@@ -306,10 +389,31 @@ async function handleAtUri(atUri) {
     </div>
 
     <div class="card">
-      <h2>Your custom links</h2>
-      <div id="customLinks" class="custom-links"></div>
+      <div class="actions" style="justify-content:space-between;align-items:center;">
+        <h2 style="margin:0;">Your custom links</h2>
+        <button id="openPresetModal" class="secondary-btn" type="button">Add preset links</button>
+      </div>
+      <div id="customLinks" class="custom-links" style="margin-top:1rem;"></div>
       <div class="actions" style="margin-top:1rem;">
         <button id="flushLinks" class="secondary-btn" type="button">Clear all custom links</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="presetModalBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="presetModalTitle">
+      <div class="modal-header">
+        <div>
+          <h2 id="presetModalTitle">Add preset links</h2>
+          <p>Select one or more presets to add to your saved custom links.</p>
+        </div>
+        <button id="closePresetModal" class="close-modal-btn" type="button">Close</button>
+      </div>
+
+      <div id="presetGroups" class="preset-group-list"></div>
+
+      <div class="modal-footer">
+        <button id="addSelectedPresets" class="primary-btn" type="button">Add selected presets</button>
       </div>
     </div>
   </div>
@@ -317,6 +421,108 @@ async function handleAtUri(atUri) {
   <script>
     const AT_LINKS_KEY = 'atLinks';
     const atUri = document.body.dataset.aturi;
+
+    const presetGroups = [
+      {
+        title: 'Post tools',
+        items: [
+          {
+            name: 'ATP Tools',
+            base: 'https://atp.tools/',
+            mode: 'raw',
+            note: 'Path-style AT URI tool'
+          },
+          {
+            name: 'ATProtoViewer',
+            base: 'https://corkiejp.github.io/ATProtoViewer/?uri=',
+            mode: 'auto',
+            note: 'Your viewer using ?uri='
+          },
+          {
+            name: 'atproto.at',
+            base: 'https://atproto.at/viewer?uri=',
+            mode: 'auto',
+            note: 'atproto.at viewer query param'
+          },
+          {
+            name: 'Skythread (Mackuba)',
+            base: 'https://blue.mackuba.eu/skythread/?q=',
+            mode: 'auto',
+            note: 'Thread viewer'
+          },
+          {
+            name: 'Skyview Social',
+            base: 'https://skyview.social/?url=',
+            mode: 'auto',
+            note: 'Alternative post view'
+          },
+          {
+            name: 'pdsls.dev',
+            base: 'https://pdsls.dev/',
+            mode: 'raw',
+            note: 'Direct path-style record view'
+          }
+        ]
+      },
+      {
+        title: 'AppViews',
+        items: [
+          {
+            name: 'Bluesky',
+            base: 'https://bsky.app/profile/{did}/post/{rkey}',
+            mode: 'template',
+            note: 'Profile/post path'
+          },
+          {
+            name: 'Deer Social',
+            base: 'https://deer.social/profile/{did}/post/{rkey}',
+            mode: 'template',
+            note: 'Alternative appview'
+          },
+          {
+            name: 'Azsky',
+            base: 'https://azsky.app/profile/{did}/post/{rkey}',
+            mode: 'template',
+            note: 'Appview preset'
+          },
+          {
+            name: 'Klearsky',
+            base: 'https://klearsky.pages.dev/#/post?uri={rawAtUri}',
+            mode: 'template',
+            note: 'Hash route with raw AT URI'
+          }
+        ]
+      },
+      {
+        title: 'Profile lookups',
+        items: [
+          {
+            name: 'Cred.blue',
+            base: 'https://cred.blue/{did}',
+            mode: 'template',
+            note: 'Profile reputation / stats'
+          },
+          {
+            name: 'Bluefacts',
+            base: 'https://bluefacts.app/profile/{did}',
+            mode: 'template',
+            note: 'Profile details'
+          },
+          {
+            name: 'Toolify.blue',
+            base: 'https://toolify.blue/profile/{did}',
+            mode: 'template',
+            note: 'Profile tool page'
+          },
+          {
+            name: 'Skykit.blue',
+            base: 'https://skykit.blue/{did}',
+            mode: 'template',
+            note: 'Profile lookup'
+          }
+        ]
+      }
+    ];
 
     function parseAtUri(atUri) {
       const m = atUri.match(/^at:\\/\\/([^/]+)\\/([^/]+)\\/([^/]+)$/);
@@ -385,12 +591,16 @@ async function handleAtUri(atUri) {
       return 'Encoded append';
     }
 
+    function linkExists(links, candidate) {
+      return links.some(link => link.name === candidate.name && link.base === candidate.base && link.mode === candidate.mode);
+    }
+
     function loadLinks() {
       const links = getLinks();
       const container = document.getElementById('customLinks');
 
       if (!links.length) {
-        container.innerHTML = '<div class="empty">No custom links yet. Add one above.</div>';
+        container.innerHTML = '<div class="empty">No custom links yet. Add one above or use Add preset links.</div>';
         return;
       }
 
@@ -409,6 +619,47 @@ async function handleAtUri(atUri) {
           </div>
         \`;
       }).join('');
+    }
+
+    function renderPresetModal() {
+      const links = getLinks();
+      const root = document.getElementById('presetGroups');
+
+      root.innerHTML = presetGroups.map((group, groupIndex) => {
+        const items = group.items.map((item, itemIndex) => {
+          const alreadyAdded = linkExists(links, item);
+          return \`
+            <label class="preset-item">
+              <input type="checkbox" data-group="\${groupIndex}" data-item="\${itemIndex}" \${alreadyAdded ? 'disabled' : ''}>
+              <div class="preset-label">
+                <strong>\${escapeHtml(item.name)}\${alreadyAdded ? ' (already added)' : ''}</strong>
+                <span>\${escapeHtml(item.note)}</span>
+                <span><code>\${escapeHtml(item.base)}</code></span>
+              </div>
+            </label>
+          \`;
+        }).join('');
+
+        return \`
+          <div class="preset-group">
+            <h3>\${escapeHtml(group.title)}</h3>
+            \${items}
+          </div>
+        \`;
+      }).join('');
+    }
+
+    function openPresetModal() {
+      renderPresetModal();
+      const modal = document.getElementById('presetModalBackdrop');
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closePresetModal() {
+      const modal = document.getElementById('presetModalBackdrop');
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
     }
 
     window.removeLink = function(index) {
@@ -484,6 +735,42 @@ async function handleAtUri(atUri) {
 
       localStorage.removeItem(AT_LINKS_KEY);
       loadLinks();
+    });
+
+    document.getElementById('openPresetModal').addEventListener('click', openPresetModal);
+    document.getElementById('closePresetModal').addEventListener('click', closePresetModal);
+
+    document.getElementById('presetModalBackdrop').addEventListener('click', event => {
+      if (event.target.id === 'presetModalBackdrop') {
+        closePresetModal();
+      }
+    });
+
+    document.getElementById('addSelectedPresets').addEventListener('click', () => {
+      const boxes = Array.from(document.querySelectorAll('#presetGroups input[type="checkbox"]:checked'));
+      if (!boxes.length) {
+        alert('Select at least one preset first.');
+        return;
+      }
+
+      const links = getLinks();
+      for (const box of boxes) {
+        const group = presetGroups[Number(box.dataset.group)];
+        const item = group.items[Number(box.dataset.item)];
+        if (!linkExists(links, item)) {
+          links.push(item);
+        }
+      }
+
+      saveLinks(links);
+      loadLinks();
+      closePresetModal();
+    });
+
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') {
+        closePresetModal();
+      }
     });
 
     loadLinks();
