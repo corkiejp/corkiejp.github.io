@@ -33,7 +33,94 @@ h1,h2 { text-align: center; color: #333; margin-top: 0; }
   height: auto;
 }
 
+.page-header {
+  text-align: center;
+  max-width: 860px;
+  margin: 0 auto 2rem;
+  padding: 1.5rem 1rem;
+}
 
+.page-header h1 {
+  margin-bottom: 0.5rem;
+}
+
+.page-header h2 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.tagline {
+  font-size: 1.05rem;
+  color: #555;
+}
+
+.feature-badge {
+  display: inline-block;
+  margin: 0.75rem auto 0.5rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background: #e8f0fe;
+  color: #0b57d0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.example-box {
+  margin: 1rem auto;
+  padding: 1rem;
+  max-width: 760px;
+  background: #f8f9fb;
+  border: 1px solid #d9dee8;
+  border-radius: 12px;
+}
+
+.example-label {
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.example-link {
+  display: block;
+  color: #0b57d0;
+  font-weight: 600;
+  text-decoration: none;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+.example-link:hover {
+  text-decoration: underline;
+}
+
+@media (prefers-color-scheme: dark) {
+  .tagline {
+    color: #c7ced8;
+  }
+
+  .feature-badge {
+    background: #163252;
+    color: #aecdff;
+  }
+
+  .example-box {
+    background: #1b2430;
+    border-color: #334155;
+  }
+
+  .example-label {
+    color: #b7c0cc;
+  }
+
+  .example-link {
+    color: #8ab4ff;
+  }
+}
 
   </style>
 </head>
@@ -53,8 +140,38 @@ h1,h2 { text-align: center; color: #333; margin-top: 0; }
 </a>
 </div>
 <br><br>
-    <h1>AT Protocol Handler</h1>
-	<h2>Extension to open at did urls</h2>
+<header class="page-header">
+  <h1>AT Protocol Handler</h1>
+  <p class="tagline">
+    Open <code>at://</code> links in supported viewers, app views, and AT Protocol tools.
+  </p>
+
+  <div class="feature-badge">New</div>
+
+  <h2>Direct URL support</h2>
+  <p>
+    This page can now be linked directly to a specific AT URI by appending it to the page URL.
+  </p>
+
+  <div class="example-box">
+    <p class="example-label">Example link format</p>
+    <a
+      class="example-link"
+      href="https://corkiejp.github.io/ATProtocolHandler/at://did:plc:oio4hkxaop4ao4wz2pp3f4cr/app.bsky.feed.post/3minbwyggw22p"
+    >
+      https://corkiejp.github.io/ATProtocolHandler/at://did:plc:oio4hkxaop4ao4wz2pp3f4cr/app.bsky.feed.post/3minbwyggw22p
+    </a>
+  </div>
+
+  <p>
+    This makes it easier to share or bookmark a direct link that opens the handler for a specific post or record.
+  </p>
+
+  <h2>Extension support</h2>
+  <p>
+    The browser extension can also help open <code>at://</code> and DID-based links directly from compatible pages.
+  </p>
+</header>
 	
 	
 	<div align=center>
