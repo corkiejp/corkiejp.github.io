@@ -192,7 +192,8 @@ ${JSON.stringify(params, null, 2)}
     // ... (rest of your output logic remains unchanged)
     // Now you can safely use did and atUri for sites that require them
     if (atUri) {
-      output += `<a href="https://atp.tools/${atUri}" target="_blank">atp.tools</a>`;	
+      output += `<a href="https://atp.tools/${atUri}" target="_blank">atp.tools</a>`;
+      output += `<a href="https://corkiejp.github.io/ATProtocolHandler/${atUri}" target="_blank">AT Handler + custom links</a>`;	  
       output += `<a href="https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(atUri)}" target="_blank">ATProtoViewer (Corkiejps)</a>`;
       output += `<a href="https://atproto.at/viewer?uri=${encodeURIComponent(atUri)}" target="_blank">ATProto.at Viewer</a>`;
       output += `<a href="https://blue.mackuba.eu/skythread/?q=${encodeURIComponent(atUri)}" target="_blank">Skythread by Kuba</a>`;
