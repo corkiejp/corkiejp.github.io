@@ -1,0 +1,45 @@
+{
+  "manifest_version": 3,
+  "name": "AT Protocol Handler",
+  "version": "1.1.0",
+  "description": "Brings an Android-style share-to-PWA workflow for AT links onto desktop.",
+  "action": {
+    "default_popup": "inst.html"
+  },
+
+  "permissions": [
+  "tabs",
+  "clipboardRead"
+],
+  "host_permissions": [
+    "https://bsky.app/*",
+    "https://deer.social/*",
+    "https://klearsky.pages.dev/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://bsky.app/*",
+        "https://deer.social/*",
+        "https://klearsky.pages.dev/*"
+      ],
+      "js": ["content.js"]
+    }
+  ],
+
+"browser_specific_settings": {
+  "gecko": {
+    "id": "corkiejp@gmail.com",
+    "strict_min_version": "109.0",
+    "data_collection_permissions": {
+      "required": [
+        "none"
+      ],
+      "optional": []
+    }
+  },
+  "gecko_android": {
+    "strict_min_version": "120.0"
+  }
+}
+}

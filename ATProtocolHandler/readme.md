@@ -5,7 +5,7 @@
 
 [AT Protocol Handler - FireFox ADDon](https://addons.mozilla.org/en-US/firefox/addon/at-protocol-handler/) 
 
-When I update the [webpage](https://corkiejp.github.io/ATProtocolHandler/index.html), there should be a input field to test primary function of it
+The [webpage](https://corkiejp.github.io/ATProtocolHandler/index.html), has a input field to test primary function of it
 
 ## Overview
 
@@ -27,13 +27,12 @@ On supported sites (Bluesky, Deer Social, Klearsky), click the “Copy at:// URI
 Optionally hide the popup for the current session with a single click.
 - **Mobile and Desktop Friendly**
 Designed for seamless use on both desktop and mobile browsers.
-On Android, supported by alternative browsers such as Quetta (not Chrome itself).
-For Firefox on Android, didn't want to test it with debbuging my phone contected to laptop, so not available, unless someone wants to tesr for me?
+On Android, supported by alternative browsers such as Quetta.
+For Firefox on Android, now available and tested with nightly before submitting to the store.
 
 ## Latest Improvements
 
-Still waiting on chromestore review for an ealier submitted update. But in the manual instal method I now have enabled coping/activating AT URL links popup,
-in Bluesky, Deer and Klearsky. It works differently on Klearsky due to how the site is scripted, there is a popup that opens automatically when You look at any post.
+In Bluesky, Deer and Klearsky. It works differently on Klearsky due to how the site is scripted, there is a popup that opens automatically when You look at any post.
 If this is annoying choose to turn it on/off in browser extension settings by choosing to activate/deactivate on extension click only.
 
 
@@ -68,6 +67,6 @@ Or alternatively download the .src file, un zip it to a folder, then unpack it.
 
 If people want it, I can also provide the .xpi file for Firefox manual install
 
-**Proof of concept** and possibly a work in progress, If I find more utilise that accept an at url as a parameter, I may add more links.
+If I find more utilise that accept an at url as a parameter, I may add more links.
 
-If you know of others please share? ~~Manual install only at present, waiting on chrome webstore to approve my extension.~~
+If you know of others please share? 

@@ -1,5 +1,10 @@
 console.log("AT Protocol Handler content script loaded on", window.location.href);
 
+function isFirefoxAndroid() {
+  const ua = navigator.userAgent || "";
+  return ua.includes("Android") && ua.includes("Firefox");
+}
+
 // --- Utility: Remove any existing popup
 function removePopup() {
   const old = document.getElementById('atproto-popup');
@@ -35,6 +40,10 @@ function showPopup(aturl, x, y) {
     <em>Tip: Drag the title bar to move this popup</em>
   </div>
     <b>Open at:// URI with:</b><br>
+	
+	
+	<a href="https://corkiejp.github.io/ATProtocolHandler/${aturl}" target="_blank" style="display:block; margin-top:8px;">AT Handler + custom links</a>
+	
     <a href="https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(aturl)}" target="_blank" style="display:block; margin-top:8px;">ATProtoViewer</a>
     <a href="https://corkiejp.github.io/ttospwa/index.html?uri=${encodeURIComponent(aturl)}" target="_blank" style="display:block; margin-top:4px;">List of sites to open!</a>
     <a href="${extensionListUrl}" target="_blank" style="display:block; margin-top:4px;">Extension List Page</a>
@@ -225,29 +234,52 @@ if (!document.getElementById('atproto-popup-style')) {
 
 
 // --- Main event listener for copy button clicks (ONLY for post copy buttons)
-document.body.addEventListener('click', async (e) => {
-  let el = e.target;
-  // Traverse up the DOM tree to check for the right attributes
-  while (el) {
-    if (
-      (el.getAttribute && el.getAttribute('aria-label') === 'Copy post at:// URI') ||
-      (el.getAttribute && el.getAttribute('data-testid') === 'postAtUriShareBtn')
-    ) {
-      setTimeout(async () => {
-        try {
-          const text = await navigator.clipboard.readText();
-          if (text.startsWith('at://')) {
-            showPopup(text, e.clientX, e.clientY);
-          }
-        } catch (err) {
-          console.error('Clipboard read failed:', err);
-        }
-      }, 100);
+async function tryReadClipboardWithRetries(retries, delayMs) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text && text.startsWith('at://')) {
+        return text;
+      }
+    } catch (err) {
+      console.error('Clipboard read failed:', err);
+      // For permission/API failures, no point retrying
       break;
     }
+    await new Promise(resolve => setTimeout(resolve, delayMs));
+  }
+  return null;
+}
+
+document.body.addEventListener('click', (e) => {
+  let el = e.target;
+
+  // Traverse up the DOM tree to check for the right attributes
+  while (el) {
+    const label = el.getAttribute && el.getAttribute('aria-label');
+    const testId = el.getAttribute && el.getAttribute('data-testid');
+
+    if (label === 'Copy post at:// URI' || testId === 'postAtUriShareBtn') {
+      const onFirefoxAndroid = isFirefoxAndroid();
+
+      // Slightly longer delay + more retries on Firefox Android
+      const baseDelay = onFirefoxAndroid ? 200 : 100;
+      const retryDelay = onFirefoxAndroid ? 120 : 80;
+      const retries = onFirefoxAndroid ? 3 : 1;
+
+      setTimeout(async () => {
+        const text = await tryReadClipboardWithRetries(retries, retryDelay);
+        if (text) {
+          showPopup(text, e.clientX, e.clientY);
+        }
+      }, baseDelay);
+
+      break;
+    }
+
     el = el.parentElement;
   }
-}); 
+});
 
 // --- Keydown shortcut for posts and feeds (Alt+C)
 document.addEventListener('keydown', async function(e) {
