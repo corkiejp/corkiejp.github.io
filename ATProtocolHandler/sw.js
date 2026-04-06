@@ -20,8 +20,15 @@ self.addEventListener('fetch', event => {
 
   if (url.pathname.startsWith(prefix)) {
     const tail = url.pathname.slice(prefix.length);
+    const atFromQuery = url.searchParams.get('at');
+
     if (tail.startsWith('at://')) {
       event.respondWith(handleAtUri(tail, url));
+      return;
+    }
+
+    if (atFromQuery && atFromQuery.startsWith('at://')) {
+      event.respondWith(handleAtUri(atFromQuery, url));
       return;
     }
   }

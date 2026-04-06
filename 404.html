@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Redirecting…</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+    (function () {
+      const url = new URL(window.location.href);
+      const marker = '/ATProtocolHandler/';
+      const idx = url.pathname.indexOf(marker);
+
+      if (idx !== -1) {
+        const atPart = url.pathname.slice(idx + marker.length);
+        const target = new URL(url.origin + marker);
+        target.searchParams.set('at', atPart);
+
+        for (const [key, value] of url.searchParams.entries()) {
+          if (key !== 'at') {
+            target.searchParams.set(key, value);
+          }
+        }
+
+        window.location.replace(target.toString());
+        return;
+      }
+
+      window.location.replace(url.origin + '/');
+    })();
+  </script>
+</head>
+<body>
+  <p>Redirecting to give a required service worker time to trigger...</p>
+</body>
+</html>
