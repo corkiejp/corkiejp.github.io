@@ -7,6 +7,10 @@ const sites = [
     url: `https://atproto.at/viewer?uri=${aturl}`
   },
   {
+    name: "AT Handler + custom links",
+    url: `https://corkiejp.github.io/ATProtocolHandler/${aturl}`
+  },
+  {
     name: "ATProtoViewer",
     url: `https://corkiejp.github.io/ATProtoViewer/index.html?uri=${aturl}`
   },
