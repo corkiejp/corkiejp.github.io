@@ -436,7 +436,7 @@ async function handleAtUri(atUri, requestUrl) {
     target="_blank"
     rel="noopener noreferrer"
   >
-    Open helper page with backup & restore!.secondary-btn
+    Open helper page with backup & restore!.
   </a>
 </div>
       <p>Open this AT URI in your preferred tools.</p>
