@@ -18,21 +18,31 @@ self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   const prefix = '/ATProtocolHandler/';
 
-  if (url.pathname.startsWith(prefix)) {
-    const tail = url.pathname.slice(prefix.length);
-    const atFromQuery = url.searchParams.get('at');
+  if (!url.pathname.startsWith(prefix)) return;
 
-    if (tail.startsWith('at://')) {
-      event.respondWith(handleAtUri(tail, url));
-      return;
-    }
+  const tail = url.pathname.slice(prefix.length);
+  const atFromPath = tail.startsWith('at://') ? tail : '';
+  const atFromQuery = url.searchParams.get('at') || '';
+  const atUri = atFromPath || atFromQuery;
 
-    if (atFromQuery && atFromQuery.startsWith('at://')) {
-      event.respondWith(handleAtUri(atFromQuery, url));
-      return;
-    }
+  if (atUri && atUri.startsWith('at://')) {
+    event.respondWith(handleAtUri(atUri, url));
+    return;
   }
 });
+
+function maybeRewritePrettyUrl() {
+  const current = new URL(location.href);
+  const atFromQuery = current.searchParams.get('at');
+  if (!atFromQuery) return;
+
+  const pretty = new URL(location.origin + '/ATProtocolHandler/' + atFromQuery);
+  for (const [key, value] of current.searchParams.entries()) {
+    if (key !== 'at') pretty.searchParams.set(key, value);
+  }
+
+  history.replaceState({}, '', pretty.toString());
+}
 
 async function handleAtUri(atUri, requestUrl) {
   const rd = requestUrl.searchParams.get('rd') || '';
@@ -1029,6 +1039,7 @@ async function handleAtUri(atUri, requestUrl) {
     loadLinks();
     loadRedirectSlots();
     updateExampleLinks();
+	maybeRewritePrettyUrl();
     maybeHandleRedirectParam();
   </script>
 </body>
