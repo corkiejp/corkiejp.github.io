@@ -31,18 +31,7 @@ self.addEventListener('fetch', event => {
   }
 });
 
-function maybeRewritePrettyUrl() {
-  const current = new URL(location.href);
-  const atFromQuery = current.searchParams.get('at');
-  if (!atFromQuery) return;
 
-  const pretty = new URL(location.origin + '/ATProtocolHandler/' + atFromQuery);
-  for (const [key, value] of current.searchParams.entries()) {
-    if (key !== 'at') pretty.searchParams.set(key, value);
-  }
-
-  history.replaceState({}, '', pretty.toString());
-}
 
 async function handleAtUri(atUri, requestUrl) {
   const rd = requestUrl.searchParams.get('rd') || '';
