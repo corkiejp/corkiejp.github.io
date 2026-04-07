@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AT Protocol Handler Helper</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f5f7fb;
+      --surface: #ffffff;
+      --surface-2: #eef3f8;
+      --text: #1f2937;
+      --muted: #5f6b7a;
+      --border: #d7dee7;
+      --primary: #0b57d0;
+      --primary-2: #e8f0fe;
+      --danger: #b42318;
+      --danger-bg: #fff5f5;
+      --danger-border: #e5a3a1;
+      --warning: #8a6116;
+      --warning-bg: #fff8e6;
+      --warning-border: #e7cf9a;
+      --success: #146c2e;
+      --success-bg: #ecfdf3;
+      --success-border: #b7e4c7;
+      --shadow: 0 8px 24px rgba(16, 24, 40, 0.08);
+      --radius: 12px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111827;
+        --surface: #1f2937;
+        --surface-2: #111827;
+        --text: #f3f4f6;
+        --muted: #c0c7d1;
+        --border: #374151;
+        --primary: #7db1ff;
+        --primary-2: #163252;
+        --danger: #ffb3b3;
+        --danger-bg: #3a2222;
+        --danger-border: #aa4d4d;
+        --warning: #ffd98a;
+        --warning-bg: #3b3020;
+        --warning-border: #6b5730;
+        --success: #9ae6b4;
+        --success-bg: #1f3527;
+        --success-border: #3d6b4a;
+        --shadow: none;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    h1, h2, h3 { margin: 0 0 .75rem; }
+    h1 { font-size: 1.7rem; }
+    h2 { font-size: 1.1rem; }
+    h3 { font-size: 1rem; }
+    p { margin: .4rem 0 .8rem; }
+    .grid {
+      display: grid;
+      gap: 1rem;
+    }
+    @media (min-width: 900px) {
+      .grid.two {
+        grid-template-columns: 1.1fr .9fr;
+      }
+    }
+    @media (max-width: 700px) {
+      .wrap { padding: .75rem; }
+      .card { padding: .85rem; }
+      .actions { flex-direction: column; }
+      .actions > * { width: 100%; }
+      th, td { padding: .6rem; font-size: .92rem; }
+      textarea { min-height: 140px; }
+    }
+    .row {
+      display: grid;
+      gap: .75rem;
+    }
+    input, select, textarea, button {
+      font: inherit;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: .8rem .9rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+    }
+    textarea {
+      min-height: 160px;
+      resize: vertical;
+    }
+    button, .link-btn {
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: .75rem 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .actions {
+      display: flex;
+      gap: .75rem;
+      flex-wrap: wrap;
+    }
+    .primary-btn {
+      background: var(--primary);
+      color: white;
+    }
+    .secondary-btn {
+      background: var(--warning-bg);
+      color: var(--warning);
+      border-color: var(--warning-border);
+    }
+    .danger-btn {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border-color: var(--danger-border);
+    }
+    .success-btn {
+      background: var(--success-bg);
+      color: var(--success);
+      border-color: var(--success-border);
+    }
+    .link-btn {
+      background: var(--surface-2);
+      color: var(--text);
+      border-color: var(--border);
+    }
+    .muted {
+      color: var(--muted);
+    }
+    .pill {
+      display: inline-block;
+      padding: .2rem .55rem;
+      border-radius: 999px;
+      background: var(--primary-2);
+      color: var(--primary);
+      font-size: .82rem;
+      font-weight: 700;
+    }
+    .notice {
+      padding: .9rem 1rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      margin-top: .75rem;
+    }
+    .error {
+      border-color: var(--danger-border);
+      background: var(--danger-bg);
+      color: var(--danger);
+    }
+    .success {
+      border-color: var(--success-border);
+      background: var(--success-bg);
+      color: var(--success);
+    }
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: .75rem;
+      text-align: left;
+      border-top: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tr:first-child th, tr:first-child td { border-top: 0; }
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: .85rem;
+      margin: 0;
+    }
+    .slot-grid {
+      display: grid;
+      gap: .75rem;
+    }
+    .slot-card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: .85rem;
+      background: var(--surface);
+    }
+    .template-list {
+      display: grid;
+      gap: .75rem;
+    }
+    .template-item {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: .85rem;
+      background: var(--surface);
+    }
+    .small { font-size: .92rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>AT Protocol Handler Helper</h1>
+      <p class="muted">Use this page to inspect your saved data, export a backup, restore it later, and test template links before committing changes to your site.</p>
+      <div class="actions">
+        <button id="refreshAll" class="secondary-btn" type="button">Refresh view</button>
+        <button id="exportJson" class="primary-btn" type="button">Export backup JSON</button>
+        <button id="copyJson" class="secondary-btn" type="button">Copy backup JSON</button>
+        <a id="openMainHandler" href="./" class="link-btn">Open main handler</a>
+      </div>
+      <div id="topMessage"></div>
+    </div>
+
+    <div class="grid two">
+      <div>
+        <div class="card">
+          <h2>Saved custom links</h2>
+          <p class="muted small">This reads the <code>atLinks</code> key from localStorage.</p>
+          <div id="linksTable"></div>
+          <div id="editLinkPanel" style="margin-top:1rem;"></div>
+        </div>
+
+        <div class="card">
+          <h2>Redirect slots</h2>
+          <p class="muted small">This reads the <code>atRedirectSlots</code> key and shows what is assigned to <code>rd=1</code>, <code>rd=2</code>, and <code>rd=3</code>.</p>
+          <div id="slotsView" class="slot-grid"></div>
+        </div>
+
+        <div class="card">
+          <h2>Raw storage viewer</h2>
+          <p class="muted small">Useful for checking exactly what is stored before and after imports.</p>
+          <div class="row">
+            <label>
+              <span class="small">Stored keys</span>
+              <select id="storageKeySelect">
+                <option value="atLinks">atLinks</option>
+                <option value="atRedirectSlots">atRedirectSlots</option>
+              </select>
+            </label>
+            <textarea id="storageValue" readonly></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <h2>Backup and restore</h2>
+          <p class="muted small">Export both keys to a JSON file, or paste/import a backup from another browser or device.</p>
+          <div class="row">
+            <label>
+              <span class="small">Paste backup JSON here</span>
+              <textarea id="backupInput" placeholder='{"atLinks": [...], "atRedirectSlots": [...]}'></textarea>
+            </label>
+            <div class="actions">
+              <button id="validateBackup" class="secondary-btn" type="button">Validate JSON</button>
+              <button id="restoreBackup" class="success-btn" type="button">Restore backup</button>
+              <button id="clearBackupInput" class="secondary-btn" type="button">Clear box</button>
+            </div>
+            <label>
+              <span class="small">Or import backup JSON file</span>
+              <input id="backupFile" type="file" accept="application/json,.json">
+            </label>
+          </div>
+          <div id="backupMessage"></div>
+          <div id="backupSummary" style="margin-top:.75rem;"></div>
+        </div>
+
+        <div class="card">
+          <h2>Template tester</h2>
+          <p class="muted small">Try a template with a sample AT URI before saving it in the main app.</p>
+          <div class="row">
+            <input id="testAtUri" value="at://did:plc:qxlh6bohvep3taqhmtpipx4b/app.bsky.feed.post/3mitjvplmge24" placeholder="at://did:plc:.../app.bsky.feed.post/...">
+            <input id="testTemplate" value="https://bsky.app/profile/{did}/post/{rkey}" placeholder="https://example.com/{did}/{rkey}">
+            <select id="testMode">
+              <option value="template">Template mode</option>
+              <option value="auto">Encoded append</option>
+              <option value="raw">Raw append</option>
+            </select>
+            <button id="runTemplateTest" class="primary-btn" type="button">Generate preview</button>
+            <pre id="templateOutput"></pre>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Template instructions</h2>
+          <div class="template-list small">
+            <div class="template-item"><strong>{atUri}</strong><br>Encoded full AT URI, useful for query-style links such as <code>?uri=</code> or <code>?q=</code>.</div>
+            <div class="template-item"><strong>{rawAtUri}</strong><br>Unencoded AT URI, useful when the site expects the literal <code>at://</code> value.</div>
+            <div class="template-item"><strong>{did}</strong><br>The repo / DID part, e.g. <code>did:plc:qxlh6bohvep3taqhmtpipx4b</code>.</div>
+            <div class="template-item"><strong>{collection}</strong><br>The collection segment, e.g. <code>app.bsky.feed.post</code>.</div>
+            <div class="template-item"><strong>{rkey}</strong><br>The record key, e.g. <code>3mitjvplmge24</code>.</div>
+          </div>
+          <div class="notice small">
+            <strong>Examples</strong><br>
+            Query style: <code>https://blue.mackuba.eu/skythread/?q=</code> with <em>Encoded append</em><br>
+            Path style: <code>https://atp.tools/</code> with <em>Raw append</em><br>
+            Template style: <code>https://bsky.app/profile/{did}/post/{rkey}</code>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Safety tools</h2>
+          <p class="muted small">These help reduce accidental data loss while testing.</p>
+          <div class="actions">
+            <button id="resetSlotsOnly" class="danger-btn" type="button">Clear redirect slots only</button>
+            <button id="removeDuplicates" class="secondary-btn" type="button">Remove duplicate links</button>
+            <button id="seedDemoData" class="secondary-btn" type="button">Add demo data</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const AT_LINKS_KEY = 'atLinks';
+    const AT_REDIRECT_SLOTS_KEY = 'atRedirectSlots';
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, ch => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[ch]));
+    }
+
+    function parseJsonSafe(value, fallback) {
+      try {
+        const parsed = JSON.parse(value);
+        return parsed == null ? fallback : parsed;
+      } catch {
+        return fallback;
+      }
+    }
+
+    function getLinks() {
+      const data = parseJsonSafe(localStorage.getItem(AT_LINKS_KEY) || '[]', []);
+      return Array.isArray(data) ? data : [];
+    }
+
+    function saveLinks(links) {
+      localStorage.setItem(AT_LINKS_KEY, JSON.stringify(links));
+    }
+
+    function getRedirectSlots() {
+      const data = parseJsonSafe(localStorage.getItem(AT_REDIRECT_SLOTS_KEY) || '[]', []);
+      return Array.isArray(data) ? data.slice(0, 3) : [];
+    }
+
+    function saveRedirectSlots(slots) {
+      localStorage.setItem(AT_REDIRECT_SLOTS_KEY, JSON.stringify((Array.isArray(slots) ? slots : []).slice(0, 3)));
+    }
+
+    function parseAtUri(atUri) {
+      const m = String(atUri).match(/^at:\/\/([^/]+)\/([^/]+)\/([^/]+)$/);
+      return {
+        repo: m ? m[1] : '',
+        collection: m ? m[2] : '',
+        rkey: m ? m[3] : ''
+      };
+    }
+
+    function buildUserLink(link, atUri) {
+      const encodedAtUri = encodeURIComponent(atUri);
+      const parts = parseAtUri(atUri);
+
+      if (!link || !link.base) return '';
+
+      if (link.mode === 'template') {
+        return link.base
+          .replaceAll('{atUri}', encodedAtUri)
+          .replaceAll('{rawAtUri}', atUri)
+          .replaceAll('{did}', parts.repo)
+          .replaceAll('{collection}', parts.collection)
+          .replaceAll('{rkey}', parts.rkey);
+      }
+
+      if (link.mode === 'raw') {
+        return link.base + atUri;
+      }
+
+      return link.base + encodedAtUri;
+    }
+
+    function showMessage(targetId, text, kind) {
+      const el = document.getElementById(targetId);
+      if (!text) {
+        el.innerHTML = '';
+        return;
+      }
+      el.innerHTML = `<div class="notice ${kind || ''}">${escapeHtml(text)}</div>`;
+    }
+
+    function getBackupObject() {
+      return {
+        exportedAt: new Date().toISOString(),
+        app: 'AT Protocol Handler Helper',
+        atLinks: getLinks(),
+        atRedirectSlots: getRedirectSlots()
+      };
+    }
+
+    function downloadText(filename, text) {
+      const blob = new Blob([text], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function validateBackupShape(data) {
+      if (!data || typeof data !== 'object') {
+        return { ok: false, message: 'Backup must be a JSON object.' };
+      }
+
+      if (!Array.isArray(data.atLinks)) {
+        return { ok: false, message: 'Backup JSON must include an atLinks array.' };
+      }
+
+      if (!Array.isArray(data.atRedirectSlots)) {
+        return { ok: false, message: 'Backup JSON must include an atRedirectSlots array.' };
+      }
+
+      return { ok: true, message: 'Backup JSON looks valid.' };
+    }
+
+    function loadLinksTable() {
+      const links = getLinks();
+      const root = document.getElementById('linksTable');
+
+      if (!links.length) {
+        root.innerHTML = '<div class="notice">No saved custom links found.</div>';
+        return;
+      }
+
+      const rows = links.map((link, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${escapeHtml(link.name || '')}</td>
+          <td><code>${escapeHtml(link.base || '')}</code></td>
+          <td>${escapeHtml(link.mode || 'auto')}</td>
+          <td>
+            <div class="actions">
+              <button type="button" class="secondary-btn" onclick="startEditLink(${i})">Edit</button>
+              <button type="button" class="danger-btn" onclick="deleteLink(${i})">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      root.innerHTML = `
+        <div class="table-wrap">
+          <table>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Base</th>
+              <th>Mode</th>
+              <th>Action</th>
+            </tr>
+            ${rows}
+          </table>
+        </div>
+      `;
+    }
+
+    function loadSlotsView() {
+      const slots = getRedirectSlots();
+      const root = document.getElementById('slotsView');
+
+      root.innerHTML = [1, 2, 3].map(slotNumber => {
+        const link = slots[slotNumber - 1];
+        return `
+          <div class="slot-card">
+            <div class="pill">rd=${slotNumber}</div>
+            <div style="margin-top:.5rem;">
+              ${link ? `
+                <strong>${escapeHtml(link.name || 'Unnamed link')}</strong><br>
+                <span class="muted small">Mode: ${escapeHtml(link.mode || 'auto')}</span>
+                <pre style="margin-top:.6rem;">${escapeHtml(JSON.stringify(link, null, 2))}</pre>
+              ` : `
+                <span class="muted">Not assigned</span>
+              `}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function loadRawStorage() {
+      const key = document.getElementById('storageKeySelect').value;
+      document.getElementById('storageValue').value = localStorage.getItem(key) || '';
+    }
+
+
+    function renderEditPanel(index) {
+      const root = document.getElementById('editLinkPanel');
+      const links = getLinks();
+      const item = links[index];
+
+      if (!item) {
+        root.innerHTML = '';
+        return;
+      }
+
+      root.innerHTML = `
+        <div class="notice">
+          <h3>Edit saved link</h3>
+          <div class="row" style="margin-top:.75rem;">
+            <input id="editName" value="${escapeHtml(item.name || '')}" placeholder="Site name">
+            <input id="editBase" value="${escapeHtml(item.base || '')}" placeholder="https://example.com/">
+            <select id="editMode">
+              <option value="auto" ${item.mode === 'auto' ? 'selected' : ''}>Encoded append</option>
+              <option value="raw" ${item.mode === 'raw' ? 'selected' : ''}>Raw append</option>
+              <option value="template" ${item.mode === 'template' ? 'selected' : ''}>Template</option>
+            </select>
+            <div class="actions">
+              <button type="button" class="success-btn" onclick="saveEditedLink(${index})">Save changes</button>
+              <button type="button" class="secondary-btn" onclick="cancelEditLink()">Cancel</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    window.startEditLink = function(index) {
+      renderEditPanel(index);
+      showMessage('topMessage', 'Editing saved link.', 'success');
+    };
+
+    window.cancelEditLink = function() {
+      document.getElementById('editLinkPanel').innerHTML = '';
+    };
+
+    window.saveEditedLink = function(index) {
+      const links = getLinks();
+      const item = links[index];
+      if (!item) return;
+
+      const name = document.getElementById('editName').value.trim();
+      const base = document.getElementById('editBase').value.trim();
+      const mode = document.getElementById('editMode').value;
+
+      if (!name || !base) {
+        showMessage('topMessage', 'Name and base are required.', 'error');
+        return;
+      }
+
+      links[index] = { name, base, mode };
+      saveLinks(links);
+
+      const slots = getRedirectSlots().map(slot => {
+        if (!slot) return null;
+        return (slot.name === item.name && slot.base === item.base && slot.mode === item.mode)
+          ? { name, base, mode }
+          : slot;
+      });
+      saveRedirectSlots(slots);
+
+      document.getElementById('editLinkPanel').innerHTML = '';
+      refreshAll();
+      showMessage('topMessage', 'Saved link updated.', 'success');
+    };
+
+    function updateBackupSummary() {
+      const backup = getBackupObject();
+      document.getElementById('backupSummary').innerHTML = `
+        <div class="notice small">
+          <strong>Current backup summary</strong><br>
+          Saved links: ${backup.atLinks.length}<br>
+          Redirect slots used: ${backup.atRedirectSlots.filter(Boolean).length} / 3<br>
+          Export timestamp if you download now: ${escapeHtml(backup.exportedAt)}
+        </div>
+      `;
+    }
+
+    function refreshAll() {
+      loadLinksTable();
+      loadSlotsView();
+      loadRawStorage();
+      updateBackupSummary();
+    }
+
+    window.deleteLink = function(index) {
+      const links = getLinks();
+      const item = links[index];
+      if (!item) return;
+      if (!confirm(`Delete saved link "${item.name}"?`)) return;
+
+      const updatedLinks = links.filter((_, i) => i !== index);
+      saveLinks(updatedLinks);
+
+      const updatedSlots = getRedirectSlots().map(slot => {
+        if (!slot) return null;
+        return (slot.name === item.name && slot.base === item.base && slot.mode === item.mode) ? null : slot;
+      });
+      saveRedirectSlots(updatedSlots);
+
+      refreshAll();
+      showMessage('topMessage', 'Saved link deleted.', 'success');
+    };
+
+    document.getElementById('refreshAll').addEventListener('click', () => {
+      refreshAll();
+      showMessage('topMessage', 'Storage view refreshed.', 'success');
+    });
+
+    document.getElementById('storageKeySelect').addEventListener('change', loadRawStorage);
+
+    document.getElementById('exportJson').addEventListener('click', () => {
+      const backup = JSON.stringify(getBackupObject(), null, 2);
+      const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+      downloadText(`at-protocol-handler-backup-${stamp}.json`, backup);
+      showMessage('topMessage', 'Backup JSON exported.', 'success');
+    });
+
+    document.getElementById('copyJson').addEventListener('click', async () => {
+      const backup = JSON.stringify(getBackupObject(), null, 2);
+      try {
+        await navigator.clipboard.writeText(backup);
+        showMessage('topMessage', 'Backup JSON copied to clipboard.', 'success');
+      } catch {
+        showMessage('topMessage', 'Could not copy to clipboard on this browser.', 'error');
+      }
+    });
+
+    document.getElementById('validateBackup').addEventListener('click', () => {
+      const raw = document.getElementById('backupInput').value.trim();
+      if (!raw) {
+        showMessage('backupMessage', 'Paste backup JSON first.', 'error');
+        return;
+      }
+      try {
+        const parsed = JSON.parse(raw);
+        const result = validateBackupShape(parsed);
+        showMessage('backupMessage', result.message, result.ok ? 'success' : 'error');
+      } catch {
+        showMessage('backupMessage', 'Backup JSON is not valid JSON.', 'error');
+      }
+    });
+
+    document.getElementById('restoreBackup').addEventListener('click', () => {
+      const raw = document.getElementById('backupInput').value.trim();
+      if (!raw) {
+        showMessage('backupMessage', 'Paste backup JSON first.', 'error');
+        return;
+      }
+
+      let parsed;
+      try {
+        parsed = JSON.parse(raw);
+      } catch {
+        showMessage('backupMessage', 'Backup JSON is not valid JSON.', 'error');
+        return;
+      }
+
+      const result = validateBackupShape(parsed);
+      if (!result.ok) {
+        showMessage('backupMessage', result.message, 'error');
+        return;
+      }
+
+      if (!confirm('Restore backup and overwrite current saved links and redirect slots?')) {
+        return;
+      }
+
+      saveLinks(parsed.atLinks);
+      saveRedirectSlots(parsed.atRedirectSlots);
+      refreshAll();
+      showMessage('backupMessage', 'Backup restored successfully.', 'success');
+    });
+
+    document.getElementById('clearBackupInput').addEventListener('click', () => {
+      document.getElementById('backupInput').value = '';
+      showMessage('backupMessage', '', '');
+    });
+
+    document.getElementById('backupFile').addEventListener('change', async event => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const text = await file.text();
+      document.getElementById('backupInput').value = text;
+      showMessage('backupMessage', 'Backup file loaded into the text box. Validate it before restoring.', 'success');
+    });
+
+    document.getElementById('runTemplateTest').addEventListener('click', () => {
+      const atUri = document.getElementById('testAtUri').value.trim();
+      const base = document.getElementById('testTemplate').value.trim();
+      const mode = document.getElementById('testMode').value;
+      const out = document.getElementById('templateOutput');
+
+      if (!atUri || !base) {
+        out.textContent = 'Enter both an AT URI and a template/base URL.';
+        return;
+      }
+
+      const built = buildUserLink({ base, mode }, atUri);
+      out.textContent = built || 'Could not build preview.';
+    });
+
+    document.getElementById('resetSlotsOnly').addEventListener('click', () => {
+      if (!confirm('Clear redirect slots only? Saved links will remain untouched.')) return;
+      saveRedirectSlots([]);
+      refreshAll();
+      showMessage('topMessage', 'Redirect slots cleared.', 'success');
+    });
+
+    document.getElementById('removeDuplicates').addEventListener('click', () => {
+      const links = getLinks();
+      const seen = new Set();
+      const deduped = links.filter(link => {
+        const key = JSON.stringify([link.name || '', link.base || '', link.mode || 'auto']);
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+
+      if (deduped.length === links.length) {
+        showMessage('topMessage', 'No duplicate links found.', 'success');
+        return;
+      }
+
+      saveLinks(deduped);
+      refreshAll();
+      showMessage('topMessage', 'Duplicate links removed.', 'success');
+    });
+
+    document.getElementById('seedDemoData').addEventListener('click', () => {
+      const demoLinks = [
+        { name: 'Skythread (Mackuba)', base: 'https://blue.mackuba.eu/skythread/?q=', mode: 'auto' },
+        { name: 'ATProtoViewer', base: 'https://corkiejp.github.io/ATProtoViewer/?uri=', mode: 'auto' },
+        { name: 'Bluesky', base: 'https://bsky.app/profile/{did}/post/{rkey}', mode: 'template' }
+      ];
+      saveLinks(demoLinks);
+      saveRedirectSlots([demoLinks[0], demoLinks[1], demoLinks[2]]);
+      refreshAll();
+      showMessage('topMessage', 'Demo data added for testing.', 'success');
+    });
+
+    refreshAll();
+  </script>
+</body>
+</html>
