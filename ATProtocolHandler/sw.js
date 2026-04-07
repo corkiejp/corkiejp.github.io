@@ -1039,7 +1039,7 @@ async function handleAtUri(atUri, requestUrl) {
     loadLinks();
     loadRedirectSlots();
     updateExampleLinks();
-	maybeRewritePrettyUrl();
+	
     maybeHandleRedirectParam();
   </script>
 </body>
