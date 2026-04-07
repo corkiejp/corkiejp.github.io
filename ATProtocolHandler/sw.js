@@ -253,6 +253,13 @@ async function handleAtUri(atUri, requestUrl) {
       color: var(--warning);
       border-color: var(--warning-border);
     }
+	
+.helper-link-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}	
 
     .remove-link-btn,
     .clear-slot-btn {
@@ -422,6 +429,16 @@ async function handleAtUri(atUri, requestUrl) {
   <div class="wrap">
     <div class="card">
       <h1>AT URI Handler</h1>
+	  <div class="actions" style="margin-bottom:.75rem;">
+  <a
+    href="https://corkiejp.github.io/ATProtocolHandler/at-handler-helper.html"
+    class="secondary-btn helper-link-btn"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Open helper page with backup & restore!.secondary-btn
+  </a>
+</div>
       <p>Open this AT URI in your preferred tools.</p>
       <div class="uri-box">${escapeHtml(atUri)}</div>
       <div id="redirectNotice"></div>
