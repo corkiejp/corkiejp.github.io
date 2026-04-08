@@ -1,0 +1,200 @@
+<ul id="logs"><li><div><strong>heartbeat</strong>: Content script active on https://www.linkedin.com/feed?lidirect=saved&amp;skipRedirect=true&amp;lipi=urn%3Ali%3Apage%3Ad_flagship3_consent_experience_connect_services_ads_experience%3BsTubRtC7SRC8GY46ogrw0g%3D%3D</div>
+                      <div class="muted">08/04/2026, 23:08:00</div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:08:00</div>
+                      <div><code>chrome-extension://amfklcoihehamimgfemijdpmapoamlak/js/Whatslly.js</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:59</div>
+                      <div><code>chrome-extension://amfgppaiaaledghabgegkikijjkckeea/assets/loader-circle-CRJ55fjJ.js</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:59</div>
+                      <div><code>chrome-extension://amelnaldbnapglcniifekflighangbgd/icons/icon16.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:59</div>
+                      <div><code>chrome-extension://amejfaalmcdhmaffcmajiibokmjkfahf/content.styles.css</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:59</div>
+                      <div><code>chrome-extension://amcdijdgmckgkkahhcobikllddfbfidi/src/sidebar/index.html</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:59</div>
+                      <div><code>chrome-extension://amcahpikmhmmdgmngihckdmdaeepmmlb/images/logo-white-xs.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:59</div>
+                      <div><code>chrome-extension://amblopokdajebnmbjcfdhgmncdgnhdem/assets/icon128.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:59</div>
+                      <div><code>chrome-extension://amamepeabcfkihnomongcaobighnnkjd/auth-result.html</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:59</div>
+                      <div><code>chrome-extension://alpcedlkcfoefioncfefhbkeahlbnajp/sidebar.html</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:58</div>
+                      <div><code>chrome-extension://alnpmbmdbjogahkfdhcojaohljdljmap/circleLogo.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:58</div>
+                      <div><code>chrome-extension://almnjkaflidpcjcjoaoemcabnpjicagn/assets/images/icon16.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:58</div>
+                      <div><code>chrome-extension://allcpgpcefejknnkfajlmfilcdehlimm/icons/icon16.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:58</div>
+                      <div><code>chrome-extension://aljkfodiamdmgkpkonndmldemdihbbfm/popup.html</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:58</div>
+                      <div><code>chrome-extension://alhgpfoeiimagjlnfekdhkjlkiomcapa/panel.html</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:58</div>
+                      <div><code>chrome-extension://algadbfmljcppohmcckpdemkjklapibd/content-swarm-logo.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:58</div>
+                      <div><code>chrome-extension://alfpjlcndmeoainjfgbbnphcidpnmoae/icon16.plasmo.6c567d50.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:58</div>
+                      <div><code>chrome-extension://alfpbpbopicnfllpimeniedbhdinhnla/images/no-ads-emoji-16.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:57</div>
+                      <div><code>chrome-extension://alfloghadjklabbfhilpnahjhiaadimh/ui/modal.html</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:57</div>
+                      <div><code>chrome-extension://aleoomdhnjddjlmfocibikjdpkdpadko/contentStyle.css</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:57</div>
+                      <div><code>chrome-extension://aldoojabcgohaabjiakabmnachkpcpai/icons/icon16.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:57</div>
+                      <div><code>chrome-extension://alcfpbahefdnlfbkeoebkmbkobdlnlmg/icons/16.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:57</div>
+                      <div><code>chrome-extension://albldfiohnhdonffjdbiohejiofaahpe/frame.html</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:57</div>
+                      <div><code>chrome-extension://albklnhkabkccdpdimjnnlbppakgfgna/images/icon.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:57</div>
+                      <div><code>chrome-extension://alanhknkkgbmjcifaecnihemjmcofaid/images/icon.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:56</div>
+                      <div><code>chrome-extension://alandlhimgckpdooclgjppoihdlnhooj/NS_128.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:56</div>
+                      <div><code>chrome-extension://alaednmebhlbdbkbhdebacclmdddfpeg/assets/icons/connect/16.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:56</div>
+                      <div><code>chrome-extension://akpoaamimlklodbhdlnfjenlijodkbld/icon.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:56</div>
+                      <div><code>chrome-extension://akpllopgockdfpfpbknbfcdndemooibb/icon128.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:56</div>
+                      <div><code>chrome-extension://akpgpoicakaajfpdeiibbknclimoohie/styles.css</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:56</div>
+                      <div><code>chrome-extension://akoocdmmgiegbhhjnoaccckmkibgcbha/icon-128.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:56</div>
+                      <div><code>chrome-extension://aknonoeecmmknpjbimdbbnljgmaicfna/welcome-background.svg</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:56</div>
+                      <div><code>chrome-extension://akngiligidmmldfgjdpcdefdoiacakfc/icons/Blockedin.svg</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:55</div>
+                      <div><code>chrome-extension://aklfdoponeficbkadhkkfolficoijhdo/tracking-dashboard/dashboard.html</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:55</div>
+                      <div><code>chrome-extension://aklejaaicklpmejgidjjmjpecadhhojd/app/immutable/chunks/utils-4bc97b0b.js</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:55</div>
+                      <div><code>chrome-extension://akladihmelnlfjfieflgfljncaknbojc/popup.html</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:55</div>
+                      <div><code>chrome-extension://akkfaafpbljjdmpekeoippmgdlhidgmm/icons/icon16.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:55</div>
+                      <div><code>chrome-extension://akkcbedkimkokhkncbdhoinopefghfeg/oauth-popup.html</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:55</div>
+                      <div><code>chrome-extension://akilaoifidejhbnebebfkdgkapnlhbaf/icons/48.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:55</div>
+                      <div><code>chrome-extension://akighppfeapfkmpdggmjneilfkoomokc/assets/replygenius-icon16.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:55</div>
+                      <div><code>chrome-extension://akgdbgmgophlmelflcbgpiebopfhihpo/LinkedIn Engagement keywords.xlsx</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:54</div>
+                      <div><code>chrome-extension://akemecbhkcopeeicihindnjgfihkkgdi/modules/tweet_menu.html</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:54</div>
+                      <div><code>chrome-extension://akefeeedmeggngjcncdllocklkbfphdd/icons/icon16.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:54</div>
+                      <div><code>chrome-extension://akeepikolhaikilagiekmegfhefcbohd/src/iframe.html</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:54</div>
+                      <div><code>chrome-extension://akbfemjcpocgiomijdfajkihbandjmbe/icons/16.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:54</div>
+                      <div><code>chrome-extension://akbanfdgkegjhlhilkiikcmcjgnmgden/dist/auth.bundle.js</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:54</div>
+                      <div><code>chrome-extension://ajoickdlofadbaooambnlnlbcpdnkkck/icon.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:54</div>
+                      <div><code>chrome-extension://ajmledndlnaedbncllhbapebhpebeipd/favicon-16x16.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:53</div>
+                      <div><code>chrome-extension://ajmlcdlcagmkcfbomfchikkkkabomeda/assets/inject</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:53</div>
+                      <div><code>chrome-extension://ajmafehbfjamoglibfgjffajcpepdbam/icons/helmet.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:53</div>
+                      <div><code>chrome-extension://ajlpdbecccidmafdojjahlkdjpangdda/handle.html</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:53</div>
+                      <div><code>chrome-extension://ajkejdbdiapcmhhefhgcggagcbijjjed/images/icon16.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:53</div>
+                      <div><code>chrome-extension://ajkcebcgofkmhkbfpckcolnclbgpjljg/icons/linkedout.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:53</div>
+                      <div><code>chrome-extension://ajifgofpnkingabgcmoegedjepfkpofg/icons/icon16.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:53</div>
+                      <div><code>chrome-extension://ajhbkepcijmhkcmaajcfepingpcogmdd/content.js</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:53</div>
+                      <div><code>chrome-extension://ajhbdcgfhlhhmocddefknjjkejcfpbnj/images/resolve_online_test_test-helper___test_bro.gif</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:52</div>
+                      <div><code>chrome-extension://ajhaabnhenpmdnocfkkemhhjmchfkjfl/google.svg</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:52</div>
+                      <div><code>chrome-extension://ajfedckpkkjfaemfgcnaeakkieongand/FullScreenModal.d80d81da.css</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:52</div>
+                      <div><code>chrome-extension://ajehfdojkciheocnmhkbelgefjpepkde/assets/icon.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:52</div>
+                      <div><code>chrome-extension://ajeffabgdodbbdngakbpafbggnoegdjd/icon16.plasmo.6c567d50.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:52</div>
+                      <div><code>chrome-extension://ajceemkmbgjolpocnkfccjmplcbbppel/index.html</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:52</div>
+                      <div><code>chrome-extension://ajbflkhobiliijoedidkhifpkonmbpii/icons/icon16.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:52</div>
+                      <div><code>chrome-extension://ailnbbigginhlppdboejnjhcmldkolio/128.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:52</div>
+                      <div><code>chrome-extension://aikkeehnlfpamidigaffhfmgbkdeheil/assets/icons/active_bell_icon_dark_mode.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:51</div>
+                      <div><code>chrome-extension://aikhclibkhmmkpafjdchlnmemagbjgdk/resources/img/copy_button.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:51</div>
+                      <div><code>chrome-extension://aikejcifhkhlogoejaibdilbeabkngca/AILogo48.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:51</div>
+                      <div><code>chrome-extension://aijkbfcgfacnbgaladlemlbonnddphdf/utils/select-arrow.svg</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:51</div>
+                      <div><code>chrome-extension://aijamaighclmblhodjfmciapmkofhcpl/icon/transplace_16.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:51</div>
+                      <div><code>chrome-extension://aigjjiagpdcedkjiikmepkldlegadhdj/content.js</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:51</div>
+                      <div><code>chrome-extension://aigjfdnfdepkdogdjcolehemlapfohem/base64Images.js</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:51</div>
+                      <div><code>chrome-extension://aifhcajcoagfelcebkhgmfchkakifelp/icons/icon48.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:51</div>
+                      <div><code>chrome-extension://aielpkmgjjaddochapclgdhakecjloih/assets/images/candidate-list/present_white.svg</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:50</div>
+                      <div><code>chrome-extension://aidphokcgfdkdjfpkpklikbknkibkfpl/assets/icons/16.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:50</div>
+                      <div><code>chrome-extension://aicinfjgiebaoekhdgcgnjdkdhhmmkeb/iconwhitelarge.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:50</div>
+                      <div><code>chrome-extension://aicgfjkeikpppglfdhmdgncaiemeenon/assets/button.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:50</div>
+                      <div><code>chrome-extension://aibjkmohlabhngalhghifpnaamigomac/icon16.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:50</div>
+                      <div><code>chrome-extension://aibemkflighjgchjmikiljjagkjbmjbg/images/newIco.svg</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:49</div>
+                      <div><code>chrome-extension://ahppdlbhcjjoejdnbdcjfgomokceflma/icons/icon16.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:49</div>
+                      <div><code>chrome-extension://ahomgjfionfmfihbemfknafbnhkpklbd/sidebar.html</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:49</div>
+                      <div><code>chrome-extension://ahnppangepljolnbpakbeljlpkeinhcd/icons/icon128.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:49</div>
+                      <div><code>chrome-extension://ahnnnalmdcgnijmnjfhgaickghbdfbjm/icons/icons-128.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:49</div>
+                      <div><code>chrome-extension://ahndflgikehkheomifdeoojgighdjndm/pdf.worker.js</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:49</div>
+                      <div><code>chrome-extension://ahmagnclomjbhbchlllnhmiampgchnop/dashboard.html</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:49</div>
+                      <div><code>chrome-extension://ahkmpgpdcneppdhhdgmmmcgicgfcfmka/src/icons/arrow-down.svg</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:48</div>
+                      <div><code>chrome-extension://ahkgfeaondknnomofelaogdefndmapak/listener.js</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:48</div>
+                      <div><code>chrome-extension://ahkdkfejeplinhgmclegkhopdiiedeji/icons/header-logo.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:48</div>
+                      <div><code>chrome-extension://ahkanmhadkofolbaokeahjampgkfdami/assets/icons/expandMoreIcon.svg</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:48</div>
+                      <div><code>chrome-extension://ahjppllajdagpijnbekhgojjadoambij/content.js</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:48</div>
+                      <div><code>chrome-extension://ahjbffbpifndaagokhldcaalpegbhpkd/content-scripts/enhancer.css</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:48</div>
+                      <div><code>chrome-extension://ahgjbbnglgnladgimapeecjmhlhmacgg/pearmill.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:48</div>
+                      <div><code>chrome-extension://ahfilmopkkfaehndncopogaohdkddjjd/assets/common.css</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:48</div>
+                      <div><code>chrome-extension://ahemfdpnnfofllkdngmflfflpnkjnfek/icon.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:47</div>
+                      <div><code>chrome-extension://ahdlpamjokpkkkmfcpfpponbijghhmja/icons/icon16.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:47</div>
+                      <div><code>chrome-extension://ahcdklienniemkfhkkfeplmhjfkgdmnl/icons/Crust-Logo-16-Dark.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:47</div>
+                      <div><code>chrome-extension://ahcdikceakfllokhdljbpjaflpebmdfi/public/logo.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:47</div>
+                      <div><code>chrome-extension://ahbaomfclkbgaadpmlcmlchhcgfibfld/mmt-srcwl-ihontrfj-xitapcu/icon128.png</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:47</div>
+                      <div><code>chrome-extension://ahanmpbplnimjdojgkldppkbngpdhpgo/assets/style.css</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:47</div>
+                      <div><code>chrome-extension://ahahliplongfboaikbajdedefpoifjeb/assets/content.ts-Dm6EFiQx.js</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:47</div>
+                      <div><code>chrome-extension://agongpkomhknjjihomgnggamckaelnnn/overlay.css</code></div></li><li><div><strong>Blocked</strong> via fetch</div>
+                      <div class="muted">www.linkedin.com · 08/04/2026, 23:07:47</div>
+                      <div><code>chrome-extension://agojkcbilmjplcnpimlcjnbncmbfbijn/assets/icon.png</code></div></li></ul>
