@@ -32,7 +32,9 @@ ExtScanAlert/
 ├─ ExtScanAlert-v2-chromium.zip
 └─ ExtScanAlert-v2-firefox.xpi
 ```
+## Version 2
 
+Use the v2 packages for current testing; the earlier build used blocking prompts and may freeze some tabs on mobile browsers. See changelog.
 
 ## What the proof of concept does
 
@@ -125,6 +127,29 @@ ExtScanAlert-firefox.xpi is included as a packaged development build. In standar
 ## Warning
 
 This is experimental code for testing and discussion. Review the source before loading it, and do not assume that “no detections logged” means “no probing occurred.”[^2][^1]
+
+## Changelog
+
+### v2
+
+- Replaced modal `confirm()` prompts with a non-blocking mode system: **Block all**, **Log only**, and **Allow all**.
+- Added badge counts so blocked activity is visible without opening the popup.
+- Added optional “notify once per host” behavior for blocked events.
+- Improved mobile usability; earlier prompt-heavy behavior could lock up tabs in some Chromium-based mobile browsers because modal dialogs block interaction.
+
+
+### Earlier build
+
+- Used per-event `confirm()` prompts from the page hook.
+- Worked as a proof of concept, but repeated prompts could make a tab difficult to use, especially on mobile browsers.
+
+
+## Known issues
+
+- This is still a **proof of concept**, not a complete anti-fingerprinting solution; some detection paths may not be logged or blocked.
+- BrowserLeaks’ Chrome extension test is useful for Chromium-family testing, but Firefox behavior differs because Firefox uses `moz-extension://` rather than `chrome-extension://`
+- Firefox unsigned builds are most reliable through **temporary loading** during testing; normal installation on desktop Firefox release may show verification/signing errors.
+- The popup log is currently the main source of detail about what was blocked or observed; badge counts are only a quick indicator.
 
 <div align="center">⁂</div>
 
