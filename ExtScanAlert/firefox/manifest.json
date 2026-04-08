@@ -1,14 +1,15 @@
 {
   "manifest_version": 2,
-  "name": "Anti Extension Probe",
-  "version": "0.2.0",
-  "description": "Detects and blocks likely extension enumeration attempts.",
+  "name": "ExtScanAlert",
+  "version": "0.3.0",
+  "description": "Detects and logs likely extension enumeration attempts.",
   "permissions": [
     "<all_urls>",
     "tabs",
     "storage",
     "webRequest",
-    "webRequestBlocking"
+    "webRequestBlocking",
+    "notifications"
   ],
   "background": {
     "scripts": ["background.js"]
@@ -21,17 +22,17 @@
     }
   ],
   "browser_action": {
-    "default_title": "Anti Extension Probe",
+    "default_title": "ExtScanAlert",
     "default_popup": "popup.html"
   },
   "browser_specific_settings": {
-  "gecko": {
-    "id": "extscanalert@corki.local",
-    "strict_min_version": "109.0"
+    "gecko": {
+      "id": "extscanalert@corki.local",
+      "strict_min_version": "109.0"
+    },
+    "gecko_android": {
+      "strict_min_version": "120.0"
+    }
   },
-  "gecko_android": {
-    "strict_min_version": "120.0"
-  }
-},
   "web_accessible_resources": ["page-hook.js"]
 }

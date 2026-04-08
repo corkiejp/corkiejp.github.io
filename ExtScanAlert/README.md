@@ -29,8 +29,8 @@ ExtScanAlert/
 │  ├─ page-hook.js
 │  ├─ popup.html
 │  └─ popup.js
-├─ ExtScanAlert-chromium.zip
-└─ ExtScanAlert-firefox.xpi
+├─ ExtScanAlert-v2-chromium.zip
+└─ ExtScanAlert-v2-firefox.xpi
 ```
 
 
