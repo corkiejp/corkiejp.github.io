@@ -1,6 +1,6 @@
 # Warning
 
-**Extensions are a security and privacy risk in them selves use at your own descretion!**
+**Extensions are a security and privacy risk in them selves use at your own discretion!**
 
 
 # ExtScanAlert
