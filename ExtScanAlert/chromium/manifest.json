@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Anti Extension Probe",
+  "version": "0.2.0",
+  "description": "Detects and blocks likely extension enumeration attempts.",
+  "permissions": ["storage", "scripting", "tabs"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["page-hook.js"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "action": {
+    "default_title": "Anti Extension Probe",
+    "default_popup": "popup.html"
+  }
+}
