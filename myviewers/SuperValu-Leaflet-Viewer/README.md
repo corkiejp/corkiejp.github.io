@@ -51,7 +51,8 @@ Typical build outputs:
 - Chrome: `.zip`
 - Firefox: `.xpi`
 
-These can be uploaded to the repo if you want direct downloadable build links.
+/dist - [Currernt working builds .zip & .xpi](dist)
+
 
 ## Status
 
