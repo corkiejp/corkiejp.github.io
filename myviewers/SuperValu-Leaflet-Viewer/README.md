@@ -38,6 +38,7 @@ The Firefox build is also working, using `manifest.firefox.json` and the same sh
 - `inst.html` / `inst.css` - instructions page
 - `build-chrome.ps1` - creates Chrome ZIP package
 - `build-firefox.ps1` - creates Firefox XPI package
+- /dist - [Currernt working builds .zip & .xpi](/dist)
 
 ## Build notes
 
