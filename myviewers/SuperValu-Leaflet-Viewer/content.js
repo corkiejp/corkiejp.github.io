@@ -3,6 +3,7 @@
   window.__svLeafletViewerLoaded = true;
 
   const ext = globalThis.browser || globalThis.chrome;
+  const hasStorage = !!(ext && ext.storage && ext.storage.local);
 
   const state = {
     pages: [],
@@ -12,7 +13,8 @@
     rescanTimer: null,
     leafletNavBusy: false,
     autoOpenOnLoad: /\/offers\/leaflet\/\d+\b/i.test(location.pathname),
-    jumpDirty: false
+    jumpDirty: false,
+    lastLeafletInfo: null
   };
 
   function toAbs(url) {
@@ -298,6 +300,19 @@
     jumpInput.value = item && Number.isFinite(item.page) ? String(item.page) : "";
   }
 
+  function formatDate(ts) {
+    if (!ts) return "";
+    try {
+      return new Date(ts).toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "2-digit"
+      });
+    } catch {
+      return "";
+    }
+  }
+
   function render() {
     const item = current();
     const pdfUrl = getPdfUrlFromMeta();
@@ -306,6 +321,16 @@
     leafletLabel.textContent = leafletId ? `Leaflet ${leafletId}` : "Leaflet —";
     pdfBtn.disabled = !pdfUrl;
     pdfBtn.title = pdfUrl ? "Download full PDF" : "PDF link not found";
+
+    // Latest leaflet info in footer
+if (state.lastLeafletInfo && typeof state.lastLeafletInfo.id === "number") {
+  const d = formatDate(state.lastLeafletInfo.firstSeenAt);
+  latestLabel.textContent = d
+    ? `Latest leaflet ${state.lastLeafletInfo.id} (first seen ${d})`
+    : `Latest leaflet ${state.lastLeafletInfo.id} (first seen locally)`;
+} else {
+  latestLabel.textContent = "";
+}
 
     if (!item) {
       img.hidden = true;
@@ -322,6 +347,7 @@
     img.hidden = false;
     img.src = item.url;
     img.alt = item.alt || `Leaflet page ${item.page}`;
+    status.textContent = `${state.index + 1} / state.pages.length`;
     status.textContent = `${state.index + 1} / ${state.pages.length}`;
     pageLabel.textContent = Number.isFinite(item.page) ? `Page ${item.page}` : "Unknown page";
     urlField.value = item.url;
@@ -336,6 +362,74 @@
     toastTimer = setTimeout(() => {
       toast.hidden = true;
     }, 1500);
+  }
+
+async function checkLeafletVersionNotice() {
+  if (!hasStorage) return;
+
+  const leafletId = getCurrentLeafletId();
+  if (!leafletId) return;
+
+  const url = location.href;
+  const now = Date.now();
+
+  let stored;
+  try {
+    ({ lastLeaflet: stored } = await ext.storage.local.get(["lastLeaflet"]));
+  } catch {
+    stored = null;
+  }
+
+  if (!stored || typeof stored.id !== "number") {
+    const info = { id: leafletId, firstSeenAt: now, url };
+    state.lastLeafletInfo = info;
+    await ext.storage.local.set({ lastLeaflet: info });
+    render();
+    return;
+  }
+
+  state.lastLeafletInfo = stored;
+  render();
+
+  if (leafletId > stored.id) {
+    const info = { id: leafletId, firstSeenAt: now, url };
+    state.lastLeafletInfo = info;
+    await ext.storage.local.set({ lastLeaflet: info });
+    flash(`New leaflet detected (was ${stored.id}, now ${leafletId}).`);
+    render();
+    return;
+  }
+
+  if (leafletId < stored.id && state.open) {
+    showOlderLeafletBanner(stored.id, leafletId, stored.url);
+  }
+}
+
+  let olderBannerShown = false;
+
+  function showOlderLeafletBanner(latestId, currentId, latestUrl) {
+    if (olderBannerShown) return;
+    olderBannerShown = true;
+
+    const banner = document.createElement("div");
+    banner.className = "svlv-new-leaflet-banner";
+    banner.innerHTML = `
+      <span>You’re viewing leaflet ${currentId}. A newer leaflet (${latestId}) is available.</span>
+      <button type="button" data-act="open-latest">Open latest</button>
+      <button type="button" data-act="dismiss-latest">Dismiss</button>
+    `;
+    document.body.appendChild(banner);
+
+    banner.addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-act]");
+      if (!btn) return;
+      const act = btn.dataset.act;
+      if (act === "open-latest") {
+        location.href = latestUrl || `https://supervalu.ie/offers/leaflet/${latestId}`;
+      } else if (act === "dismiss-latest") {
+        banner.remove();
+      }
+    });
   }
 
   const overlay = document.createElement("div");
@@ -380,6 +474,7 @@
       <div class="svlv-footer">
         <div class="svlv-status">0 / 0</div>
         <input class="svlv-url" type="text" readonly>
+        <div class="svlv-latest"></div>
       </div>
 
       <div class="svlv-toast" hidden></div>
@@ -452,6 +547,11 @@
       flex: 1;
       min-width: 0;
     }
+    #__sv_leaflet_overlay__ .svlv-latest {
+      font-size: 12px;
+      opacity: .8;
+      white-space: nowrap;
+    }
     #__sv_leaflet_overlay__ .svlv-main {
       flex: 1;
       min-height: 0;
@@ -523,6 +623,34 @@
       padding: 8px 10px;
       font-size: 13px;
     }
+    .svlv-new-leaflet-banner {
+      position: fixed;
+      left: 50%;
+      bottom: 12px;
+      transform: translateX(-50%);
+      z-index: 2147483646;
+      background: rgba(0,0,0,.92);
+      color: #f4f4f4;
+      padding: 8px 12px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font: 13px/1.4 Arial, sans-serif;
+      box-shadow: 0 8px 24px rgba(0,0,0,.5);
+    }
+    .svlv-new-leaflet-banner button {
+      border: 0;
+      border-radius: 999px;
+      padding: 4px 10px;
+      background: rgba(255,255,255,.12);
+      color: #fff;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .svlv-new-leaflet-banner button:hover {
+      background: rgba(255,255,255,.22);
+    }
     @media (max-width: 1100px) {
       #__sv_leaflet_overlay__ .svlv-toolbar,
       #__sv_leaflet_overlay__ .svlv-footer {
@@ -547,6 +675,7 @@
   const pageLabel = overlay.querySelector(".svlv-page-label");
   const leafletLabel = overlay.querySelector(".svlv-leaflet-label");
   const urlField = overlay.querySelector(".svlv-url");
+  const latestLabel = overlay.querySelector(".svlv-latest");
   const jumpInput = overlay.querySelector(".svlv-jump");
   const toast = overlay.querySelector(".svlv-toast");
   const pdfBtn = overlay.querySelector('[data-act="download-pdf"]');
@@ -702,4 +831,6 @@
       toggle(true);
     });
   }
+
+  checkLeafletVersionNotice();
 })();

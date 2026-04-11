@@ -9,7 +9,12 @@
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": ["activeTab", "scripting"],
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "alarms"
+  ],
   "host_permissions": [
     "https://supervalu.ie/*",
     "https://*.supervalu.ie/*",
@@ -39,7 +44,8 @@
     {
       "resources": [
         "inst.html",
-        "inst.css"
+        "inst.css",
+        "inst.js"
       ],
       "matches": [
         "https://supervalu.ie/*",
