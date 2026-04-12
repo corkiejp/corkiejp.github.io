@@ -1,5 +1,62 @@
 const ext = globalThis.browser || globalThis.chrome;
 
+
+// --- Desktop notification helpers (Chromium only) ---
+
+const NOTIFICATION_PREFIX = "svlv-new-leaflet-";
+
+function notifyNewLeaflet(info) {
+  if (!chrome.notifications) return;
+
+  const id = `${NOTIFICATION_PREFIX}${info.id}-${Date.now()}`;
+
+  ext.notifications.create(id, {
+    type: "basic",
+    iconUrl: "icons/svlv-128.png",
+    title: "New SuperValu leaflet",
+    message: `Leaflet ${info.id} first seen ${new Date(info.firstSeenAt).toLocaleDateString()}`,
+    priority: 0
+  });
+}
+
+
+
+
+
+ext.notifications?.onClicked.addListener(async (notificationId) => {
+  if (!notificationId.startsWith(NOTIFICATION_PREFIX)) return;
+
+  // Try to open the last detected leaflet URL
+  let targetUrl = "https://supervalu.ie/";
+  try {
+    const { lastLeaflet } = await ext.storage.local.get(["lastLeaflet"]);
+    if (lastLeaflet && typeof lastLeaflet.url === "string") {
+      targetUrl = lastLeaflet.url;
+    }
+  } catch {
+    // fall back to homepage
+  }
+
+  // Check if a tab with that leaflet (or any SuperValu) is already open
+  chrome.tabs.query({}, (tabs) => {
+    const existing = tabs.find(
+      (t) =>
+        t.url &&
+        (t.url === targetUrl || t.url.startsWith("https://supervalu.ie/") ||
+         t.url.startsWith("https://shop.supervalu.ie/"))
+    );
+
+    if (existing) {
+      chrome.tabs.update(existing.id, { active: true, url: targetUrl });
+      chrome.windows.update(existing.windowId, { focused: true });
+    } else {
+      chrome.tabs.create({ url: targetUrl });
+    }
+  });
+
+  chrome.notifications.clear(notificationId);
+});
+
 const CHECK_ALARM_NAME = "svlv-check-leaflet";
 
 // Helper: get current ISO weekday (1 = Mon, 7 = Sun)
@@ -142,7 +199,7 @@ async function performLeafletCheck() {
   const current = new Date();
   const weekKey = `${current.getFullYear()}-${getIsoWeekNumber(current)}`;
 
-  if (foundId != null) {
+   if (foundId != null) {
     const newInfo = {
       id: foundId,
       firstSeenAt: now,
@@ -153,6 +210,9 @@ async function performLeafletCheck() {
       lastLeaflet: newInfo,
       lastWeeklyCheck: { weekKey, hasLeaflet: true, updatedAt: now }
     });
+
+    // Desktop notification for Chromium builds
+    notifyNewLeaflet(newInfo);
 
     // Optional: set badge to hint something changed; content.js will show flash on next visit.
     try {
@@ -184,6 +244,39 @@ ext.runtime.onMessage.addListener((message, _sender, _sendResponse) => {
   }
 });
 
+ext.runtime.onMessage.addListener((message, _sender, _sendResponse) => {
+  if (!message || !message.type) return;
+
+  if (message.type === "SVLV_RECONFIGURE_ALARMS") {
+    configureLeafletAlarm();
+  }
+
+  if (message.type === "SVLV_TEST_NOTIFICATION") {
+    const now = Date.now();
+    notifyNewLeaflet({
+      id: "TEST",
+      firstSeenAt: now,
+      url: "https://supervalu.ie/"
+    });
+  }
+});
+
+// --- Viewer toggle wiring (icon + keyboard shortcut) ---
+
+ext.action.onClicked.addListener((tab) => {
+  if (!tab || !tab.id) return;
+  ext.tabs.sendMessage(tab.id, { type: "SVLV_TOGGLE_VIEWER" });
+});
+
+ext.commands.onCommand.addListener((command) => {
+  if (command !== "toggle-viewer") return;
+  ext.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const tab = tabs[0];
+    if (!tab || !tab.id) return;
+    ext.tabs.sendMessage(tab.id, { type: "SVLV_TOGGLE_VIEWER" });
+  });
+});
+
 // Initial configuration on install/startup.
 ext.runtime.onInstalled.addListener(() => {
   configureLeafletAlarm();
@@ -194,3 +287,18 @@ if (ext.runtime.onStartup) {
     configureLeafletAlarm();
   });
 }
+
+// Viewer toggle wiring – toolbar icon + keyboard shortcut
+ext.action?.onClicked.addListener((tab) => {
+  if (!tab || !tab.id) return;
+  ext.tabs.sendMessage(tab.id, { type: "TOGGLE_LEAFLET_VIEWER", force: true });
+});
+
+ext.commands?.onCommand.addListener((command) => {
+  if (command !== "toggle-viewer") return;
+  ext.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const tab = tabs[0];
+    if (!tab || !tab.id) return;
+    ext.tabs.sendMessage(tab.id, { type: "SVLV_TOGGLE_VIEWER" });
+  });
+});

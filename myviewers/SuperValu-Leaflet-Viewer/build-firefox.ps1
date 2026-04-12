@@ -1,7 +1,7 @@
 param(
     [string]$SourceDir = ".",
     [string]$OutputDir = ".\\dist",
-    [string]$Name = "supervalu-leaflet-viewer-firefox"
+    [string]$Name = "firefox-supervalu-leaflet-viewer"
 )
 
 $ErrorActionPreference = "Stop"

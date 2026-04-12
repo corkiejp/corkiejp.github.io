@@ -13,6 +13,7 @@
     rescanTimer: null,
     leafletNavBusy: false,
     autoOpenOnLoad: /\/offers\/leaflet\/\d+\b/i.test(location.pathname),
+	autoOpenedOnce: false,
     jumpDirty: false,
     lastLeafletInfo: null
   };
@@ -43,15 +44,9 @@
 
   async function leafletExists(id) {
     const url = `https://supervalu.ie/offers/leaflet/${id}`;
-
     try {
-      const res = await fetch(url, {
-        method: "GET",
-        credentials: "include"
-      });
-
+      const res = await fetch(url, { method: "GET", credentials: "include" });
       if (!res.ok) return false;
-
       const html = await res.text();
       return /pdf2web|og:image|offers-leaflet|Page\s+\d+/i.test(html);
     } catch {
@@ -61,23 +56,19 @@
 
   async function goToPreviousLeaflet() {
     if (state.leafletNavBusy) return;
-
     const currentId = getCurrentLeafletId();
     if (!currentId) {
       flash("Current leaflet ID not found");
       return;
     }
-
     const prevId = currentId - 1;
     if (prevId < 1) {
       flash("No previous leaflet");
       return;
     }
-
     state.leafletNavBusy = true;
     setLeafletNavButtonsDisabled(true);
     flash(`Checking leaflet ${prevId}...`);
-
     try {
       const ok = await leafletExists(prevId);
       if (!ok) {
@@ -93,19 +84,15 @@
 
   async function goToNextLeaflet() {
     if (state.leafletNavBusy) return;
-
     const currentId = getCurrentLeafletId();
     if (!currentId) {
       flash("Current leaflet ID not found");
       return;
     }
-
     const nextId = currentId + 1;
-
     state.leafletNavBusy = true;
     setLeafletNavButtonsDisabled(true);
     flash(`Checking leaflet ${nextId}...`);
-
     try {
       const ok = await leafletExists(nextId);
       if (!ok) {
@@ -161,9 +148,8 @@
 
   function collectPages() {
     const map = new Map();
-
-    const imgs = [...document.querySelectorAll('img[src], img[data-src], img[srcset]')]
-      .filter(img => {
+    const imgs = [...document.querySelectorAll("img[src], img[data-src], img[srcset]")]
+      .filter((img) => {
         const src = img.currentSrc || img.getAttribute("src") || "";
         const alt = img.getAttribute("alt") || "";
         return src.includes("pdf2web") || /^Page\s+\d+/i.test(alt);
@@ -174,13 +160,11 @@
       const src = img.currentSrc || img.getAttribute("src");
       const url = src ? toAbs(src) : null;
       if (!url) continue;
-
       const page =
         getPageNumberFromAlt(img.getAttribute("alt") || "") ??
         getNearestDataPage(img) ??
         getPageNumberFromHrefHotspot(img) ??
         getPageNumberFromUrl(url);
-
       const existing = map.get(url);
       if (!existing) {
         map.set(url, {
@@ -201,11 +185,9 @@
     });
 
     state.pages = pages;
-
     if (state.index >= state.pages.length) {
       state.index = Math.max(0, state.pages.length - 1);
     }
-
     render();
   }
 
@@ -229,7 +211,7 @@
 
   function jumpToPage(pageNum) {
     if (!Number.isFinite(pageNum)) return false;
-    const idx = state.pages.findIndex(p => p.page === pageNum);
+    const idx = state.pages.findIndex((p) => p.page === pageNum);
     if (idx === -1) return false;
     state.index = idx;
     state.jumpDirty = false;
@@ -271,7 +253,6 @@
       flash("PDF link not found");
       return;
     }
-
     const fileName = pdfUrl.split("/").pop() || "leaflet.pdf";
     const a = document.createElement("a");
     a.href = pdfUrl;
@@ -322,15 +303,14 @@
     pdfBtn.disabled = !pdfUrl;
     pdfBtn.title = pdfUrl ? "Download full PDF" : "PDF link not found";
 
-    // Latest leaflet info in footer
-if (state.lastLeafletInfo && typeof state.lastLeafletInfo.id === "number") {
-  const d = formatDate(state.lastLeafletInfo.firstSeenAt);
-  latestLabel.textContent = d
-    ? `Latest leaflet ${state.lastLeafletInfo.id} (first seen ${d})`
-    : `Latest leaflet ${state.lastLeafletInfo.id} (first seen locally)`;
-} else {
-  latestLabel.textContent = "";
-}
+    if (state.lastLeafletInfo && typeof state.lastLeafletInfo.id === "number") {
+      const d = formatDate(state.lastLeafletInfo.firstSeenAt);
+      latestLabel.textContent = d
+        ? `Latest leaflet ${state.lastLeafletInfo.id} (first seen ${d})`
+        : `Latest leaflet ${state.lastLeafletInfo.id} (first seen locally)`;
+    } else {
+      latestLabel.textContent = "";
+    }
 
     if (!item) {
       img.hidden = true;
@@ -347,7 +327,6 @@ if (state.lastLeafletInfo && typeof state.lastLeafletInfo.id === "number") {
     img.hidden = false;
     img.src = item.url;
     img.alt = item.alt || `Leaflet page ${item.page}`;
-    status.textContent = `${state.index + 1} / state.pages.length`;
     status.textContent = `${state.index + 1} / ${state.pages.length}`;
     pageLabel.textContent = Number.isFinite(item.page) ? `Page ${item.page}` : "Unknown page";
     urlField.value = item.url;
@@ -364,49 +343,47 @@ if (state.lastLeafletInfo && typeof state.lastLeafletInfo.id === "number") {
     }, 1500);
   }
 
-async function checkLeafletVersionNotice() {
-  if (!hasStorage) return;
+  async function checkLeafletVersionNotice() {
+    if (!hasStorage) return;
+    const leafletId = getCurrentLeafletId();
+    if (!leafletId) return;
 
-  const leafletId = getCurrentLeafletId();
-  if (!leafletId) return;
+    const url = location.href;
+    const now = Date.now();
+    let stored;
 
-  const url = location.href;
-  const now = Date.now();
+    try {
+      ({ lastLeaflet: stored } = await ext.storage.local.get(["lastLeaflet"]));
+    } catch {
+      stored = null;
+    }
 
-  let stored;
-  try {
-    ({ lastLeaflet: stored } = await ext.storage.local.get(["lastLeaflet"]));
-  } catch {
-    stored = null;
-  }
+    if (!stored || typeof stored.id !== "number") {
+      const info = { id: leafletId, firstSeenAt: now, url };
+      state.lastLeafletInfo = info;
+      await ext.storage.local.set({ lastLeaflet: info });
+      render();
+      return;
+    }
 
-  if (!stored || typeof stored.id !== "number") {
-    const info = { id: leafletId, firstSeenAt: now, url };
-    state.lastLeafletInfo = info;
-    await ext.storage.local.set({ lastLeaflet: info });
+    state.lastLeafletInfo = stored;
     render();
-    return;
-  }
 
-  state.lastLeafletInfo = stored;
-  render();
+    if (leafletId > stored.id) {
+      const info = { id: leafletId, firstSeenAt: now, url };
+      state.lastLeafletInfo = info;
+      await ext.storage.local.set({ lastLeaflet: info });
+      flash(`New leaflet detected (was ${stored.id}, now ${leafletId}).`);
+      render();
+      return;
+    }
 
-  if (leafletId > stored.id) {
-    const info = { id: leafletId, firstSeenAt: now, url };
-    state.lastLeafletInfo = info;
-    await ext.storage.local.set({ lastLeaflet: info });
-    flash(`New leaflet detected (was ${stored.id}, now ${leafletId}).`);
-    render();
-    return;
+    if (leafletId < stored.id && state.open) {
+      showOlderLeafletBanner(stored.id, leafletId, stored.url);
+    }
   }
-
-  if (leafletId < stored.id && state.open) {
-    showOlderLeafletBanner(stored.id, leafletId, stored.url);
-  }
-}
 
   let olderBannerShown = false;
-
   function showOlderLeafletBanner(latestId, currentId, latestUrl) {
     if (olderBannerShown) return;
     olderBannerShown = true;
@@ -440,18 +417,13 @@ async function checkLeafletVersionNotice() {
     <div class="svlv-panel" role="dialog" aria-modal="true" aria-label="SuperValu leaflet viewer">
       <div class="svlv-toolbar">
         <strong>SuperValu Leaflet Viewer</strong>
-        <span class="svlv-leaflet-label">Leaflet —</span>
-        <span class="svlv-page-label">—</span>
+        <span class="svlv-leaflet-label">Leaflet <span></span></span>
+        <span class="svlv-page-label"></span>
         <div class="svlv-spacer"></div>
-
-        <button class="svlv-btn" data-act="prev-leaflet" title="Go to previous leaflet">Prev leaflet</button>
-        <button class="svlv-btn" data-act="next-leaflet" title="Go to next leaflet">Next leaflet</button>
-
         <label class="svlv-jump-wrap">
           <span>Jump</span>
-          <input class="svlv-jump" type="number" min="1" step="1" placeholder="Page">
+          <input class="svlv-jump" type="number" min="1" step="1" placeholder="Page" />
         </label>
-
         <button class="svlv-btn" data-act="go">Go</button>
         <button class="svlv-btn" data-act="rescan">Rescan</button>
         <button class="svlv-btn" data-act="copy">Copy URL</button>
@@ -459,27 +431,148 @@ async function checkLeafletVersionNotice() {
         <button class="svlv-btn" data-act="download">Download</button>
         <button class="svlv-btn" data-act="download-pdf" title="Download full PDF">Download PDF</button>
         <button class="svlv-btn" data-act="info" title="Open instructions">Info</button>
-        <button class="svlv-btn svlv-close" data-act="close" aria-label="Close">✕</button>
+        <button class="svlv-btn svlv-close" data-act="close" aria-label="Close">×</button>
       </div>
-
       <div class="svlv-main">
         <button class="svlv-nav" data-act="prev" aria-label="Previous page image">‹</button>
         <div class="svlv-stage">
           <div class="svlv-empty">No pdf2web images found on this page.</div>
-          <img class="svlv-image" hidden alt="">
+          <img class="svlv-image" hidden alt="" />
         </div>
         <button class="svlv-nav" data-act="next" aria-label="Next page image">›</button>
       </div>
-
       <div class="svlv-footer">
         <div class="svlv-status">0 / 0</div>
-        <input class="svlv-url" type="text" readonly>
+        <input class="svlv-url" type="text" readonly />
         <div class="svlv-latest"></div>
       </div>
-
       <div class="svlv-toast" hidden></div>
     </div>
   `;
+
+  const img = overlay.querySelector(".svlv-image");
+  const empty = overlay.querySelector(".svlv-empty");
+  const status = overlay.querySelector(".svlv-status");
+  const pageLabel = overlay.querySelector(".svlv-page-label");
+  const leafletLabel = overlay.querySelector(".svlv-leaflet-label span");
+  const urlField = overlay.querySelector(".svlv-url");
+  const latestLabel = overlay.querySelector(".svlv-latest");
+  const jumpInput = overlay.querySelector(".svlv-jump");
+  const toast = overlay.querySelector(".svlv-toast");
+  const pdfBtn = overlay.querySelector('[data-act="download-pdf"]');
+  const prevLeafletBtn = overlay.querySelector('[data-act="prev-leaflet"]');
+  const nextLeafletBtn = overlay.querySelector('[data-act="next-leaflet"]');
+
+  jumpInput.addEventListener("focus", () => {
+    state.jumpDirty = false;
+  });
+  jumpInput.addEventListener("input", () => {
+    state.jumpDirty = true;
+  });
+  jumpInput.addEventListener("blur", () => {
+    const item = current();
+    const raw = jumpInput.value.trim();
+    if (!raw) {
+      state.jumpDirty = false;
+      syncJumpInput(item);
+      return;
+    }
+    const pageNum = Number(raw);
+    const ok = jumpToPage(pageNum);
+    if (!ok) {
+      flash("Page not found");
+    }
+    state.jumpDirty = false;
+    syncJumpInput(item);
+  });
+
+  overlay.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-act]");
+    if (!btn) {
+      if (e.target.classList.contains("svlv-backdrop")) {
+        toggle(false);
+      }
+      return;
+    }
+    const act = btn.dataset.act;
+    if (act === "close") toggle(false);
+    if (act === "prev") prev();
+    if (act === "next") next();
+    if (act === "copy") copyUrl();
+    if (act === "open") openUrl();
+    if (act === "download") downloadUrl();
+    if (act === "download-pdf") downloadPdf();
+    if (act === "info") openInstructions();
+    if (act === "rescan") collectPages();
+    if (act === "prev-leaflet") goToPreviousLeaflet();
+    if (act === "next-leaflet") goToNextLeaflet();
+    if (act === "go") {
+      const ok = jumpToPage(Number(jumpInput.value));
+      if (!ok) flash("Page not found");
+    }
+  });
+
+  jumpInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const ok = jumpToPage(Number(jumpInput.value));
+      if (!ok) flash("Page not found");
+    }
+  });
+
+  document.addEventListener(
+    "keydown",
+    (e) => {
+      if (!state.open) return;
+      const tag = (document.activeElement?.tagName || "").toLowerCase();
+      const editing =
+        document.activeElement === jumpInput || tag === "input" || tag === "textarea";
+
+      if (e.key === "Escape") {
+        e.preventDefault();
+        toggle(false);
+        return;
+      }
+      if (editing) return;
+
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        next();
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        prev();
+      } else if (e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        copyUrl();
+      } else if (e.key.toLowerCase() === "o") {
+        e.preventDefault();
+        openUrl();
+      } else if (e.key.toLowerCase() === "d") {
+        e.preventDefault();
+        downloadUrl();
+      } else if (e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        downloadPdf();
+      } else if (e.key.toLowerCase() === "i") {
+        e.preventDefault();
+        openInstructions();
+      } else if (e.key.toLowerCase() === "r") {
+        e.preventDefault();
+        collectPages();
+      } else if (e.key.toLowerCase() === "g") {
+        e.preventDefault();
+        jumpInput.focus();
+        jumpInput.select();
+      } else if (e.key === "[") {
+        e.preventDefault();
+        goToPreviousLeaflet();
+      } else if (e.key === "]") {
+        e.preventDefault();
+        goToNextLeaflet();
+      }
+    },
+    true
+  );
 
   const style = document.createElement("style");
   style.textContent = `
@@ -563,8 +656,16 @@ async function checkLeafletVersionNotice() {
       align-items: center;
       justify-content: center;
       overflow: auto;
-      background:
-        linear-gradient(45deg, #1b1b1b 25%, #151515 25%, #151515 50%, #1b1b1b 50%, #1b1b1b 75%, #151515 75%, #151515);
+      background: linear-gradient(
+        45deg,
+        #1b1b1b 25%,
+        #151515 25%,
+        #151515 50%,
+        #1b1b1b 50%,
+        #1b1b1b 75%,
+        #151515 75%,
+        #151515
+      );
       background-size: 24px 24px;
     }
     #__sv_leaflet_overlay__ .svlv-image {
@@ -666,171 +767,26 @@ async function checkLeafletVersionNotice() {
       }
     }
   `;
-
   document.documentElement.append(style, overlay);
 
-  const img = overlay.querySelector(".svlv-image");
-  const empty = overlay.querySelector(".svlv-empty");
-  const status = overlay.querySelector(".svlv-status");
-  const pageLabel = overlay.querySelector(".svlv-page-label");
-  const leafletLabel = overlay.querySelector(".svlv-leaflet-label");
-  const urlField = overlay.querySelector(".svlv-url");
-  const latestLabel = overlay.querySelector(".svlv-latest");
-  const jumpInput = overlay.querySelector(".svlv-jump");
-  const toast = overlay.querySelector(".svlv-toast");
-  const pdfBtn = overlay.querySelector('[data-act="download-pdf"]');
-  const prevLeafletBtn = overlay.querySelector('[data-act="prev-leaflet"]');
-  const nextLeafletBtn = overlay.querySelector('[data-act="next-leaflet"]');
+ext.runtime.onMessage.addListener((message) => {
+  if (!message || !message.type) return;
 
-  jumpInput.addEventListener("focus", () => {
-    state.jumpDirty = false;
-  });
-
-  jumpInput.addEventListener("input", () => {
-    state.jumpDirty = true;
-  });
-
-  jumpInput.addEventListener("blur", () => {
-    const item = current();
-    const raw = jumpInput.value.trim();
-
-    if (raw === "") {
-      state.jumpDirty = false;
-      syncJumpInput(item);
-      return;
-    }
-
-    const pageNum = Number(raw);
-    const ok = jumpToPage(pageNum);
-    if (!ok) {
-      flash("Page not found");
-      state.jumpDirty = false;
-      syncJumpInput(item);
-    }
-  });
-
-  overlay.addEventListener("click", (e) => {
-    const btn = e.target.closest("[data-act]");
-    if (!btn) {
-      if (e.target.classList.contains("svlv-backdrop")) toggle(false);
-      return;
-    }
-
-    const act = btn.dataset.act;
-    if (act === "close") toggle(false);
-    if (act === "prev") prev();
-    if (act === "next") next();
-    if (act === "copy") copyUrl();
-    if (act === "open") openUrl();
-    if (act === "download") downloadUrl();
-    if (act === "download-pdf") downloadPdf();
-    if (act === "info") openInstructions();
-    if (act === "rescan") collectPages();
-    if (act === "prev-leaflet") goToPreviousLeaflet();
-    if (act === "next-leaflet") goToNextLeaflet();
-    if (act === "go") {
-      const ok = jumpToPage(Number(jumpInput.value));
-      if (!ok) {
-        flash("Page not found");
-      }
-    }
-  });
-
-  jumpInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      const ok = jumpToPage(Number(jumpInput.value));
-      if (!ok) {
-        flash("Page not found");
-      } else {
-        jumpInput.blur();
-      }
-    }
-  });
-
-  document.addEventListener("keydown", (e) => {
-    if (!state.open) return;
-
-    const tag = (document.activeElement?.tagName || "").toLowerCase();
-    const editing = document.activeElement === jumpInput || tag === "input" || tag === "textarea";
-
-    if (e.key === "Escape") {
-      e.preventDefault();
-      toggle(false);
-      return;
-    }
-
-    if (editing) return;
-
-    if (e.key === "ArrowRight") {
-      e.preventDefault();
-      next();
-    } else if (e.key === "ArrowLeft") {
-      e.preventDefault();
-      prev();
-    } else if (e.key.toLowerCase() === "c") {
-      e.preventDefault();
-      copyUrl();
-    } else if (e.key.toLowerCase() === "o") {
-      e.preventDefault();
-      openUrl();
-    } else if (e.key.toLowerCase() === "d") {
-      e.preventDefault();
-      downloadUrl();
-    } else if (e.key.toLowerCase() === "p") {
-      e.preventDefault();
-      downloadPdf();
-    } else if (e.key.toLowerCase() === "i") {
-      e.preventDefault();
-      openInstructions();
-    } else if (e.key.toLowerCase() === "r") {
-      e.preventDefault();
-      collectPages();
-    } else if (e.key.toLowerCase() === "g") {
-      e.preventDefault();
-      jumpInput.focus();
-      jumpInput.select();
-    } else if (e.key === "[") {
-      e.preventDefault();
-      goToPreviousLeaflet();
-    } else if (e.key === "]") {
-      e.preventDefault();
-      goToNextLeaflet();
-    }
-  }, true);
-
-  ext.runtime.onMessage.addListener((message) => {
-    if (message?.type === "TOGGLE_LEAFLET_VIEWER") {
-      toggle();
-    }
-  });
-
-  state.observer = new MutationObserver(() => {
-    if (!state.open) return;
-    clearTimeout(state.rescanTimer);
-    state.rescanTimer = setTimeout(() => {
-      const currentUrl = current()?.url;
-      collectPages();
-      const idx = state.pages.findIndex(p => p.url === currentUrl);
-      if (idx >= 0) state.index = idx;
-      render();
-    }, 250);
-  });
-
-  state.observer.observe(document.documentElement, {
-    childList: true,
-    subtree: true,
-    attributes: true,
-    attributeFilter: ["src", "alt", "content"]
-  });
-
-  collectPages();
-
-  if (state.autoOpenOnLoad) {
-    requestAnimationFrame(() => {
-      toggle(true);
-    });
+  if (
+    message.type === "TOGGLE_LEAFLET_VIEWER" ||
+    message.type === "SVLV_TOGGLE_VIEWER"
+  ) {
+    const force = typeof message.force === "boolean" ? message.force : undefined;
+    toggle(force);
   }
+});
 
-  checkLeafletVersionNotice();
+collectPages();
+
+if (state.autoOpenOnLoad && !state.autoOpenedOnce) {
+  state.autoOpenedOnce = true;
+  requestAnimationFrame(() => toggle(true));
+}
+
+checkLeafletVersionNotice();
 })();

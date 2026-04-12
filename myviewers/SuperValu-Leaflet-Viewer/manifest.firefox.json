@@ -1,23 +1,31 @@
 {
   "manifest_version": 3,
   "name": "SuperValu Leaflet Viewer",
-  "version": "1.1.0",
+  "version": "1.1.6",
   "description": "Overlay viewer for SuperValu/pdf2web leaflet images with page jump.",
   "action": {
-    "default_title": "Toggle SuperValu Leaflet Viewer"
+    "default_title": "SuperValu Leaflet Viewer"
   },
-  "background": {
+  
+    "background": {
     "scripts": ["background.js"]
   },
-  "permissions": [
-    "storage",
-    "alarms"
-  ],
+"permissions": [
+  "storage",
+  "alarms",
+  "notifications"
+],
   "host_permissions": [
     "https://supervalu.ie/*",
     "https://*.supervalu.ie/*",
     "https://shop.supervalu.ie/*"
   ],
+
+"icons": {
+  "48": "icons/svlv-48.png",
+  "128": "icons/svlv-128.png"
+},
+  
   "content_scripts": [
     {
       "matches": [
@@ -36,7 +44,7 @@
       },
       "description": "Toggle the SuperValu leaflet viewer"
     }
-  ],
+  },
   "web_accessible_resources": [
     {
       "resources": [

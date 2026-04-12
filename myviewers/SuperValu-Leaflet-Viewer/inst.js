@@ -18,3 +18,11 @@ if (!hasStorage) return;
     }
   });
 })();
+document.addEventListener("DOMContentLoaded", () => {
+  const testBtn = document.getElementById("svlv-test-notification");
+  if (!testBtn || !chrome.runtime?.sendMessage) return;
+
+  testBtn.addEventListener("click", () => {
+    chrome.runtime.sendMessage({ type: "SVLV_TEST_NOTIFICATION" });
+  });
+});
