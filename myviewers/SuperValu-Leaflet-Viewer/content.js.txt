@@ -41,25 +41,18 @@
     const url = ext.runtime.getURL("inst.html");
     window.open(url, "_blank", "noopener,noreferrer");
   }
-  
-  
-function htmlHasLeafletPdfMeta(html) {
-  return /<meta[^>]+property=["']og:image["'][^>]+content=["'][^"']+\.pdf(?:\?[^"']*)?["']/i.test(html);
-}
 
-
-async function leafletExists(id) {
-  const url = `https://supervalu.ie/offers/leaflet/${id}`;
-  try {
-    const res = await fetch(url, { method: "GET", credentials: "include" });
-    if (!res.ok) return false;
-    const html = await res.text();
-    return htmlHasLeafletPdfMeta(html);
-  } catch {
-    return false;
+  async function leafletExists(id) {
+    const url = `https://supervalu.ie/offers/leaflet/${id}`;
+    try {
+      const res = await fetch(url, { method: "GET", credentials: "include" });
+      if (!res.ok) return false;
+      const html = await res.text();
+      return /pdf2web|og:image|offers-leaflet|Page\s+\d+/i.test(html);
+    } catch {
+      return false;
+    }
   }
-}
-
 
   async function goToPreviousLeaflet() {
     if (state.leafletNavBusy) return;
@@ -350,49 +343,45 @@ async function leafletExists(id) {
     }, 1500);
   }
 
-async function checkLeafletVersionNotice() {
-  if (!hasStorage) return;
+  async function checkLeafletVersionNotice() {
+    if (!hasStorage) return;
+    const leafletId = getCurrentLeafletId();
+    if (!leafletId) return;
 
-  const leafletId = getCurrentLeafletId();
-  if (!leafletId) return;
+    const url = location.href;
+    const now = Date.now();
+    let stored;
 
-  const pdfUrl = getPdfUrlFromMeta();
-  if (!pdfUrl) return;
+    try {
+      ({ lastLeaflet: stored } = await ext.storage.local.get(["lastLeaflet"]));
+    } catch {
+      stored = null;
+    }
 
-  const url = location.href;
-  const now = Date.now();
-  let stored;
+    if (!stored || typeof stored.id !== "number") {
+      const info = { id: leafletId, firstSeenAt: now, url };
+      state.lastLeafletInfo = info;
+      await ext.storage.local.set({ lastLeaflet: info });
+      render();
+      return;
+    }
 
-  try {
-    ({ lastLeaflet: stored } = await ext.storage.local.get(["lastLeaflet"]));
-  } catch {
-    stored = null;
-  }
-
-  if (!stored || typeof stored.id !== "number") {
-    const info = { id: leafletId, firstSeenAt: now, url };
-    state.lastLeafletInfo = info;
-    await ext.storage.local.set({ lastLeaflet: info });
+    state.lastLeafletInfo = stored;
     render();
-    return;
-  }
 
-  state.lastLeafletInfo = stored;
-  render();
+    if (leafletId > stored.id) {
+      const info = { id: leafletId, firstSeenAt: now, url };
+      state.lastLeafletInfo = info;
+      await ext.storage.local.set({ lastLeaflet: info });
+      flash(`New leaflet detected (was ${stored.id}, now ${leafletId}).`);
+      render();
+      return;
+    }
 
-  if (leafletId > stored.id) {
-    const info = { id: leafletId, firstSeenAt: now, url };
-    state.lastLeafletInfo = info;
-    await ext.storage.local.set({ lastLeaflet: info });
-    flash(`New leaflet detected (was ${stored.id}, now ${leafletId}).`);
-    render();
-    return;
+    if (leafletId < stored.id && state.open) {
+      showOlderLeafletBanner(stored.id, leafletId, stored.url);
+    }
   }
-
-  if (leafletId < stored.id && state.open) {
-    showOlderLeafletBanner(stored.id, leafletId, stored.url);
-  }
-}
 
   let olderBannerShown = false;
   function showOlderLeafletBanner(latestId, currentId, latestUrl) {

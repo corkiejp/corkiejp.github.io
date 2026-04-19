@@ -2,28 +2,24 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>SuperValu Leaflet Viewer - Instructions</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SuperValu Leaflet Viewer – Instructions</title>
   <link rel="stylesheet" href="inst.css">
 </head>
 <body>
   <main class="wrap">
-    <header class="hero">
-      <div>
-        <h1>SuperValu Leaflet Viewer</h1>
-        <p>Instructions, controls, and shortcut keys.</p>
-      </div>
-    </header>
+    <h1>SuperValu Leaflet Viewer</h1>
 
-    <section class="card">
+    <section>
       <h2>What it does</h2>
       <p>
-        This extension opens an overlay on SuperValu leaflet pages so you can browse page images,
-        jump to a page number, move between leaflet editions, copy image URLs, and open the full PDF.
+        This extension opens an overlay on SuperValu leaflet pages so you can browse page
+        images, jump to a page number, move between leaflet editions, copy image URLs,
+        and open the full PDF.
       </p>
     </section>
 
-    <section class="card">
+    <section>
       <h2>How to use</h2>
       <ol>
         <li>Open a supported SuperValu leaflet page.</li>
@@ -32,47 +28,64 @@
       </ol>
     </section>
 
-    <section class="card">
+    <section>
       <h2>Keyboard shortcuts</h2>
-      <ul class="keys">
-        <li><kbd>←</kbd><span>Previous page image</span></li>
-        <li><kbd>→</kbd><span>Next page image</span></li>
-        <li><kbd>G</kbd><span>Focus jump box</span></li>
-        <li><kbd>Enter</kbd><span>Go to page number</span></li>
-        <li><kbd>C</kbd><span>Copy current image URL</span></li>
-        <li><kbd>O</kbd><span>Open current image</span></li>
-        <li><kbd>D</kbd><span>Download current image</span></li>
-        <li><kbd>P</kbd><span>Download full PDF</span></li>
-        <li><kbd>[</kbd><span>Previous leaflet</span></li>
-        <li><kbd>]</kbd><span>Next leaflet</span></li>
-        <li><kbd>I</kbd><span>Open this instructions page</span></li>
-        <li><kbd>Esc</kbd><span>Close overlay</span></li>
+      <ul>
+        <li><code>←</code> Previous page image</li>
+        <li><code>→</code> Next page image</li>
+        <li><code>G</code> Focus jump box</li>
+        <li><code>Enter</code> Go to page number</li>
+        <li><code>C</code> Copy current image URL</li>
+        <li><code>O</code> Open current image</li>
+        <li><code>D</code> Download current image</li>
+        <li><code>P</code> Download full PDF</li>
+        <li><code>[</code> Previous leaflet</li>
+        <li><code>]</code> Next leaflet</li>
+        <li><code>I</code> Open this instructions page</li>
+        <li><code>Esc</code> Close overlay</li>
       </ul>
     </section>
-	
-<section class="card">
-  <h2>Automatic new-leaflet checks</h2>
-  <p>
-    Optionally, the extension can periodically check for a newer leaflet while your browser is running.
-  </p>
-  <label>
-    <input type="checkbox" id="svlv-auto-check">
-    Enable automatic new-leaflet checks (desktop only)
-  </label>
-  <button id="svlv-test-notification">Test desktop notification</button>
-</section>
 
+    <section>
+      <h2>Automatic new-leaflet checks</h2>
+      <p>
+        Optionally, the extension can periodically check for a newer leaflet while your browser is running.
+      </p>
 
-<script src="inst.js"></script>	
+      <div class="setting-row">
+        <label>
+          <input type="checkbox" id="svlv-auto-check">
+          Enable automatic new-leaflet checks
+        </label>
+      </div>
 
-    <section class="card">
+      <div class="setting-row">
+        <label for="svlv-cadence">Check cadence</label>
+        <select id="svlv-cadence">
+          <option value="weekly">Weekly</option>
+          <option value="biweekly">Every two weeks</option>
+        </select>
+      </div>
+
+      <div class="setting-row actions">
+        <button type="button" id="svlv-reset-state">Reset stored leaflet history</button>
+        <button type="button" id="svlv-test-notification">Send test notification</button>
+      </div>
+
+      <p id="svlv-status" aria-live="polite"></p>
+    </section>
+
+    <section>
       <h2>Notes</h2>
       <ul>
         <li>The page jump box works best after the leaflet pages have been detected.</li>
         <li>If the page structure changes, use Rescan.</li>
         <li>If a next leaflet is not live yet, the extension stays on the current page.</li>
+        <li>Reset stored leaflet history clears saved leaflet detection state, but keeps your auto-check and cadence settings.</li>
       </ul>
     </section>
   </main>
+
+  <script src="inst.js"></script>
 </body>
 </html>
