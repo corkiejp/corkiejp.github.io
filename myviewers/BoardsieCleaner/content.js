@@ -2015,97 +2015,223 @@ dialog#shortcutDialog button.closeBtn {
             modal.style.padding = '0';
 
             // Inner content
-            modal.innerHTML = `
-  <div style="padding:16px; max-width:380px;">
-    <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
-      <img
-        src="${chrome.runtime.getURL('assets/icon48.png')}"
-        alt="BoardsCleaner icon"
-        style="width:32px; height:32px; border-radius:6px; flex:0 0 auto;"
-      >
-      <h3 style="margin:0; line-height:1.1;">BoardsCleaner Settings</h3>
-    </div>
-	
-	
+            // Inner content
+            const innerWrap = document.createElement('div');
+            innerWrap.style.padding = '16px';
+            innerWrap.style.maxWidth = '380px';
 
-      <h4 style="margin-top: 8px;">General settings</h4>
-	  
-<label style="display:block; margin-top:4px;">
-  <input type="checkbox" id="bc-setting-global-colour-shift">
-  Use BoardsCleaner global colour shift
-</label>	  
-      <label style="display:block; margin-top:4px;">
-        Overlay delay (seconds):
-        <input id="bc-setting-overlay-delay" type="number" min="0" max="10"
-               style="width: 80px; margin-left: 4px;">
-      </label>
-      <label style="display:block; margin-top:4px;">
-        Overlay message:
-        <input id="bc-setting-overlay-message" type="text"
-               style="width: 100%; margin-top: 2px;">
-      </label>
+            const headerRow = document.createElement('div');
+            headerRow.style.display = 'flex';
+            headerRow.style.alignItems = 'center';
+            headerRow.style.gap = '10px';
+            headerRow.style.marginBottom = '8px';
 
-      <hr style="margin: 12px 0;">
+            const headerIcon = document.createElement('img');
+            headerIcon.src = chrome.runtime.getURL('assets/icon48.png');
+            headerIcon.alt = 'BoardsCleaner icon';
+            headerIcon.style.width = '32px';
+            headerIcon.style.height = '32px';
+            headerIcon.style.borderRadius = '6px';
+            headerIcon.style.flex = '0 0 auto';
 
-      <h4>Membership Activation</h4>
-      <label>
-        Activation code:
-        <input id="bc-member-code-input"
-               type="password"
-               autocomplete="new-password"
-               inputmode="text"
-               style="width: 100%; margin-top: 4px;">
-      </label>
-      <div style="margin-top: 4px;">
-        <label style="font-size: 12px;">
-          <input type="checkbox" id="bc-member-show-code">
-          Show code
-        </label>
-      </div>
-      <div id="bc-member-status" style="margin-top: 8px; color: orange;">
-        Enter code and click Activate, or detect from profile.
-      </div>
-      <div style="margin-top: 8px;">
-        <button id="bc-member-detect-profile-btn">
-          Detect membership from my Boards profile
-        </button>
-      </div>
+            const headerTitle = document.createElement('h3');
+            headerTitle.textContent = 'BoardsCleaner Settings';
+            headerTitle.style.margin = '0';
+            headerTitle.style.lineHeight = '1.1';
 
-      <div id="bc-members-features" style="margin-top: 12px; display:none;">
-        <h4>Members-only features</h4>
-        <label style="display:block; margin-top:4px; opacity: 0.6;">
-  <input type="checkbox" id="bc-setting-cmp-block" disabled>
-  CMP block (not available on boards.ie – dialog must be answered)
-</label>
-<label style="display:block; margin-top:4px;">
-  <input type="checkbox" id="bc-setting-cookie-disagree">
-  Privacy dialog – auto-click “DISAGREE” when shown
-</label>
-        <label style="display:block; margin-top:4px;">
-          <input type="checkbox" id="bc-setting-remove-ads">
-          Remove ads – delete ad containers from the page
-        </label>
-        <label style="display:block; margin-top:4px;">
-          <input type="checkbox" id="bc-setting-remove-alerts">
-          Remove warning / subscription banners
-        </label>
+            headerRow.appendChild(headerIcon);
+            headerRow.appendChild(headerTitle);
+            innerWrap.appendChild(headerRow);
 
+            const generalHeading = document.createElement('h4');
+            generalHeading.textContent = 'General settings';
+            generalHeading.style.marginTop = '8px';
+            innerWrap.appendChild(generalHeading);
 
-        <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #ccc;">
-          <strong style="color: #c00;">Danger zone</strong><br>
-          <button id="bc-members-deactivate-btn" style="color: #c00; margin-top:4px;">
-            Deactivate membership and reset features
-          </button>
-        </div>
-      </div>
+            const globalShiftLabel = document.createElement('label');
+            globalShiftLabel.style.display = 'block';
+            globalShiftLabel.style.marginTop = '4px';
+            const globalShiftInput = document.createElement('input');
+            globalShiftInput.type = 'checkbox';
+            globalShiftInput.id = 'bc-setting-global-colour-shift';
+            globalShiftLabel.appendChild(globalShiftInput);
+            globalShiftLabel.appendChild(document.createTextNode(' Use BoardsCleaner global colour shift'));
+            innerWrap.appendChild(globalShiftLabel);
 
-      <div style="margin-top: 12px; display: flex; gap: 8px; justify-content: flex-end;">
-        <button id="bc-members-save-btn">Save</button>
-        <button id="bc-member-activate-btn">Activate</button>
-        <button id="bc-member-close-btn">Close</button>
-      </div>
-    </div>
-  `;
+            const overlayDelayLabel = document.createElement('label');
+            overlayDelayLabel.style.display = 'block';
+            overlayDelayLabel.style.marginTop = '4px';
+            overlayDelayLabel.appendChild(document.createTextNode('Overlay delay (seconds):'));
+            const overlayDelayInputEl = document.createElement('input');
+            overlayDelayInputEl.id = 'bc-setting-overlay-delay';
+            overlayDelayInputEl.type = 'number';
+            overlayDelayInputEl.min = '0';
+            overlayDelayInputEl.max = '10';
+            overlayDelayInputEl.style.width = '80px';
+            overlayDelayInputEl.style.marginLeft = '4px';
+            overlayDelayLabel.appendChild(overlayDelayInputEl);
+            innerWrap.appendChild(overlayDelayLabel);
+
+            const overlayMessageLabel = document.createElement('label');
+            overlayMessageLabel.style.display = 'block';
+            overlayMessageLabel.style.marginTop = '4px';
+            overlayMessageLabel.appendChild(document.createTextNode('Overlay message:'));
+            const overlayMessageInputEl = document.createElement('input');
+            overlayMessageInputEl.id = 'bc-setting-overlay-message';
+            overlayMessageInputEl.type = 'text';
+            overlayMessageInputEl.style.width = '100%';
+            overlayMessageInputEl.style.marginTop = '2px';
+            overlayMessageLabel.appendChild(overlayMessageInputEl);
+            innerWrap.appendChild(overlayMessageLabel);
+
+            const hr = document.createElement('hr');
+            hr.style.margin = '12px 0';
+            innerWrap.appendChild(hr);
+
+            const membershipHeading = document.createElement('h4');
+            membershipHeading.textContent = 'Membership Activation';
+            innerWrap.appendChild(membershipHeading);
+
+            const activationLabel = document.createElement('label');
+            activationLabel.appendChild(document.createTextNode('Activation code:'));
+            const activationInput = document.createElement('input');
+            activationInput.id = 'bc-member-code-input';
+            activationInput.type = 'password';
+            activationInput.autocomplete = 'new-password';
+            activationInput.setAttribute('inputmode', 'text');
+            activationInput.style.width = '100%';
+            activationInput.style.marginTop = '4px';
+            activationLabel.appendChild(activationInput);
+            innerWrap.appendChild(activationLabel);
+
+            const showCodeWrap = document.createElement('div');
+            showCodeWrap.style.marginTop = '4px';
+            const showCodeLabel = document.createElement('label');
+            showCodeLabel.style.fontSize = '12px';
+            const showCodeInput = document.createElement('input');
+            showCodeInput.type = 'checkbox';
+            showCodeInput.id = 'bc-member-show-code';
+            showCodeLabel.appendChild(showCodeInput);
+            showCodeLabel.appendChild(document.createTextNode(' Show code'));
+            showCodeWrap.appendChild(showCodeLabel);
+            innerWrap.appendChild(showCodeWrap);
+
+            const statusDiv = document.createElement('div');
+            statusDiv.id = 'bc-member-status';
+            statusDiv.style.marginTop = '8px';
+            statusDiv.style.color = 'orange';
+            statusDiv.textContent = 'Enter code and click Activate, or detect from profile.';
+            innerWrap.appendChild(statusDiv);
+
+            const detectWrap = document.createElement('div');
+            detectWrap.style.marginTop = '8px';
+            const detectButton = document.createElement('button');
+            detectButton.id = 'bc-member-detect-profile-btn';
+            detectButton.type = 'button';
+            detectButton.textContent = 'Detect membership from my Boards profile';
+            detectWrap.appendChild(detectButton);
+            innerWrap.appendChild(detectWrap);
+
+            const membersFeaturesWrap = document.createElement('div');
+            membersFeaturesWrap.id = 'bc-members-features';
+            membersFeaturesWrap.style.marginTop = '12px';
+            membersFeaturesWrap.style.display = 'none';
+
+            const membersHeading = document.createElement('h4');
+            membersHeading.textContent = 'Members-only features';
+            membersFeaturesWrap.appendChild(membersHeading);
+
+            const cmpLabel = document.createElement('label');
+            cmpLabel.style.display = 'block';
+            cmpLabel.style.marginTop = '4px';
+            cmpLabel.style.opacity = '0.6';
+            const cmpInput = document.createElement('input');
+            cmpInput.type = 'checkbox';
+            cmpInput.id = 'bc-setting-cmp-block';
+            cmpInput.disabled = true;
+            cmpLabel.appendChild(cmpInput);
+            cmpLabel.appendChild(document.createTextNode(' CMP block (not available on boards.ie – dialog must be answered)'));
+            membersFeaturesWrap.appendChild(cmpLabel);
+
+            const cookieLabel = document.createElement('label');
+            cookieLabel.style.display = 'block';
+            cookieLabel.style.marginTop = '4px';
+            const cookieInput = document.createElement('input');
+            cookieInput.type = 'checkbox';
+            cookieInput.id = 'bc-setting-cookie-disagree';
+            cookieLabel.appendChild(cookieInput);
+            cookieLabel.appendChild(document.createTextNode(' Privacy dialog – auto-click “DISAGREE” when shown'));
+            membersFeaturesWrap.appendChild(cookieLabel);
+
+            const adsLabel = document.createElement('label');
+            adsLabel.style.display = 'block';
+            adsLabel.style.marginTop = '4px';
+            const adsInput = document.createElement('input');
+            adsInput.type = 'checkbox';
+            adsInput.id = 'bc-setting-remove-ads';
+            adsLabel.appendChild(adsInput);
+            adsLabel.appendChild(document.createTextNode(' Remove ads – delete ad containers from the page'));
+            membersFeaturesWrap.appendChild(adsLabel);
+
+            const alertsLabel = document.createElement('label');
+            alertsLabel.style.display = 'block';
+            alertsLabel.style.marginTop = '4px';
+            const alertsInput = document.createElement('input');
+            alertsInput.type = 'checkbox';
+            alertsInput.id = 'bc-setting-remove-alerts';
+            alertsLabel.appendChild(alertsInput);
+            alertsLabel.appendChild(document.createTextNode(' Remove warning / subscription banners'));
+            membersFeaturesWrap.appendChild(alertsLabel);
+
+            const dangerWrap = document.createElement('div');
+            dangerWrap.style.marginTop = '10px';
+            dangerWrap.style.paddingTop = '8px';
+            dangerWrap.style.borderTop = '1px solid #ccc';
+
+            const dangerStrong = document.createElement('strong');
+            dangerStrong.style.color = '#c00';
+            dangerStrong.textContent = 'Danger zone';
+            dangerWrap.appendChild(dangerStrong);
+            dangerWrap.appendChild(document.createElement('br'));
+
+            const deactivateButton = document.createElement('button');
+            deactivateButton.id = 'bc-members-deactivate-btn';
+            deactivateButton.type = 'button';
+            deactivateButton.style.color = '#c00';
+            deactivateButton.style.marginTop = '4px';
+            deactivateButton.textContent = 'Deactivate membership and reset features';
+            dangerWrap.appendChild(deactivateButton);
+
+            membersFeaturesWrap.appendChild(dangerWrap);
+            innerWrap.appendChild(membersFeaturesWrap);
+
+            const actionsWrap = document.createElement('div');
+            actionsWrap.style.marginTop = '12px';
+            actionsWrap.style.display = 'flex';
+            actionsWrap.style.gap = '8px';
+            actionsWrap.style.justifyContent = 'flex-end';
+
+            const saveButton = document.createElement('button');
+            saveButton.id = 'bc-members-save-btn';
+            saveButton.type = 'button';
+            saveButton.textContent = 'Save';
+
+            const activateButton = document.createElement('button');
+            activateButton.id = 'bc-member-activate-btn';
+            activateButton.type = 'button';
+            activateButton.textContent = 'Activate';
+
+            const closeButton = document.createElement('button');
+            closeButton.id = 'bc-member-close-btn';
+            closeButton.type = 'button';
+            closeButton.textContent = 'Close';
+
+            actionsWrap.appendChild(saveButton);
+            actionsWrap.appendChild(activateButton);
+            actionsWrap.appendChild(closeButton);
+            innerWrap.appendChild(actionsWrap);
+
+            modal.appendChild(innerWrap);
 
             document.body.appendChild(modal);
             modal.showModal();
@@ -2371,36 +2497,88 @@ if (overlayMessageInput) {
 
         const content = document.createElement('div');
 
-        content.innerHTML = `
-  <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
-    <img
-      src="${chrome.runtime.getURL('assets/icon48.png')}"
-      alt="BoardsCleaner icon"
-      style="width:30px; height:30px; border-radius:6px; flex:0 0 auto;"
-    >
-    <h2 style="margin:0; line-height:1.1;">Boards.ie Cleaner</h2>
-  </div>
-  <h3 style="margin-top:0;">Shortcut Keys / Links</h3>
-  <ul>
-    <li><b>Info this popup</b> Alt + i </li>
-    <li><b>Toggle Profiles:</b> Alt + p </li>
-    <li><b>Toggle Quotes:</b> Alt + 2 </li>
-    <li><b>Clear overlay msg & delay:</b> Alt + q </li>
-    <li><b>Cycle overlay delay</b> See 🍪 for new settings!</li>
-    <li><b>Bookmarks:</b> <a href="https://www.boards.ie/discussions/bookmarked" target="_top">Alt + 8</a></li>
-    <li><b>Mike Comments:</b> <a href="https://www.boards.ie/profile/comments/Boards.ie%3A%20Mike" target="_top">Alt + m</a></li>
-    <li><b>Odhran Comments:</b> <a href="https://www.boards.ie/profile/comments/Boards.ie%3A%20Odhran" target="_top">Alt + o</a></li>
-    <li><b>Your Own comments:</b> <a href="https://www.boards.ie/profile/comments" target="_top">Alt + c</a></li>
-    <li><b>Subbed Members:</b> <a href="https://www.boards.ie/search?domain=members&sort=dateInserted&scope=site&roleIDs[0]=95&source=community" target="_top">Alt + s</a></li>
-    <li><b>Subbed Forum:</b> <a href="https://www.boards.ie/group/1878-subscribers-forum" target="_top">Alt + #</a></li>
-    <li><b>Notifications:</b> <a href="https://www.boards.ie/profile/notifications" target="_top">Alt + n</a></li>
-    <li><b>Drafts:</b> <a href="https://www.boards.ie/drafts" target="_top">Alt + x</a></li>
-  </ul>
-  <hr>
-  <button id="bc-reset-overlay-btn" type="button">
-    Clear overlay message & delay (mobile friendly)
-  </button>
-`;
+        const headerRow = document.createElement('div');
+        headerRow.style.display = 'flex';
+        headerRow.style.alignItems = 'center';
+        headerRow.style.gap = '10px';
+        headerRow.style.marginBottom = '10px';
+
+        const icon = document.createElement('img');
+        icon.src = chrome.runtime.getURL('assets/icon48.png');
+        icon.alt = 'BoardsCleaner icon';
+        icon.style.width = '30px';
+        icon.style.height = '30px';
+        icon.style.borderRadius = '6px';
+        icon.style.flex = '0 0 auto';
+
+        const title = document.createElement('h2');
+        title.textContent = 'Boards.ie Cleaner';
+        title.style.margin = '0';
+        title.style.lineHeight = '1.1';
+
+        headerRow.appendChild(icon);
+        headerRow.appendChild(title);
+        content.appendChild(headerRow);
+
+        const subTitle = document.createElement('h3');
+        subTitle.textContent = 'Shortcut Keys / Links';
+        subTitle.style.marginTop = '0';
+        content.appendChild(subTitle);
+
+        const ul = document.createElement('ul');
+
+        function addShortcutItem(labelText, tailText = '') {
+            const li = document.createElement('li');
+            const bold = document.createElement('b');
+            bold.textContent = labelText;
+            li.appendChild(bold);
+            if (tailText) {
+                li.appendChild(document.createTextNode(` ${tailText}`));
+            }
+            ul.appendChild(li);
+        }
+
+        function addShortcutLinkItem(labelText, linkText, href) {
+            const li = document.createElement('li');
+            const bold = document.createElement('b');
+            bold.textContent = labelText;
+            li.appendChild(bold);
+            li.appendChild(document.createTextNode(' '));
+
+            const a = document.createElement('a');
+            a.href = href;
+            a.target = '_top';
+            a.textContent = linkText;
+
+            li.appendChild(a);
+            ul.appendChild(li);
+        }
+
+        addShortcutItem('Info this popup', 'Alt + i');
+        addShortcutItem('Toggle Profiles:', 'Alt + p');
+        addShortcutItem('Toggle Quotes:', 'Alt + 2');
+        addShortcutItem('Clear overlay msg & delay:', 'Alt + q');
+        addShortcutItem('Cycle overlay delay', 'See 🍪 for new settings!');
+        addShortcutLinkItem('Bookmarks:', 'Alt + 8', 'https://www.boards.ie/discussions/bookmarked');
+        addShortcutLinkItem('Mike Comments:', 'Alt + m', 'https://www.boards.ie/profile/comments/Boards.ie%3A%20Mike');
+        addShortcutLinkItem('Odhran Comments:', 'Alt + o', 'https://www.boards.ie/profile/comments/Boards.ie%3A%20Odhran');
+        addShortcutLinkItem('Your Own comments:', 'Alt + c', 'https://www.boards.ie/profile/comments');
+        addShortcutLinkItem('Subbed Members:', 'Alt + s', 'https://www.boards.ie/search?domain=members&sort=dateInserted&scope=site&roleIDs[0]=95&source=community');
+        addShortcutLinkItem('Subbed Forum:', 'Alt + #', 'https://www.boards.ie/group/1878-subscribers-forum');
+        addShortcutLinkItem('Notifications:', 'Alt + n', 'https://www.boards.ie/profile/notifications');
+        addShortcutLinkItem('Drafts:', 'Alt + x', 'https://www.boards.ie/drafts');
+
+        content.appendChild(ul);
+
+        const hr = document.createElement('hr');
+        content.appendChild(hr);
+
+        const resetBtn = document.createElement('button');
+        resetBtn.id = 'bc-reset-overlay-btn';
+        resetBtn.type = 'button';
+        resetBtn.textContent = 'Clear overlay message & delay (mobile friendly)';
+        content.appendChild(resetBtn);
+
         dialog.appendChild(content);
 
 const resetOverlayBtn = content.querySelector('#bc-reset-overlay-btn');
