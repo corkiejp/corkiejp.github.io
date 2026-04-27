@@ -1,0 +1,72 @@
+{
+  "manifest_version": 3,
+  "name": "Boards.ie Cleaner V2",
+  "version": "2.0.5",
+  "description": "Boards.ie helper: overlay loader, profile toggles, quote tools, and CMP handling.",
+
+  "host_permissions": [
+    "https://www.boards.ie/*"
+  ],
+
+  "permissions": [
+    "storage"
+  ],
+
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+
+  "background": {
+    "scripts": ["background.js"],
+    "type": "module"
+  },
+
+  "icons": {
+    "16": "assets/icon16.png",
+    "32": "assets/icon32.png",
+    "48": "assets/icon48.png",
+    "128": "assets/icon128.png"
+  },
+
+  "action": {
+    "default_icon": {
+      "16": "assets/icon16.png",
+      "32": "assets/icon32.png",
+      "48": "assets/icon48.png",
+      "128": "assets/icon128.png"
+    }
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["https://www.boards.ie/*"],
+      "js": ["themes/theme-engine-2.js", "content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+
+"web_accessible_resources": [
+  {
+    "resources": [
+      "themes/presets/*.css",
+      "assets/icon16.png",
+      "assets/icon32.png",
+      "assets/icon48.png",
+      "assets/icon128.png",
+      "assets/boardsedited128.png"
+    ],
+    "matches": ["https://www.boards.ie/*"]
+  }
+],
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "boards.ie@corkiejp.github.io",
+      "strict_min_version": "109.0"
+    },
+    "gecko_android": {
+      "strict_min_version": "113.0"
+    }
+  }
+}

@@ -1,0 +1,613 @@
+/*
+BoardsCleaner preset theme
+Clone this file to create a new preset.
+
+Steps:
+1. Copy this file and rename it.
+2. Change every occurrence of html.boards-preset-current-affairs-imho to your new preset class.
+3. Update the variable block first.
+4. Keep all selectors scoped to the preset class.
+5. Register the preset in theme-engine-2.js.
+*/
+
+/* ============================================================
+   STEP 1 — Change this class to match your forum slug
+   e.g. boards-theme-work-jobs, boards-theme-soccer etc.
+   ============================================================ */
+
+html.boards-preset-current-affairs-imho {
+
+  /* -- Backgrounds -- */
+  --t-bg:        #1a0a0a;   /* main page background */
+  --t-bg-2:      #2a0f0f;   /* secondary background e.g. footer */
+  --t-surface:   #1f0d0d;   /* card / post background */
+  --t-surface-2: #2a0f0f;   /* slightly raised surface */
+  --t-surface-3: #3a1515;   /* hovered surface */
+  --t-panel:     #220e0e;   /* user info column background */
+
+  /* -- Borders -- */
+  --t-border:      #4a1515; /* strong border */
+  --t-border-soft: #3a1010; /* subtle border */
+
+  /* -- Text -- */
+  --t-text:   #e8d0d0;      /* main body text */
+  --t-muted:  #a06060;      /* secondary text e.g. dates, meta */
+  --t-faint:  #7a4040;      /* footer / least important text */
+
+  /* -- Links -- */
+  --t-link:       #e87070;  /* default link colour */
+  --t-link-hover: #ff9999;  /* hovered link colour */
+
+  /* -- Header / accent strip -- */
+  --t-header-top:    #6b0f0f; /* forum list header gradient top */
+  --t-header-bottom: #4a0a0a; /* forum list header gradient bottom */
+  --t-header-border: #8b1a1a; /* forum list header border */
+
+  /* -- Buttons -- */
+  --t-button-top:          #8b1a1a;
+  --t-button-bottom:       #6b0f0f;
+  --t-button-hover-top:    #a02020;
+  --t-button-hover-bottom: #7a1212;
+  --t-button-border:       #4a0a0a;
+}
+html.boards-preset-current-affairs-imho {
+  /* Legacy variable aliases for the Vanilla Forum section below */
+  --forum-row-bg:       #1f0d0d;
+  --forum-row-hover:    #2a0f0f;
+  --forum-row-unread:   #2a1010;
+  --forum-border:       #4a1515;
+  --forum-text:         #e8d0d0;
+  --forum-link:         #e87070;
+  --forum-link-hover:   #ff9999;
+  --forum-muted:        #a06060;
+  --forum-btn-bg:       #8b1a1a;
+  --forum-btn-text:     #ffffff;
+  --forum-btn-border:   #4a0a0a;
+  --forum-btn-hover:    #a02020;
+  --forum-dropdown-bg:  #1f0d0d;
+  --forum-dropdown-hover: #2a0f0f;
+  --t-row-bg:         #1f0d0d;
+  --t-row-hover:      #2a0f0f;
+  --t-row-unread:     #2a1010;
+  --t-btn-bg:         #8b1a1a;
+  --t-btn-text:       #ffffff;
+  --t-btn-border:     #4a0a0a;
+  --t-btn-hover:      #a02020;
+  --t-dropdown-bg:    #1f0d0d;
+  --t-dropdown-hover: #2a0f0f;
+}
+
+/* ============================================================
+   STEP 2 — Page base
+   Controls the overall page background and text colour.
+   ============================================================ */
+html.boards-preset-current-affairs-imho,
+html.boards-preset-current-affairs-imho body,
+html.boards-preset-current-affairs-imho #Body,
+html.boards-preset-current-affairs-imho .Container,
+html.boards-preset-current-affairs-imho .Content.MainContent,
+html.boards-preset-current-affairs-imho .page-content,
+html.boards-preset-current-affairs-imho .pageBox,
+html.boards-preset-current-affairs-imho .MessageList.Discussion,
+html.boards-preset-current-affairs-imho .Comments.pageBox {
+  background: var(--t-bg) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+/* ============================================================
+   STEP 3 — Top navigation bar
+   The site header containing logo, search, account menu.
+   ============================================================ */
+html.boards-preset-current-affairs-imho #nav,
+html.boards-preset-current-affairs-imho #themeHeader,
+html.boards-preset-current-affairs-imho .titleBar,
+html.boards-preset-current-affairs-imho [class*="TitleBar-classes-bg"],
+html.boards-preset-current-affairs-imho [class*="TitleBar-classes-container"] {
+  background: var(--t-bg) !important;
+  border-bottom: 1px solid var(--t-border) !important;
+}
+
+html.boards-preset-current-affairs-imho #nav a,
+html.boards-preset-current-affairs-imho [class*="TitleBar"] a,
+html.boards-preset-current-affairs-imho [class*="TitleBar"] button {
+  color: var(--t-link) !important;
+  background: transparent !important;
+}
+
+/* ============================================================
+   STEP 4 — Breadcrumbs
+   The navigation trail: Home › Topics › After Hours
+   ============================================================ */
+html.boards-preset-current-affairs-imho .BreadcrumbsBox,
+html.boards-preset-current-affairs-imho .Breadcrumbs,
+html.boards-preset-current-affairs-imho .PageTitle,
+html.boards-preset-current-affairs-imho .pageHeadingBox {
+  background: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border) !important;
+}
+
+html.boards-preset-current-affairs-imho .Breadcrumbs a,
+html.boards-preset-current-affairs-imho .CrumbLabel a {
+  color: var(--t-link) !important;
+}
+
+/* ============================================================
+   STEP 5 — Links
+   ============================================================ */
+html.boards-preset-current-affairs-imho a {
+  color: var(--t-link) !important;
+}
+
+html.boards-preset-current-affairs-imho a:hover {
+  color: var(--t-link-hover) !important;
+}
+
+/* ============================================================
+   STEP 6 — Forum thread list header
+   The coloured bar that says "Latest Posts" or "Sub Forums"
+   ============================================================ */
+html.boards-preset-current-affairs-imho .forum-threadlist-header,
+html.boards-preset-current-affairs-imho .forum-threadlist-header .latest-title {
+  background: linear-gradient(
+    180deg,
+    var(--t-header-top) 0%,
+    var(--t-header-bottom) 100%
+  ) !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid var(--t-header-border) !important;
+}
+
+/* ============================================================
+   STEP 7 — Thread list table
+   The rows of discussions in the forum list.
+   ============================================================ */
+html.boards-preset-current-affairs-imho .forum-threadlist-table th {
+  background: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+html.boards-preset-current-affairs-imho .forum-threadlist-table tbody td {
+  background: var(--t-surface) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+html.boards-preset-current-affairs-imho .forum-threadlist-table tbody tr:nth-child(even) td {
+  background: var(--t-surface-2) !important;
+}
+
+html.boards-preset-current-affairs-imho td.forum-threadlist-lastpost,
+html.boards-preset-current-affairs-imho td.forum-threadlist-replies,
+html.boards-preset-current-affairs-imho td.forum-threadlist-views,
+html.boards-preset-current-affairs-imho .forum-threadlist-thread-lastposter,
+html.boards-preset-current-affairs-imho .threadbit-lastposter {
+  background: var(--t-surface) !important;
+  color: var(--t-muted) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+/* ============================================================
+   STEP 8 — Pager (pagination controls)
+   ============================================================ */
+html.boards-preset-current-affairs-imho .PageControls,
+html.boards-preset-current-affairs-imho .Pager,
+html.boards-preset-current-affairs-imho #PagerBefore,
+html.boards-preset-current-affairs-imho #PagerAfter,
+html.boards-preset-current-affairs-imho .Pager a,
+html.boards-preset-current-affairs-imho .Pager span {
+  background: var(--t-surface) !important;
+  color: var(--t-link) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+html.boards-preset-current-affairs-imho .Pager a.Highlight {
+  background: var(--t-header-bottom) !important;
+  color: #ffffff !important;
+}
+
+/* ============================================================
+   STEP 9 — New Discussion button
+   ============================================================ */
+html.boards-preset-current-affairs-imho div.ButtonGroup[data-is-kludged="true"],
+html.boards-preset-current-affairs-imho .ButtonGroup.NewDiscussion {
+  background: linear-gradient(
+    180deg,
+    var(--t-button-top) 0%,
+    var(--t-button-bottom) 100%
+  ) !important;
+  border: 1px solid var(--t-button-border) !important;
+  color: #ffffff !important;
+}
+
+html.boards-preset-current-affairs-imho div.ButtonGroup[data-is-kludged="true"] a.Button {
+  background: transparent !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+/* Generic buttons and primary actions */
+html.boards-preset-current-affairs-imho .Button,
+html.boards-preset-current-affairs-imho .Btn,
+html.boards-preset-current-affairs-imho .Primary,
+html.boards-preset-current-affairs-imho input[type="submit"],
+html.boards-preset-current-affairs-imho .Buttons .Button {
+  background: linear-gradient(
+    180deg,
+    var(--t-button-top) 0%,
+    var(--t-button-bottom) 100%
+  ) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--t-button-border) !important;
+}
+
+html.boards-preset-current-affairs-imho .Button:hover,
+html.boards-preset-current-affairs-imho .Btn:hover,
+html.boards-preset-current-affairs-imho .Primary:hover,
+html.boards-preset-current-affairs-imho input[type="submit"]:hover {
+  background: linear-gradient(
+    180deg,
+    var(--t-button-hover-top) 0%,
+    var(--t-button-hover-bottom) 100%
+  ) !important;
+}
+
+/* ============================================================
+   STEP 10 — Post header bar
+   The strip showing post number, date, options per post.
+   ============================================================ */
+html.boards-preset-current-affairs-imho .postbit-header {
+  background: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border-bottom: 1px solid var(--t-border-soft) !important;
+}
+
+html.boards-preset-current-affairs-imho .postbit-header a,
+html.boards-preset-current-affairs-imho .postbit-header .MItem {
+  color: var(--t-text) !important;
+  background: transparent !important;
+}
+
+/* ============================================================
+   STEP 11 — User info column
+   Left panel showing username, avatar, join date, post count.
+   ============================================================ */
+html.boards-preset-current-affairs-imho .postbit-userinfo,
+html.boards-preset-current-affairs-imho .postbit-userinfo .userinfo-row,
+html.boards-preset-current-affairs-imho .postbit-userinfo .userinfo-joindate,
+html.boards-preset-current-affairs-imho .postbit-userinfo .userinfo-posts,
+html.boards-preset-current-affairs-imho .postbit-userinfo .RoleTitle,
+html.boards-preset-current-affairs-imho .postbit-userinfo .MItem {
+  background: var(--t-panel) !important;
+  color: var(--t-muted) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+html.boards-preset-current-affairs-imho .postbit-userinfo a,
+html.boards-preset-current-affairs-imho .postbit-userinfo .userinfo-username-title {
+  color: var(--t-link) !important;
+}
+
+html.boards-preset-current-affairs-imho .postbit-wrapper,
+html.boards-preset-current-affairs-imho .postbit-postdetails,
+html.boards-preset-current-affairs-imho .PhotoWrap,
+html.boards-preset-current-affairs-imho .ProfilePhotoMedium,
+html.boards-preset-current-affairs-imho .postbit-userinfo .PhotoWrapLarge {
+  background: var(--t-panel) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+/* ============================================================
+   STEP 12 — Post body
+   The actual message content area.
+   ============================================================ */
+html.boards-preset-current-affairs-imho .postbit-postbody,
+html.boards-preset-current-affairs-imho .postbit-message,
+html.boards-preset-current-affairs-imho .message-wrapper,
+html.boards-preset-current-affairs-imho .Item-BodyWrap,
+html.boards-preset-current-affairs-imho .Item-Body,
+html.boards-preset-current-affairs-imho .Message.userContent,
+html.boards-preset-current-affairs-imho .userContent,
+html.boards-preset-current-affairs-imho .UserSignature {
+  background: var(--t-surface) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+html.boards-preset-current-affairs-imho .Message.userContent p,
+html.boards-preset-current-affairs-imho .Message.userContent div,
+html.boards-preset-current-affairs-imho .Message.userContent span,
+html.boards-preset-current-affairs-imho .Item-Body p,
+html.boards-preset-current-affairs-imho .Item-Body div {
+  background: transparent !important;
+  color: var(--t-text) !important;
+}
+
+/* ============================================================
+   STEP 13 — Reactions row
+   Flag, Quote, Thanks buttons below each post.
+   ============================================================ */
+html.boards-preset-current-affairs-imho .Reactions,
+html.boards-preset-current-affairs-imho .Reactions > div,
+html.boards-preset-current-affairs-imho .Reactions .ReactButton,
+html.boards-preset-current-affairs-imho .Reactions .ReactLabel,
+html.boards-preset-current-affairs-imho .clearleft {
+  background: var(--t-surface) !important;
+  color: var(--t-link) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+/* ============================================================
+   STEP 14 — Quote and code blocks
+   ============================================================ */
+html.boards-preset-current-affairs-imho blockquote,
+html.boards-preset-current-affairs-imho pre,
+html.boards-preset-current-affairs-imho code,
+html.boards-preset-current-affairs-imho [class*="quoteEmbed"],
+html.boards-preset-current-affairs-imho [class*="embedContent"] {
+  background: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border: 1px solid var(--t-border-soft) !important;
+}
+
+/* ============================================================
+   STEP 15 — Comment / reply form
+   ============================================================ */
+html.boards-preset-current-affairs-imho .MessageForm,
+html.boards-preset-current-affairs-imho .CommentForm,
+html.boards-preset-current-affairs-imho .Form-BodyWrap {
+  background: var(--t-surface) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+/* ============================================================
+   STEP 16 — Extension UI buttons
+   Override the extension's own toggle and icon buttons
+   to match this forum theme.
+   ============================================================ */
+html.boards-preset-current-affairs-imho #profileToggleBtn {
+  background-color: var(--t-button-top) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--t-button-border) !important;
+}
+
+html.boards-preset-current-affairs-imho #profileToggleBtn:hover {
+  background-color: var(--t-button-hover-top) !important;
+}
+
+html.boards-preset-current-affairs-imho .infoIcon,
+html.boards-preset-current-affairs-imho .navIcon {
+  background-color: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+html.boards-preset-current-affairs-imho dialog#shortcutDialog {
+  background: var(--t-surface) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+html.boards-preset-current-affairs-imho #bcEditModalBtn {
+  background-color: var(--t-button-top) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--t-button-border) !important;
+}
+
+/* ============================================================
+   STEP 17 — Mobile thread list
+   Boards.ie collapses the thread table on small screens.
+   These rules cover the stacked card layout on mobile.
+   ============================================================ */
+@media (max-width: 768px) {
+
+  html.boards-preset-current-affairs-imho .forum-threadlist-wrapper,
+  html.boards-preset-current-affairs-imho .forum-threadlist-table td,
+  html.boards-preset-current-affairs-imho .threadrow-container,
+  html.boards-preset-current-affairs-imho .forum-threadlist-thread,
+  html.boards-preset-current-affairs-imho .forum-threadlist-thread-title,
+  html.boards-preset-current-affairs-imho .forum-threadlist-thread-meta {
+    background: var(--t-surface) !important;
+    color: var(--t-text) !important;
+    border-color: var(--t-border-soft) !important;
+  }
+
+  html.boards-preset-current-affairs-imho .forum-threadlist-thread-threadlink {
+    color: var(--t-link) !important;
+  }
+}
+
+/* ============================================================
+   VANILLA FORUM LEGACY STRUCTURE — generic template backport
+   Mirrors fixes confirmed in afterhours-dark theme
+   ============================================================ */
+
+/* Outer data-table wrapper */
+html.boards-preset-current-affairs-imho .DataTableWrap {
+  background: transparent !important;
+}
+
+/* Legacy discussion list table */
+html.boards-preset-current-affairs-imho table.DataTable.DiscussionsTable {
+  background: transparent !important;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+/* Row base */
+html.boards-preset-current-affairs-imho table.DataTable.DiscussionsTable tr.Item,
+html.boards-preset-current-affairs-imho table.DataTable.DiscussionsTable tr.Item.Alt {
+  background: var(--t-row-bg, #1e1e1e) !important;
+  border-bottom: 1px solid var(--t-border, #333) !important;
+}
+
+html.boards-preset-current-affairs-imho table.DataTable.DiscussionsTable tr.Item:hover,
+html.boards-preset-current-affairs-imho table.DataTable.DiscussionsTable tr.Item.Alt:hover {
+  background: var(--t-row-hover, #2a2a2a) !important;
+}
+
+/* Unread / New highlight */
+html.boards-preset-current-affairs-imho table.DataTable.DiscussionsTable tr.Item.Unread,
+html.boards-preset-current-affairs-imho table.DataTable.DiscussionsTable tr.Item.New {
+  background: var(--t-row-unread, #222b2b) !important;
+}
+
+/* Discussion name cell */
+html.boards-preset-current-affairs-imho table.DataTable.DiscussionsTable td.DiscussionName {
+  background: transparent !important;
+  color: var(--t-text, #e0e0e0) !important;
+}
+
+html.boards-preset-current-affairs-imho table.DataTable.DiscussionsTable td.DiscussionName a {
+  color: var(--t-link, #7ec8e3) !important;
+}
+
+html.boards-preset-current-affairs-imho table.DataTable.DiscussionsTable td.DiscussionName a:hover {
+  color: var(--t-link-hover, #aee0f5) !important;
+  text-decoration: underline;
+}
+
+/* Block/stat columns */
+html.boards-preset-current-affairs-imho table.DataTable.DiscussionsTable td.BlockColumn,
+html.boards-preset-current-affairs-imho table.DataTable.DiscussionsTable td.FirstUser,
+html.boards-preset-current-affairs-imho table.DataTable.DiscussionsTable td.LastUser,
+html.boards-preset-current-affairs-imho table.DataTable.DiscussionsTable td.BigCount,
+html.boards-preset-current-affairs-imho table.DataTable.DiscussionsTable td.BigCount.CountViews {
+  background: transparent !important;
+  color: var(--t-muted, #888) !important;
+}
+
+/* New Discussion button area */
+html.boards-preset-current-affairs-imho .BoxButtons.BoxNewDiscussion,
+html.boards-preset-current-affairs-imho .BoxButtons.BoxNewDiscussion .ButtonGroup.Multi.Primary.Action.NewDiscussion.Big {
+  background: transparent !important;
+}
+
+html.boards-preset-current-affairs-imho .BoxButtons.BoxNewDiscussion .ButtonGroup.Multi.Primary.Action.NewDiscussion.Big .Button.Primary,
+html.boards-preset-current-affairs-imho .BoxButtons.BoxNewDiscussion .ButtonGroup.Multi.Primary.Action.NewDiscussion.Big button {
+  background: var(--t-btn-bg, #2a6496) !important;
+  color: var(--t-btn-text, #fff) !important;
+  border: 1px solid var(--t-btn-border, #1a4a72) !important;
+}
+
+html.boards-preset-current-affairs-imho .BoxButtons.BoxNewDiscussion .ButtonGroup.Multi.Primary.Action.NewDiscussion.Big .Button.Primary:hover,
+html.boards-preset-current-affairs-imho .BoxButtons.BoxNewDiscussion .ButtonGroup.Multi.Primary.Action.NewDiscussion.Big button:hover {
+  background: var(--t-btn-hover, #1a4a72) !important;
+}
+
+/* Dropdown from multi-button */
+html.boards-preset-current-affairs-imho .BoxButtons.BoxNewDiscussion .Dropdown.MenuItems,
+html.boards-preset-current-affairs-imho .BoxButtons.BoxNewDiscussion .Dropdown.MenuItems li,
+html.boards-preset-current-affairs-imho .BoxButtons.BoxNewDiscussion .Dropdown.MenuItems a {
+  background: var(--t-dropdown-bg, #1e1e1e) !important;
+  color: var(--t-text, #e0e0e0) !important;
+  border-color: var(--t-border, #333) !important;
+}
+
+html.boards-preset-current-affairs-imho .BoxButtons.BoxNewDiscussion .Dropdown.MenuItems a:hover {
+  background: var(--t-dropdown-hover, #2a2a2a) !important;
+}
+
+/* Dropdown from multi-button */
+html.boards-preset-current-affairs-imho .BoxButtons.BoxNewDiscussion .Dropdown.MenuItems,
+html.boards-preset-current-affairs-imho .BoxButtons.BoxNewDiscussion .Dropdown.MenuItems li,
+html.boards-preset-current-affairs-imho .BoxButtons.BoxNewDiscussion .Dropdown.MenuItems a {
+  background: var(--t-dropdown-bg, #1e1e1e) !important;
+  color: var(--t-text, #e0e0e0) !important;
+  border-color: var(--t-border, #333) !important;
+}
+
+html.boards-preset-current-affairs-imho .BoxButtons.BoxNewDiscussion html.boards-preset-current-affairs-imho .Dropdown.MenuItems a:hover {
+  background: var(--t-dropdown-hover, #2a2a2a) !important;
+}
+
+/* Ad placeholders / spacers — neutralise white ghost frames */
+html.boards-preset-current-affairs-imho .no-ad-top-spacer {
+  display: none !important;
+}
+
+html.boards-preset-current-affairs-imho .Frame-contentWrap.noad-top {
+  background: transparent !important;
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* ============================================================
+STEP 18 — Side category panel 
+============================================================ */
+
+/* Right-hand Categories panel */
+html.boards-preset-current-affairs-imho .Box.BoxCategories.SideNav,
+html.boards-preset-current-affairs-imho .Box.BoxCategories.SideNav .Box-contents,
+html.boards-preset-current-affairs-imho .Box.BoxCategories.SideNav ul,
+html.boards-preset-current-affairs-imho .Box.BoxCategories.SideNav li {
+  background: var(--t-bg) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+html.boards-preset-current-affairs-imho .Box.BoxCategories.SideNav .SideNav-header {
+  background: linear-gradient(180deg, var(--t-header-top) 0%, var(--t-header-bottom) 100%) !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid var(--t-header-border) !important;
+}
+
+html.boards-preset-current-affairs-imho .Box.BoxCategories.SideNav .SideNav-header h2,
+html.boards-preset-current-affairs-imho .Box.BoxCategories.SideNav .SideNav-header .small-text {
+  color: #ffffff !important;
+  background: transparent !important;
+}
+
+html.boards-preset-current-affairs-imho .Box.BoxCategories.SideNav a,
+html.boards-preset-current-affairs-imho .Box.BoxCategories.SideNav .NavItem,
+html.boards-preset-current-affairs-imho .Box.BoxCategories.SideNav .Aside,
+html.boards-preset-current-affairs-imho .Box.BoxCategories.SideNav .ChildCategories a {
+  color: var(--t-link) !important;
+  background: transparent !important;
+}
+
+html.boards-preset-current-affairs-imho .Box.BoxCategories.SideNav a:hover,
+html.boards-preset-current-affairs-imho .Box.BoxCategories.SideNav .NavItem:hover {
+  color: var(--t-link-hover) !important;
+  background: var(--t-surface-2) !important;
+}
+
+/* ============================================================
+   Extension UI buttons
+   Match BoardsCleaner controls to this forum theme
+   ============================================================ */
+
+html.boards-preset-current-affairs-imho #profileToggleBtn {
+  background-color: var(--t-button-top) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--t-button-border) !important;
+}
+
+html.boards-preset-current-affairs-imho #profileToggleBtn:hover {
+  background-color: var(--t-button-hover-top) !important;
+}
+
+/* Info / nav icon buttons in the overlay */
+html.boards-preset-current-affairs-imho .infoIcon,
+html.boards-preset-current-affairs-imho .navIcon {
+  background-color: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+/* Modal / shortcut dialog, if used */
+html.boards-preset-current-affairs-imho dialog#shortcutDialog {
+  background: var(--t-surface) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+/* Edit modal button in the forum header bar */
+html.boards-preset-current-affairs-imho #bcEditModalBtn {
+  background-color: var(--t-button-top) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--t-button-border) !important;
+}

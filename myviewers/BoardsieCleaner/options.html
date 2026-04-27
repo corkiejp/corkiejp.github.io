@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Boards Theme Options</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 24px; max-width: 1000px; color: #222; }
+  h1, h2 { margin-top: 1.5rem; }
+
+  .row { margin-bottom: 16px; }
+  label { display: block; margin-bottom: 6px; font-weight: 600; }
+  input[type="text"], select, textarea { width: 100%; padding: 8px; box-sizing: border-box; }
+  textarea { min-height: 260px; font-family: Consolas, monospace; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .card { border: 1px solid #ccc; padding: 16px; border-radius: 8px; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  button { padding: 10px 14px; cursor: pointer; }
+  .small { color: #666; font-size: 0.95em; }
+  #status { margin-top: 12px; color: #0a6; font-weight: 600; }
+  ul { padding-left: 20px; }
+
+  .bc-page-header {
+    margin-bottom: 20px;
+  }
+
+  .bc-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .bc-header-icon {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 auto;
+  }
+
+  .bc-title-row h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .bc-subtitle {
+    margin: 10px 0 0 0;
+    color: #555;
+    font-size: 1rem;
+	 font-weight: bold;
+  }
+</style>
+</head>
+<body>
+<header class="bc-page-header">
+  <div class="bc-title-row">
+    <img src="assets/icon48.png" alt="BoardsCleaner icon" class="bc-header-icon">
+    <h1>BoardsCleaner</h1>
+  </div>
+  <p class="bc-subtitle">Boards.ie Theme Engine</p>
+</header>
+
+
+<p class="small">
+  Assign a preset and optional custom CSS to any forum key. Example forum key: <code>after-hours</code>.
+</p>
+
+  <div class="grid">
+    <section class="card">
+      <h2>Global settings</h2>
+      <div class="row">
+        <label><input type="checkbox" id="enabled"> Enable forum themes</label>
+      </div>
+      <div class="row">
+        <label><input type="checkbox" id="usePresets"> Allow built-in preset themes</label>
+      </div>
+    </section>
+
+<section class="card">
+  <h2>Preset IDs</h2>
+  <p class="small">Click a preset to load it into the editor below.</p>
+  <div class="actions">
+    <button data-preset="afterhours-dark" data-forum="after-hours">
+      After Hours Dark
+    </button>
+    <button data-preset="current-affairs-imho" data-forum="current-affairs-imho">
+      Current Affairs / IMHO Red
+    </button>
+    <button data-preset="forest" data-forum="forestry">
+      Forestry Green
+    </button>
+  </div>
+</section>
+  </div>
+
+
+  <section class="card" style="margin-top:24px;">
+    <h2>Forum theme editor</h2>
+    <div class="row">
+      <label for="forumKey">Forum key</label>
+      <input id="forumKey" type="text" placeholder="after-hours">
+    </div>
+
+	
+
+    <div class="row">
+      <label><input type="checkbox" id="forumEnabled"> Enable this forum theme</label>
+    </div>
+
+	<label>
+  <input type="checkbox" id="contentScriptEnabled" checked>
+  Enable keyboard shortcuts & content script | disabled theme engine only now.
+  <small>Disable if conflicting with another extension eg:- BES</small>
+</label>
+
+<div class="row">
+  <label for="presetId">Preset</label>
+  <select id="presetId">
+    <option value="">None</option>
+    <option value="afterhours-dark">afterhours-dark</option>
+    <option value="current-affairs-imho">current-affairs-imho</option>
+    <option value="forest">forest</option>
+  </select>
+</div>
+
+    <div class="row">
+      <label for="customCss">Custom CSS</label>
+      <textarea id="customCss" placeholder="html.boards-theme-after-hours .postbit-header { background:#5a3824 !important; }"></textarea>
+    </div>
+
+    <div class="actions">
+      <button id="loadBtn">Load forum config</button>
+      <button id="saveBtn">Save forum config</button>
+      <button id="deleteBtn">Delete forum config</button>
+      <button id="sampleBtn">Insert sample CSS</button>
+    </div>
+
+    <div id="status"></div>
+  </section>
+  
+  <section class="card" style="margin-top:24px;">
+  <h2>Styled forums</h2>
+  <p class="small">
+    Forums with a saved preset or custom CSS. Click a row to load it into the editor.
+  </p>
+  <ul id="styledForumsList" class="small"></ul>
+  <div class="actions" style="margin-top:10px;">
+    <button id="clearAllForumsBtn">Clear all forum themes</button>
+  </div>
+</section>
+  
+  
+  <section class="card" style="margin-top:24px;">
+  <h2>Backup &amp; Restore</h2>
+  <p class="small">
+    Export your themes to a JSON file for safekeeping.
+    Re-import after reinstalling the extension or clearing browser data.
+  </p>
+  <div class="actions">
+    <button id="exportBtn">Export all themes</button>
+    <button id="importBtn">Import themes from file</button>
+    <input type="file" id="importFile" accept=".json" style="display:none;">
+  </div>
+  <div id="backupStatus"></div>
+</section>
+<section class="card" style="margin-top:24px;">
+  <h2>Members Area</h2>
+  <p class="small">Activate member features including ad removal, banner cleaning and CMP control.</p>
+  <div class="actions">
+   <button id="membersAreaBtn">Members Area →</button>
+  </div>
+</section>
+
+<script src="options.js"></script>
+</body>
+</html>

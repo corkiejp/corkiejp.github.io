@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Boards.ie Cleaner – Member Features</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+    h1, h2 { margin-top: 1.5rem; }
+    code { background: #f4f4f4; padding: 0.1rem 0.25rem; border-radius: 3px; }
+    .note { font-size: 0.9rem; color: #555; }
+    ul { margin-left: 1.2rem; }
+	.bc-page-header {
+  margin-bottom: 20px;
+}
+
+.bc-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bc-header-icon {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  border-radius: 6px;
+}
+
+.bc-title-row h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.bc-subtitle {
+  margin: 10px 0 0 54px;
+  color: #555;
+  font-size: 1rem;
+  font-weight: bold;
+}
+  </style>
+</head>
+<body>
+<header class="bc-page-header">
+  <div class="bc-title-row">
+    <img src="assets/icon48.png" alt="BoardsCleaner icon" class="bc-header-icon">
+    <h1>BoardsCleaner</h1>
+  </div>
+  <p class="bc-subtitle">Membership and feature controls</p>
+</header>
+
+  <p>
+    Boards.ie Cleaner has a small set of features reserved for users who support the site,
+    such as removing ads, hiding warning banners, and automatically handling the privacy dialog.
+  </p>
+
+  <h2>How membership activation works</h2>
+
+  <h3>1. Detect from your Boards profile (recommended)</h3>
+<p>
+  Open any Boards page and click the BoardsCleaner settings button
+  <span style="display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; background:#f5f5f5; border:1px solid #ddd; margin:0 0.25rem;">
+    <span style="font-size:14px; line-height:1;">🍪</span>
+  </span>
+  on the right hand side of the page. In the <strong>Membership Activation</strong> section:
+</p>
+  <ul>
+    <li>Click <code>Detect membership from my Boards profile</code>.</li>
+    <li>A new tab opens to your Boards profile discussions page.</li>
+    <li>BoardsCleaner checks your status and, if you are a paid member, activates member features.</li>
+  </ul>
+
+  <h3>2. Fallback activation code</h3>
+  <p>
+    If automatic detection fails, you can use a one time activation code (See Member subbed forums for code or PM 'corkie'):
+  </p>
+  <ul>
+    <li>Enter the code in the <code>Activation code</code> box in the settings modal.</li>
+    <li>Click <code>Activate</code>.</li>
+    <li>If the code is valid, member features are enabled on this browser profile.</li>
+  </ul>
+  <p class="note">
+    The activation code is stored only in your browser’s extension storage and can be reset at any time from the
+    <em>Danger zone</em> section in the settings modal.
+  </p>
+
+  <h2>What the settings do</h2>
+
+  <h3>Overlay settings</h3>
+  <ul>
+    <li><strong>Overlay delay (seconds)</strong> – how long the full page “Boards.ie Cleaner” overlay is shown while the page loads, to hide layout bounce.</li>
+    <li><strong>Overlay message</strong> – the text shown on that overlay, useful to remind yourself which browser/device you’re on.</li>
+  </ul>
+
+  <h3>Members only features</h3>
+  <ul>
+    <li><strong>Remove ads</strong> – removes known ad containers from Boards pages, so the layout is cleaner.</li>
+    <li><strong>Remove alerts</strong> – removes warning / subscription banners (e.g. DismissMessage alerts) from the page.</li>
+    <li><strong>Privacy dialog – auto click “DISAGREE”</strong> – when the Quantcast privacy dialog appears, BoardsCleaner will automatically click the <code>DISAGREE</code> button for you, so you can continue browsing without interacting every time.</li>
+    <li><strong>CMP block</strong> – currently disabled for Boards.ie. The site expects the privacy dialog to be answered; fully blocking it can interfere with normal behaviour.</li>
+  </ul>
+
+  <h3>Danger zone</h3>
+  <p>
+    The <strong>Deactivate membership and reset features</strong> button:
+  </p>
+  <ul>
+    <li>Turns off membership for this browser profile.</li>
+    <li>Resets all settings (overlay delay/message and member feature toggles) back to safe defaults.</li>
+    <li>Does not remove the extension; you can reactivate later using your profile or activation code.</li>
+  </ul>
+
+  <p class="note">
+    Boards.ie Cleaner does not send any of your Boards content, cookies, or activation codes to a third party server.
+    All data is stored locally in your browser’s extension storage.
+  </p>
+</body>
+</html>

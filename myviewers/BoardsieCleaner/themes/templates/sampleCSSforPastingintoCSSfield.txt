@@ -1,0 +1,254 @@
+/* Paper preset variables
+ * Sample Custom CSS to paste into the field in Options.
+ * Demonstration-only file; see preset theme CSS for
+ * the full range of variables and declarations you can use.
+ */
+html {
+  --t-bg: #f7f4ed !important;
+  --t-bg-2: #efe9dc !important;
+  --t-surface: #fcfaf5 !important;
+  --t-surface-2: #f2ecdf !important;
+  --t-surface-3: #e8dfcd !important;
+  --t-panel: #f1ebdf !important;
+
+  --t-border: #cdbda3 !important;
+  --t-border-soft: #ddd1bf !important;
+
+  --t-text: #332d24 !important;
+  --t-muted: #6f6455 !important;
+  --t-faint: #9a8c79 !important;
+
+  --t-link: #6d4f2a !important;
+  --t-link-hover: #8b673b !important;
+
+  --t-header-top: #d9c6a6 !important;
+  --t-header-bottom: #bfa278 !important;
+  --t-header-border: #9f8157 !important;
+
+  --t-button-top: #ceb07f !important;
+  --t-button-bottom: #b08c5d !important;
+  --t-button-hover-top: #dcc090 !important;
+  --t-button-hover-bottom: #bd9867 !important;
+  --t-button-border: #8b6d45 !important;
+}
+
+/* Page background / main content */
+html,
+html body,
+html #Body,
+html .Container,
+html .Content.MainContent,
+html .page-content,
+html .pageBox,
+html .MessageList.Discussion,
+html .Comments.pageBox {
+  background: var(--t-bg) !important;
+  color: var(--t-text) !important;
+}
+
+/* New React title bar background strip */
+html .titleBar,
+html [class*="TitleBar-classes-bg"],
+html [class*="TitleBar-classes-bgContainer"],
+html [class*="TitleBar-classes-bar"] {
+  background: linear-gradient(
+    180deg,
+    var(--t-header-top) 0%,
+    var(--t-header-bottom) 100%
+  ) !important;
+  border-bottom: 1px solid var(--t-header-border) !important;
+}
+
+/* Title bar navigation links */
+html [class*="TitleBar-classes-topElement-"] {
+  color: var(--t-link) !important;
+  background: transparent !important;
+}
+
+html [class*="TitleBar-classes-topElement-"]:hover {
+  color: var(--t-link-hover) !important;
+}
+
+/* Thread list header & side nav header */
+html .forum-threadlist-header,
+html .forum-threadlist-header .latest-title,
+html .Box.BoxCategories.SideNav .SideNav-header {
+  background: linear-gradient(
+    180deg,
+    var(--t-header-top) 0%,
+    var(--t-header-bottom) 100%
+  ) !important;
+  color: #332d24 !important;
+  border-bottom: 1px solid var(--t-header-border) !important;
+}
+
+/* Post header strip */
+html .postbit-header {
+  background: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border-bottom: 1px solid var(--t-border-soft) !important;
+}
+
+html .postbit-header a,
+html .postbit-header .MItem {
+  color: var(--t-text) !important;
+  background: transparent !important;
+}
+
+/* Post body / thread rows */
+html .postbit-postbody,
+html .postbit-message,
+html .message-wrapper,
+html .Item-BodyWrap,
+html .Item-Body,
+html .Message.userContent,
+html .userContent,
+html .UserSignature,
+html .forum-threadlist-table tbody td,
+html .postbit-wrapper,
+html .postbit-postdetails {
+  background: var(--t-surface) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+/* Links */
+html a {
+  color: var(--t-link) !important;
+}
+
+html a:hover {
+  color: var(--t-link-hover) !important;
+}
+
+/* Buttons & primary actions */
+html .Button,
+html .Btn,
+html .Primary,
+html input[type="submit"],
+html .ButtonGroup.NewDiscussion,
+html div.ButtonGroup[data-is-kludged="true"],
+html .BoxButtons .ButtonGroup.Multi {
+  background: linear-gradient(
+    180deg,
+    var(--t-button-top) 0%,
+    var(--t-button-bottom) 100%
+  ) !important;
+  color: #332d24 !important;
+  border: 1px solid var(--t-button-border) !important;
+}
+
+html .Button:hover,
+html .Btn:hover,
+html .Primary:hover,
+html input[type="submit"]:hover {
+  background: linear-gradient(
+    180deg,
+    var(--t-button-hover-top) 0%,
+    var(--t-button-hover-bottom) 100%
+  ) !important;
+}
+
+/* ============================================================
+   BoardsCleaner extension UI buttons (paper)
+   ============================================================ */
+
+/* Toggle Profile button */
+html #profileToggleBtn {
+  background-color: var(--t-button-top) !important;
+  color: #2f281d !important;
+  border: 1px solid var(--t-button-border) !important;
+}
+
+html #profileToggleBtn:hover {
+  background-color: var(--t-button-hover-top) !important;
+}
+
+/* Info / nav icon buttons in the overlay */
+html .infoIcon,
+html .navIcon {
+  background-color: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+/* Shortcut / help dialog */
+html dialog#shortcutDialog {
+  background: var(--t-surface) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+/* Edit modal button in forum header */
+html #bcEditModalBtn {
+  background-color: var(--t-button-top) !important;
+  color: #2f281d !important;
+  border: 1px solid var(--t-button-border) !important;
+}
+
+/* ============================================================
+   Legacy nav popup (paper)
+   ============================================================ */
+
+html #bc-nav-popup-wrap {
+  position: relative;
+}
+
+html #bc-nav-popup-toggle {
+  background: linear-gradient(
+    180deg,
+    var(--t-button-top) 0%,
+    var(--t-button-bottom) 100%
+  ) !important;
+  color: #2f281d !important;
+  border: 1px solid var(--t-button-border) !important;
+  border-radius: 4px !important;
+  padding: 6px 10px !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+}
+
+html #bc-nav-popup-toggle:hover {
+  background: linear-gradient(
+    180deg,
+    var(--t-button-hover-top) 0%,
+    var(--t-button-hover-bottom) 100%
+  ) !important;
+}
+
+html #bc-nav-popup-panel {
+  background: var(--t-surface) !important;
+  color: var(--t-text) !important;
+  border: 1px solid var(--t-border-soft) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18) !important;
+  padding: 6px !important;
+  min-width: 190px !important;
+}
+
+html .bc-nav-popup-item,
+html #bc-nav-popup-hide-toggle {
+  display: block !important;
+  width: 100% !important;
+  text-align: left !important;
+  background: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border: 1px solid var(--t-border-soft) !important;
+  border-radius: 4px !important;
+  padding: 8px 10px !important;
+  margin: 4px 0 !important;
+  cursor: pointer !important;
+}
+
+html .bc-nav-popup-item:hover,
+html #bc-nav-popup-hide-toggle:hover {
+  background: var(--t-surface-3) !important;
+  color: var(--t-link) !important;
+  border-color: var(--t-border) !important;
+}
+
+html #bc-nav-popup-sep {
+  height: 1px !important;
+  background: var(--t-border-soft) !important;
+  margin: 8px 0 !important;
+}

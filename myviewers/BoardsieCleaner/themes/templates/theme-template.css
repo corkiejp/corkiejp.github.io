@@ -1,0 +1,524 @@
+/*
+
+
+ * 	IMPORTANT NOTE HERE!
+ * =========================================
+
+ * This is an out dated template for the older theme engine!
+ * Use forest.css or current-affairs-imho.css and adjust as needed.
+
+
+
+ * Boards.ie Cleaner - Forum Theme Template
+ * =========================================
+ * Copy this file to themes/presets/ and rename it, e.g. "myforum-dark.css"
+ *
+ * Then register it in themes/theme-engine.js by adding an entry to PRESET_THEMES:
+ *
+ *   'YOUR-FORUM-SLUG': {
+ *     forumKey: 'YOUR-FORUM-SLUG',
+ *     className: 'boards-theme-YOUR-FORUM-SLUG',
+ *     cssFile: 'themes/presets/YOUR-FORUM-SLUG.css'
+ *   }
+ *
+ * The forum key is the slug from the boards.ie URL:
+ *   https://www.boards.ie/categories/after-hours  →  after-hours
+ *   https://www.boards.ie/categories/work-jobs    →  work-jobs
+ *
+ * All rules must be scoped under:
+ *   html.boards-theme-YOUR-FORUM-SLUG
+ *
+ * This keeps your theme isolated to that forum only and prevents
+ * leaking onto other forums or pages.
+ *
+ * User custom CSS entered via the options page is injected AFTER
+ * this preset, so user rules always win over preset rules.
+ */
+
+/* ============================================================
+   STEP 1 — Change this class to match your forum slug
+   e.g. boards-theme-work-jobs, boards-theme-soccer etc.
+   ============================================================ */
+
+html.boards-theme-YOUR-FORUM-SLUG {
+	
+/* Values here are from a working theme replace as need for yours */
+
+  /* -- Backgrounds -- */
+  --t-bg:        #1a0a0a;   /* main page background */
+  --t-bg-2:      #2a0f0f;   /* secondary background e.g. footer */
+  --t-surface:   #1f0d0d;   /* card / post background */
+  --t-surface-2: #2a0f0f;   /* slightly raised surface */
+  --t-surface-3: #3a1515;   /* hovered surface */
+  --t-panel:     #220e0e;   /* user info column background */
+
+  /* -- Borders -- */
+  --t-border:      #4a1515; /* strong border */
+  --t-border-soft: #3a1010; /* subtle border */
+
+  /* -- Text -- */
+  --t-text:   #e8d0d0;      /* main body text */
+  --t-muted:  #a06060;      /* secondary text e.g. dates, meta */
+  --t-faint:  #7a4040;      /* footer / least important text */
+
+  /* -- Links -- */
+  --t-link:       #e87070;  /* default link colour */
+  --t-link-hover: #ff9999;  /* hovered link colour */
+
+  /* -- Header / accent strip -- */
+  --t-header-top:    #6b0f0f; /* forum list header gradient top */
+  --t-header-bottom: #4a0a0a; /* forum list header gradient bottom */
+  --t-header-border: #8b1a1a; /* forum list header border */
+
+  /* -- Buttons -- */
+  --t-button-top:          #8b1a1a;
+  --t-button-bottom:       #6b0f0f;
+  --t-button-hover-top:    #a02020;
+  --t-button-hover-bottom: #7a1212;
+  --t-button-border:       #4a0a0a;
+}
+html.boards-theme-YOUR-FORUM-SLUG {
+  /* Legacy variable aliases for the Vanilla Forum section below */
+  --forum-row-bg:       #1f0d0d;
+  --forum-row-hover:    #2a0f0f;
+  --forum-row-unread:   #2a1010;
+  --forum-border:       #4a1515;
+  --forum-text:         #e8d0d0;
+  --forum-link:         #e87070;
+  --forum-link-hover:   #ff9999;
+  --forum-muted:        #a06060;
+  --forum-btn-bg:       #8b1a1a;
+  --forum-btn-text:     #ffffff;
+  --forum-btn-border:   #4a0a0a;
+  --forum-btn-hover:    #a02020;
+  --forum-dropdown-bg:  #1f0d0d;
+  --forum-dropdown-hover: #2a0f0f;
+  --t-row-bg:         #1f0d0d;
+  --t-row-hover:      #2a0f0f;
+  --t-row-unread:     #2a1010;
+  --t-btn-bg:         #8b1a1a;
+  --t-btn-text:       #ffffff;
+  --t-btn-border:     #4a0a0a;
+  --t-btn-hover:      #a02020;
+  --t-dropdown-bg:    #1f0d0d;
+  --t-dropdown-hover: #2a0f0f;
+  /* End of Values that need changing! */
+}
+/* ============================================================
+   STEP 2 — Page base
+   Controls the overall page background and text colour.
+   ============================================================ */
+html.boards-theme-YOUR-FORUM-SLUG,
+html.boards-theme-YOUR-FORUM-SLUG body,
+html.boards-theme-YOUR-FORUM-SLUG #Body,
+html.boards-theme-YOUR-FORUM-SLUG .Container,
+html.boards-theme-YOUR-FORUM-SLUG .Content.MainContent,
+html.boards-theme-YOUR-FORUM-SLUG .page-content,
+html.boards-theme-YOUR-FORUM-SLUG .pageBox,
+html.boards-theme-YOUR-FORUM-SLUG .MessageList.Discussion,
+html.boards-theme-YOUR-FORUM-SLUG .Comments.pageBox {
+  background: var(--t-bg) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+/* ============================================================
+   STEP 3 — Top navigation bar
+   The site header containing logo, search, account menu.
+   ============================================================ */
+html.boards-theme-YOUR-FORUM-SLUG #nav,
+html.boards-theme-YOUR-FORUM-SLUG #themeHeader,
+html.boards-theme-YOUR-FORUM-SLUG .titleBar,
+html.boards-theme-YOUR-FORUM-SLUG [class*="TitleBar-classes-bg"],
+html.boards-theme-YOUR-FORUM-SLUG [class*="TitleBar-classes-container"] {
+  background: var(--t-bg) !important;
+  border-bottom: 1px solid var(--t-border) !important;
+}
+
+html.boards-theme-YOUR-FORUM-SLUG #nav a,
+html.boards-theme-YOUR-FORUM-SLUG [class*="TitleBar"] a,
+html.boards-theme-YOUR-FORUM-SLUG [class*="TitleBar"] button {
+  color: var(--t-link) !important;
+  background: transparent !important;
+}
+
+/* ============================================================
+   STEP 4 — Breadcrumbs
+   The navigation trail: Home › Topics › After Hours
+   ============================================================ */
+html.boards-theme-YOUR-FORUM-SLUG .BreadcrumbsBox,
+html.boards-theme-YOUR-FORUM-SLUG .Breadcrumbs,
+html.boards-theme-YOUR-FORUM-SLUG .PageTitle,
+html.boards-theme-YOUR-FORUM-SLUG .pageHeadingBox {
+  background: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border) !important;
+}
+
+html.boards-theme-YOUR-FORUM-SLUG .Breadcrumbs a,
+html.boards-theme-YOUR-FORUM-SLUG .CrumbLabel a {
+  color: var(--t-link) !important;
+}
+
+/* ============================================================
+   STEP 5 — Links
+   ============================================================ */
+html.boards-theme-YOUR-FORUM-SLUG a {
+  color: var(--t-link) !important;
+}
+
+html.boards-theme-YOUR-FORUM-SLUG a:hover {
+  color: var(--t-link-hover) !important;
+}
+
+/* ============================================================
+   STEP 6 — Forum thread list header
+   The coloured bar that says "Latest Posts" or "Sub Forums"
+   ============================================================ */
+html.boards-theme-YOUR-FORUM-SLUG .forum-threadlist-header,
+html.boards-theme-YOUR-FORUM-SLUG .forum-threadlist-header .latest-title {
+  background: linear-gradient(
+    180deg,
+    var(--t-header-top) 0%,
+    var(--t-header-bottom) 100%
+  ) !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid var(--t-header-border) !important;
+}
+
+/* ============================================================
+   STEP 7 — Thread list table
+   The rows of discussions in the forum list.
+   ============================================================ */
+html.boards-theme-YOUR-FORUM-SLUG .forum-threadlist-table th {
+  background: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+html.boards-theme-YOUR-FORUM-SLUG .forum-threadlist-table tbody td {
+  background: var(--t-surface) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+html.boards-theme-YOUR-FORUM-SLUG .forum-threadlist-table tbody tr:nth-child(even) td {
+  background: var(--t-surface-2) !important;
+}
+
+html.boards-theme-YOUR-FORUM-SLUG td.forum-threadlist-lastpost,
+html.boards-theme-YOUR-FORUM-SLUG td.forum-threadlist-replies,
+html.boards-theme-YOUR-FORUM-SLUG td.forum-threadlist-views,
+html.boards-theme-YOUR-FORUM-SLUG .forum-threadlist-thread-lastposter,
+html.boards-theme-YOUR-FORUM-SLUG .threadbit-lastposter {
+  background: var(--t-surface) !important;
+  color: var(--t-muted) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+/* ============================================================
+   STEP 8 — Pager (pagination controls)
+   ============================================================ */
+html.boards-theme-YOUR-FORUM-SLUG .PageControls,
+html.boards-theme-YOUR-FORUM-SLUG .Pager,
+html.boards-theme-YOUR-FORUM-SLUG #PagerBefore,
+html.boards-theme-YOUR-FORUM-SLUG #PagerAfter,
+html.boards-theme-YOUR-FORUM-SLUG .Pager a,
+html.boards-theme-YOUR-FORUM-SLUG .Pager span {
+  background: var(--t-surface) !important;
+  color: var(--t-link) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+html.boards-theme-YOUR-FORUM-SLUG .Pager a.Highlight {
+  background: var(--t-header-bottom) !important;
+  color: #ffffff !important;
+}
+
+/* ============================================================
+   STEP 9 — New Discussion button
+   ============================================================ */
+html.boards-theme-YOUR-FORUM-SLUG div.ButtonGroup[data-is-kludged="true"],
+html.boards-theme-YOUR-FORUM-SLUG .ButtonGroup.NewDiscussion {
+  background: linear-gradient(
+    180deg,
+    var(--t-button-top) 0%,
+    var(--t-button-bottom) 100%
+  ) !important;
+  border: 1px solid var(--t-button-border) !important;
+  color: #ffffff !important;
+}
+
+html.boards-theme-YOUR-FORUM-SLUG div.ButtonGroup[data-is-kludged="true"] a.Button {
+  background: transparent !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+/* ============================================================
+   STEP 10 — Post header bar
+   The strip showing post number, date, options per post.
+   ============================================================ */
+html.boards-theme-YOUR-FORUM-SLUG .postbit-header {
+  background: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border-bottom: 1px solid var(--t-border-soft) !important;
+}
+
+html.boards-theme-YOUR-FORUM-SLUG .postbit-header a,
+html.boards-theme-YOUR-FORUM-SLUG .postbit-header .MItem {
+  color: var(--t-text) !important;
+  background: transparent !important;
+}
+
+/* ============================================================
+   STEP 11 — User info column
+   Left panel showing username, avatar, join date, post count.
+   ============================================================ */
+html.boards-theme-YOUR-FORUM-SLUG .postbit-userinfo,
+html.boards-theme-YOUR-FORUM-SLUG .postbit-userinfo .userinfo-row,
+html.boards-theme-YOUR-FORUM-SLUG .postbit-userinfo .userinfo-joindate,
+html.boards-theme-YOUR-FORUM-SLUG .postbit-userinfo .userinfo-posts,
+html.boards-theme-YOUR-FORUM-SLUG .postbit-userinfo .RoleTitle,
+html.boards-theme-YOUR-FORUM-SLUG .postbit-userinfo .MItem {
+  background: var(--t-panel) !important;
+  color: var(--t-muted) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+html.boards-theme-YOUR-FORUM-SLUG .postbit-userinfo a,
+html.boards-theme-YOUR-FORUM-SLUG .postbit-userinfo .userinfo-username-title {
+  color: var(--t-link) !important;
+}
+
+html.boards-theme-YOUR-FORUM-SLUG .postbit-wrapper,
+html.boards-theme-YOUR-FORUM-SLUG .postbit-postdetails,
+html.boards-theme-YOUR-FORUM-SLUG .PhotoWrap,
+html.boards-theme-YOUR-FORUM-SLUG .ProfilePhotoMedium,
+html.boards-theme-YOUR-FORUM-SLUG .postbit-userinfo .PhotoWrapLarge {
+  background: var(--t-panel) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+/* ============================================================
+   STEP 12 — Post body
+   The actual message content area.
+   ============================================================ */
+html.boards-theme-YOUR-FORUM-SLUG .postbit-postbody,
+html.boards-theme-YOUR-FORUM-SLUG .postbit-message,
+html.boards-theme-YOUR-FORUM-SLUG .message-wrapper,
+html.boards-theme-YOUR-FORUM-SLUG .Item-BodyWrap,
+html.boards-theme-YOUR-FORUM-SLUG .Item-Body,
+html.boards-theme-YOUR-FORUM-SLUG .Message.userContent,
+html.boards-theme-YOUR-FORUM-SLUG .userContent,
+html.boards-theme-YOUR-FORUM-SLUG .UserSignature {
+  background: var(--t-surface) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+html.boards-theme-YOUR-FORUM-SLUG .Message.userContent p,
+html.boards-theme-YOUR-FORUM-SLUG .Message.userContent div,
+html.boards-theme-YOUR-FORUM-SLUG .Message.userContent span,
+html.boards-theme-YOUR-FORUM-SLUG .Item-Body p,
+html.boards-theme-YOUR-FORUM-SLUG .Item-Body div {
+  background: transparent !important;
+  color: var(--t-text) !important;
+}
+
+/* ============================================================
+   STEP 13 — Reactions row
+   Flag, Quote, Thanks buttons below each post.
+   ============================================================ */
+html.boards-theme-YOUR-FORUM-SLUG .Reactions,
+html.boards-theme-YOUR-FORUM-SLUG .Reactions > div,
+html.boards-theme-YOUR-FORUM-SLUG .Reactions .ReactButton,
+html.boards-theme-YOUR-FORUM-SLUG .Reactions .ReactLabel,
+html.boards-theme-YOUR-FORUM-SLUG .clearleft {
+  background: var(--t-surface) !important;
+  color: var(--t-link) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+/* ============================================================
+   STEP 14 — Quote and code blocks
+   ============================================================ */
+html.boards-theme-YOUR-FORUM-SLUG blockquote,
+html.boards-theme-YOUR-FORUM-SLUG pre,
+html.boards-theme-YOUR-FORUM-SLUG code,
+html.boards-theme-YOUR-FORUM-SLUG [class*="quoteEmbed"],
+html.boards-theme-YOUR-FORUM-SLUG [class*="embedContent"] {
+  background: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border: 1px solid var(--t-border-soft) !important;
+}
+
+/* ============================================================
+   STEP 15 — Comment / reply form
+   ============================================================ */
+html.boards-theme-YOUR-FORUM-SLUG .MessageForm,
+html.boards-theme-YOUR-FORUM-SLUG .CommentForm,
+html.boards-theme-YOUR-FORUM-SLUG .Form-BodyWrap {
+  background: var(--t-surface) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+/* ============================================================
+   STEP 16 — Extension UI buttons
+   Override the extension's own toggle and icon buttons
+   to match this forum theme.
+   ============================================================ */
+html.boards-theme-YOUR-FORUM-SLUG #profileToggleBtn {
+  background-color: var(--t-button-top) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--t-button-border) !important;
+}
+
+html.boards-theme-YOUR-FORUM-SLUG #profileToggleBtn:hover {
+  background-color: var(--t-button-hover-top) !important;
+}
+
+html.boards-theme-YOUR-FORUM-SLUG .infoIcon,
+html.boards-theme-YOUR-FORUM-SLUG .navIcon {
+  background-color: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+html.boards-theme-YOUR-FORUM-SLUG dialog#shortcutDialog {
+  background: var(--t-surface) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+html.boards-theme-YOUR-FORUM-SLUG #bcEditModalBtn {
+  background-color: var(--t-button-top) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--t-button-border) !important;
+}
+
+/* ============================================================
+   STEP 17 — Mobile thread list
+   Boards.ie collapses the thread table on small screens.
+   These rules cover the stacked card layout on mobile.
+   ============================================================ */
+@media (max-width: 768px) {
+
+  html.boards-theme-YOUR-FORUM-SLUG .forum-threadlist-wrapper,
+  html.boards-theme-YOUR-FORUM-SLUG .forum-threadlist-table td,
+  html.boards-theme-YOUR-FORUM-SLUG .threadrow-container,
+  html.boards-theme-YOUR-FORUM-SLUG .forum-threadlist-thread,
+  html.boards-theme-YOUR-FORUM-SLUG .forum-threadlist-thread-title,
+  html.boards-theme-YOUR-FORUM-SLUG .forum-threadlist-thread-meta {
+    background: var(--t-surface) !important;
+    color: var(--t-text) !important;
+    border-color: var(--t-border-soft) !important;
+  }
+
+  html.boards-theme-YOUR-FORUM-SLUG .forum-threadlist-thread-threadlink {
+    color: var(--t-link) !important;
+  }
+}
+
+/* ============================================================
+   VANILLA FORUM LEGACY STRUCTURE — generic template backport
+   Mirrors fixes confirmed in afterhours-dark theme
+   ============================================================ */
+
+/* Outer data-table wrapper */
+.DataTableWrap {
+  background: transparent !important;
+}
+
+/* Legacy discussion list table */
+table.DataTable.DiscussionsTable {
+  background: transparent !important;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+/* Row base */
+table.DataTable.DiscussionsTable tr.Item,
+table.DataTable.DiscussionsTable tr.Item.Alt {
+  background: var(--t-row-bg, #1e1e1e) !important;
+  border-bottom: 1px solid var(--t-border, #333) !important;
+}
+
+table.DataTable.DiscussionsTable tr.Item:hover,
+table.DataTable.DiscussionsTable tr.Item.Alt:hover {
+  background: var(--t-row-hover, #2a2a2a) !important;
+}
+
+/* Unread / New highlight */
+table.DataTable.DiscussionsTable tr.Item.Unread,
+table.DataTable.DiscussionsTable tr.Item.New {
+  background: var(--t-row-unread, #222b2b) !important;
+}
+
+/* Discussion name cell */
+table.DataTable.DiscussionsTable td.DiscussionName {
+  background: transparent !important;
+  color: var(--t-text, #e0e0e0) !important;
+}
+
+table.DataTable.DiscussionsTable td.DiscussionName a {
+  color: var(--t-link, #7ec8e3) !important;
+}
+
+table.DataTable.DiscussionsTable td.DiscussionName a:hover {
+  color: var(--t-link-hover, #aee0f5) !important;
+  text-decoration: underline;
+}
+
+/* Block/stat columns */
+table.DataTable.DiscussionsTable td.BlockColumn,
+table.DataTable.DiscussionsTable td.FirstUser,
+table.DataTable.DiscussionsTable td.LastUser,
+table.DataTable.DiscussionsTable td.BigCount,
+table.DataTable.DiscussionsTable td.BigCount.CountViews {
+  background: transparent !important;
+  color: var(--t-muted, #888) !important;
+}
+
+/* New Discussion button area */
+.BoxButtons.BoxNewDiscussion,
+.BoxButtons.BoxNewDiscussion .ButtonGroup.Multi.Primary.Action.NewDiscussion.Big {
+  background: transparent !important;
+}
+
+.BoxButtons.BoxNewDiscussion .ButtonGroup.Multi.Primary.Action.NewDiscussion.Big .Button.Primary,
+.BoxButtons.BoxNewDiscussion .ButtonGroup.Multi.Primary.Action.NewDiscussion.Big button {
+  background: var(--t-btn-bg, #2a6496) !important;
+  color: var(--t-btn-text, #fff) !important;
+  border: 1px solid var(--t-btn-border, #1a4a72) !important;
+}
+
+.BoxButtons.BoxNewDiscussion .ButtonGroup.Multi.Primary.Action.NewDiscussion.Big .Button.Primary:hover,
+.BoxButtons.BoxNewDiscussion .ButtonGroup.Multi.Primary.Action.NewDiscussion.Big button:hover {
+  background: var(--t-btn-hover, #1a4a72) !important;
+}
+
+/* Dropdown from multi-button */
+.BoxButtons.BoxNewDiscussion .Dropdown.MenuItems,
+.BoxButtons.BoxNewDiscussion .Dropdown.MenuItems li,
+.BoxButtons.BoxNewDiscussion .Dropdown.MenuItems a {
+  background: var(--t-dropdown-bg, #1e1e1e) !important;
+  color: var(--t-text, #e0e0e0) !important;
+  border-color: var(--t-border, #333) !important;
+}
+
+.BoxButtons.BoxNewDiscussion .Dropdown.MenuItems a:hover {
+  background: var(--t-dropdown-hover, #2a2a2a) !important;
+}
+
+/* Ad placeholders / spacers — neutralise white ghost frames */
+.no-ad-top-spacer {
+  display: none !important;
+}
+
+.Frame-contentWrap.noad-top {
+  background: transparent !important;
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
