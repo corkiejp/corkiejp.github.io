@@ -1,0 +1,40 @@
+{
+  "manifest_version": 2,
+  "name": "Entertainment.ie TV Slide Viewer Prototype",
+  "version": "0.1.0",
+  "description": "Prototype extension for browsing up to 5 selected TV channels in scrollable slide columns.",
+  "permissions": ["tabs", "storage"],
+
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+
+  "browser_action": {
+    "default_title": "Toggle TV Slide Viewer"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["https://entertainment.ie/tv/*"],
+      "js": ["content.js"],
+      "css": ["viewer.css"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "commands": {
+    "toggle-viewer": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+1"
+      },
+      "description": "Toggle TV Slide Viewer overlay"
+    }
+  },
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "tv-slide-viewer@corkie.github.io"
+    }
+  }
+}

@@ -5,6 +5,33 @@ const ext = globalThis.browser || globalThis.chrome;
 const NOTIFICATION_PREFIX = "svlv-new-leaflet-";
 const CHECK_ALARM_NAME = "svlv-check-leaflet";
 
+function htmlHasLeafletPdfMeta(html) {
+  return /<meta[^>]+property=["']og:image["'][^>]+content=["'][^"']+\.pdf(?:\?[^"']*)?["']/i.test(
+    html
+  );
+}
+
+function detectMiniLeafletFromHtml(id, url, html) {
+  // Only consider suffix forms like 606b, 607b, etc.
+  const m = url.match(/\/offers\/leaflet\/(\d+)([a-z])\b/i);
+  if (!m) return null;
+
+  const baseId = Number(m[1]);
+  const suffix = m[0].split("/").pop(); // "606b"
+
+  if (!Number.isFinite(baseId)) return null;
+
+  if (!htmlHasLeafletPdfMeta(html)) return null;
+
+  return {
+    baseId,
+    suffix,
+    url,
+    firstSeenAt: Date.now()
+    // pdfUrl can be resolved later by content.js via getPdfUrlFromMeta()
+  };
+}
+
 function notifyNewLeaflet(info) {
   if (!ext.notifications) return;
 
@@ -184,31 +211,68 @@ async function configureLeafletAlarm() {
 async function performLeafletCheck() {
   const { lastLeaflet } = await ext.storage.local.get(["lastLeaflet"]);
   const baseId = lastLeaflet && typeof lastLeaflet.id === "number" ? lastLeaflet.id : null;
+  if (!baseId) {
+    return;
+  }
 
-  if (!baseId) return;
-
-  const candidateIds = [baseId + 1, baseId + 2];
+  const candidateIds = [baseId, baseId + 1, baseId + 2];
   let foundId = null;
   let foundUrl = null;
+  let miniHint = null;
+
+  function htmlHasLeafletPdfMeta(html) {
+    return /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+\.pdf(?:\?[^"']*)?)["']/i.test(html);
+  }
+
+  function extractPdfUrlFromHtml(html) {
+    const m = html.match(
+      /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+\.pdf(?:\?[^"']*)?)["']/i
+    );
+    return m ? m[1] : null;
+  }
 
   for (const id of candidateIds) {
-    const url = `https://supervalu.ie/offers/leaflet/${id}`;
-    try {
-      const res = await fetch(url, { method: "GET", credentials: "include" });
-      if (!res.ok) continue;
+    const fullUrl = `https://supervalu.ie/offers/leaflet/${id}`;
+    const shortUrl = `https://supervalu.ie/offers/leaflet/${id}b`;
 
-      const html = await res.text();
-      if (htmlHasLeafletPdfMeta(html)) {
-        foundId = id;
-        foundUrl = url;
-        break;
+    try {
+      const fullRes = await fetch(fullUrl, { method: "GET", credentials: "include" });
+      if (fullRes.ok) {
+        const fullHtml = await fullRes.text();
+        if (htmlHasLeafletPdfMeta(fullHtml) && id > baseId) {
+          foundId = id;
+          foundUrl = fullUrl;
+        }
       }
     } catch {}
+
+    try {
+      const shortRes = await fetch(shortUrl, { method: "GET", credentials: "include" });
+      if (shortRes.ok) {
+        const shortHtml = await shortRes.text();
+        if (htmlHasLeafletPdfMeta(shortHtml)) {
+          const pdfUrl = extractPdfUrlFromHtml(shortHtml);
+          miniHint = {
+            baseId: id,
+            suffix: `${id}b`,
+            url: shortUrl,
+            pdfUrl: pdfUrl ? new URL(pdfUrl, "https://supervalu.ie").href : null,
+            firstSeenAt: Date.now()
+          };
+        }
+      }
+    } catch {}
+
+    if (foundId != null) break;
   }
 
   const now = Date.now();
   const current = new Date();
-  const weekKey = getWeekKey(current);
+  const weekKey = `${current.getFullYear()}-${getIsoWeekNumber(current)}`;
+
+  const toStore = {
+    lastWeeklyCheck: { weekKey, hasLeaflet: foundId != null, updatedAt: now }
+  };
 
   if (foundId != null) {
     const newInfo = {
@@ -217,11 +281,7 @@ async function performLeafletCheck() {
       url: foundUrl
     };
 
-    await ext.storage.local.set({
-      lastLeaflet: newInfo,
-      lastWeeklyCheck: { weekKey, hasLeaflet: true, updatedAt: now },
-      cadenceAnchorWeek: weekKey
-    });
+    toStore.lastLeaflet = newInfo;
 
     notifyNewLeaflet(newInfo);
 
@@ -229,12 +289,16 @@ async function performLeafletCheck() {
       await ext.action.setBadgeText({ text: "NEW" });
       await ext.action.setBadgeBackgroundColor({ color: "#2ecc71" });
     } catch {}
-  } else {
-    await ext.storage.local.set({
-      lastWeeklyCheck: { weekKey, hasLeaflet: false, updatedAt: now }
-    });
   }
+
+  if (miniHint) {
+    toStore.miniLeafletHint = miniHint;
+  }
+
+  await ext.storage.local.set(toStore);
 }
+
+
 
 ext.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name !== CHECK_ALARM_NAME) return;

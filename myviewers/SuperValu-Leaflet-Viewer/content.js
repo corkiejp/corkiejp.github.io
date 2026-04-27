@@ -31,6 +31,12 @@
     const url = meta?.getAttribute("content");
     return url ? new URL(url, location.origin).href : null;
   }
+  
+  function getCurrentLeafletIdSuffix() {
+  // Matches /offers/leaflet/606b or similar
+  const m = location.pathname.match(/\/offers\/leaflet\/(\d+[a-z])\b/i);
+  return m ? m[1] : null;
+}
 
   function getCurrentLeafletId() {
     const m = location.pathname.match(/\/offers\/leaflet\/(\d+)\b/i);
@@ -89,29 +95,43 @@ async function leafletExists(id) {
     }
   }
 
-  async function goToNextLeaflet() {
-    if (state.leafletNavBusy) return;
-    const currentId = getCurrentLeafletId();
-    if (!currentId) {
-      flash("Current leaflet ID not found");
+async function goToNextLeaflet() {
+  if (state.leafletNavBusy) return;
+  const currentId = getCurrentLeafletId();
+  if (!currentId) {
+    flash("Current leaflet ID not found");
+    return;
+  }
+  const nextId = currentId + 1;
+  state.leafletNavBusy = true;
+  setLeafletNavButtonsDisabled(true);
+  flash(`Checking leaflet ${nextId}...`);
+
+  try {
+    const ok = await leafletExists(nextId);
+    if (ok) {
+      location.href = `https://supervalu.ie/offers/leaflet/${nextId}`;
       return;
     }
-    const nextId = currentId + 1;
-    state.leafletNavBusy = true;
-    setLeafletNavButtonsDisabled(true);
-    flash(`Checking leaflet ${nextId}...`);
-    try {
-      const ok = await leafletExists(nextId);
-      if (!ok) {
-        flash(`Leaflet ${nextId} not available`);
-        return;
-      }
-      location.href = `https://supervalu.ie/offers/leaflet/${nextId}`;
-    } finally {
-      state.leafletNavBusy = false;
-      setLeafletNavButtonsDisabled(false);
+
+    // Generic mini leaflet fallback
+    if (hasStorage) {
+      try {
+        const { miniLeafletHint } = await ext.storage.local.get(["miniLeafletHint"]);
+        if (miniLeafletHint && miniLeafletHint.baseId === nextId) {
+          flash(`Short leaflet ${miniLeafletHint.suffix} available`);
+          window.open(miniLeafletHint.url, "_blank", "noopener,noreferrer");
+          return;
+        }
+      } catch {}
     }
+
+    flash(`Leaflet ${nextId} not available`);
+  } finally {
+    state.leafletNavBusy = false;
+    setLeafletNavButtonsDisabled(false);
   }
+}
 
   function getPageNumberFromAlt(alt = "") {
     const m = alt.match(/Page\s+(\d+)/i);
@@ -301,44 +321,49 @@ async function leafletExists(id) {
     }
   }
 
-  function render() {
-    const item = current();
-    const pdfUrl = getPdfUrlFromMeta();
-    const leafletId = getCurrentLeafletId();
+function render() {
+  const item = current();
+  const pdfUrl = getPdfUrlFromMeta();
+  const leafletId = getCurrentLeafletId();
 
-    leafletLabel.textContent = leafletId ? `Leaflet ${leafletId}` : "Leaflet —";
-    pdfBtn.disabled = !pdfUrl;
-    pdfBtn.title = pdfUrl ? "Download full PDF" : "PDF link not found";
+  leafletLabel.textContent = leafletId ? `Leaflet ${leafletId}` : "Leaflet —";
+  pdfBtn.disabled = !pdfUrl;
+  pdfBtn.title = pdfUrl ? "Download full PDF" : "PDF link not found";
 
-    if (state.lastLeafletInfo && typeof state.lastLeafletInfo.id === "number") {
-      const d = formatDate(state.lastLeafletInfo.firstSeenAt);
-      latestLabel.textContent = d
-        ? `Latest leaflet ${state.lastLeafletInfo.id} (first seen ${d})`
-        : `Latest leaflet ${state.lastLeafletInfo.id} (first seen locally)`;
-    } else {
-      latestLabel.textContent = "";
-    }
-
-    if (!item) {
-      img.hidden = true;
-      empty.hidden = false;
-      img.removeAttribute("src");
-      status.textContent = "No leaflet images found";
-      pageLabel.textContent = "—";
-      urlField.value = "";
-      syncJumpInput(null);
-      return;
-    }
-
-    empty.hidden = true;
-    img.hidden = false;
-    img.src = item.url;
-    img.alt = item.alt || `Leaflet page ${item.page}`;
-    status.textContent = `${state.index + 1} / ${state.pages.length}`;
-    pageLabel.textContent = Number.isFinite(item.page) ? `Page ${item.page}` : "Unknown page";
-    urlField.value = item.url;
-    syncJumpInput(item);
+  if (state.lastLeafletInfo && typeof state.lastLeafletInfo.id === "number") {
+    const d = formatDate(state.lastLeafletInfo.firstSeenAt);
+    latestLabel.textContent = d
+      ? `Latest leaflet ${state.lastLeafletInfo.id} (first seen ${d})`
+      : `Latest leaflet ${state.lastLeafletInfo.id} (first seen locally)`;
+  } else {
+    latestLabel.textContent = "";
   }
+
+  if (!item) {
+    img.hidden = true;
+    empty.hidden = false;
+    img.removeAttribute("src");
+    status.textContent = "No leaflet images found";
+    pageLabel.textContent = "—";
+    urlField.value = "";
+    syncJumpInput(null);
+
+    // Important: still allow the mini leaflet banner to show
+    showMiniLeafletBannerIfNeeded();
+    return;
+  }
+
+  empty.hidden = true;
+  img.hidden = false;
+  img.src = item.url;
+  img.alt = item.alt || `Leaflet page ${item.page}`;
+  status.textContent = `${state.index + 1} / ${state.pages.length}`;
+  pageLabel.textContent = Number.isFinite(item.page) ? `Page ${item.page}` : "Unknown page";
+  urlField.value = item.url;
+  syncJumpInput(item);
+
+  showMiniLeafletBannerIfNeeded();
+}
 
   let toastTimer;
   function flash(text) {
@@ -394,31 +419,222 @@ async function checkLeafletVersionNotice() {
   }
 }
 
-  let olderBannerShown = false;
-  function showOlderLeafletBanner(latestId, currentId, latestUrl) {
-    if (olderBannerShown) return;
-    olderBannerShown = true;
+
+
+let miniLeafletBannerShown = false;
+
+async function showMiniLeafletBannerIfNeeded() {
+  if (miniLeafletBannerShown || !hasStorage) return;
+
+  const suffixId = getCurrentLeafletIdSuffix();
+  const numericId = getCurrentLeafletId();
+
+  function styleMiniBanner(banner) {
+    banner.style.position = "absolute";
+    banner.style.top = "72px";
+    banner.style.left = "50%";
+    banner.style.transform = "translateX(-50%)";
+    banner.style.zIndex = "20";
+    banner.style.maxWidth = "760px";
+    banner.style.width = "calc(100% - 32px)";
+    banner.style.padding = "12px 16px";
+    banner.style.borderRadius = "12px";
+    banner.style.background = "rgba(20, 20, 20, 0.98)";
+    banner.style.color = "#fff";
+    banner.style.boxShadow = "0 10px 30px rgba(0,0,0,.45)";
+    banner.style.border = "1px solid rgba(255,255,255,.12)";
+    banner.style.lineHeight = "1.4";
+
+    for (const btn of banner.querySelectorAll("button")) {
+      btn.style.marginLeft = "10px";
+      btn.style.padding = "6px 10px";
+      btn.style.borderRadius = "8px";
+      btn.style.border = "1px solid rgba(255,255,255,.16)";
+      btn.style.background = "#2b2b2b";
+      btn.style.color = "#fff";
+      btn.style.cursor = "pointer";
+    }
+  }
+
+  function mountMiniBanner(banner) {
+    overlay.querySelectorAll(".svlv-new-leaflet-banner").forEach((el) => el.remove());
+    styleMiniBanner(banner);
+    overlay.appendChild(banner);
+  }
+
+  async function fetchPdfUrlFromLeafletPage(pageUrl) {
+    try {
+      const res = await fetch(pageUrl, { method: "GET", credentials: "include" });
+      if (!res.ok) return null;
+      const html = await res.text();
+      const m = html.match(
+        /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+\.pdf(?:\?[^"']*)?)["']/i
+      );
+      return m ? new URL(m[1], location.origin).href : null;
+    } catch {
+      return null;
+    }
+  }
+
+  // Case 1: user is directly on a short leaflet like 607b
+  if (suffixId) {
+    const pdfUrl = getPdfUrlFromMeta();
+    if (!pdfUrl) return;
+
+    miniLeafletBannerShown = true;
+    const pageUrl = location.href;
 
     const banner = document.createElement("div");
     banner.className = "svlv-new-leaflet-banner";
     banner.innerHTML = `
-      <span>You’re viewing leaflet ${currentId}. A newer leaflet (${latestId}) is available.</span>
-      <button type="button" data-act="open-latest">Open latest</button>
-      <button type="button" data-act="dismiss-latest">Dismiss</button>
+      Short leaflet detected (${suffixId}).
+      <button type="button" data-act="open-leaflet">Open leaflet page</button>
+      <button type="button" data-act="download-pdf">Download PDF</button>
+      <button type="button" data-act="dismiss-mini">Dismiss</button>
     `;
-    document.body.appendChild(banner);
+
+    mountMiniBanner(banner);
 
     banner.addEventListener("click", (e) => {
       const btn = e.target.closest("button[data-act]");
       if (!btn) return;
       const act = btn.dataset.act;
-      if (act === "open-latest") {
-        location.href = latestUrl || `https://supervalu.ie/offers/leaflet/${latestId}`;
-      } else if (act === "dismiss-latest") {
+
+      if (act === "open-leaflet") {
+        window.open(pageUrl, "_blank", "noopener,noreferrer");
+      } else if (act === "download-pdf") {
+        const a = document.createElement("a");
+        a.href = pdfUrl;
+        a.download = pdfUrl.split("/").pop() || "leaflet.pdf";
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.click();
+      } else if (act === "dismiss-mini") {
         banner.remove();
       }
     });
+
+    return;
   }
+
+  // Case 2/3: numeric page with a matching short leaflet hint
+  if (numericId == null) return;
+
+  try {
+    const { miniLeafletHint } = await ext.storage.local.get(["miniLeafletHint"]);
+    if (!miniLeafletHint || miniLeafletHint.baseId !== numericId) return;
+
+    const hasViewerImages = state.pages && state.pages.length > 0;
+    const label = miniLeafletHint.suffix || `${numericId}b`;
+
+    miniLeafletBannerShown = true;
+
+    const banner = document.createElement("div");
+    banner.className = "svlv-new-leaflet-banner";
+
+    if (hasViewerImages) {
+      banner.innerHTML = `
+        A newer short leaflet (${label}) is available for leaflet ${numericId}.
+        <button type="button" data-act="open-mini">Open short leaflet</button>
+        <button type="button" data-act="download-mini-pdf">Download short PDF</button>
+        <button type="button" data-act="dismiss-mini">Dismiss</button>
+      `;
+    } else {
+      banner.innerHTML = `
+        No leaflet images were found for leaflet ${numericId}, but a short leaflet (${label}) is available.
+        <button type="button" data-act="open-mini">Open short leaflet</button>
+        <button type="button" data-act="download-mini-pdf">Download short PDF</button>
+        <button type="button" data-act="dismiss-mini">Dismiss</button>
+      `;
+    }
+
+    mountMiniBanner(banner);
+
+    banner.addEventListener("click", async (e) => {
+      const btn = e.target.closest("button[data-act]");
+      if (!btn) return;
+      const act = btn.dataset.act;
+
+      if (act === "open-mini") {
+        window.open(miniLeafletHint.url, "_blank", "noopener,noreferrer");
+      } else if (act === "download-mini-pdf") {
+        const pdfUrl =
+          miniLeafletHint.pdfUrl || (await fetchPdfUrlFromLeafletPage(miniLeafletHint.url));
+
+        if (!pdfUrl) {
+          flash("Short leaflet PDF not found");
+          return;
+        }
+
+        const a = document.createElement("a");
+        a.href = pdfUrl;
+        a.download = pdfUrl.split("/").pop() || "leaflet.pdf";
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.click();
+      } else if (act === "dismiss-mini") {
+        banner.remove();
+      }
+    });
+  } catch {
+    // ignore storage failures
+  }
+}
+
+
+  let olderBannerShown = false;
+function showOlderLeafletBanner(latestId, currentId, latestUrl) {
+  if (olderBannerShown) return;
+  olderBannerShown = true;
+
+  const banner = document.createElement("div");
+  banner.className = "svlv-new-leaflet-banner";
+  banner.innerHTML = `
+    You’re viewing leaflet ${currentId}. A newer leaflet (${latestId}) is available.
+    <button type="button" data-act="open-latest">Open latest</button>
+    <button type="button" data-act="dismiss-latest">Dismiss</button>
+  `;
+
+  banner.style.position = "absolute";
+  banner.style.top = "72px";
+  banner.style.left = "50%";
+  banner.style.transform = "translateX(-50%)";
+  banner.style.zIndex = "20";
+  banner.style.maxWidth = "760px";
+  banner.style.width = "calc(100% - 32px)";
+  banner.style.padding = "12px 16px";
+  banner.style.borderRadius = "12px";
+  banner.style.background = "rgba(20, 20, 20, 0.98)";
+  banner.style.color = "#fff";
+  banner.style.boxShadow = "0 10px 30px rgba(0,0,0,.45)";
+  banner.style.border = "1px solid rgba(255,255,255,.12)";
+  banner.style.lineHeight = "1.4";
+
+  for (const btn of banner.querySelectorAll("button")) {
+    btn.style.marginLeft = "10px";
+    btn.style.padding = "6px 10px";
+    btn.style.borderRadius = "8px";
+    btn.style.border = "1px solid rgba(255,255,255,.16)";
+    btn.style.background = "#2b2b2b";
+    btn.style.color = "#fff";
+    btn.style.cursor = "pointer";
+  }
+
+  overlay.querySelectorAll(".svlv-new-leaflet-banner").forEach((el) => el.remove());
+  overlay.appendChild(banner);
+
+  banner.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-act]");
+    if (!btn) return;
+    const act = btn.dataset.act;
+
+    if (act === "open-latest") {
+      location.href = latestUrl || `https://supervalu.ie/offers/leaflet/${latestId}`;
+    } else if (act === "dismiss-latest") {
+      banner.remove();
+    }
+  });
+}
 
   const overlay = document.createElement("div");
   overlay.id = "__sv_leaflet_overlay__";
