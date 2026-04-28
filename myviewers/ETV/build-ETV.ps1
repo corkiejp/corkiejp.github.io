@@ -95,6 +95,8 @@ function Build-Target {
             $zipPath,
             '.\*',
             '-xr!dist',
+			'-xr!dist-old',
+			'-xr!dist-older',
             '-xr!.git',
             '-xr!.github',
             '-xr!node_modules',

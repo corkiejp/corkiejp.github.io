@@ -853,6 +853,18 @@ function bindEvents() {
     btn.addEventListener('click', e => reorder(e.target.getAttribute('data-move-right'), 'right'))
   );
   
+    el.querySelector('[data-max-toggle]')?.addEventListener('click', () => {
+    maxChannels = (maxChannels === DEFAULT_MAX_CHANNELS)
+      ? ALT_MAX_CHANNELS
+      : DEFAULT_MAX_CHANNELS;
+
+    console.log('[TV Viewer] maxChannels toggled to', maxChannels);
+
+    // Drop extra selections if we shrank the max
+    clampSelections();
+    render();
+  });
+  
   el.querySelector('[data-reset-selection]')?.addEventListener('click', () => {
     if (!confirm('Clear your saved channel selection?')) return;
 
