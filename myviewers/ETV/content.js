@@ -30,6 +30,60 @@ const STORAGE_KEY = 'tvSlideViewerSelectedChannels';
 }
 
 
+/*
+function focusListingFromQuery() {
+  const params = new URLSearchParams(window.location.search);
+  const targetTime  = (params.get('viewerFocusTime') || '').trim();
+  const targetTitle = (params.get('viewerFocusTitle') || '').trim().toLowerCase();
+
+  if (!targetTime && !targetTitle) return;
+
+  const normalise = s => (s || '').replace(/\s+/g, ' ').trim().toLowerCase();
+  const normaliseTitleForMatch = s =>
+    normalise(s).replace(/\s*\((r,?s?|s)\)\s*$/i, '').trim();
+
+  const wantTime  = normalise(targetTime);
+  const wantTitle = normaliseTitleForMatch(targetTitle);
+
+  const lis = document.querySelectorAll('ul.info-list li.lightbox-wrapper');
+  let targetLi = null;
+
+  lis.forEach(li => {
+    if (targetLi) return;
+
+    const tEl    = li.querySelector('.text-holder h3 a.lightbox');
+    const timeEl = li.querySelector('.text-holder span.time');
+    if (!tEl || !timeEl) return;
+
+    const tText    = normaliseTitleForMatch(tEl.textContent);
+    const timeText = normalise(timeEl.textContent);
+
+    const timeMatches  = wantTime  && timeText.endsWith(wantTime);
+    const titleMatches = wantTitle && tText === wantTitle;
+
+    if (timeMatches || titleMatches) {
+      targetLi = li;
+    }
+  });
+
+  if (!targetLi) {
+    console.log('[TV Viewer] focusListingFromQuery: no match for', { targetTime, targetTitle });
+    return;
+  }
+
+  // Scroll into view
+  targetLi.scrollIntoView({ block: 'center', behavior: 'smooth' });
+
+  // Click the site's own "read more" / popup trigger
+  const detailsLink = targetLi.querySelector('a.btn-share.lightbox, a.lightbox');
+  if (detailsLink) {
+    setTimeout(() => {
+      detailsLink.click();
+    }, 300);
+  }
+}
+*/
+
 	
 	// Simple in-memory cache: key = `${slug}|${date}|${timeRange}`
 const scheduleCache = new Map();
@@ -170,8 +224,8 @@ function saveSelectionToStorage() {
     }
 	
 async function fetchScheduleHTML(slug, dateStr, timeRange) {
-  const url = `/tv/${slug}/?date=${dateStr}&time=${timeRange}`;
-  const res = await fetch(url, { credentials: 'include' });
+  const url = new URL(`/tv/${slug}/?date=${dateStr}&time=${timeRange}`, window.location.origin);
+  const res = await fetch(url.toString(), { credentials: 'include' });
   if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.status}`);
   return res.text();
 }
@@ -217,17 +271,78 @@ async function fetchLiveSchedule(slug, dateStr, timeRange, key) {
   }
 }
 
+function ensureCurrentChannelInList() {
+  const m = window.location.pathname.match(/^\/tv\/([^/]+)\/?/);
+  if (!m || !m[1]) return;
+  const slug = m[1];
+
+  // Ignore aggregate pages
+  if (['tonight', 'all-channels', 'whats-on-now', 'movies', 'tv'].includes(slug)) {
+    return;
+  }
+
+  const nameFromTitle = (() => {
+    const titleSpan = document.querySelector('.title-block .text-wrap');
+    return titleSpan ? titleSpan.textContent.trim() : slug;
+  })();
+
+  // If channel already exists, just ensure it is selected
+  const existing = state.channels.find(c => c.slug === slug);
+  if (existing) {
+    state.selected.add(slug);
+    return;
+  }
+
+  // Otherwise add it to channels and select it
+  state.channels.push({ slug, name: nameFromTitle });
+  state.selected.add(slug);
+}
+
 
 function showTvPopup(meta) {
   const rootEl = ensureRoot();
   const popup = rootEl.querySelector('.tv-popup');
   if (!popup) return;
 
-  // Build IMDb search URL from the programme title
-  const imdbQuery = encodeURIComponent(meta.title || '');
+  // Prefer the slug passed from the card
+  let channelSlug = meta.channelSlug || '';
+
+  // Fallback: derive from path on channel pages if not provided
+  if (!channelSlug) {
+    const m = window.location.pathname.match(/^\/tv\/([^/]+)\/?/);
+    if (m && m[1] && !['tonight', 'all-channels', 'whats-on-now', 'movies', 'tv'].includes(m[1])) {
+      channelSlug = m[1];
+    }
+  }
+
+  // Clean title for IMDb (strip "(R,S)" etc.)
+  const cleanedTitle = normaliseTitleForImdb(meta.title || '');
+  const imdbQuery = encodeURIComponent(cleanedTitle);
   const imdbUrl = imdbQuery
     ? `https://www.imdb.com/find/?q=${imdbQuery}`
     : '';
+
+  // Build channel listings link if we have a channel slug
+  let channelLinkHtml = '';
+  if (channelSlug) {
+    const dateStr   = getTodayDateString();           // e.g. "28-04-2026"
+    const focusTime = extractTimeFromHtml(meta.timeHtml);
+    const url = new URL(`/tv/${channelSlug}/`, window.location.origin);
+
+    url.searchParams.set('date', dateStr);
+    // Use "evening-night" or whatever makes sense for your viewer
+    url.searchParams.set('time', 'evening-night');
+    if (focusTime)  url.searchParams.set('viewerFocusTime', focusTime);
+    if (meta.title) url.searchParams.set('viewerFocusTitle', meta.title);
+
+    channelLinkHtml = `
+      <div class="tv-popup-links" style="margin:6px 0;">
+        <a href="${url.toString()}" target="_blank" rel="noopener noreferrer">
+          Open full listings for this channel
+        </a>
+      </div>
+    `;
+  }
 
   popup.innerHTML = `
     <button type="button" class="tv-popup-close" data-tv-popup-close>×</button>
@@ -251,11 +366,11 @@ function showTvPopup(meta) {
       </div>
     ` : ''}
 
+    ${channelLinkHtml}
+
     ${meta.image ? `
       <img src="${meta.image}" alt="" style="max-width:100%;margin:6px 0;border-radius:4px;">
     ` : ''}
-
-    <p>${meta.description}</p>
   `;
 
   popup.classList.remove('tv-popup-hidden');
@@ -264,7 +379,8 @@ function showTvPopup(meta) {
     popup.classList.add('tv-popup-hidden');
   });
 }
-    // --- helpers you already had ---
+
+  // --- helpers you already had ---
 	
 	
 // Known special-case mappings: selector label -> URL slug
@@ -395,6 +511,22 @@ function getScheduleForChannel(slug) {
   ];
 }
 
+function normaliseTitleForImdb(raw) {
+  if (!raw) return '';
+  const s = raw.replace(/\s+/g, ' ').trim();
+  // Remove trailing " (R,S)", "(R)", "(S)" etc.
+  return s.replace(/\s*\((R,?S?|S)\)\s*$/i, '').trim();
+}
+
+function extractTimeFromHtml(timeHtml) {
+  if (!timeHtml) return '';
+  const tmp = document.createElement('div');
+  tmp.innerHTML = timeHtml;
+  const text = tmp.textContent || '';
+  const match = text.match(/(\d{1,2}:\d{2})/);
+  return match ? match[1] : '';
+}
+
 function clampSelections() {
   const arr = [...state.selected];
   console.log('[TV Viewer] clampSelections called, length =', arr.length);
@@ -417,26 +549,31 @@ function clampSelections() {
         </label>`;
     }
 
-function programmeCardHTML([time, title, flags]) {
+function programmeCardHTML([time, title, flags], channelSlug) {
   const flagText = flags.length ? flags.join(' · ') : 'Standard listing';
+  const safeTitle = (title || '').replace(/"/g, '&quot;');
+  const safeTime  = (time || '').replace(/"/g, '&quot;');
+
   return `
-    <article class="tv-card"
-             data-prog-time="${time}"
-             data-prog-title="${title}">
-      <div class="tv-time">${time}</div>
-      <div class="tv-title">${title}</div>
-      <div class="tv-flags">${flagText}</div>
-      <div class="tv-card-actions">
-        <button type="button" class="tv-card-details" data-prog-details>
-          Details
-        </button>
-      </div>
-    </article>`;
+    <div class="tv-card"
+         data-prog-time="${safeTime}"
+         data-prog-title="${safeTitle}"
+         data-channel-slug="${channelSlug}">
+      <div class="tvv-line tvv-time">${time}</div>
+      <div class="tvv-line tvv-title">${title}</div>
+      <div class="tvv-line tvv-flags">${flagText}</div>
+      <button type="button" class="tvv-details-btn" data-prog-details>
+        Details
+      </button>
+    </div>
+  `;
 }
 
-    function columnHTML(channel) {
-      const shows = getScheduleForChannel(channel.slug).map(programmeCardHTML).join('');
-      return `
+function columnHTML(channel) {
+  const shows = getScheduleForChannel(channel.slug)
+    .map(item => programmeCardHTML(item, channel.slug))
+    .join('');
+  return `
         <section class="tv-column" data-column="${channel.slug}">
           <header class="tv-column-head">
             <div class="tv-column-title">${channel.name}</div>
@@ -450,6 +587,9 @@ function programmeCardHTML([time, title, flags]) {
           <div class="tv-programmes">${shows}</div>
         </section>`;
     }
+	
+	
+	
 function render() {
   const el = ensureRoot();
 
@@ -592,8 +732,54 @@ function render() {
       selected.forEach(s => state.selected.add(s));
       render();
     }
+	
+	
+function focusListingFromQuery() {
+  const params = new URLSearchParams(window.location.search);
+  const targetTime  = (params.get('viewerFocusTime') || '').trim();
+  const targetTitle = (params.get('viewerFocusTitle') || '').trim().toLowerCase();
 
-    // --- render & events ---
+  if (!targetTime && !targetTitle) return;
+
+  const normalise = s => (s || '').replace(/\s+/g, ' ').trim().toLowerCase();
+
+  const lis = document.querySelectorAll('ul.info-list li.lightbox-wrapper');
+  let targetLi = null;
+
+  lis.forEach(li => {
+    if (targetLi) return;
+
+    const tEl    = li.querySelector('.text-holder h3 a.lightbox');
+    const timeEl = li.querySelector('.text-holder span.time');
+    if (!tEl || !timeEl) return;
+
+    const tText    = normalise(tEl.textContent);
+    const timeText = normalise(timeEl.textContent);
+
+    const timeMatches  = targetTime && timeText.endsWith(normalise(targetTime));
+    const titleMatches = targetTitle && tText === targetTitle;
+
+    if (timeMatches || titleMatches) {
+      targetLi = li;
+    }
+  });
+
+  if (!targetLi) {
+    console.log('[TV Viewer] focusListingFromQuery: no match for', { targetTime, targetTitle });
+    return;
+  }
+
+  targetLi.scrollIntoView({ block: 'center', behavior: 'smooth' });
+
+  const detailsLink = targetLi.querySelector('a.btn-share.lightbox, a.lightbox');
+  if (detailsLink) {
+    setTimeout(() => {
+      detailsLink.click();
+    }, 300);
+  }
+}	
+
+
 
 
 
@@ -692,18 +878,6 @@ function bindEvents() {
     });
   }
 
-  el.querySelector('[data-max-toggle]')?.addEventListener('click', () => {
-    maxChannels = (maxChannels === DEFAULT_MAX_CHANNELS)
-      ? ALT_MAX_CHANNELS
-      : DEFAULT_MAX_CHANNELS;
-
-    console.log('[TV Viewer] maxChannels toggled to', maxChannels);
-
-    // Drop extra selections if we shrank the max
-    clampSelections();
-    render();
-  });
-
   // Details button -> best-effort inline popup using site's data-* attributes
   el.querySelectorAll('[data-prog-details]').forEach(btn => {
     btn.addEventListener('click', e => {
@@ -715,9 +889,11 @@ function bindEvents() {
         return;
       }
 
-      const time = card.getAttribute('data-prog-time');
-      const title = card.getAttribute('data-prog-title');
-      console.log('[TV Viewer] details clicked for', { time, title });
+      const time  = card.getAttribute('data-prog-time')  || '';
+      const title = card.getAttribute('data-prog-title') || '';
+      const cardChannelSlug = card.getAttribute('data-channel-slug') || '';
+
+      console.log('[TV Viewer] details clicked for', { time, title, cardChannelSlug });
 
       if (!time || !title) {
         console.log('[TV Viewer] details: missing time/title on card');
@@ -725,32 +901,53 @@ function bindEvents() {
       }
 
       // Find the site's "read more" lightbox button that matches this programme
-      const shareButtons = document.querySelectorAll('a.btn-share.lightbox');
+      const shareButtons = document.querySelectorAll('a.btn-share.lightbox, a.lightbox');
       console.log('[TV Viewer] shareButtons count =', shareButtons.length);
+
+      const normalise = s => (s || '').replace(/\s+/g, ' ').trim().toLowerCase();
+      const normaliseTitleForMatch = s =>
+        normalise(s).replace(/\s*\((r,?s?|s)\)\s*$/i, '').trim();
+
+      const wantTime  = normalise(time);
+      const wantTitle = normaliseTitleForMatch(title);
 
       let targetBtn = null;
 
-      const normalise = s => (s || '').replace(/\s+/g, ' ').trim();
-      const wantTime = normalise(time);
-
+      // First pass: match on time + title
       shareButtons.forEach(a => {
         if (targetBtn) return;
-
         const ds = a.dataset;
+
         const tmp = document.createElement('div');
         tmp.innerHTML = ds.time || '';
         const timeText = normalise(tmp.textContent);
 
-        // Log a few candidates if you like:
-        // console.log('[TV Viewer] candidate timeText =', timeText);
+        const dsTitle = normaliseTitleForMatch(ds.title || ds.programme || '');
 
-        if (timeText && timeText.endsWith(wantTime)) {
+        const timeMatches  = wantTime && timeText.endsWith(wantTime);
+        const titleMatches = wantTitle && dsTitle === wantTitle;
+
+        if (timeMatches && titleMatches) {
           targetBtn = a;
         }
       });
 
+      // Fallback: time-only match if we still didn't find anything
+      if (!targetBtn && wantTime) {
+        shareButtons.forEach(a => {
+          if (targetBtn) return;
+          const ds = a.dataset;
+          const tmp = document.createElement('div');
+          tmp.innerHTML = ds.time || '';
+          const timeText = normalise(tmp.textContent);
+          if (timeText && timeText.endsWith(wantTime)) {
+            targetBtn = a;
+          }
+        });
+      }
+
       if (!targetBtn) {
-        console.log('[TV Viewer] details: no matching btn-share for time', wantTime);
+        console.log('[TV Viewer] details: no matching btn-share for', { time, title });
 
         // Fallback: simple popup from card itself so user sees *something*
         showTvPopup({
@@ -759,14 +956,27 @@ function bindEvents() {
           genre: '',
           description: 'No extra details available for this listing on this page.',
           timeHtml: time,
-          image: ''
+          image: '',
+          channelSlug: cardChannelSlug
         });
 
         return;
       }
 
       const ds = targetBtn.dataset;
-      console.log('[TV Viewer] details: using dataset', ds);
+
+      // Try to get channel slug from dataset or surrounding DOM
+      let channelSlug = cardChannelSlug || ds.channel || ds.channelSlug || '';
+
+      if (!channelSlug) {
+        const li = targetBtn.closest('li.lightbox-wrapper');
+        if (li) {
+          // Adjust once you see real markup (data-channel, etc.)
+          channelSlug = li.getAttribute('data-channel') || '';
+        }
+      }
+
+      console.log('[TV Viewer] details: using dataset', ds, 'channelSlug =', channelSlug);
 
       showTvPopup({
         title,
@@ -774,11 +984,84 @@ function bindEvents() {
         genre: ds.genre || ds.genres || '',
         description: ds.description || '',
         timeHtml: ds.time || '',
-        image: ds.src || ''
+        image: ds.src || '',
+        channelSlug
       });
     });
   });
+  
+  
+    // Auto-focus a listing on channel pages when viewerFocus* params are present
+  function focusListingFromQueryOnChannelPage() {
+    const params = new URLSearchParams(window.location.search);
+    const targetTime  = (params.get('viewerFocusTime') || '').trim();
+    const targetTitle = (params.get('viewerFocusTitle') || '').trim();
 
+    if (!targetTime && !targetTitle) {
+      return;
+    }
+
+    console.log('[TV Viewer] focusListingFromQueryOnChannelPage raw =', {
+      targetTime,
+      targetTitle,
+    });
+
+    const normalise = s => (s || '').replace(/\s+/g, ' ').trim().toLowerCase();
+    const normaliseTitleForMatch = s =>
+      normalise(s).replace(/\s*\((r,?s?|s)\)\s*$/i, '').trim();
+
+    const wantTime  = normalise(targetTime);
+    const wantTitle = normaliseTitleForMatch(targetTitle);
+
+    let targetLi = null;
+
+    document.querySelectorAll('li.lightbox-wrapper').forEach(li => {
+      if (targetLi) return;
+
+      const titleEl = li.querySelector('.text-holder h3 a.lightbox');
+      const timeEl  = li.querySelector('.text-holder span.time');
+      if (!titleEl || !timeEl) return;
+
+      const liTitle = normaliseTitleForMatch(titleEl.textContent);
+      const liTime  = normalise(timeEl.textContent);
+
+      const timeMatches =
+        wantTime && (liTime === wantTime || liTime.endsWith(wantTime));
+      const titleMatches =
+        wantTitle && liTitle === wantTitle;
+
+      if (timeMatches && titleMatches) {
+        targetLi = li;
+      }
+    });
+
+    if (!targetLi) {
+      console.log('[TV Viewer] focusListingFromQueryOnChannelPage: no match for', {
+        targetTime,
+        targetTitle,
+        wantTime,
+        wantTitle,
+      });
+      return;
+    }
+
+    console.log('[TV Viewer] focusListingFromQueryOnChannelPage: found match');
+
+    targetLi.scrollIntoView({ block: 'center', behavior: 'smooth' });
+
+    const detailsLink =
+      targetLi.querySelector('a.btn-share.lightbox') ||
+      targetLi.querySelector('a.lightbox');
+
+    if (detailsLink) {
+      setTimeout(() => {
+        console.log('[TV Viewer] focusListingFromQueryOnChannelPage: clicking read more link');
+        detailsLink.click();
+      }, 400);
+    }
+  }
+  
+  
   // Sync vertical scroll across programme columns without feedback loop
   const programmeLists = Array.from(el.querySelectorAll('.tv-programmes'));
   let isSyncingScroll = false;
@@ -848,6 +1131,12 @@ function bindEvents() {
         });
       });
     }
+	
+	  // Auto-run focus when we land on a /tv/{channel}/ page with viewerFocus params
+  if (/^\/tv\/[^/]+\/?$/.test(window.location.pathname)) {
+    focusListingFromQueryOnChannelPage();
+  }
+	
   }
 }
 
@@ -863,6 +1152,7 @@ function bindEvents() {
       if (!state.channels.length) {
         state.channels = getChannels();
       }
+	  ensureCurrentChannelInList();
       render();
     }
 
@@ -881,8 +1171,15 @@ function bindEvents() {
       else open();
     }
 
+// Auto-focus listing if viewerFocus* params are present on a channel page
+if (/^\/tv\/[^/]+\/?$/.test(window.location.pathname)) {
+  focusListingFromQuery();
+}
+
     return { open, close, toggle };
   }
+  
+  
 
   // 2) Message listener from background/action
   chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
@@ -894,4 +1191,13 @@ function bindEvents() {
 
     viewerInstance.toggle();
   });
+  
+  // 3) Auto-initialise viewer on channel pages so focusFromQuery can run,
+//    but do NOT open the overlay.
+if (/^\/tv\/[^/]+\/?$/.test(window.location.pathname)) {
+  if (!viewerInstance) {
+    viewerInstance = createViewerModule();
+  }
+  // Important: do NOT call viewerInstance.open() here.
+}
 }
