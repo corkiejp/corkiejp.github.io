@@ -1,322 +1,308 @@
 /*
- * After Hours Dark Theme
- * Boards.ie Cleaner Extension
- * Preset ID: afterhours-dark
- * Forum key: after-hours
- * Scope: html.boards-preset-afterhours-dark
- * Last updated: April 2026
- *
- * Derived from Tampermonkey testing sessions.
- * Covers: category listing, thread/discussion pages,
- * post bodies, reactions, pager, sort controls, sidebar, footer.
- */
+BoardsCleaner preset theme
+Clone this file to create a new preset.
+
+Steps:
+1. Copy this file and rename it.
+2. Change every occurrence of html.boards-preset-afterhours-dark to your new preset class.
+3. Update the variable block first.
+4. Keep all selectors scoped to the preset class.
+5. Register the preset in theme-engine-2.js.
+*/
 
 /* ============================================================
-   VARIABLES
+   STEP 1 — Change this class to match your forum slug
+   e.g. boards-theme-work-jobs, boards-theme-soccer etc.
    ============================================================ */
+
 html.boards-preset-afterhours-dark {
-  --ah-bg: #161311;
-  --ah-bg-2: #130f0d;
-  --ah-surface: #211b18;
-  --ah-surface-2: #2a221e;
-  --ah-surface-3: #332922;
-  --ah-panel: #1c1714;
-  --ah-border: #4f4036;
-  --ah-border-soft: #3e322b;
-  --ah-text: #f2e6d8;
-  --ah-muted: #c6b39f;
-  --ah-faint: #9f8b78;
-  --ah-link: #f3c987;
-  --ah-link-hover: #fff1d6;
-  --ah-header-top: #5a3824;
-  --ah-header-bottom: #3b2418;
-  --ah-header-border: #6f4a31;
-  --ah-button-top: #d3954a;
-  --ah-button-bottom: #9f5e25;
-  --ah-button-hover-top: #e5a85b;
-  --ah-button-hover-bottom: #b56b2d;
-  --ah-button-border: #7b471d;
-  --ah-pill: #4a2f1d;
-  --ah-pill-border: #71492f;
+
+/* Backgrounds */
+--t-bg: #161311;
+--t-bg-2: #130f0d;
+--t-surface: #211b18;
+--t-surface-2: #2a221e;
+--t-surface-3: #332922;
+--t-panel: #1c1714;
+
+/* Borders */
+--t-border: #4f4036;
+--t-border-soft: #3e322b;
+
+/* Text */
+--t-text: #f2e6d8;
+--t-muted: #c6b39f;
+--t-faint: #9f8b78;
+
+/* Links */
+--t-link: #f3c987;
+--t-link-hover: #fff1d6;
+
+/* Header / accent strip */
+--t-header-top: #5a3824;
+--t-header-bottom: #3b2418;
+--t-header-border: #6f4a31;
+
+/* Buttons */
+--t-button-top: #d3954a;
+--t-button-bottom: #9f5e25;
+--t-button-hover-top: #e5a85b;
+--t-button-hover-bottom: #b56b2d;
+--t-button-border: #7b471d;
+
+/* Legacy aliases (mapped to AH palette) */
+--forum-row-bg: #211b18;
+--forum-row-hover: #2a221e;
+--forum-row-unread: #332922;
+--forum-border: #4f4036;
+--forum-text: #f2e6d8;
+--forum-link: #f3c987;
+--forum-link-hover: #fff1d6;
+--forum-muted: #c6b39f;
+--forum-btn-bg: #d3954a;
+--forum-btn-text: #f2e6d8;
+--forum-btn-border: #7b471d;
+--forum-btn-hover: #e5a85b;
+--forum-dropdown-bg: #211b18;
+--forum-dropdown-hover: #2a221e;
+
+--t-row-bg: #211b18;
+--t-row-hover: #2a221e;
+--t-row-unread: #332922;
+--t-btn-bg: #d3954a;
+--t-btn-text: #f2e6d8;
+--t-btn-border: #7b471d;
+--t-btn-hover: #e5a85b;
+--t-dropdown-bg: #211b18;
+--t-dropdown-hover: #2a221e;
+
 }
 
 /* ============================================================
-   PAGE BASE
+   STEP 2 — Page base
+   Controls the overall page background and text colour.
    ============================================================ */
 html.boards-preset-afterhours-dark,
 html.boards-preset-afterhours-dark body,
-html.boards-preset-afterhours-dark .Frame,
 html.boards-preset-afterhours-dark #Body,
-html.boards-preset-afterhours-dark #Panel,
 html.boards-preset-afterhours-dark .Container,
-html.boards-preset-afterhours-dark .Frame-contentWrap,
-html.boards-preset-afterhours-dark .Frame-details,
-html.boards-preset-afterhours-dark .Frame-row,
-html.boards-preset-afterhours-dark section.Content.MainContent,
 html.boards-preset-afterhours-dark .Content.MainContent,
 html.boards-preset-afterhours-dark .page-content,
-html.boards-preset-afterhours-dark .PageContent,
-html.boards-preset-afterhours-dark .Section-Discussion,
-html.boards-preset-afterhours-dark .Section-Category,
 html.boards-preset-afterhours-dark .pageBox,
 html.boards-preset-afterhours-dark .MessageList.Discussion,
-html.boards-preset-afterhours-dark .Comments.pageBox,
-html.boards-preset-afterhours-dark .P.PagerWrap {
-  background: var(--ah-bg) !important;
-  color: var(--ah-text) !important;
-  border-color: var(--ah-border-soft) !important;
+html.boards-preset-afterhours-dark .Comments.pageBox {
+  background: var(--t-bg) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
 }
 
 /* ============================================================
-   TOP NAVIGATION / TITLE BAR
+   STEP 3 — Top navigation bar
+   The site header containing logo, search, account menu.
    ============================================================ */
 html.boards-preset-afterhours-dark #nav,
 html.boards-preset-afterhours-dark #themeHeader,
-html.boards-preset-afterhours-dark .NavBar,
-html.boards-preset-afterhours-dark .Frame-header,
 html.boards-preset-afterhours-dark .titleBar,
 html.boards-preset-afterhours-dark [class*="TitleBar-classes-bg"],
-html.boards-preset-afterhours-dark [class*="TitleBar-classes-container"],
-html.boards-preset-afterhours-dark [class*="TitleBar-classes-bar"] {
-  background: #241d19 !important;
-  background-color: #241d19 !important;
-  border-bottom: 1px solid var(--ah-border) !important;
+html.boards-preset-afterhours-dark [class*="TitleBar-classes-container"] {
+  background: var(--t-bg) !important;
+  border-bottom: 1px solid var(--t-border) !important;
 }
 
 html.boards-preset-afterhours-dark #nav a,
-html.boards-preset-afterhours-dark .NavBar a,
 html.boards-preset-afterhours-dark [class*="TitleBar"] a,
 html.boards-preset-afterhours-dark [class*="TitleBar"] button {
-  color: var(--ah-link) !important;
+  color: var(--t-link) !important;
   background: transparent !important;
 }
 
 /* ============================================================
-   BREADCRUMBS
+   STEP 4 — Breadcrumbs
+   The navigation trail: Home › Topics › After Hours
    ============================================================ */
 html.boards-preset-afterhours-dark .BreadcrumbsBox,
 html.boards-preset-afterhours-dark .Breadcrumbs,
 html.boards-preset-afterhours-dark .PageTitle,
 html.boards-preset-afterhours-dark .pageHeadingBox {
-  background: #241d19 !important;
-  color: var(--ah-text) !important;
-  border-color: var(--ah-border) !important;
+  background: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border) !important;
 }
 
 html.boards-preset-afterhours-dark .Breadcrumbs a,
 html.boards-preset-afterhours-dark .CrumbLabel a {
-  color: var(--ah-link) !important;
+  color: var(--t-link) !important;
 }
 
 /* ============================================================
-   LINKS
+   STEP 5 — Links
    ============================================================ */
 html.boards-preset-afterhours-dark a {
-  color: var(--ah-link) !important;
+  color: var(--t-link) !important;
 }
 
 html.boards-preset-afterhours-dark a:hover {
-  color: var(--ah-link-hover) !important;
+  color: var(--t-link-hover) !important;
 }
 
 /* ============================================================
-   FORUM THREAD LIST (category page)
+   STEP 6 — Forum thread list header
+   The coloured bar that says "Latest Posts" or "Sub Forums"
    ============================================================ */
-html.boards-preset-afterhours-dark #forum-threadlist-wrapper,
-html.boards-preset-afterhours-dark .forum-threadlist-wrapper {
-  background: var(--ah-surface) !important;
-  border: 1px solid var(--ah-border) !important;
-  box-shadow: 0 10px 30px rgba(0,0,0,.28) !important;
-}
-
 html.boards-preset-afterhours-dark .forum-threadlist-header,
 html.boards-preset-afterhours-dark .forum-threadlist-header .latest-title {
-  background: linear-gradient(180deg, var(--ah-header-top) 0%, var(--ah-header-bottom) 100%) !important;
-  color: #fff3e3 !important;
-  border-bottom: 1px solid var(--ah-header-border) !important;
+  background: linear-gradient(
+    180deg,
+    var(--t-header-top) 0%,
+    var(--t-header-bottom) 100%
+  ) !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid var(--t-header-border) !important;
 }
 
-html.boards-preset-afterhours-dark .forum-threadlist-forumtools {
-  background: transparent !important;
-  border-left: 1px solid var(--ah-header-border) !important;
-  color: #f6ddbd !important;
-}
-
+/* ============================================================
+   STEP 7 — Thread list table
+   The rows of discussions in the forum list.
+   ============================================================ */
 html.boards-preset-afterhours-dark .forum-threadlist-table th {
-  background: #322823 !important;
-  color: #f0dcc5 !important;
-  border-color: var(--ah-border-soft) !important;
+  background: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
 }
 
 html.boards-preset-afterhours-dark .forum-threadlist-table tbody td {
-  background: var(--ah-surface) !important;
-  color: var(--ah-text) !important;
-  border-color: var(--ah-border-soft) !important;
+  background: var(--t-surface) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
 }
 
 html.boards-preset-afterhours-dark .forum-threadlist-table tbody tr:nth-child(even) td {
-  background: #1b1613 !important;
+  background: var(--t-surface-2) !important;
 }
 
 html.boards-preset-afterhours-dark td.forum-threadlist-lastpost,
 html.boards-preset-afterhours-dark td.forum-threadlist-replies,
 html.boards-preset-afterhours-dark td.forum-threadlist-views,
-html.boards-preset-afterhours-dark td.forum-threadlist-deleteinfo,
-html.boards-preset-afterhours-dark .forum-threadlist-thread-lastpost,
 html.boards-preset-afterhours-dark .forum-threadlist-thread-lastposter,
-html.boards-preset-afterhours-dark .forum-threadlist-thread-lastposter a,
 html.boards-preset-afterhours-dark .threadbit-lastposter {
-  background: var(--ah-surface) !important;
-  color: var(--ah-muted) !important;
-  border-color: var(--ah-border-soft) !important;
-}
-
-html.boards-preset-afterhours-dark .forum-threadlist-table tbody tr:nth-child(even) td.forum-threadlist-lastpost,
-html.boards-preset-afterhours-dark .forum-threadlist-table tbody tr:nth-child(even) td.forum-threadlist-replies,
-html.boards-preset-afterhours-dark .forum-threadlist-table tbody tr:nth-child(even) td.forum-threadlist-views {
-  background: #1b1613 !important;
-}
-
-html.boards-preset-afterhours-dark .spritethreadrow.latest-button {
-  filter: invert(0.8) sepia(0.3) !important;
+  background: var(--t-surface) !important;
+  color: var(--t-muted) !important;
+  border-color: var(--t-border-soft) !important;
 }
 
 /* ============================================================
-   PAGE CONTROLS (pager + new discussion row)
+   STEP 8 — Pager (pagination controls)
    ============================================================ */
 html.boards-preset-afterhours-dark .PageControls,
-html.boards-preset-afterhours-dark .PageControls.Top,
-html.boards-preset-afterhours-dark .PageControls.Bottom {
-  background: var(--ah-surface) !important;
-  border-color: var(--ah-border-soft) !important;
-}
-
 html.boards-preset-afterhours-dark .Pager,
 html.boards-preset-afterhours-dark #PagerBefore,
 html.boards-preset-afterhours-dark #PagerAfter,
 html.boards-preset-afterhours-dark .Pager a,
-html.boards-preset-afterhours-dark .Pager span,
-html.boards-preset-afterhours-dark .Pager .Ellipsis {
-  background: var(--ah-surface) !important;
-  color: var(--ah-link) !important;
-  border-color: var(--ah-border-soft) !important;
+html.boards-preset-afterhours-dark .Pager span {
+  background: var(--t-surface) !important;
+  color: var(--t-link) !important;
+  border-color: var(--t-border-soft) !important;
 }
 
-html.boards-preset-afterhours-dark .Pager a.Highlight,
-html.boards-preset-afterhours-dark .Pager .Highlight {
-  background: #3b2418 !important;
-  color: #fff3e3 !important;
-  border: 1px solid var(--ah-header-border) !important;
-}
-
-html.boards-preset-afterhours-dark .Pager a:hover {
-  background: var(--ah-surface-3) !important;
-  color: var(--ah-link-hover) !important;
+html.boards-preset-afterhours-dark .Pager a.Highlight {
+  background: var(--t-header-bottom) !important;
+  color: #ffffff !important;
 }
 
 /* ============================================================
-   NEW DISCUSSION BUTTON
+   STEP 9 — New Discussion button
    ============================================================ */
-html.boards-preset-afterhours-dark .BoxButtons.BoxNewDiscussion {
-  background: transparent !important;
+html.boards-preset-afterhours-dark div.ButtonGroup[data-is-kludged="true"],
+html.boards-preset-afterhours-dark .ButtonGroup.NewDiscussion {
+  background: linear-gradient(
+    180deg,
+    var(--t-button-top) 0%,
+    var(--t-button-bottom) 100%
+  ) !important;
+  border: 1px solid var(--t-button-border) !important;
+  color: #ffffff !important;
 }
 
-html.boards-preset-afterhours-dark .ButtonGroup.NewDiscussion,
-html.boards-preset-afterhours-dark .ButtonGroup.Multi.Primary.Action.NewDiscussion,
-html.boards-preset-afterhours-dark div.ButtonGroup[data-is-kludged="true"] {
-  background: linear-gradient(180deg, var(--ah-button-top) 0%, var(--ah-button-bottom) 100%) !important;
-  border: 1px solid var(--ah-button-border) !important;
-  color: #fff7ef !important;
-}
-
-html.boards-preset-afterhours-dark .ButtonGroup.NewDiscussion .Button.Primary,
 html.boards-preset-afterhours-dark div.ButtonGroup[data-is-kludged="true"] a.Button {
   background: transparent !important;
-  color: #fff7ef !important;
+  color: #ffffff !important;
   border: none !important;
 }
 
-/* ============================================================
-   SORT / FILTER CONTROLS
-   ============================================================ */
-html.boards-preset-afterhours-dark .discussion-sort-filter-module,
-html.boards-preset-afterhours-dark .selectBox,
-html.boards-preset-afterhours-dark .selectBox-discussionsSortFilter,
-html.boards-preset-afterhours-dark .FlyoutButton,
-html.boards-preset-afterhours-dark .selectBox-toggle,
-html.boards-preset-afterhours-dark .selectBox-selected,
-html.boards-preset-afterhours-dark .selectBox-label,
-html.boards-preset-afterhours-dark .vanillaDropDown-arrow {
-  background: var(--ah-surface-2) !important;
-  color: var(--ah-text) !important;
-  border-color: var(--ah-border-soft) !important;
+/* Generic buttons and primary actions */
+html.boards-preset-afterhours-dark .Button,
+html.boards-preset-afterhours-dark .Btn,
+html.boards-preset-afterhours-dark .Primary,
+html.boards-preset-afterhours-dark input[type="submit"],
+html.boards-preset-afterhours-dark .Buttons .Button {
+  background: linear-gradient(
+    180deg,
+    var(--t-button-top) 0%,
+    var(--t-button-bottom) 100%
+  ) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--t-button-border) !important;
 }
 
-html.boards-preset-afterhours-dark .Flyout.MenuItems,
-html.boards-preset-afterhours-dark .selectBox-content,
-html.boards-preset-afterhours-dark .selectBox-item,
-html.boards-preset-afterhours-dark .selectBox-item a,
-html.boards-preset-afterhours-dark .dropdown-menu-link {
-  background: var(--ah-surface-2) !important;
-  color: var(--ah-text) !important;
-  border-color: var(--ah-border-soft) !important;
-}
-
-html.boards-preset-afterhours-dark .selectBox-item.isActive,
-html.boards-preset-afterhours-dark .selectBox-item.isActive a {
-  background: var(--ah-surface-3) !important;
-  color: var(--ah-link) !important;
+html.boards-preset-afterhours-dark .Button:hover,
+html.boards-preset-afterhours-dark .Btn:hover,
+html.boards-preset-afterhours-dark .Primary:hover,
+html.boards-preset-afterhours-dark input[type="submit"]:hover {
+  background: linear-gradient(
+    180deg,
+    var(--t-button-hover-top) 0%,
+    var(--t-button-hover-bottom) 100%
+  ) !important;
 }
 
 /* ============================================================
-   DISCUSSION ITEMS / POST WRAPPERS
-   ============================================================ */
-html.boards-preset-afterhours-dark li.Item.ItemComment,
-html.boards-preset-afterhours-dark li.Item.Alt.ItemComment,
-html.boards-preset-afterhours-dark .ItemComment,
-html.boards-preset-afterhours-dark .postbit-wrapper,
-html.boards-preset-afterhours-dark .Comment {
-  background: var(--ah-surface) !important;
-  color: var(--ah-text) !important;
-  border-color: var(--ah-border-soft) !important;
-}
-
-/* ============================================================
-   POST HEADER BAR
+   STEP 10 — Post header bar
+   The strip showing post number, date, options per post.
    ============================================================ */
 html.boards-preset-afterhours-dark .postbit-header {
-  background: var(--ah-bg) !important;
-  color: var(--ah-text) !important;
-  border-color: var(--ah-border-soft) !important;
+  background: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border-bottom: 1px solid var(--t-border-soft) !important;
 }
 
 html.boards-preset-afterhours-dark .postbit-header a,
-html.boards-preset-afterhours-dark .postbit-header .post-count a.post-link,
-html.boards-preset-afterhours-dark .postbit-header .MItem.DateCreated a.Permalink,
-html.boards-preset-afterhours-dark .postbit-header .MItem,
-html.boards-preset-afterhours-dark .postbit-header .Options {
-  color: #f4e9db !important;
+html.boards-preset-afterhours-dark .postbit-header .MItem {
+  color: var(--t-text) !important;
   background: transparent !important;
 }
 
 /* ============================================================
-   USER INFO COLUMN
+   STEP 11 — User info column
+   Left panel showing username, avatar, join date, post count.
    ============================================================ */
-html.boards-preset-afterhours-dark .postbit-postdetails {
-  background: var(--ah-surface) !important;
-  color: var(--ah-text) !important;
-  border: 1px solid var(--ah-border-soft) !important;
-}
-
 html.boards-preset-afterhours-dark .postbit-userinfo,
 html.boards-preset-afterhours-dark .postbit-userinfo .userinfo-row,
-html.boards-preset-afterhours-dark .postbit-userinfo .userinfo-username,
-html.boards-preset-afterhours-dark .postbit-userinfo .userinfo-title,
-html.boards-preset-afterhours-dark .postbit-userinfo .userinfo-rank,
 html.boards-preset-afterhours-dark .postbit-userinfo .userinfo-joindate,
+html.boards-preset-afterhours-dark .postbit-userinfo .userinfo-posts,
+html.boards-preset-afterhours-dark .postbit-userinfo .RoleTitle,
+html.boards-preset-afterhours-dark .postbit-userinfo .MItem {
+  background: var(--t-panel) !important;
+  color: var(--t-muted) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+html.boards-preset-afterhours-dark .postbit-userinfo a,
+html.boards-preset-afterhours-dark .postbit-userinfo .userinfo-username-title {
+  color: var(--t-link) !important;
+}
+
+html.boards-preset-afterhours-dark .postbit-wrapper,
+html.boards-preset-afterhours-dark .postbit-postdetails,
+html.boards-preset-afterhours-dark .PhotoWrap,
+html.boards-preset-afterhours-dark .ProfilePhotoMedium,
+html.boards-preset-afterhours-dark .postbit-userinfo .PhotoWrapLarge {
+  background: var(--t-panel) !important;
+  border-color: var(--t-border-soft) !important;
+}
 
 /* ============================================================
-   POST BODY
+   STEP 12 — Post body
+   The actual message content area.
    ============================================================ */
 html.boards-preset-afterhours-dark .postbit-postbody,
 html.boards-preset-afterhours-dark .postbit-message,
@@ -324,477 +310,305 @@ html.boards-preset-afterhours-dark .message-wrapper,
 html.boards-preset-afterhours-dark .Item-BodyWrap,
 html.boards-preset-afterhours-dark .Item-Body,
 html.boards-preset-afterhours-dark .Message.userContent,
-html.boards-preset-afterhours-dark .Message-body,
-html.boards-preset-afterhours-dark .MessageBody,
 html.boards-preset-afterhours-dark .userContent,
 html.boards-preset-afterhours-dark .UserSignature {
-  background: var(--ah-surface) !important;
-  color: var(--ah-text) !important;
-  border-color: var(--ah-border-soft) !important;
+  background: var(--t-surface) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
 }
 
 html.boards-preset-afterhours-dark .Message.userContent p,
 html.boards-preset-afterhours-dark .Message.userContent div,
 html.boards-preset-afterhours-dark .Message.userContent span,
 html.boards-preset-afterhours-dark .Item-Body p,
-html.boards-preset-afterhours-dark .Item-Body div,
-html.boards-preset-afterhours-dark .Item-Body span {
+html.boards-preset-afterhours-dark .Item-Body div {
   background: transparent !important;
-  color: var(--ah-text) !important;
+  color: var(--t-text) !important;
 }
 
 /* ============================================================
-   REACTIONS ROW
+   STEP 13 — Reactions row
+   Flag, Quote, Thanks buttons below each post.
    ============================================================ */
 html.boards-preset-afterhours-dark .Reactions,
 html.boards-preset-afterhours-dark .Reactions > div,
 html.boards-preset-afterhours-dark .Reactions .ReactButton,
-html.boards-preset-afterhours-dark .Reactions .Quote,
-html.boards-preset-afterhours-dark .Reactions .ReactButton-Like,
 html.boards-preset-afterhours-dark .Reactions .ReactLabel,
-html.boards-preset-afterhours-dark .Reactions .Bullet,
 html.boards-preset-afterhours-dark .clearleft {
-  background: var(--ah-surface) !important;
-  color: var(--ah-link) !important;
-  border-color: var(--ah-border-soft) !important;
-}
-
-html.boards-preset-afterhours-dark .Reactions button,
-html.boards-preset-afterhours-dark .Reactions a[role="button"] {
-  background: var(--ah-surface-2) !important;
-  color: var(--ah-link) !important;
-  border: 1px solid var(--ah-border-soft) !important;
-}
-
-html.boards-preset-afterhours-dark .Reactions button:hover,
-html.boards-preset-afterhours-dark .Reactions a[role="button"]:hover {
-  background: var(--ah-surface-3) !important;
-  color: var(--ah-link-hover) !important;
+  background: var(--t-surface) !important;
+  color: var(--t-link) !important;
+  border-color: var(--t-border-soft) !important;
 }
 
 /* ============================================================
-   QUOTES AND CODE BLOCKS
+   STEP 14 — Quote and code blocks
    ============================================================ */
 html.boards-preset-afterhours-dark blockquote,
 html.boards-preset-afterhours-dark pre,
 html.boards-preset-afterhours-dark code,
-html.boards-preset-afterhours-dark .embedExternal,
-html.boards-preset-afterhours-dark .embedExternal-content,
 html.boards-preset-afterhours-dark [class*="quoteEmbed"],
 html.boards-preset-afterhours-dark [class*="embedContent"] {
-  background: #191412 !important;
-  color: #f3ddc8 !important;
-  border: 1px solid var(--ah-border-soft) !important;
+  background: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border: 1px solid var(--t-border-soft) !important;
 }
 
 /* ============================================================
-   COMMENT FORM
+   STEP 15 — Comment / reply form
    ============================================================ */
 html.boards-preset-afterhours-dark .MessageForm,
 html.boards-preset-afterhours-dark .CommentForm,
-html.boards-preset-afterhours-dark .Form-BodyWrap,
-html.boards-preset-afterhours-dark .Form-Body,
-html.boards-preset-afterhours-dark .FormWrapper,
-html.boards-preset-afterhours-dark .Buttons {
-  background: var(--ah-surface) !important;
-  color: var(--ah-text) !important;
-  border-color: var(--ah-border-soft) !important;
-}
-
-html.boards-preset-afterhours-dark textarea,
-html.boards-preset-afterhours-dark .InputBox,
-html.boards-preset-afterhours-dark .TextBox {
-  background: #1b1613 !important;
-  color: var(--ah-text) !important;
-  border: 1px solid var(--ah-border-soft) !important;
+html.boards-preset-afterhours-dark .Form-BodyWrap {
+  background: var(--t-surface) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
 }
 
 /* ============================================================
-   GENERAL BUTTONS
-   ============================================================ */
-html.boards-preset-afterhours-dark .Button,
-html.boards-preset-afterhours-dark .Primary,
-html.boards-preset-afterhours-dark .Btn,
-html.boards-preset-afterhours-dark input[type="submit"] {
-  background: linear-gradient(180deg, var(--ah-button-top) 0%, var(--ah-button-bottom) 100%) !important;
-  color: #fff7ef !important;
-  border: 1px solid var(--ah-button-border) !important;
-  text-shadow: none !important;
-  box-shadow: none !important;
-}
-
-html.boards-preset-afterhours-dark .Button:hover,
-html.boards-preset-afterhours-dark .Primary:hover,
-html.boards-preset-afterhours-dark .Btn:hover,
-html.boards-preset-afterhours-dark input[type="submit"]:hover {
-  background: linear-gradient(180deg, var(--ah-button-hover-top) 0%, var(--ah-button-hover-bottom) 100%) !important;
-}
-
-/* ============================================================
-   SIDEBAR
-   ============================================================ */
-html.boards-preset-afterhours-dark .Panel.Panel-main,
-html.boards-preset-afterhours-dark #page-sidebar,
-html.boards-preset-afterhours-dark .sideNavContainer,
-html.boards-preset-afterhours-dark .Box.BoxCategories.SideNav,
-html.boards-preset-afterhours-dark .SideNav-header,
-html.boards-preset-afterhours-dark .Panel-main .Box {
-  background: var(--ah-bg-2) !important;
-  color: var(--ah-text) !important;
-  border-color: var(--ah-border-soft) !important;
-}
-
-/* ============================================================
-   FOOTER
-   ============================================================ */
-html.boards-preset-afterhours-dark footer,
-html.boards-preset-afterhours-dark .Foot,
-html.boards-preset-afterhours-dark .site-footer {
-  background: var(--ah-bg-2) !important;
-  color: var(--ah-faint) !important;
-  border-top: 1px solid var(--ah-border) !important;
-}
-
-/* ============================================================
-   EXTENSION UI - PROFILE TOGGLE BUTTON
+   STEP 16 — Extension UI buttons
+   Override the extension's own toggle and icon buttons
+   to match this forum theme.
    ============================================================ */
 html.boards-preset-afterhours-dark #profileToggleBtn {
-  background-color: var(--ah-button-top) !important;
-  color: #fff7ef !important;
-  border: 1px solid var(--ah-button-border) !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.5) !important;
+  background-color: var(--t-button-top) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--t-button-border) !important;
 }
 
 html.boards-preset-afterhours-dark #profileToggleBtn:hover {
-  background-color: var(--ah-button-hover-top) !important;
+  background-color: var(--t-button-hover-top) !important;
 }
 
 html.boards-preset-afterhours-dark .infoIcon,
 html.boards-preset-afterhours-dark .navIcon {
-  background-color: var(--ah-surface-2) !important;
-  color: var(--ah-text) !important;
-  border-color: var(--ah-border-soft) !important;
+  background-color: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
 }
 
 html.boards-preset-afterhours-dark dialog#shortcutDialog {
-  background: var(--ah-surface) !important;
-  color: var(--ah-text) !important;
-  border-color: var(--ah-border-soft) !important;
+  background: var(--t-surface) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
 }
 
 html.boards-preset-afterhours-dark #bcEditModalBtn {
-  background-color: var(--ah-button-top) !important;
-  color: #fff7ef !important;
-  border: 1px solid var(--ah-button-border) !important;
+  background-color: var(--t-button-top) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--t-button-border) !important;
 }
 
 /* ============================================================
-   MOBILE THREAD LIST
+   STEP 17 — Mobile thread list
+   Boards.ie collapses the thread table on small screens.
+   These rules cover the stacked card layout on mobile.
    ============================================================ */
 @media (max-width: 768px) {
 
   html.boards-preset-afterhours-dark .forum-threadlist-wrapper,
-  html.boards-preset-afterhours-dark .forum-threadlist-table,
   html.boards-preset-afterhours-dark .forum-threadlist-table td,
-  html.boards-preset-afterhours-dark .forum-threadlist-table tr,
   html.boards-preset-afterhours-dark .threadrow-container,
-  html.boards-preset-afterhours-dark .threadrow-container-zebra,
   html.boards-preset-afterhours-dark .forum-threadlist-thread,
   html.boards-preset-afterhours-dark .forum-threadlist-thread-title,
-  html.boards-preset-afterhours-dark .forum-threadlist-thread-meta,
-  html.boards-preset-afterhours-dark .forum-threadlist-thread-lastpost,
-  html.boards-preset-afterhours-dark .forum-threadlist-thread-lastposter,
-  html.boards-preset-afterhours-dark .forum-threadlist-thread-textsnippet,
-  html.boards-preset-afterhours-dark .forum-threadlist-thread-stats {
-    background: var(--ah-surface) !important;
-    color: var(--ah-text) !important;
-    border-color: var(--ah-border-soft) !important;
+  html.boards-preset-afterhours-dark .forum-threadlist-thread-meta {
+    background: var(--t-surface) !important;
+    color: var(--t-text) !important;
+    border-color: var(--t-border-soft) !important;
   }
 
-  html.boards-preset-afterhours-dark .forum-threadlist-thread-threadlink,
-  html.boards-preset-afterhours-dark .forum-threadlist-thread-threadstarter {
-    color: var(--ah-link) !important;
+  html.boards-preset-afterhours-dark .forum-threadlist-thread-threadlink {
+    color: var(--t-link) !important;
   }
-
-  html.boards-preset-afterhours-dark .forum-threadlist-table tbody tr:nth-child(even) td,
-  html.boards-preset-afterhours-dark .forum-threadlist-table tbody tr:nth-child(even) {
-    background: #1b1613 !important;
-  }
-
-  /* Mobile page controls */
-  html.boards-preset-afterhours-dark .PageControls,
-  html.boards-preset-afterhours-dark .PageControls.Top,
-  html.boards-preset-afterhours-dark .Pager {
-    background: var(--ah-surface) !important;
-    color: var(--ah-link) !important;
-  }
-
-  /* Mobile New Discussion button full width */
-  html.boards-preset-afterhours-dark .BoxButtons.BoxNewDiscussion,
-  html.boards-preset-afterhours-dark div.ButtonGroup[data-is-kludged="true"] {
-    background: linear-gradient(180deg, var(--ah-button-top) 0%, var(--ah-button-bottom) 100%) !important;
-    border: 1px solid var(--ah-button-border) !important;
-  }
-/* ============================================================
-   VANILLA FORUM LEGACY MARKUP — MOBILE WHITE FIX
-   Append to afterhours-dark.css — do NOT modify above
-   ============================================================ */
-
-/* Table shell */
-html.boards-preset-afterhours-dark table.DataTable,
-html.boards-preset-afterhours-dark table.DiscussionsTable {
-  background: var(--ah-surface) !important;
-  color: var(--ah-text) !important;
-  border-color: var(--ah-border-soft) !important;
-}
-
-/* Table header row */
-html.boards-preset-afterhours-dark table.DataTable thead td,
-html.boards-preset-afterhours-dark table.DataTable thead th {
-  background: #322823 !important;
-  color: #f0dcc5 !important;
-  border-color: var(--ah-border-soft) !important;
-}
-
-/* Every thread row */
-html.boards-preset-afterhours-dark tr.Item,
-html.boards-preset-afterhours-dark tr.ItemDiscussion {
-  background: var(--ah-surface) !important;
-  color: var(--ah-text) !important;
-  border-bottom: 1px solid var(--ah-border-soft) !important;
-}
-
-/* Zebra alternate row */
-html.boards-preset-afterhours-dark tr.Item.Alt {
-  background: #1b1613 !important;
-}
-
-/* Every td inside a thread row */
-html.boards-preset-afterhours-dark tr.Item td,
-html.boards-preset-afterhours-dark tr.ItemDiscussion td {
-  background: transparent !important;
-  color: var(--ah-text) !important;
-  border-color: var(--ah-border-soft) !important;
-}
-
-/* Thread title cell and its inner wrap */
-html.boards-preset-afterhours-dark td.DiscussionName,
-html.boards-preset-afterhours-dark td.DiscussionName .Wrap {
-  background: transparent !important;
-  color: var(--ah-text) !important;
-}
-
-/* Thread title link */
-html.boards-preset-afterhours-dark td.DiscussionName a.Title {
-  color: var(--ah-link) !important;
-}
-
-html.boards-preset-afterhours-dark td.DiscussionName a.Title:hover {
-  color: var(--ah-link-hover) !important;
-}
-
-/* Tags (Sticky, Closed) */
-html.boards-preset-afterhours-dark .Tag.Tag-Announcement {
-  background: var(--ah-pill) !important;
-  color: var(--ah-link) !important;
-  border: 1px solid var(--ah-pill-border) !important;
-  border-radius: 3px !important;
-}
-
-html.boards-preset-afterhours-dark .Tag.Tag-Closed {
-  background: var(--ah-surface-3) !important;
-  color: var(--ah-muted) !important;
-  border: 1px solid var(--ah-border-soft) !important;
-  border-radius: 3px !important;
-}
-
-/* New comment count badge */
-html.boards-preset-afterhours-dark strong.NewCommentCount,
-html.boards-preset-afterhours-dark .HasNew strong,
-html.boards-preset-afterhours-dark .JustNew strong {
-  background: var(--ah-header-top) !important;
-  color: #fff3e3 !important;
-  border-radius: 3px !important;
-  padding: 1px 4px !important;
-}
-
-/* Thread meta (date, last poster) */
-html.boards-preset-afterhours-dark .thread-details-user,
-html.boards-preset-afterhours-dark .Meta.Meta-Discussion,
-html.boards-preset-afterhours-dark .thread-details-user a.UserLink,
-html.boards-preset-afterhours-dark .thread-details-user .CommentDate {
-  background: transparent !important;
-  color: var(--ah-muted) !important;
-}
-
-html.boards-preset-afterhours-dark .thread-details-user a.UserLink:hover {
-  color: var(--ah-link-hover) !important;
-}
-
-/* Mini page links inside each row */
-html.boards-preset-afterhours-dark .MiniPager a {
-  color: var(--ah-muted) !important;
-}
-
-html.boards-preset-afterhours-dark .MiniPager a:hover {
-  color: var(--ah-link-hover) !important;
-}
-
-/* User avatar columns */
-html.boards-preset-afterhours-dark td.BlockColumn,
-html.boards-preset-afterhours-dark td.FirstUser,
-html.boards-preset-afterhours-dark td.LastUser,
-html.boards-preset-afterhours-dark td.BlockColumn .Block.Wrap {
-  background: transparent !important;
-  color: var(--ah-text) !important;
-  border-color: var(--ah-border-soft) !important;
-}
-
-html.boards-preset-afterhours-dark td.BlockColumn .UserLink.BlockTitle {
-  color: var(--ah-link) !important;
-}
-
-html.boards-preset-afterhours-dark td.BlockColumn .UserLink.BlockTitle:hover {
-  color: var(--ah-link-hover) !important;
-}
-
-html.boards-preset-afterhours-dark td.BlockColumn a.CommentDate {
-  color: var(--ah-muted) !important;
-}
-
-/* View/reply count cell */
-html.boards-preset-afterhours-dark td.BigCount,
-html.boards-preset-afterhours-dark td.CountViews,
-html.boards-preset-afterhours-dark td.BigCount .Wrap {
-  background: transparent !important;
-  color: var(--ah-muted) !important;
-}
-
-/* Announcement / sticky row highlight */
-html.boards-preset-afterhours-dark tr.Item.Announcement,
-html.boards-preset-afterhours-dark tr.Item.Announcement td {
-  background: var(--ah-panel) !important;
-  border-left: 3px solid var(--ah-header-top) !important;
-}
-
-/* Options flyout menu */
-html.boards-preset-afterhours-dark .ToggleFlyout .Flyout,
-html.boards-preset-afterhours-dark ul.Flyout.MenuItems {
-  background: var(--ah-surface-2) !important;
-  border: 1px solid var(--ah-border-soft) !important;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
-}
-
-html.boards-preset-afterhours-dark ul.Flyout.MenuItems li a {
-  background: transparent !important;
-  color: var(--ah-text) !important;
-}
-
-html.boards-preset-afterhours-dark ul.Flyout.MenuItems li a:hover {
-  background: var(--ah-surface-3) !important;
-  color: var(--ah-link-hover) !important;
-}
-
-/* Options button */
-html.boards-preset-afterhours-dark .Button-Options,
-html.boards-preset-afterhours-dark .OptionsTitle {
-  background: transparent !important;
-  color: var(--ah-muted) !important;
 }
 
 /* ============================================================
-   NEW DISCUSSION BUTTON — FINAL FIX
+   VANILLA FORUM LEGACY STRUCTURE — generic template backport
+   Mirrors fixes confirmed in afterhours-dark theme
    ============================================================ */
 
-html.boards-preset-afterhours-dark .BoxButtons.BoxNewDiscussion {
-  background-color: transparent !important;
-}
-
-html.boards-preset-afterhours-dark .BoxButtons .ButtonGroup.Multi {
-  background: linear-gradient(180deg, var(--ah-button-top) 0%, var(--ah-button-bottom) 100%) !important;
-  background-color: var(--ah-button-bottom) !important;
-  border: 1px solid var(--ah-button-border) !important;
-  color: #fff7ef !important;
-}
-
-html.boards-preset-afterhours-dark .BoxButtons .ButtonGroup.Multi .Button,
-html.boards-preset-afterhours-dark .BoxButtons .ButtonGroup.Multi a,
-html.boards-preset-afterhours-dark .BoxButtons .ButtonGroup.Multi a.Button,
-html.boards-preset-afterhours-dark .BoxButtons .ButtonGroup.Multi a.Button.Primary,
-html.boards-preset-afterhours-dark .BoxButtons .ButtonGroup.Multi a.Button.Handle {
-  background: transparent !important;
-  background-color: transparent !important;
-  color: #fff7ef !important;
-  border: none !important;
-  box-shadow: none !important;
-  text-shadow: none !important;
-}
-
-html.boards-preset-afterhours-dark .BoxButtons .ButtonGroup.Multi a.Button.Handle {
-  border-left: 1px solid var(--ah-button-border) !important;
-}
-
-html.boards-preset-afterhours-dark .BoxButtons span.mobileFlyoutOverlay {
-  background: transparent !important;
-  background-color: transparent !important;
-}
-
-html.boards-preset-afterhours-dark .BoxButtons .Sprite.SpDropdownHandle {
-  background-color: transparent !important;
-  filter: brightness(10) !important;
-}
-
-html.boards-preset-afterhours-dark .BoxButtons .Dropdown.MenuItems {
-  background: var(--ah-surface-2) !important;
-  background-color: var(--ah-surface-2) !important;
-  border: 1px solid var(--ah-border-soft) !important;
-}
-
-html.boards-preset-afterhours-dark .BoxButtons .Dropdown.MenuItems li a {
-  background: transparent !important;
-  color: var(--ah-text) !important;
-}
-
-html.boards-preset-afterhours-dark .BoxButtons .Dropdown.MenuItems li a:hover {
-  background: var(--ah-surface-3) !important;
-  color: var(--ah-link-hover) !important;
-}
-/* ============================================================
-   AD SPACER / FRAME FIX
-   ============================================================ */
-
-html.boards-preset-afterhours-dark .no-ad-top-spacer {
-  background: transparent !important;
-  background-color: transparent !important;
-  border: none !important;
-}
-/* ============================================================
-   DATATABLEWRAP + NO-AD SPACER — WHITE FRAME FIX
-   ============================================================ */
-
+/* Outer data-table wrapper */
 html.boards-preset-afterhours-dark .DataTableWrap {
-  background: var(--ah-surface) !important;
-  color: var(--ah-text) !important;
-  border-color: var(--ah-border-soft) !important;
+  background: transparent !important;
 }
 
+/* Legacy discussion list table */
+html.boards-preset-afterhours-dark table.DataTable.DiscussionsTable {
+  background: transparent !important;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+/* Row base */
+html.boards-preset-afterhours-dark table.DataTable.DiscussionsTable tr.Item,
+html.boards-preset-afterhours-dark table.DataTable.DiscussionsTable tr.Item.Alt {
+  background: var(--t-row-bg, #1e1e1e) !important;
+  border-bottom: 1px solid var(--t-border, #333) !important;
+}
+
+html.boards-preset-afterhours-dark table.DataTable.DiscussionsTable tr.Item:hover,
+html.boards-preset-afterhours-dark table.DataTable.DiscussionsTable tr.Item.Alt:hover {
+  background: var(--t-row-hover, #2a2a2a) !important;
+}
+
+/* Unread / New highlight */
+html.boards-preset-afterhours-dark table.DataTable.DiscussionsTable tr.Item.Unread,
+html.boards-preset-afterhours-dark table.DataTable.DiscussionsTable tr.Item.New {
+  background: var(--t-row-unread, #222b2b) !important;
+}
+
+/* Discussion name cell */
+html.boards-preset-afterhours-dark table.DataTable.DiscussionsTable td.DiscussionName {
+  background: transparent !important;
+  color: var(--t-text, #e0e0e0) !important;
+}
+
+html.boards-preset-afterhours-dark table.DataTable.DiscussionsTable td.DiscussionName a {
+  color: var(--t-link, #7ec8e3) !important;
+}
+
+html.boards-preset-afterhours-dark table.DataTable.DiscussionsTable td.DiscussionName a:hover {
+  color: var(--t-link-hover, #aee0f5) !important;
+  text-decoration: underline;
+}
+
+/* Block/stat columns */
+html.boards-preset-afterhours-dark table.DataTable.DiscussionsTable td.BlockColumn,
+html.boards-preset-afterhours-dark table.DataTable.DiscussionsTable td.FirstUser,
+html.boards-preset-afterhours-dark table.DataTable.DiscussionsTable td.LastUser,
+html.boards-preset-afterhours-dark table.DataTable.DiscussionsTable td.BigCount,
+html.boards-preset-afterhours-dark table.DataTable.DiscussionsTable td.BigCount.CountViews {
+  background: transparent !important;
+  color: var(--t-muted, #888) !important;
+}
+
+/* New Discussion button area */
+html.boards-preset-afterhours-dark .BoxButtons.BoxNewDiscussion,
+html.boards-preset-afterhours-dark .BoxButtons.BoxNewDiscussion .ButtonGroup.Multi.Primary.Action.NewDiscussion.Big {
+  background: transparent !important;
+}
+
+html.boards-preset-afterhours-dark .BoxButtons.BoxNewDiscussion .ButtonGroup.Multi.Primary.Action.NewDiscussion.Big .Button.Primary,
+html.boards-preset-afterhours-dark .BoxButtons.BoxNewDiscussion .ButtonGroup.Multi.Primary.Action.NewDiscussion.Big button {
+  background: var(--t-btn-bg, #2a6496) !important;
+  color: var(--t-btn-text, #fff) !important;
+  border: 1px solid var(--t-btn-border, #1a4a72) !important;
+}
+
+html.boards-preset-afterhours-dark .BoxButtons.BoxNewDiscussion .ButtonGroup.Multi.Primary.Action.NewDiscussion.Big .Button.Primary:hover,
+html.boards-preset-afterhours-dark .BoxButtons.BoxNewDiscussion .ButtonGroup.Multi.Primary.Action.NewDiscussion.Big button:hover {
+  background: var(--t-btn-hover, #1a4a72) !important;
+}
+
+/* Dropdown from multi-button */
+html.boards-preset-afterhours-dark .BoxButtons.BoxNewDiscussion .Dropdown.MenuItems,
+html.boards-preset-afterhours-dark .BoxButtons.BoxNewDiscussion .Dropdown.MenuItems li,
+html.boards-preset-afterhours-dark .BoxButtons.BoxNewDiscussion .Dropdown.MenuItems a {
+  background: var(--t-dropdown-bg, #1e1e1e) !important;
+  color: var(--t-text, #e0e0e0) !important;
+  border-color: var(--t-border, #333) !important;
+}
+
+html.boards-preset-afterhours-dark .BoxButtons.BoxNewDiscussion .Dropdown.MenuItems a:hover {
+  background: var(--t-dropdown-hover, #2a2a2a) !important;
+}
+
+/* Dropdown from multi-button */
+html.boards-preset-afterhours-dark .BoxButtons.BoxNewDiscussion .Dropdown.MenuItems,
+html.boards-preset-afterhours-dark .BoxButtons.BoxNewDiscussion .Dropdown.MenuItems li,
+html.boards-preset-afterhours-dark .BoxButtons.BoxNewDiscussion .Dropdown.MenuItems a {
+  background: var(--t-dropdown-bg, #1e1e1e) !important;
+  color: var(--t-text, #e0e0e0) !important;
+  border-color: var(--t-border, #333) !important;
+}
+
+html.boards-preset-afterhours-dark .BoxButtons.BoxNewDiscussion html.boards-preset-afterhours-dark .Dropdown.MenuItems a:hover {
+  background: var(--t-dropdown-hover, #2a2a2a) !important;
+}
+
+/* Ad placeholders / spacers — neutralise white ghost frames */
 html.boards-preset-afterhours-dark .no-ad-top-spacer {
-  background: transparent !important;
-  background-color: transparent !important;
-  border: none !important;
+  display: none !important;
 }
 
-/* sr-only heading inside DataTableWrap */
-html.boards-preset-afterhours-dark .DataTableWrap h2.sr-only {
+html.boards-preset-afterhours-dark .Frame-contentWrap.noad-top {
+  background: transparent !important;
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* ============================================================
+STEP 18 — Side category panel 
+============================================================ */
+
+/* Right-hand Categories panel */
+html.boards-preset-afterhours-dark .Box.BoxCategories.SideNav,
+html.boards-preset-afterhours-dark .Box.BoxCategories.SideNav .Box-contents,
+html.boards-preset-afterhours-dark .Box.BoxCategories.SideNav ul,
+html.boards-preset-afterhours-dark .Box.BoxCategories.SideNav li {
+  background: var(--t-bg) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+html.boards-preset-afterhours-dark .Box.BoxCategories.SideNav .SideNav-header {
+  background: linear-gradient(180deg, var(--t-header-top) 0%, var(--t-header-bottom) 100%) !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid var(--t-header-border) !important;
+}
+
+html.boards-preset-afterhours-dark .Box.BoxCategories.SideNav .SideNav-header h2,
+html.boards-preset-afterhours-dark .Box.BoxCategories.SideNav .SideNav-header .small-text {
+  color: #ffffff !important;
   background: transparent !important;
 }
 
-.no-ad-top-spacer { display: none !important; }
-.Frame-contentWrap.noad-top { margin-top: 0 !important; }
-.Container { margin-top: 0 !important; }
-.Content.MainContent { padding-top: 0 !important; }
-h1.H.HomepageTitle { display: none !important; }
-#page-sidebar.pageBox.non-home {
-    margin-top: 0 !important;
-    padding-top: 0 !important;
+html.boards-preset-afterhours-dark .Box.BoxCategories.SideNav a,
+html.boards-preset-afterhours-dark .Box.BoxCategories.SideNav .NavItem,
+html.boards-preset-afterhours-dark .Box.BoxCategories.SideNav .Aside,
+html.boards-preset-afterhours-dark .Box.BoxCategories.SideNav .ChildCategories a {
+  color: var(--t-link) !important;
+  background: transparent !important;
+}
+
+html.boards-preset-afterhours-dark .Box.BoxCategories.SideNav a:hover,
+html.boards-preset-afterhours-dark .Box.BoxCategories.SideNav .NavItem:hover {
+  color: var(--t-link-hover) !important;
+  background: var(--t-surface-2) !important;
+}
+
+/* ============================================================
+   Extension UI buttons
+   Match BoardsCleaner controls to this forum theme
+   ============================================================ */
+
+html.boards-preset-afterhours-dark #profileToggleBtn {
+  background-color: var(--t-button-top) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--t-button-border) !important;
+}
+
+html.boards-preset-afterhours-dark #profileToggleBtn:hover {
+  background-color: var(--t-button-hover-top) !important;
+}
+
+/* Info / nav icon buttons in the overlay */
+html.boards-preset-afterhours-dark .infoIcon,
+html.boards-preset-afterhours-dark .navIcon {
+  background-color: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+/* Modal / shortcut dialog, if used */
+html.boards-preset-afterhours-dark dialog#shortcutDialog {
+  background: var(--t-surface) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+/* Edit modal button in the forum header bar */
+html.boards-preset-afterhours-dark #bcEditModalBtn {
+  background-color: var(--t-button-top) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--t-button-border) !important;
 }

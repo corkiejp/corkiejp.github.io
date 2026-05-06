@@ -23,6 +23,8 @@ const BUILTIN_PRESETS = {
   'forestry': 'forest'
 };
 
+
+
 function showStatus(msg) {
   statusEl.textContent = msg;
   setTimeout(() => {
@@ -40,6 +42,19 @@ function showBackupStatus(msg, isError = false) {
 
 function normalizeForumKey(key) {
   return (key || '').trim().toLowerCase();
+}
+
+function getForumKeyFromQuery() {
+  const params = new URLSearchParams(window.location.search);
+  return normalizeForumKey(params.get('forum') || '');
+}
+
+async function preloadForumFromQuery() {
+  const forumKey = getForumKeyFromQuery();
+  if (!forumKey) return;
+
+  forumKeyEl.value = forumKey;
+  await loadForumConfig();
 }
 
 function getDefaultThemeSettings() {
@@ -343,35 +358,57 @@ async function refreshStyledForumsList() {
     return;
   }
 
-  for (const key of keys) {
-    const li = document.createElement('li');
-    const presetId = assignments[key];
-    const hasCustom = Boolean(
-      customCssByForum[key] && customCssByForum[key].trim()
-    );
-    const parts = [];
+for (const key of keys) {
+	
+  const li = document.createElement('li');
+  const presetId = assignments[key];
+  const hasCustom = Boolean(
+    customCssByForum[key] && customCssByForum[key].trim()
+  );
+  const parts = [];
 
-    if (presetId && presetId !== '__disabled__') {
-      parts.push(`preset: ${presetId}`);
-    } else if (presetId === '__disabled__') {
-      parts.push('preset: disabled');
-    } else {
-      parts.push('preset: none');
-    }
-
-    if (hasCustom) {
-      parts.push('custom CSS');
-    }
-
-    li.textContent = `${key} — ${parts.join(', ')}`;
-    li.style.cursor = 'pointer';
-    li.addEventListener('click', () => {
-      forumKeyEl.value = key;
-      loadForumConfig();
-    });
-
-    styledForumsListEl.appendChild(li);
+  if (presetId && presetId !== '__disabled__') {
+    parts.push(`preset: ${presetId}`);
+  } else if (presetId === '__disabled__') {
+    parts.push('preset: disabled');
+  } else {
+    parts.push('preset: none');
   }
+
+  if (hasCustom) {
+    parts.push('custom CSS');
+  }
+  
+  li.className = 'styled-forum-row';
+  li.style.display = 'flex';
+  li.style.alignItems = 'center';
+  li.style.justifyContent = 'space-between';
+  li.style.gap = '10px';
+
+  const loadBtn = document.createElement('button');
+  loadBtn.type = 'button';
+  loadBtn.textContent = `${key} — ${parts.join(', ')}`;
+  loadBtn.style.flex = '1';
+  loadBtn.style.textAlign = 'left';
+  loadBtn.style.cursor = 'pointer';
+
+  loadBtn.addEventListener('click', () => {
+    forumKeyEl.value = key;
+    loadForumConfig();
+  });
+
+  const openLink = document.createElement('a');
+  openLink.className = 'forum-open-link';
+  openLink.href = `https://www.boards.ie/categories/${encodeURIComponent(key)}`;
+  openLink.target = '_blank';
+  openLink.rel = 'noopener noreferrer';
+  openLink.textContent = 'Open';
+  openLink.style.whiteSpace = 'nowrap';
+
+  li.appendChild(loadBtn);
+  li.appendChild(openLink);
+  styledForumsListEl.appendChild(li);
+}
 }
 
 async function clearAllForums() {
@@ -413,8 +450,6 @@ if (clearAllForumsBtn) {
   clearAllForumsBtn.addEventListener('click', clearAllForums);
 }
 
-loadGlobals();
-refreshStyledForumsList();
 
 enabledEl.addEventListener('change', saveGlobalSettings);
 usePresetsEl.addEventListener('change', saveGlobalSettings);
@@ -425,4 +460,10 @@ document.getElementById('saveBtn').addEventListener('click', saveForumConfig);
 document.getElementById('deleteBtn').addEventListener('click', deleteForumConfig);
 document.getElementById('sampleBtn').addEventListener('click', insertSampleCss);
 
-loadGlobals();
+async function initOptionsPage() {
+  await loadGlobals();
+  await refreshStyledForumsList();
+  await preloadForumFromQuery();
+}
+
+initOptionsPage();

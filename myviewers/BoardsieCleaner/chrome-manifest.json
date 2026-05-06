@@ -1,31 +1,28 @@
 {
   "manifest_version": 3,
   "name": "Boards.ie Cleaner V2",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "description": "Boards.ie helper: overlay loader, profile toggles, quote tools, and CMP handling.",
-
-  "host_permissions": [
-    "https://www.boards.ie/*"
-  ],
-
   "permissions": [
-    "storage"
+    "storage",
+    "declarativeNetRequest",
+    "declarativeNetRequestFeedback"
   ],
-
+  "host_permissions": [
+    "https://www.boards.ie/*",
+    "https://boards.ie/*"
+  ],
   "options_page": "options.html",
-
   "background": {
     "service_worker": "background.js",
     "type": "module"
   },
-
   "icons": {
     "16": "assets/icon16.png",
     "32": "assets/icon32.png",
     "48": "assets/icon48.png",
     "128": "assets/icon128.png"
   },
-
   "action": {
     "default_icon": {
       "16": "assets/icon16.png",
@@ -34,26 +31,24 @@
       "128": "assets/icon128.png"
     }
   },
-
   "content_scripts": [
     {
       "matches": ["https://www.boards.ie/*"],
-     "js": ["themes/theme-engine-2.js", "content.js"],
+      "js": ["themes/theme-engine-2.js", "content.js"],
       "run_at": "document_idle"
     }
   ],
-
-"web_accessible_resources": [
-  {
-    "resources": [
-      "themes/presets/*.css",
-      "assets/icon16.png",
-      "assets/icon32.png",
-      "assets/icon48.png",
-      "assets/icon128.png",
-      "assets/boardsedited128.png"
-    ],
-    "matches": ["https://www.boards.ie/*"]
-  }
-]
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "themes/presets/*.css",
+        "assets/icon16.png",
+        "assets/icon32.png",
+        "assets/icon48.png",
+        "assets/icon128.png",
+        "assets/boardsedited128.png"
+      ],
+      "matches": ["https://www.boards.ie/*"]
+    }
+  ]
 }

@@ -1,0 +1,23 @@
+[
+  {
+    "id": 101,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "initiatorDomains": ["boards.ie", "www.boards.ie"],
+      "requestDomains": ["platform.twitter.com"],
+      "resourceTypes": ["script"],
+      "urlFilter": "widgets.js"
+    }
+  },
+  {
+    "id": 102,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "initiatorDomains": ["boards.ie", "www.boards.ie"],
+      "requestDomains": ["cmp.inmobi.com"],
+      "resourceTypes": ["script"]
+    }
+  }
+]

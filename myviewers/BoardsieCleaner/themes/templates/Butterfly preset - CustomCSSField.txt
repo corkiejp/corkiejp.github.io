@@ -1,0 +1,394 @@
+/* Butterfly (alt Sepia theme) preset variables
+ * Sample Custom CSS for long-form reading.
+ * Paste into the Custom CSS field for a forum.
+ */
+
+html {
+  /* Backgrounds */
+  --t-bg: #e5ddd3 !important;       /* page background (Timberwolf) */
+  --t-bg-2: #ddd2c6 !important;     /* secondary / footers (darker Timberwolf) */
+  --t-surface: #f5eee5 !important;  /* post / card surface (lightened Timberwolf) */
+  --t-surface-2: #f0e2d4 !important;/* subtle raised (between Timberwolf & Melon) */
+--t-surface-3: #dfc3ba !important;     /* softer Melon for hover/emphasis */
+  --t-panel: #e3d3c4 !important;    /* user info / side panels */
+
+  /* Borders */
+  --t-border: #7d7f4f !important;   /* Reseda green */
+  --t-border-soft: #b4b397 !important; /* softened Reseda/Timberwolf mix */
+
+  /* Text */
+  --t-text: #2b2520 !important;     /* main text (dark brown) */
+  --t-muted: #6e5e52 !important;    /* meta, dates */
+  --t-faint: #998578 !important;    /* low-priority text */
+
+  /* Links */
+--t-link: #7b4a4b !important;          /* toned-down Auburn */
+--t-link-hover: #98292a !important;    /* Auburn only on hover */
+
+  /* Header / accent strip */
+--t-header-top: #d9c48d !important;    /* softer Jasmine */
+--t-header-bottom: #c9b06e !important; /* muted gold */
+--t-header-border: #7d7f4f !important; /* Reseda */
+
+  /* Buttons */
+--t-button-top: #d8bb72 !important;       /* softer Jasmine */
+--t-button-bottom: #c39b57 !important;
+--t-button-hover-top: #e3c77b !important;
+--t-button-hover-bottom: #cfa663 !important;
+--t-button-border: #7d7f4f !important;
+
+  /* Legacy row / button helpers (for older layouts) */
+  --t-row-bg: #f5eee5 !important;
+  --t-row-hover: #f0e2d4 !important;
+  --t-row-unread: #f2d0c4 !important; /* Melon‑tinted row */
+  --t-btn-bg: #e7c675 !important;
+  --t-btn-text: #2b2520 !important;
+  --t-btn-border: #7d7f4f !important;
+  --t-btn-hover: #f0d385 !important;
+  --t-dropdown-bg: #f5eee5 !important;
+  --t-dropdown-hover: #f0e2d4 !important;
+  
+}
+
+/* Page base / reading background */
+html,
+html body,
+html #Body,
+html .Container,
+html .Content.MainContent,
+html .page-content,
+html .pageBox,
+html .MessageList.Discussion,
+html .Comments.pageBox {
+  background: var(--t-bg) !important;
+  color: var(--t-text) !important;
+}
+
+/* Modern title bar (React header) */
+html .titleBar,
+html [class*="TitleBar-classes-bg"],
+html [class*="TitleBar-classes-bgContainer"],
+html [class*="TitleBar-classes-bar"] {
+  background: linear-gradient(
+    180deg,
+    var(--t-header-top) 0%,
+    var(--t-header-bottom) 100%
+  ) !important;
+  border-bottom: 1px solid var(--t-header-border) !important;
+}
+
+/* Header nav links */
+html [class*="TitleBar-classes-topElement-"] {
+  color: var(--t-link) !important;
+  background: transparent !important;
+}
+
+html [class*="TitleBar-classes-topElement-"]:hover {
+  color: var(--t-link-hover) !important;
+}
+
+/* Breadcrumbs / section headings */
+html .BreadcrumbsBox,
+html .Breadcrumbs,
+html .PageTitle,
+html .pageHeadingBox {
+  background: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border) !important;
+}
+
+/* Thread list header & side nav header */
+html .forum-threadlist-header,
+html .forum-threadlist-header .latest-title,
+html .Box.BoxCategories.SideNav .SideNav-header {
+  background: linear-gradient(
+    180deg,
+    var(--t-header-top) 0%,
+    var(--t-header-bottom) 100%
+  ) !important;
+  color: #2f281d !important;
+  border-bottom: 1px solid var(--t-header-border) !important;
+}
+
+/* Thread list rows */
+html .forum-threadlist-table th {
+  background: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+html .forum-threadlist-table tbody td {
+  background: var(--t-surface) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+html .forum-threadlist-table tbody tr:nth-child(even) td {
+  background: var(--t-surface-2) !important;
+}
+
+/* Meta columns (replies, views, last post) */
+html td.forum-threadlist-lastpost,
+html td.forum-threadlist-replies,
+html td.forum-threadlist-views,
+html .forum-threadlist-thread-lastposter,
+html .threadbit-lastposter {
+  background: var(--t-surface) !important;
+  color: var(--t-muted) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+/* Post header strip */
+html .postbit-header {
+  background: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border-bottom: 1px solid var(--t-border-soft) !important;
+}
+
+html .postbit-header a,
+html .postbit-header .MItem {
+  color: var(--t-text) !important;
+  background: transparent !important;
+}
+
+/* User info column */
+html .postbit-userinfo,
+html .postbit-userinfo .userinfo-row,
+html .postbit-userinfo .userinfo-joindate,
+html .postbit-userinfo .userinfo-posts,
+html .postbit-userinfo .RoleTitle,
+html .postbit-userinfo .MItem {
+  background: var(--t-panel) !important;
+  color: var(--t-muted) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+html .postbit-userinfo a,
+html .postbit-userinfo .userinfo-username-title {
+  color: var(--t-link) !important;
+}
+
+/* Post body / message content */
+html .postbit-postbody,
+html .postbit-message,
+html .message-wrapper,
+html .Item-BodyWrap,
+html .Item-Body,
+html .Message.userContent,
+html .userContent,
+html .UserSignature {
+  background: var(--t-surface) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+/* Typography inside posts: keep background neutral and text dark */
+html .Message.userContent p,
+html .Message.userContent div,
+html .Message.userContent span,
+html .Item-Body p,
+html .Item-Body div {
+  background: transparent !important;
+  color: var(--t-text) !important;
+}
+
+/* Links, quotes, and code blocks in posts */
+html a {
+  color: var(--t-link) !important;
+}
+
+html a:hover {
+  color: var(--t-link-hover) !important;
+}
+
+html blockquote,
+html pre,
+html code,
+html [class*="quoteEmbed"],
+html [class*="embedContent"] {
+  background: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border: 1px solid var(--t-border-soft) !important;
+}
+
+/* Reaction row and footer under posts */
+html .Reactions,
+html .Reactions > div,
+html .Reactions .ReactButton,
+html .Reactions .ReactLabel,
+html .clearleft {
+  background: var(--t-surface) !important;
+  color: var(--t-link) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+/* New Discussion button & primary actions */
+html .Button,
+html .Btn,
+html .Primary,
+html input[type="submit"],
+html .ButtonGroup.NewDiscussion,
+html div.ButtonGroup[data-is-kludged="true"],
+html .BoxButtons .ButtonGroup.Multi {
+  background: linear-gradient(
+    180deg,
+    var(--t-button-top) 0%,
+    var(--t-button-bottom) 100%
+  ) !important;
+  color: var(--t-btn-text) !important;
+  border: 1px solid var(--t-button-border) !important;
+}
+
+html .Button:hover,
+html .Btn:hover,
+html .Primary:hover,
+html input[type="submit"]:hover {
+  background: linear-gradient(
+    180deg,
+    var(--t-button-hover-top) 0%,
+    var(--t-button-hover-bottom) 100%
+  ) !important;
+}
+
+/* Optional: soften strong box-shadows if any remain */
+html .MessageList.Discussion,
+html .Comments.pageBox,
+html .postbit-wrapper {
+  box-shadow: none !important;
+}
+
+/* ============================================================
+   Generic buttons and primary actions (Sepia)
+   ============================================================ */
+
+html .Button,
+html .Btn,
+html .Primary,
+html input[type="submit"],
+html .Buttons .Button,
+html .ButtonGroup.NewDiscussion,
+html div.ButtonGroup[data-is-kludged="true"],
+html .BoxButtons .ButtonGroup.Multi {
+  background: linear-gradient(
+    180deg,
+    var(--t-button-top) 0%,
+    var(--t-button-bottom) 100%
+  ) !important;
+  color: #2f281d !important;
+  border: 1px solid var(--t-button-border) !important;
+}
+
+html .Button:hover,
+html .Btn:hover,
+html .Primary:hover,
+html input[type="submit"]:hover {
+  background: linear-gradient(
+    180deg,
+    var(--t-button-hover-top) 0%,
+    var(--t-button-hover-bottom) 100%
+  ) !important;
+}
+
+/* ============================================================
+   BoardsCleaner extension UI buttons (Sepia)
+   ============================================================ */
+
+/* Toggle Profile button */
+html #profileToggleBtn {
+  background-color: var(--t-button-top) !important;
+  color: #2f281d !important;
+  border: 1px solid var(--t-button-border) !important;
+}
+
+html #profileToggleBtn:hover {
+  background-color: var(--t-button-hover-top) !important;
+}
+
+/* Info / nav icon buttons in the overlay */
+html .infoIcon,
+html .navIcon {
+  background-color: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+/* Shortcut / help dialog */
+html dialog#shortcutDialog {
+  background: var(--t-surface) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+/* Edit modal button in forum header */
+html #bcEditModalBtn {
+  background-color: var(--t-button-top) !important;
+  color: #2f281d !important;
+  border: 1px solid var(--t-button-border) !important;
+}
+
+/* ============================================================
+   Legacy nav popup (Sepia)
+   ============================================================ */
+
+html #bc-nav-popup-wrap {
+  position: relative;
+}
+
+html #bc-nav-popup-toggle {
+  background: linear-gradient(
+    180deg,
+    var(--t-button-top) 0%,
+    var(--t-button-bottom) 100%
+  ) !important;
+  color: #2f281d !important;
+  border: 1px solid var(--t-button-border) !important;
+  border-radius: 4px !important;
+  padding: 6px 10px !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+}
+
+html #bc-nav-popup-toggle:hover {
+  background: linear-gradient(
+    180deg,
+    var(--t-button-hover-top) 0%,
+    var(--t-button-hover-bottom) 100%
+  ) !important;
+}
+
+html #bc-nav-popup-panel {
+  background: var(--t-surface) !important;
+  color: var(--t-text) !important;
+  border: 1px solid var(--t-border-soft) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18) !important;
+  padding: 6px !important;
+  min-width: 190px !important;
+}
+
+html .bc-nav-popup-item,
+html #bc-nav-popup-hide-toggle {
+  display: block !important;
+  width: 100% !important;
+  text-align: left !important;
+  background: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border: 1px solid var(--t-border-soft) !important;
+  border-radius: 4px !important;
+  padding: 8px 10px !important;
+  margin: 4px 0 !important;
+  cursor: pointer !important;
+}
+
+html .bc-nav-popup-item:hover,
+html #bc-nav-popup-hide-toggle:hover {
+  background: var(--t-surface-3) !important;
+  color: var(--t-link) !important;
+  border-color: var(--t-border) !important;
+}
+
+html #bc-nav-popup-sep {
+  height: 1px !important;
+  background: var(--t-border-soft) !important;
+  margin: 8px 0 !important;
+}

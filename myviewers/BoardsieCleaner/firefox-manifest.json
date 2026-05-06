@@ -1,16 +1,17 @@
 {
   "manifest_version": 3,
   "name": "Boards.ie Cleaner V2",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "description": "Boards.ie helper: overlay loader, profile toggles, quote tools, and CMP handling.",
 
   "host_permissions": [
     "https://www.boards.ie/*"
   ],
 
-  "permissions": [
-    "storage"
-  ],
+"permissions": [
+  "storage",
+  "declarativeNetRequest"
+],
 
   "options_ui": {
     "page": "options.html",

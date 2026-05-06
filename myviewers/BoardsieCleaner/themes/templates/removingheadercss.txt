@@ -1,0 +1,24 @@
+/* Modern title bar background layers */
+html .titleBar,
+html [class*="TitleBar-classes-bgContainer"],
+html [class*="TitleBar-classes-bg1"],
+html [class*="TitleBar-classes-overlay"],
+html [class*="TitleBar-classes-bar"] {
+  background: none !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+/* Top nav links */
+html [class*="TitleBar-classes-topElement-"] {
+  color: inherit !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Hover state */
+html [class*="TitleBar-classes-topElement-"]:hover {
+  color: inherit !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+

@@ -23,7 +23,7 @@ const THEME_PRESETS = {
     label: 'After Hours Dark',
     className: 'boards-preset-afterhours-dark',
     cssFile: 'themes/presets/afterhours-dark.css',
-    shadowPatch: null
+    shadowPatch: applyThemeHeaderShadowPatch
   },
 
   'current-affairs-imho': {
@@ -31,7 +31,7 @@ const THEME_PRESETS = {
     label: 'Current Affairs / IMHO',
     className: 'boards-preset-current-affairs-imho',
     cssFile: 'themes/presets/current-affairs-imho.css',
-    shadowPatch: null
+    shadowPatch: applyThemeHeaderShadowPatch
   },
 
   'forest': {
@@ -39,8 +39,23 @@ const THEME_PRESETS = {
     label: 'Forest',
     className: 'boards-preset-forest',
     cssFile: 'themes/presets/forest.css',
-    shadowPatch: applyForestShadowPatch
-  }
+    shadowPatch: applyThemeHeaderShadowPatch
+  },
+  
+  'peonies-in-spring': {
+  id: 'peonies-in-spring',
+  label: 'peonies-in-spring',
+  className: 'boards-preset-peonies-in-spring',
+  cssFile: 'themes/presets/peonies-in-spring.css',
+  shadowPatch: applyThemeHeaderShadowPatch
+},
+'wild-rust': {
+  id: 'wild-rust',
+  label: 'Wild Rust',
+  className: 'boards-preset-wild-rust',
+  cssFile: 'themes/presets/wild-rust.css',
+  shadowPatch: applyThemeHeaderShadowPatch
+}
 };
 
 /*
@@ -286,6 +301,7 @@ async function injectPresetCss(preset) {
 
 function injectCustomCss(cssText) {
   upsertStyle(STYLE_IDS.custom, cssText);
+  applyThemeHeaderShadowPatch();
 }
 
 function upsertStyle(id, cssText) {
@@ -352,44 +368,133 @@ async function applyOptionalShadowPatch(preset) {
 }
 
 /*
- * Forest example shadow patch
+ * Global example shadow patch
  * ---------------------------
  * This is just a placeholder skeleton.
  * Replace token values / CSS block with your proven TM version later.
  */
-function applyForestShadowPatch() {
+function applyThemeHeaderShadowPatch() {
   const host = document.querySelector('#themeHeader');
-  if (!host || !host.shadowRoot) return;
+  if (!host || !host.shadowRoot) return false;
 
-  const styleId = 'bc-shadow-patch-forest';
-  let styleEl = host.shadowRoot.getElementById(styleId);
+  const root = host.shadowRoot;
+  const styleId = 'bc-shadow-patch-themeHeader';
+  let styleEl = root.getElementById(styleId);
 
   if (!styleEl) {
     styleEl = document.createElement('style');
     styleEl.id = styleId;
-    host.shadowRoot.appendChild(styleEl);
+    root.appendChild(styleEl);
   }
 
+  const htmlStyles = getComputedStyle(document.documentElement);
+
+  const pick = (name, fallback) => {
+    const value = htmlStyles.getPropertyValue(name);
+    return value && value.trim() ? value.trim() : fallback;
+  };
+
+  const bg = pick('--t-bg', '#1f1f1f');
+  const bg2 = pick('--t-bg-2', bg);
+  const surface = pick('--t-surface', bg);
+  const surface2 = pick('--t-surface-2', bg2);
+  const border = pick('--t-border', '#444');
+  const borderSoft = pick('--t-border-soft', border);
+  const text = pick('--t-text', '#ffffff');
+  const muted = pick('--t-muted', text);
+  const link = pick('--t-link', '#8ecae6');
+  const linkHover = pick('--t-link-hover', link);
+  const headerTop = pick('--t-header-top', bg);
+  const headerBottom = pick('--t-header-bottom', bg);
+  const headerBorder = pick('--t-header-border', border);
+
   styleEl.textContent = `
-    .nav-area {
-      background: #162018 !important;
-      border-bottom: 1px solid #425a47 !important;
+    :host {
+      --bc-shadow-bg: ${bg};
+      --bc-shadow-bg-2: ${bg2};
+      --bc-shadow-surface: ${surface};
+      --bc-shadow-surface-2: ${surface2};
+      --bc-shadow-border: ${border};
+      --bc-shadow-border-soft: ${borderSoft};
+      --bc-shadow-text: ${text};
+      --bc-shadow-muted: ${muted};
+      --bc-shadow-link: ${link};
+      --bc-shadow-link-hover: ${linkHover};
+      --bc-shadow-header-top: ${headerTop};
+      --bc-shadow-header-bottom: ${headerBottom};
+      --bc-shadow-header-border: ${headerBorder};
     }
 
+    .nav-area,
     #nav,
     ul,
-    ul li {
-      background: #162018 !important;
+    ul li,
+    nav,
+    [class*="nav"],
+    [class*="menu"] {
+      background: var(--bc-shadow-header-bottom) !important;
       background-image: none !important;
+      border-color: var(--bc-shadow-header-border) !important;
+      color: var(--bc-shadow-text) !important;
+    }
+
+    .nav-area {
+      border-bottom: 1px solid var(--bc-shadow-header-border) !important;
+    }
+
+    #nav > li,
+    ul > li,
+    .nav-item,
+    .menu-item {
+      background: transparent !important;
+      color: inherit !important;
+      border-color: var(--bc-shadow-border-soft) !important;
     }
 
     #nav > li > a,
     #nav > li > span,
     .nav-link,
+    .nav-link:link,
+    .nav-link:visited,
     ul li a,
-    ul li span {
-      color: #91c98b !important;
+    ul li span,
+    button,
+    [role="button"] {
+      color: var(--bc-shadow-link) !important;
       background: transparent !important;
+      background-image: none !important;
+      border-color: transparent !important;
+      box-shadow: none !important;
+    }
+
+    #nav > li > a:hover,
+    #nav > li > span:hover,
+    .nav-link:hover,
+    .nav-link:focus,
+    ul li a:hover,
+    button:hover,
+    [role="button"]:hover {
+      color: var(--bc-shadow-link-hover) !important;
+      background: var(--bc-shadow-surface-2) !important;
+    }
+
+    .active,
+    .selected,
+    [aria-current="page"],
+    [aria-selected="true"] {
+      background: var(--bc-shadow-surface) !important;
+      color: var(--bc-shadow-link-hover) !important;
+      border-color: var(--bc-shadow-border) !important;
+    }
+
+    svg,
+    path,
+    iconify-icon {
+      color: var(--bc-shadow-link) !important;
+      fill: currentColor !important;
+      stroke: currentColor !important;
     }
   `;
+
+  return true;
 }

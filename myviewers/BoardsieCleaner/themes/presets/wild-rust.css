@@ -1,0 +1,627 @@
+/*
+BoardsCleaner preset theme
+Clone this file to create a new preset.
+
+Steps:
+1. Copy this file and rename it.
+2. Change every occurrence of html.boards-preset-wild-rust to your new preset class.
+3. Update the variable block first.
+4. Keep all selectors scoped to the preset class.
+5. Register the preset in theme-engine-2.js.
+
+Wild Rust variables block
+https://www.color-meanings.com/vintage-color-palettes/
+
+Kobicha: #5C3A28 (deep brown)
+
+Beaver: #AF9784 (muted warm)
+
+Payne’s gray: #527A84 (blue-grey)
+
+Coral pink: #DC7F70
+
+Mountbatten pink: #A58199
+*/
+
+/* ============================================================
+   STEP 1 — Change this class to match your forum slug
+   e.g. boards-theme-work-jobs, boards-theme-soccer etc.
+   ============================================================ */
+
+html.boards-preset-wild-rust {
+
+/* Backgrounds */
+--t-bg: #141012;          /* near-black with a warm bias */
+--t-bg-2: #1a1517;
+--t-surface: #20191c;
+--t-surface-2: #2a2024;
+--t-surface-3: #33252a;
+--t-panel: #1b1518;
+
+/* Borders */
+--t-border: #4b3737;      /* darker beaver */
+--t-border-soft: #3a2a2c;
+
+/* Text */
+--t-text: #f2e6e0;        /* warm light text */
+--t-muted: #c7b0a3;       /* from Beaver */
+--t-faint: #9f857a;
+
+/* Links – Payne’s gray / coral blend */
+--t-link: #9fd0dd;        /* lightened Payne’s gray */
+--t-link-hover: #f1a495;  /* coral highlight */
+
+/* Header / accent strip – Kobicha + coral */
+--t-header-top: #5C3A28;  /* Kobicha */
+--t-header-bottom: #3e241a;
+--t-header-border: #DC7F70;  /* coral pinstripe */
+
+/* Buttons – coral primary */
+--t-button-top: #DC7F70;
+--t-button-bottom: #b86054;
+--t-button-hover-top: #e88f81;
+--t-button-hover-bottom: #c96c5e;
+--t-button-border: #7f3c32;
+
+/* Legacy aliases */
+--forum-row-bg: #20191c;
+--forum-row-hover: #2a2024;
+--forum-row-unread: #33252a;
+--forum-border: #4b3737;
+--forum-text: #f2e6e0;
+--forum-link: #9fd0dd;
+--forum-link-hover: #f1a495;
+--forum-muted: #c7b0a3;
+--forum-btn-bg: #DC7F70;
+--forum-btn-text: #fdf5f2;
+--forum-btn-border: #7f3c32;
+--forum-btn-hover: #e88f81;
+--forum-dropdown-bg: #20191c;
+--forum-dropdown-hover: #2a2024;
+
+--t-row-bg: #20191c;
+--t-row-hover: #2a2024;
+--t-row-unread: #33252a;
+--t-btn-bg: #DC7F70;
+--t-btn-text: #fdf5f2;
+--t-btn-border: #7f3c32;
+--t-btn-hover: #e88f81;
+--t-dropdown-bg: #20191c;
+--t-dropdown-hover: #2a2024;
+
+}
+
+/* ============================================================
+   STEP 2 — Page base
+   Controls the overall page background and text colour.
+   ============================================================ */
+html.boards-preset-wild-rust,
+html.boards-preset-wild-rust body,
+html.boards-preset-wild-rust #Body,
+html.boards-preset-wild-rust .Container,
+html.boards-preset-wild-rust .Content.MainContent,
+html.boards-preset-wild-rust .page-content,
+html.boards-preset-wild-rust .pageBox,
+html.boards-preset-wild-rust .MessageList.Discussion,
+html.boards-preset-wild-rust .Comments.pageBox {
+  background: var(--t-bg) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+/* ============================================================
+   STEP 3 — Top navigation bar
+   The site header containing logo, search, account menu.
+   ============================================================ */
+html.boards-preset-wild-rust #nav,
+html.boards-preset-wild-rust #themeHeader,
+html.boards-preset-wild-rust .titleBar,
+html.boards-preset-wild-rust [class*="TitleBar-classes-bg"],
+html.boards-preset-wild-rust [class*="TitleBar-classes-container"] {
+  background: var(--t-bg) !important;
+  border-bottom: 1px solid var(--t-border) !important;
+}
+
+html.boards-preset-wild-rust #nav a,
+html.boards-preset-wild-rust [class*="TitleBar"] a,
+html.boards-preset-wild-rust [class*="TitleBar"] button {
+  color: var(--t-link) !important;
+  background: transparent !important;
+}
+
+/* ============================================================
+   STEP 4 — Breadcrumbs
+   The navigation trail: Home › Topics › After Hours
+   ============================================================ */
+html.boards-preset-wild-rust .BreadcrumbsBox,
+html.boards-preset-wild-rust .Breadcrumbs,
+html.boards-preset-wild-rust .PageTitle,
+html.boards-preset-wild-rust .pageHeadingBox {
+  background: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border) !important;
+}
+
+html.boards-preset-wild-rust .Breadcrumbs a,
+html.boards-preset-wild-rust .CrumbLabel a {
+  color: var(--t-link) !important;
+}
+
+/* ============================================================
+   STEP 5 — Links
+   ============================================================ */
+html.boards-preset-wild-rust a {
+  color: var(--t-link) !important;
+}
+
+html.boards-preset-wild-rust a:hover {
+  color: var(--t-link-hover) !important;
+}
+
+/* ============================================================
+   STEP 6 — Forum thread list header
+   The coloured bar that says "Latest Posts" or "Sub Forums"
+   ============================================================ */
+html.boards-preset-wild-rust .forum-threadlist-header,
+html.boards-preset-wild-rust .forum-threadlist-header .latest-title {
+  background: linear-gradient(
+    180deg,
+    var(--t-header-top) 0%,
+    var(--t-header-bottom) 100%
+  ) !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid var(--t-header-border) !important;
+}
+
+/* ============================================================
+   STEP 7 — Thread list table
+   The rows of discussions in the forum list.
+   ============================================================ */
+html.boards-preset-wild-rust .forum-threadlist-table th {
+  background: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+html.boards-preset-wild-rust .forum-threadlist-table tbody td {
+  background: var(--t-surface) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+html.boards-preset-wild-rust .forum-threadlist-table tbody tr:nth-child(even) td {
+  background: var(--t-surface-2) !important;
+}
+
+html.boards-preset-wild-rust td.forum-threadlist-lastpost,
+html.boards-preset-wild-rust td.forum-threadlist-replies,
+html.boards-preset-wild-rust td.forum-threadlist-views,
+html.boards-preset-wild-rust .forum-threadlist-thread-lastposter,
+html.boards-preset-wild-rust .threadbit-lastposter {
+  background: var(--t-surface) !important;
+  color: var(--t-muted) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+/* ============================================================
+   STEP 8 — Pager (pagination controls)
+   ============================================================ */
+html.boards-preset-wild-rust .PageControls,
+html.boards-preset-wild-rust .Pager,
+html.boards-preset-wild-rust #PagerBefore,
+html.boards-preset-wild-rust #PagerAfter,
+html.boards-preset-wild-rust .Pager a,
+html.boards-preset-wild-rust .Pager span {
+  background: var(--t-surface) !important;
+  color: var(--t-link) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+html.boards-preset-wild-rust .Pager a.Highlight {
+  background: var(--t-header-bottom) !important;
+  color: #ffffff !important;
+}
+
+/* ============================================================
+   STEP 9 — New Discussion button
+   ============================================================ */
+html.boards-preset-wild-rust div.ButtonGroup[data-is-kludged="true"],
+html.boards-preset-wild-rust .ButtonGroup.NewDiscussion {
+  background: linear-gradient(
+    180deg,
+    var(--t-button-top) 0%,
+    var(--t-button-bottom) 100%
+  ) !important;
+  border: 1px solid var(--t-button-border) !important;
+  color: #ffffff !important;
+}
+
+html.boards-preset-wild-rust div.ButtonGroup[data-is-kludged="true"] a.Button {
+  background: transparent !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+/* Generic buttons and primary actions */
+html.boards-preset-wild-rust .Button,
+html.boards-preset-wild-rust .Btn,
+html.boards-preset-wild-rust .Primary,
+html.boards-preset-wild-rust input[type="submit"],
+html.boards-preset-wild-rust .Buttons .Button {
+  background: linear-gradient(
+    180deg,
+    var(--t-button-top) 0%,
+    var(--t-button-bottom) 100%
+  ) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--t-button-border) !important;
+}
+
+html.boards-preset-wild-rust .Button:hover,
+html.boards-preset-wild-rust .Btn:hover,
+html.boards-preset-wild-rust .Primary:hover,
+html.boards-preset-wild-rust input[type="submit"]:hover {
+  background: linear-gradient(
+    180deg,
+    var(--t-button-hover-top) 0%,
+    var(--t-button-hover-bottom) 100%
+  ) !important;
+}
+
+/* ============================================================
+   STEP 10 — Post header bar
+   The strip showing post number, date, options per post.
+   ============================================================ */
+html.boards-preset-wild-rust .postbit-header {
+  background: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border-bottom: 1px solid var(--t-border-soft) !important;
+}
+
+html.boards-preset-wild-rust .postbit-header a,
+html.boards-preset-wild-rust .postbit-header .MItem {
+  color: var(--t-text) !important;
+  background: transparent !important;
+}
+
+/* ============================================================
+   STEP 11 — User info column
+   Left panel showing username, avatar, join date, post count.
+   ============================================================ */
+html.boards-preset-wild-rust .postbit-userinfo,
+html.boards-preset-wild-rust .postbit-userinfo .userinfo-row,
+html.boards-preset-wild-rust .postbit-userinfo .userinfo-joindate,
+html.boards-preset-wild-rust .postbit-userinfo .userinfo-posts,
+html.boards-preset-wild-rust .postbit-userinfo .RoleTitle,
+html.boards-preset-wild-rust .postbit-userinfo .MItem {
+  background: var(--t-panel) !important;
+  color: var(--t-muted) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+html.boards-preset-wild-rust .postbit-userinfo a,
+html.boards-preset-wild-rust .postbit-userinfo .userinfo-username-title {
+  color: var(--t-link) !important;
+}
+
+html.boards-preset-wild-rust .postbit-wrapper,
+html.boards-preset-wild-rust .postbit-postdetails,
+html.boards-preset-wild-rust .PhotoWrap,
+html.boards-preset-wild-rust .ProfilePhotoMedium,
+html.boards-preset-wild-rust .postbit-userinfo .PhotoWrapLarge {
+  background: var(--t-panel) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+/* ============================================================
+   STEP 12 — Post body
+   The actual message content area.
+   ============================================================ */
+html.boards-preset-wild-rust .postbit-postbody,
+html.boards-preset-wild-rust .postbit-message,
+html.boards-preset-wild-rust .message-wrapper,
+html.boards-preset-wild-rust .Item-BodyWrap,
+html.boards-preset-wild-rust .Item-Body,
+html.boards-preset-wild-rust .Message.userContent,
+html.boards-preset-wild-rust .userContent,
+html.boards-preset-wild-rust .UserSignature {
+  background: var(--t-surface) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+html.boards-preset-wild-rust .Message.userContent p,
+html.boards-preset-wild-rust .Message.userContent div,
+html.boards-preset-wild-rust .Message.userContent span,
+html.boards-preset-wild-rust .Item-Body p,
+html.boards-preset-wild-rust .Item-Body div {
+  background: transparent !important;
+  color: var(--t-text) !important;
+}
+
+/* ============================================================
+   STEP 13 — Reactions row
+   Flag, Quote, Thanks buttons below each post.
+   ============================================================ */
+html.boards-preset-wild-rust .Reactions,
+html.boards-preset-wild-rust .Reactions > div,
+html.boards-preset-wild-rust .Reactions .ReactButton,
+html.boards-preset-wild-rust .Reactions .ReactLabel,
+html.boards-preset-wild-rust .clearleft {
+  background: var(--t-surface) !important;
+  color: var(--t-link) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+/* ============================================================
+   STEP 14 — Quote and code blocks
+   ============================================================ */
+html.boards-preset-wild-rust blockquote,
+html.boards-preset-wild-rust pre,
+html.boards-preset-wild-rust code,
+html.boards-preset-wild-rust [class*="quoteEmbed"],
+html.boards-preset-wild-rust [class*="embedContent"] {
+  background: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border: 1px solid var(--t-border-soft) !important;
+}
+
+/* ============================================================
+   STEP 15 — Comment / reply form
+   ============================================================ */
+html.boards-preset-wild-rust .MessageForm,
+html.boards-preset-wild-rust .CommentForm,
+html.boards-preset-wild-rust .Form-BodyWrap {
+  background: var(--t-surface) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+/* ============================================================
+   STEP 16 — Extension UI buttons
+   Override the extension's own toggle and icon buttons
+   to match this forum theme.
+   ============================================================ */
+html.boards-preset-wild-rust #profileToggleBtn {
+  background-color: var(--t-button-top) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--t-button-border) !important;
+}
+
+html.boards-preset-wild-rust #profileToggleBtn:hover {
+  background-color: var(--t-button-hover-top) !important;
+}
+
+html.boards-preset-wild-rust .infoIcon,
+html.boards-preset-wild-rust .navIcon {
+  background-color: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+html.boards-preset-wild-rust dialog#shortcutDialog {
+  background: var(--t-surface) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+html.boards-preset-wild-rust #bcEditModalBtn {
+  background-color: var(--t-button-top) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--t-button-border) !important;
+}
+
+/* ============================================================
+   STEP 17 — Mobile thread list
+   Boards.ie collapses the thread table on small screens.
+   These rules cover the stacked card layout on mobile.
+   ============================================================ */
+@media (max-width: 768px) {
+
+  html.boards-preset-wild-rust .forum-threadlist-wrapper,
+  html.boards-preset-wild-rust .forum-threadlist-table td,
+  html.boards-preset-wild-rust .threadrow-container,
+  html.boards-preset-wild-rust .forum-threadlist-thread,
+  html.boards-preset-wild-rust .forum-threadlist-thread-title,
+  html.boards-preset-wild-rust .forum-threadlist-thread-meta {
+    background: var(--t-surface) !important;
+    color: var(--t-text) !important;
+    border-color: var(--t-border-soft) !important;
+  }
+
+  html.boards-preset-wild-rust .forum-threadlist-thread-threadlink {
+    color: var(--t-link) !important;
+  }
+}
+
+/* ============================================================
+   VANILLA FORUM LEGACY STRUCTURE — generic template backport
+   Mirrors fixes confirmed in wild-rust theme
+   ============================================================ */
+
+/* Outer data-table wrapper */
+html.boards-preset-wild-rust .DataTableWrap {
+  background: transparent !important;
+}
+
+/* Legacy discussion list table */
+html.boards-preset-wild-rust table.DataTable.DiscussionsTable {
+  background: transparent !important;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+/* Row base */
+html.boards-preset-wild-rust table.DataTable.DiscussionsTable tr.Item,
+html.boards-preset-wild-rust table.DataTable.DiscussionsTable tr.Item.Alt {
+  background: var(--t-row-bg, #1e1e1e) !important;
+  border-bottom: 1px solid var(--t-border, #333) !important;
+}
+
+html.boards-preset-wild-rust table.DataTable.DiscussionsTable tr.Item:hover,
+html.boards-preset-wild-rust table.DataTable.DiscussionsTable tr.Item.Alt:hover {
+  background: var(--t-row-hover, #2a2a2a) !important;
+}
+
+/* Unread / New highlight */
+html.boards-preset-wild-rust table.DataTable.DiscussionsTable tr.Item.Unread,
+html.boards-preset-wild-rust table.DataTable.DiscussionsTable tr.Item.New {
+  background: var(--t-row-unread, #222b2b) !important;
+}
+
+/* Discussion name cell */
+html.boards-preset-wild-rust table.DataTable.DiscussionsTable td.DiscussionName {
+  background: transparent !important;
+  color: var(--t-text, #e0e0e0) !important;
+}
+
+html.boards-preset-wild-rust table.DataTable.DiscussionsTable td.DiscussionName a {
+  color: var(--t-link, #7ec8e3) !important;
+}
+
+html.boards-preset-wild-rust table.DataTable.DiscussionsTable td.DiscussionName a:hover {
+  color: var(--t-link-hover, #aee0f5) !important;
+  text-decoration: underline;
+}
+
+/* Block/stat columns */
+html.boards-preset-wild-rust table.DataTable.DiscussionsTable td.BlockColumn,
+html.boards-preset-wild-rust table.DataTable.DiscussionsTable td.FirstUser,
+html.boards-preset-wild-rust table.DataTable.DiscussionsTable td.LastUser,
+html.boards-preset-wild-rust table.DataTable.DiscussionsTable td.BigCount,
+html.boards-preset-wild-rust table.DataTable.DiscussionsTable td.BigCount.CountViews {
+  background: transparent !important;
+  color: var(--t-muted, #888) !important;
+}
+
+/* New Discussion button area */
+html.boards-preset-wild-rust .BoxButtons.BoxNewDiscussion,
+html.boards-preset-wild-rust .BoxButtons.BoxNewDiscussion .ButtonGroup.Multi.Primary.Action.NewDiscussion.Big {
+  background: transparent !important;
+}
+
+html.boards-preset-wild-rust .BoxButtons.BoxNewDiscussion .ButtonGroup.Multi.Primary.Action.NewDiscussion.Big .Button.Primary,
+html.boards-preset-wild-rust .BoxButtons.BoxNewDiscussion .ButtonGroup.Multi.Primary.Action.NewDiscussion.Big button {
+  background: var(--t-btn-bg, #2a6496) !important;
+  color: var(--t-btn-text, #fff) !important;
+  border: 1px solid var(--t-btn-border, #1a4a72) !important;
+}
+
+html.boards-preset-wild-rust .BoxButtons.BoxNewDiscussion .ButtonGroup.Multi.Primary.Action.NewDiscussion.Big .Button.Primary:hover,
+html.boards-preset-wild-rust .BoxButtons.BoxNewDiscussion .ButtonGroup.Multi.Primary.Action.NewDiscussion.Big button:hover {
+  background: var(--t-btn-hover, #1a4a72) !important;
+}
+
+/* Dropdown from multi-button */
+html.boards-preset-wild-rust .BoxButtons.BoxNewDiscussion .Dropdown.MenuItems,
+html.boards-preset-wild-rust .BoxButtons.BoxNewDiscussion .Dropdown.MenuItems li,
+html.boards-preset-wild-rust .BoxButtons.BoxNewDiscussion .Dropdown.MenuItems a {
+  background: var(--t-dropdown-bg, #1e1e1e) !important;
+  color: var(--t-text, #e0e0e0) !important;
+  border-color: var(--t-border, #333) !important;
+}
+
+html.boards-preset-wild-rust .BoxButtons.BoxNewDiscussion .Dropdown.MenuItems a:hover {
+  background: var(--t-dropdown-hover, #2a2a2a) !important;
+}
+
+/* Dropdown from multi-button */
+html.boards-preset-wild-rust .BoxButtons.BoxNewDiscussion .Dropdown.MenuItems,
+html.boards-preset-wild-rust .BoxButtons.BoxNewDiscussion .Dropdown.MenuItems li,
+html.boards-preset-wild-rust .BoxButtons.BoxNewDiscussion .Dropdown.MenuItems a {
+  background: var(--t-dropdown-bg, #1e1e1e) !important;
+  color: var(--t-text, #e0e0e0) !important;
+  border-color: var(--t-border, #333) !important;
+}
+
+html.boards-preset-wild-rust .BoxButtons.BoxNewDiscussion html.boards-preset-wild-rust .Dropdown.MenuItems a:hover {
+  background: var(--t-dropdown-hover, #2a2a2a) !important;
+}
+
+/* Ad placeholders / spacers — neutralise white ghost frames */
+html.boards-preset-wild-rust .no-ad-top-spacer {
+  display: none !important;
+}
+
+html.boards-preset-wild-rust .Frame-contentWrap.noad-top {
+  background: transparent !important;
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* ============================================================
+STEP 18 — Side category panel 
+============================================================ */
+
+/* Right-hand Categories panel */
+html.boards-preset-wild-rust .Box.BoxCategories.SideNav,
+html.boards-preset-wild-rust .Box.BoxCategories.SideNav .Box-contents,
+html.boards-preset-wild-rust .Box.BoxCategories.SideNav ul,
+html.boards-preset-wild-rust .Box.BoxCategories.SideNav li {
+  background: var(--t-bg) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+html.boards-preset-wild-rust .Box.BoxCategories.SideNav .SideNav-header {
+  background: linear-gradient(180deg, var(--t-header-top) 0%, var(--t-header-bottom) 100%) !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid var(--t-header-border) !important;
+}
+
+html.boards-preset-wild-rust .Box.BoxCategories.SideNav .SideNav-header h2,
+html.boards-preset-wild-rust .Box.BoxCategories.SideNav .SideNav-header .small-text {
+  color: #ffffff !important;
+  background: transparent !important;
+}
+
+html.boards-preset-wild-rust .Box.BoxCategories.SideNav a,
+html.boards-preset-wild-rust .Box.BoxCategories.SideNav .NavItem,
+html.boards-preset-wild-rust .Box.BoxCategories.SideNav .Aside,
+html.boards-preset-wild-rust .Box.BoxCategories.SideNav .ChildCategories a {
+  color: var(--t-link) !important;
+  background: transparent !important;
+}
+
+html.boards-preset-wild-rust .Box.BoxCategories.SideNav a:hover,
+html.boards-preset-wild-rust .Box.BoxCategories.SideNav .NavItem:hover {
+  color: var(--t-link-hover) !important;
+  background: var(--t-surface-2) !important;
+}
+
+/* ============================================================
+   Extension UI buttons
+   Match BoardsCleaner controls to this forum theme
+   ============================================================ */
+
+html.boards-preset-wild-rust #profileToggleBtn {
+  background-color: var(--t-button-top) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--t-button-border) !important;
+}
+
+html.boards-preset-wild-rust #profileToggleBtn:hover {
+  background-color: var(--t-button-hover-top) !important;
+}
+
+/* Info / nav icon buttons in the overlay */
+html.boards-preset-wild-rust .infoIcon,
+html.boards-preset-wild-rust .navIcon {
+  background-color: var(--t-surface-2) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+/* Modal / shortcut dialog, if used */
+html.boards-preset-wild-rust dialog#shortcutDialog {
+  background: var(--t-surface) !important;
+  color: var(--t-text) !important;
+  border-color: var(--t-border-soft) !important;
+}
+
+/* Edit modal button in the forum header bar */
+html.boards-preset-wild-rust #bcEditModalBtn {
+  background-color: var(--t-button-top) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--t-button-border) !important;
+}

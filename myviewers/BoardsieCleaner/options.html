@@ -19,6 +19,34 @@
   .small { color: #666; font-size: 0.95em; }
   #status { margin-top: 12px; color: #0a6; font-weight: 600; }
   ul { padding-left: 20px; }
+  
+  .forum-open-link {
+  display: inline-block;
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #f5f5f5;
+  color: #222;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.forum-open-link:hover {
+  background: #e9e9e9;
+}
+
+.styled-forum-row {
+  padding: 6px 10px;
+  border: 0px solid #aaa;
+  border-radius: 6px;
+  background: #f3f3f3;
+  cursor: pointer;
+}
+
+.styled-forum-row:hover {
+  background: #e9e9e9;
+}
 
   .bc-page-header {
     margin-bottom: 20px;
@@ -74,6 +102,13 @@
       <div class="row">
         <label><input type="checkbox" id="usePresets"> Allow built-in preset themes</label>
       </div>
+<div class="row">
+	<label>
+  <input type="checkbox" id="contentScriptEnabled" checked>
+  Enable keyboard shortcuts & content script | disabled theme engine only.
+  <small>Disable if conflicting with another extension eg:- BES</small>
+</label>
+</div>
     </section>
 
 <section class="card">
@@ -89,6 +124,14 @@
     <button data-preset="forest" data-forum="forestry">
       Forestry Green
     </button>
+    <button data-preset="peonies-in-spring" data-forum="gardening">
+      peonies-in-spring
+    </button>	
+	    <button data-preset="wild-rust" data-forum="celebrity-showbiz">
+      wild-rust
+    </button>
+	
+	
   </div>
 </section>
   </div>
@@ -107,11 +150,7 @@
       <label><input type="checkbox" id="forumEnabled"> Enable this forum theme</label>
     </div>
 
-	<label>
-  <input type="checkbox" id="contentScriptEnabled" checked>
-  Enable keyboard shortcuts & content script | disabled theme engine only now.
-  <small>Disable if conflicting with another extension eg:- BES</small>
-</label>
+
 
 <div class="row">
   <label for="presetId">Preset</label>
@@ -120,12 +159,17 @@
     <option value="afterhours-dark">afterhours-dark</option>
     <option value="current-affairs-imho">current-affairs-imho</option>
     <option value="forest">forest</option>
+	<option value="peonies-in-spring">peonies-in-spring</option>
+	<option value="wild-rust">wild-rust</option>
   </select>
 </div>
 
     <div class="row">
       <label for="customCss">Custom CSS</label>
+
       <textarea id="customCss" placeholder="html.boards-theme-after-hours .postbit-header { background:#5a3824 !important; }"></textarea>
+<!--	  	  	<label for="customThemeId">Custom theme ID</label>
+			<input id="customThemeId" type="text" placeholder="e.g. contrast-light"> -->
     </div>
 
     <div class="actions">

@@ -31,7 +31,11 @@ const DEFAULT_BC_SETTINGS = {
   cmpBlock: false,
   removeAds: false,
   removeAlerts: false,
-  cookieDisagree: false
+  cookieDisagree: false,
+  logoSolid: false, // NEW
+  headerOverride: true,  // NEW: allow extension to control header colour on non-themed pages
+  blockTwitterWidgets: false,
+  blockInmobiCmp: false
 };
 
 function normaliseBcSettings(settings) {
@@ -40,6 +44,44 @@ function normaliseBcSettings(settings) {
     ...(settings || {})
   };
 }
+
+function removeMatchingStylesheets(matchers = []) {
+  const links = Array.from(document.querySelectorAll('link[rel="stylesheet"]'));
+
+  links.forEach(link => {
+    const href = link.href || '';
+    const matchedBy = matchers.find(fragment => href.includes(fragment));
+
+    if (!matchedBy) return;
+
+    console.log('BoardsCleaner: removing stylesheet', {
+      href,
+      matchedBy
+    });
+
+    link.disabled = true;
+    link.remove();
+  });
+}
+
+function disableBoardsThemeCssIfActive() {
+  if (!isBoardsThemeActive()) return;
+  
+    removeMatchingStylesheets([
+   //  '/themes/boards/design/custom.css',
+   //  '/applications/dashboard/design/style.css',
+   //  '/applications/dashboard/design/style-compat.css',
+	//   '/resources/design/vanillicon.css',
+    // '/dist/v2/forum/chunks/addons/boards/forum.BstQCXWQ.css',
+   // '/dist/v2/forum/chunks/addons/boards/forum.Bdhd0e_K.css',
+   // '/plugins/ideation/design/ideation.css',
+  ]);
+  
+
+
+  console.log('BoardsCleaner: removed boards custom.css because a BoardsCleaner theme is active');
+}
+
 
 function isBoardsThemeActive() {
   const html = document.documentElement;
@@ -53,12 +95,18 @@ function isBoardsThemeActive() {
   return hasPresetTheme || hasCustomThemeMarker;
 }
 
-function applyGlobalColourShift(enabled) {
+function applyGlobalColourShift(enabled, headerOverrideEnabled = enabled) {
   const html = document.documentElement;
+  const effectiveHeaderOverride = enabled || headerOverrideEnabled;
 
   if (isBoardsThemeActive()) {
     html.removeAttribute('data-bc-global-colour-shift');
-    html.removeAttribute('data-bc-header-override');
+
+    if (headerOverrideEnabled) {
+      html.setAttribute('data-bc-header-override', 'on');
+    } else {
+      html.removeAttribute('data-bc-header-override');
+    }
 
     if (!window.__bcThemeToastShown && typeof showPopup === 'function') {
       window.__bcThemeToastShown = true;
@@ -66,6 +114,12 @@ function applyGlobalColourShift(enabled) {
         'BoardsCleaner: a Boards theme is active, colour shift is turned off for this page.'
       );
     }
+
+    // console.log('BC applyGlobalColourShift themed-page:', {
+    //  themeActive: true,
+    //  headerOverrideEnabled,
+    //  afterHeaderOverride: html.getAttribute('data-bc-header-override')
+    // });
 
     applyLogoSwap(enabled);
     return;
@@ -79,7 +133,19 @@ function applyGlobalColourShift(enabled) {
   }
 
   html.setAttribute('data-bc-global-colour-shift', enabled ? 'on' : 'off');
-  html.setAttribute('data-bc-header-override', enabled ? 'on' : 'off');
+
+  if (headerOverrideEnabled) {
+    html.setAttribute('data-bc-header-override', 'on');
+  } else {
+    html.removeAttribute('data-bc-header-override');
+  }
+  
+    if (effectiveHeaderOverride) {
+    html.setAttribute('data-bc-header-override', 'on');
+  } else {
+    html.removeAttribute('data-bc-header-override');
+  }
+
   applyLogoSwap(enabled);
 }
 
@@ -117,7 +183,7 @@ function updateBoardsHeaderLogo(enabled) {
       }
     });
 
-    console.log('BoardsCleaner: updated header logos:', logoImgs.length);
+  //  console.log('BoardsCleaner: updated header logos:', logoImgs.length);
   } catch (e) {
     console.error('BoardsCleaner: failed to update header logo', e);
   }
@@ -127,12 +193,48 @@ function applyLogoSwap(enabled) {
   updateBoardsHeaderLogo(enabled);
 
   setTimeout(() => updateBoardsHeaderLogo(enabled), 250);
-  setTimeout(() => updateBoardsHeaderLogo(enabled), 800);
-  setTimeout(() => updateBoardsHeaderLogo(enabled), 1600);
-  setTimeout(() => updateBoardsHeaderLogo(enabled), 3000);
+//  setTimeout(() => updateBoardsHeaderLogo(enabled), 800);
+//  setTimeout(() => updateBoardsHeaderLogo(enabled), 1600);
+//  setTimeout(() => updateBoardsHeaderLogo(enabled), 3000);
 }
 
 
+async function getStyledForumsList() {
+  const syncData = await chrome.storage.sync.get(['forumThemeAssignments']);
+  const localData = await chrome.storage.local.get(['customCssByForum']);
+
+  const forumThemeAssignments = syncData.forumThemeAssignments || {};
+  const customCssByForum = localData.customCssByForum || {};
+
+  const keys = Array.from(
+    new Set([
+      ...Object.keys(forumThemeAssignments),
+      ...Object.keys(customCssByForum)
+    ])
+  )
+    .map(key => (key || '').trim().toLowerCase())
+    .filter(Boolean)
+    .sort((a, b) => a.localeCompare(b));
+
+//  console.log('BC getStyledForumsList called');
+//  console.log('BC forumThemeAssignments raw:', forumThemeAssignments);
+//  console.log('BC customCssByForum raw:', customCssByForum);
+//  console.log('BC merged forum keys:', keys);
+
+  const list = keys.map((forumKey) => {
+    const themeId = forumThemeAssignments[forumKey] || '';
+    const cssText = customCssByForum[forumKey] || '';
+
+    return {
+      forumKey,
+      themeId: themeId || null,
+      hasCustomCss: typeof cssText === 'string' && cssText.trim().length > 0
+    };
+  });
+
+  // console.log('BC getStyledForumsList built items:', list);
+  return list;
+}
   
 // === Initial CSS injection (unchanged) ===
 function injectExtensionCSS() {
@@ -335,9 +437,9 @@ html[data-bc-header-override="on"] .navigation,
 html[data-bc-header-override="on"] .navigation-wrap,
 html[data-bc-header-override="on"] .navBar,
 html[data-bc-header-override="on"] .navbar {
-  background-color: var(--t-link) !important;
+  background-color: var(--t-header-bottom) !important;
   background-image: none !important;
-  border-color: var(--t-link) !important;
+  border-color: var(--t-header-bottom) !important;
 }
 
     .DataTable thead,
@@ -351,12 +453,13 @@ html[data-bc-header-override="on"] .navbar {
     .generic-wrapper-header .active,
     .forum-threadlist-header,
     .modal-title,
-    .PageControls.Top,
-    .PageControls.Bottom {
-      position: static !important;
-      background: var(--t-link) !important;
-      z-index: 2;
-    }
+.PageControls.Top,
+.PageControls.Bottom {
+  position: static !important;
+  background: var(--t-header-bottom) !important;
+  border-color: var(--t-header-border) !important;
+  z-index: 2;
+}
 
     [class^="vanilla-"][class$="-dropDown-item"]:hover,
     .dropDown-contents .frameFooter a:hover,
@@ -384,9 +487,9 @@ html[data-bc-header-override="on"] .css-14h4976-TitleBar-classes-bar,
 html[data-bc-header-override="on"] .headerNavigation,
 html[data-bc-header-override="on"] .css-1523lre-TitleBar-classes-nav,
 html[data-bc-header-override="on"] .css-ukn4zc-titleBarNavStyles-navigation {
-  background-color: var(--t-link) !important;
+  background-color: var(--t-header-bottom) !important;
   background-image: none !important;
-  border-color: var(--t-link) !important;
+  border-color: var(--t-header-bottom) !important;
 }
 
 html[data-bc-header-override="on"] .headerNavigation,
@@ -396,9 +499,9 @@ html[data-bc-header-override="on"] .css-8fcb8p-titleBarNavStyles-items,
 html[data-bc-header-override="on"] .css-1t3ndu5-titleBarNavStyles-firstItem,
 html[data-bc-header-override="on"] .css-1c21t3e-titleBarNavStyles-root,
 html[data-bc-header-override="on"] .css-1shblo9-TitleBar-classes-topElement-titleBarNavStyles-link {
-  background-color: var(--t-link) !important;
+  background-color: var(--t-header-bottom) !important;
   background-image: none !important;
-  border-color: var(--t-link) !important;
+  border-color: var(--t-header-bottom) !important;
 }
 
 
@@ -412,6 +515,20 @@ h1.H.HomepageTitle { display: none !important; }
 #page-sidebar.pageBox.non-home {
     margin-top: 0 !important;
     padding-top: 0 !important;
+}
+
+/* Base: no pill, let themes do their thing */
+html .headerLogo-logoFrame {
+  padding: 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+/* When our option is ON: blue pill behind the logo */
+html.bc-logo-solid .headerLogo-logoFrame {
+  background-color: #255ba3 !important;  /* your chosen blue */
+  padding: 3px 8px !important;           /* tweak if needed */
+  border-radius: 4px !important;
 }
 
 
@@ -890,7 +1007,7 @@ async function sha256Hex(str) {
         const isMember = hasPaidMember || hasStaffRole;
 
         if (!isMember) {
-            console.log('BoardsCleaner: No paid/staff membership detected from profile roles');
+            // console.log('BoardsCleaner: No paid/staff membership detected from profile roles');
             return;
         }
 
@@ -949,6 +1066,12 @@ if (!isBoardsThemeActive()) {
   injectExtensionCSS();
 }
 
+  // Give your own theme engine a tick to add its classes,
+  // then remove the Boards custom.css if a BC theme is active.
+  // setTimeout(() => {
+  //  disableBoardsThemeCssIfActive();
+ // }, 0);
+
 
 setTimeout(() => {
   initLegacyNavPopupFeature();
@@ -960,6 +1083,29 @@ async function getBcSettings() {
   return normaliseBcSettings(safeState[STORAGE_KEYS.settings]);
 }
 
+async function logMemberState(tag = 'BC state') {
+  try {
+    const state = await loadMemberState();
+    const settings = normaliseBcSettings((state || {})[STORAGE_KEYS.settings]);
+    // console.log(`[BoardsCleaner] ${tag}`, {
+    //  memberActive: !!(state || {})[STORAGE_KEYS.memberActive],
+    //  memberCode: (state || {})[STORAGE_KEYS.memberCode],
+    //  settings
+    // });
+  } catch (err) {
+    console.error(`[BoardsCleaner] ${tag} failed`, err);
+  }
+}
+
+
+function applyLogoSolid(enabled) {
+  const html = document.documentElement;
+  if (enabled) {
+    html.classList.add('bc-logo-solid');
+  } else {
+    html.classList.remove('bc-logo-solid');
+  }
+}
 
 // === Overlay configuration  ===
 async function configureOverlayIfNeeded() {
@@ -968,9 +1114,23 @@ async function configureOverlayIfNeeded() {
 
   // You can still keep this if you like, but we’ll override delay below:
   const settings = await getBcSettings();
-  applyGlobalColourShift(settings.globalColourShift !== false);
+  applyGlobalColourShift(
+  settings.globalColourShift !== false,
+  settings.headerOverride !== false   // treat undefined as true for backwards compat
+);
+    // NEW: reapply the logo pill based on stored setting
+  applyLogoSolid(!!settings.logoSolid);
   
-  console.log('BC configureOverlayIfNeeded settings:', settings);
+  // Re-check shortly after load in case theme-engine classes are added late
+setTimeout(() => {
+  applyGlobalColourShift(
+    settings.globalColourShift !== false,
+    settings.headerOverride !== false
+  );
+  applyLogoSolid(!!settings.logoSolid);
+}, 500);
+  
+  // console.log('BC configureOverlayIfNeeded settings:', settings);
 
   // Overlay message – keep this logic so we see text
   let message = settings.overlayMessage;
@@ -996,7 +1156,7 @@ async function configureOverlayIfNeeded() {
   }
 
   const delayMs = delaySeconds * 1000;
-  console.log('BC configureOverlayIfNeeded using:', { message, delayMs });
+  // console.log('BC configureOverlayIfNeeded using:', { message, delayMs });
 
   applyOverlayConfig(message, delayMs);
 
@@ -1025,6 +1185,12 @@ function applyOverlayConfig(message, delayMs) {
 
   // Ensure CSS is injected (if you only inject once, guard inside injectExtensionCSS)
   injectExtensionCSS();
+  
+    // Give your own theme engine a tick to add its classes,
+  // then remove the Boards custom.css if a BC theme is active.
+  // setTimeout(() => {
+  //  disableBoardsThemeCssIfActive();
+  // }, 0);
 
   // Create or update the loader element
   let loader = document.getElementById('custom-loader');
@@ -1123,7 +1289,7 @@ function dismissQuantcast() {
   const disagreeBtns = document.querySelectorAll('.qc-cmp2-footer button[mode="secondary"]');
   if (disagreeBtns[1]) {
     disagreeBtns[1].click();
-    console.log('BC: Clicked DISAGREE via footer button');
+    // console.log('BC: Clicked DISAGREE via footer button');
 
     setTimeout(() => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1142,7 +1308,7 @@ function dismissQuantcast() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }, 100);
 
-      console.log('BC: Clicked DISAGREE via text match');
+      // console.log('BC: Clicked DISAGREE via text match');
       return true;
     }
   }
@@ -1156,7 +1322,7 @@ function dismissQuantcast() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }, 100);
 
-    console.log('BC: Clicked AGREE as fallback');
+    // console.log('BC: Clicked AGREE as fallback');
     return true;
   }
 
@@ -1748,26 +1914,96 @@ function showPopup(message, durationMs) {
 .navIcon {
   font-size: 12px;
 }
+
 dialog#shortcutDialog {
   padding: 1em 1.5em;
+  max-width: 340px;
   border-radius: 8px;
-  border: 1px solid #ccc;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.25);
-  max-width: 320px;
+  border: 1px solid var(--t-button-border, #223455);
+  background: var(--t-bg, #ffffff);
+  color: var(--t-text, #1f2328);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
 }
+
 dialog#shortcutDialog::backdrop {
-  background: rgba(0,0,0,0.3);
+  background: rgba(0, 0, 0, 0.3);
 }
-dialog#shortcutDialog button.closeBtn {
-  margin-top: 1em;
-  padding: 0.3em 1em;
+
+dialog#shortcutDialog h2,
+dialog#shortcutDialog h3,
+dialog#shortcutDialog b {
+  color: var(--t-text, #1f2328);
+}
+
+dialog#shortcutDialog ul {
+  margin: 0;
+  padding-left: 1.2em;
+}
+
+dialog#shortcutDialog li {
+  margin: 0 0 8px;
+  color: var(--t-text, #1f2328);
+}
+
+dialog#shortcutDialog a.bc-shortcut-link,
+dialog#shortcutDialog a {
+  color: var(--t-link, #3c5587);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1.5px;
+  font-weight: 600;
+}
+
+dialog#shortcutDialog a.bc-shortcut-link:hover,
+dialog#shortcutDialog a.bc-shortcut-link:focus,
+dialog#shortcutDialog a:hover,
+dialog#shortcutDialog a:focus {
+  color: var(--t-link-hover, #1d5d9d);
+  text-decoration-thickness: 2px;
+}
+
+dialog#shortcutDialog .bc-shortcut-action-btn,
+dialog#shortcutDialog button.closeBtn,
+dialog#shortcutDialog #bc-reset-overlay-btn {
+  margin-top: 10px;
+  padding: 0.45em 0.9em;
+  border: 1px solid var(--t-button-border, #223455);
+  border-radius: 4px;
+  background: linear-gradient(
+    180deg,
+    var(--t-button-top, #3c5587) 0%,
+    var(--t-button-bottom, #2d436c) 100%
+  );
+  color: var(--t-btn-text, #ffffff);
   cursor: pointer;
 }
-.PageControls.Top, .PageControls.Bottom {
-  position: static !important;
-  background: #3c5587;
-  z-index: 2;
+
+dialog#shortcutDialog .bc-shortcut-action-btn:hover,
+dialog#shortcutDialog button.closeBtn:hover,
+dialog#shortcutDialog #bc-reset-overlay-btn:hover {
+  background: linear-gradient(
+    180deg,
+    var(--t-button-hover-top, #4a65a0) 0%,
+    var(--t-button-hover-bottom, #34507e) 100%
+  );
 }
+
+dialog#shortcutDialog .bc-shortcut-action-btn:focus,
+dialog#shortcutDialog button.closeBtn:focus,
+dialog#shortcutDialog #bc-reset-overlay-btn:focus,
+dialog#shortcutDialog a:focus {
+  outline: 2px solid var(--t-link, #3c5587);
+  outline-offset: 2px;
+}
+
+dialog#shortcutDialog hr {
+  border: 0;
+  border-top: 1px solid var(--t-button-border, #223455);
+  margin: 12px 0;
+}
+
+/* Data Table Wrap was to make room for page controls */
+
 .DataTableWrap {
   margin-top: 70px;
   z-index: 1;
@@ -1992,275 +2228,441 @@ dialog#shortcutDialog button.closeBtn {
                 console.warn('showMembersModal not yet defined');
             }
         });
+		
+		function applyLogoSolid(enabled) {
+  const html = document.documentElement;
+  if (enabled) {
+    html.classList.add('bc-logo-solid');
+  } else {
+    html.classList.remove('bc-logo-solid');
+  }
+}
 
-        function showMembersModal() {
-            // Avoid duplicates
-            let existing = document.getElementById('bc-members-modal');
-            if (existing) {
-                existing.showModal();
-                return;
-            }
+function showMembersModal() {
+    let existingHost = document.getElementById('bc-members-modal-host');
+    let existingModal = existingHost?.shadowRoot?.getElementById('bc-members-modal');
+    if (existingModal) {
+        existingModal.showModal();
+        return;
+    }
 
-            const modal = document.createElement('dialog');
-            modal.id = 'bc-members-modal';
-			
+    const host = document.createElement('div');
+    host.id = 'bc-members-modal-host';
+    document.body.appendChild(host);
+
+    const shadow = host.attachShadow({ mode: 'open' });
+
+    const style = document.createElement('style');
+    style.textContent = `
+        :host, * {
+            box-sizing: border-box;
+        }
+
+        dialog#bc-members-modal {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            max-width: 90vw;
+            max-height: 90vh;
+            width: 440px;
+            padding: 0;
+            overflow: hidden;
+            background: #f5f5f5;
+            color: #222;
+            font: 14px/1.4 Arial, sans-serif;
+        }
+
+        dialog#bc-members-modal::backdrop {
+            background: rgba(0,0,0,0.55);
+        }
+
+        .bc-inner {
+            padding: 16px;
+            max-height: 80vh;
+            overflow-y: auto;
+            background: #f5f5f5;
+            color: #222;
+        }
+
+        h3, h4, label, div, span, p, strong {
+            color: #222;
+        }
+
+        h3 {
+            margin: 0;
+            line-height: 1.1;
+            font-size: 20px;
+        }
+
+        h4 {
+            margin: 8px 0 4px;
+            font-size: 16px;
+        }
+
+        hr {
+            margin: 12px 0;
+            border: 0;
+            border-top: 1px solid #ccc;
+        }
+
+        label {
+            display: block;
+            margin-top: 4px;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            background: #fff;
+            color: #111;
+            border: 1px solid #999;
+            border-radius: 4px;
+            padding: 6px 8px;
+            margin-top: 2px;
+            font: inherit;
+        }
+
+        input[type="number"] {
+            width: 80px;
+            margin-left: 4px;
+        }
+
+        input[type="checkbox"] {
+            accent-color: #296db5;
+        }
+
+        button {
+            background: #296db5;
+            color: #fff;
+            border: 1px solid #1f5691;
+            border-radius: 4px;
+            padding: 8px 12px;
+            font: inherit;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1f5d9d;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: default;
+        }
+
+        .bc-header-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .bc-header-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            flex: 0 0 auto;
+        }
+
+        .bc-show-code-wrap {
+            margin-top: 4px;
+        }
+
+        .bc-show-code-wrap label {
+            font-size: 12px;
+        }
+
+        .bc-status {
+            margin-top: 8px;
+            color: orange;
+        }
+
+        .bc-detect-wrap {
+            margin-top: 8px;
+        }
+
+        .bc-members-features {
+            margin-top: 12px;
+            display: none;
+        }
+
+        .bc-cmp-label {
+            opacity: 0.6;
+        }
+
+        .bc-danger-wrap {
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid #ccc;
+        }
+
+        .bc-danger-strong,
+        .bc-danger-btn {
+            color: #c00;
+        }
+
+        .bc-danger-btn {
+            background: transparent;
+            border: none;
+            padding: 0;
+            margin-top: 4px;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .bc-actions-wrap {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+    `;
+    shadow.appendChild(style);
+
+    const modal = document.createElement('dialog');
+    modal.id = 'bc-members-modal';
+
+    const innerWrap = document.createElement('div');
+    innerWrap.className = 'bc-inner';
+
+    const headerRow = document.createElement('div');
+    headerRow.className = 'bc-header-row';
+
+    const headerIcon = document.createElement('img');
+    headerIcon.src = chrome.runtime.getURL('assets/icon48.png');
+    headerIcon.alt = 'BoardsCleaner icon';
+    headerIcon.className = 'bc-header-icon';
+
+    const headerTitle = document.createElement('h3');
+    headerTitle.textContent = 'BoardsCleaner Settings';
+
+    headerRow.appendChild(headerIcon);
+    headerRow.appendChild(headerTitle);
+    innerWrap.appendChild(headerRow);
+
+    const generalHeading = document.createElement('h4');
+    generalHeading.textContent = 'General settings';
+    innerWrap.appendChild(generalHeading);
+
+    const globalShiftLabel = document.createElement('label');
+    const globalShiftInput = document.createElement('input');
+    globalShiftInput.type = 'checkbox';
+    globalShiftInput.id = 'bc-setting-global-colour-shift';
+    globalShiftLabel.appendChild(globalShiftInput);
+    globalShiftLabel.appendChild(document.createTextNode(' Use BoardsCleaner global colour shift'));
+    innerWrap.appendChild(globalShiftLabel);
+
+    const logoSolidLabel = document.createElement('label');
+    const logoSolidInput = document.createElement('input');
+    logoSolidInput.type = 'checkbox';
+    logoSolidInput.id = 'bc-setting-logo-solid';
+    logoSolidLabel.appendChild(logoSolidInput);
+    logoSolidLabel.appendChild(document.createTextNode(' Put solid background behind header logo'));
+    innerWrap.appendChild(logoSolidLabel);
+
+    const headerOverrideLabel = document.createElement('label');
+    const headerOverrideInput = document.createElement('input');
+    headerOverrideInput.type = 'checkbox';
+    headerOverrideInput.id = 'bc-setting-header-override';
+    headerOverrideLabel.appendChild(headerOverrideInput);
+    headerOverrideLabel.appendChild(document.createTextNode(' Use BoardsCleaner header override'));
+    innerWrap.appendChild(headerOverrideLabel);
+
+    const overlayDelayLabel = document.createElement('label');
+    overlayDelayLabel.appendChild(document.createTextNode('Overlay delay (seconds):'));
+    const overlayDelayInputEl = document.createElement('input');
+    overlayDelayInputEl.id = 'bc-setting-overlay-delay';
+    overlayDelayInputEl.type = 'number';
+    overlayDelayInputEl.min = '0';
+    overlayDelayInputEl.max = '10';
+    overlayDelayLabel.appendChild(overlayDelayInputEl);
+    innerWrap.appendChild(overlayDelayLabel);
+
+    const overlayMessageLabel = document.createElement('label');
+    overlayMessageLabel.appendChild(document.createTextNode('Overlay message:'));
+    const overlayMessageInputEl = document.createElement('input');
+    overlayMessageInputEl.id = 'bc-setting-overlay-message';
+    overlayMessageInputEl.type = 'text';
+    overlayMessageLabel.appendChild(overlayMessageInputEl);
+    innerWrap.appendChild(overlayMessageLabel);
+
+    const hr = document.createElement('hr');
+    innerWrap.appendChild(hr);
+
+    const membershipHeading = document.createElement('h4');
+    membershipHeading.textContent = 'Membership Activation';
+    innerWrap.appendChild(membershipHeading);
+
+    const activationLabel = document.createElement('label');
+    activationLabel.appendChild(document.createTextNode('Activation code:'));
+    const activationInput = document.createElement('input');
+    activationInput.id = 'bc-member-code-input';
+    activationInput.type = 'password';
+    activationInput.autocomplete = 'new-password';
+    activationInput.setAttribute('inputmode', 'text');
+    activationLabel.appendChild(activationInput);
+    innerWrap.appendChild(activationLabel);
+
+    const showCodeWrap = document.createElement('div');
+    showCodeWrap.className = 'bc-show-code-wrap';
+    const showCodeLabel = document.createElement('label');
+    const showCodeInput = document.createElement('input');
+    showCodeInput.type = 'checkbox';
+    showCodeInput.id = 'bc-member-show-code';
+    showCodeLabel.appendChild(showCodeInput);
+    showCodeLabel.appendChild(document.createTextNode(' Show code'));
+    showCodeWrap.appendChild(showCodeLabel);
+    innerWrap.appendChild(showCodeWrap);
+
+    const statusDiv = document.createElement('div');
+    statusDiv.id = 'bc-member-status';
+    statusDiv.className = 'bc-status';
+    statusDiv.textContent = 'Enter code and click Activate, or detect from profile.';
+    innerWrap.appendChild(statusDiv);
+
+    const detectWrap = document.createElement('div');
+    detectWrap.className = 'bc-detect-wrap';
+    const detectButton = document.createElement('button');
+    detectButton.id = 'bc-member-detect-profile-btn';
+    detectButton.type = 'button';
+    detectButton.textContent = 'Detect membership from my Boards profile';
+    detectWrap.appendChild(detectButton);
+    innerWrap.appendChild(detectWrap);
+
+    const membersFeaturesWrap = document.createElement('div');
+    membersFeaturesWrap.id = 'bc-members-features';
+    membersFeaturesWrap.className = 'bc-members-features';
+
+    const membersHeading = document.createElement('h4');
+    membersHeading.textContent = 'Members-only features';
+    membersFeaturesWrap.appendChild(membersHeading);
+
+    const cmpLabel = document.createElement('label');
+    cmpLabel.className = 'bc-cmp-label';
+    const cmpInput = document.createElement('input');
+    cmpInput.type = 'checkbox';
+    cmpInput.id = 'bc-setting-cmp-block';
+    cmpInput.disabled = true;
+    cmpLabel.appendChild(cmpInput);
+    cmpLabel.appendChild(document.createTextNode(' CMP block (not available on boards.ie – dialog must be answered)'));
+    membersFeaturesWrap.appendChild(cmpLabel);
+
+    const cookieLabel = document.createElement('label');
+    const cookieInput = document.createElement('input');
+    cookieInput.type = 'checkbox';
+    cookieInput.id = 'bc-setting-cookie-disagree';
+    cookieLabel.appendChild(cookieInput);
+    cookieLabel.appendChild(document.createTextNode(' Privacy dialog – auto-click “DISAGREE” when shown'));
+    membersFeaturesWrap.appendChild(cookieLabel);
+
+    const adsLabel = document.createElement('label');
+    const adsInput = document.createElement('input');
+    adsInput.type = 'checkbox';
+    adsInput.id = 'bc-setting-remove-ads';
+    adsLabel.appendChild(adsInput);
+    adsLabel.appendChild(document.createTextNode(' Remove ads – delete ad containers from the page'));
+    membersFeaturesWrap.appendChild(adsLabel);
+
+    const alertsLabel = document.createElement('label');
+    const alertsInput = document.createElement('input');
+    alertsInput.type = 'checkbox';
+    alertsInput.id = 'bc-setting-remove-alerts';
+    alertsLabel.appendChild(alertsInput);
+    alertsLabel.appendChild(document.createTextNode(' Remove warning / subscription banners'));
+    membersFeaturesWrap.appendChild(alertsLabel);
+	
+	const twitterWidgetsLabel = document.createElement('label');
+const twitterWidgetsInput = document.createElement('input');
+twitterWidgetsInput.type = 'checkbox';
+twitterWidgetsInput.id = 'bc-setting-block-twitter-widgets';
+twitterWidgetsLabel.appendChild(twitterWidgetsInput);
+twitterWidgetsLabel.appendChild(
+    document.createTextNode(' Block Twitter/X widgets on boards.ie for faster loading')
+);
+membersFeaturesWrap.appendChild(twitterWidgetsLabel);
+
+const inmobiLabel = document.createElement('label');
+const inmobiInput = document.createElement('input');
+inmobiInput.type = 'checkbox';
+inmobiInput.id = 'bc-setting-block-inmobi-cmp';
+inmobiLabel.appendChild(inmobiInput);
+inmobiLabel.appendChild(
+    document.createTextNode(' Block InMobi CMP on boards.ie (experimental)')
+);
+membersFeaturesWrap.appendChild(inmobiLabel);
+
+    const dangerWrap = document.createElement('div');
+    dangerWrap.className = 'bc-danger-wrap';
+
+    const dangerStrong = document.createElement('strong');
+    dangerStrong.className = 'bc-danger-strong';
+    dangerStrong.textContent = 'Danger zone';
+    dangerWrap.appendChild(dangerStrong);
+    dangerWrap.appendChild(document.createElement('br'));
+
+    const deactivateButton = document.createElement('button');
+    deactivateButton.id = 'bc-members-deactivate-btn';
+    deactivateButton.type = 'button';
+    deactivateButton.className = 'bc-danger-btn';
+    deactivateButton.textContent = 'Deactivate membership and reset features';
+    dangerWrap.appendChild(deactivateButton);
+
+    membersFeaturesWrap.appendChild(dangerWrap);
+    innerWrap.appendChild(membersFeaturesWrap);
+
+    const actionsWrap = document.createElement('div');
+    actionsWrap.className = 'bc-actions-wrap';
+
+    const saveButton = document.createElement('button');
+    saveButton.id = 'bc-members-save-btn';
+    saveButton.type = 'button';
+    saveButton.textContent = 'Save';
+
+    const activateButton = document.createElement('button');
+    activateButton.id = 'bc-member-activate-btn';
+    activateButton.type = 'button';
+    activateButton.textContent = 'Activate';
+
+    const closeButton = document.createElement('button');
+    closeButton.id = 'bc-member-close-btn';
+    closeButton.type = 'button';
+    closeButton.textContent = 'Close';
+
+    actionsWrap.appendChild(saveButton);
+    actionsWrap.appendChild(activateButton);
+    actionsWrap.appendChild(closeButton);
+    innerWrap.appendChild(actionsWrap);
+
+    modal.appendChild(innerWrap);
+    shadow.appendChild(modal);
+    modal.showModal();
+	
+	
+const blockTwitterWidgetsCheckbox = modal.querySelector('#bc-setting-block-twitter-widgets');
+const blockInmobiCmpCheckbox = modal.querySelector('#bc-setting-block-inmobi-cmp');
+const globalColourShiftCheckbox = modal.querySelector('#bc-setting-global-colour-shift');
+const logoSolidCheckbox = modal.querySelector('#bc-setting-logo-solid');
+const headerOverrideCheckbox = modal.querySelector('#bc-setting-header-override');
+const codeInput = modal.querySelector('#bc-member-code-input');
+const statusEl = modal.querySelector('#bc-member-status');
+const activateBtn = modal.querySelector('#bc-member-activate-btn');
+const closeBtn = modal.querySelector('#bc-member-close-btn');
+const showCodeCheckbox = modal.querySelector('#bc-member-show-code');
+const detectBtn = modal.querySelector('#bc-member-detect-profile-btn');
+const overlayDelayInput = modal.querySelector('#bc-setting-overlay-delay');
+const overlayMessageInput = modal.querySelector('#bc-setting-overlay-message');
+const membersFeatures = modal.querySelector('#bc-members-features');
+const cmpBlockCheckbox = modal.querySelector('#bc-setting-cmp-block');
+const removeAdsCheckbox = modal.querySelector('#bc-setting-remove-ads');
+const removeAlertsCheckbox = modal.querySelector('#bc-setting-remove-alerts');
+const cookieDisagreeCheckbox = modal.querySelector('#bc-setting-cookie-disagree');
+const deactivateBtn = modal.querySelector('#bc-members-deactivate-btn');
+const saveBtn = modal.querySelector('#bc-members-save-btn');
 
 
-            // Dialog framing
-            modal.style.border = 'none';
-            modal.style.borderRadius = '8px';
-            modal.style.boxShadow = '0 10px 30px rgba(0,0,0,0.4)';
-            modal.style.maxWidth = '90vw';
-            modal.style.maxHeight = '90vh';
-            modal.style.padding = '0';
-
-            // Inner content
-            // Inner content
-            const innerWrap = document.createElement('div');
-            innerWrap.style.padding = '16px';
-            innerWrap.style.maxWidth = '380px';
-
-            const headerRow = document.createElement('div');
-            headerRow.style.display = 'flex';
-            headerRow.style.alignItems = 'center';
-            headerRow.style.gap = '10px';
-            headerRow.style.marginBottom = '8px';
-
-            const headerIcon = document.createElement('img');
-            headerIcon.src = chrome.runtime.getURL('assets/icon48.png');
-            headerIcon.alt = 'BoardsCleaner icon';
-            headerIcon.style.width = '32px';
-            headerIcon.style.height = '32px';
-            headerIcon.style.borderRadius = '6px';
-            headerIcon.style.flex = '0 0 auto';
-
-            const headerTitle = document.createElement('h3');
-            headerTitle.textContent = 'BoardsCleaner Settings';
-            headerTitle.style.margin = '0';
-            headerTitle.style.lineHeight = '1.1';
-
-            headerRow.appendChild(headerIcon);
-            headerRow.appendChild(headerTitle);
-            innerWrap.appendChild(headerRow);
-
-            const generalHeading = document.createElement('h4');
-            generalHeading.textContent = 'General settings';
-            generalHeading.style.marginTop = '8px';
-            innerWrap.appendChild(generalHeading);
-
-            const globalShiftLabel = document.createElement('label');
-            globalShiftLabel.style.display = 'block';
-            globalShiftLabel.style.marginTop = '4px';
-            const globalShiftInput = document.createElement('input');
-            globalShiftInput.type = 'checkbox';
-            globalShiftInput.id = 'bc-setting-global-colour-shift';
-            globalShiftLabel.appendChild(globalShiftInput);
-            globalShiftLabel.appendChild(document.createTextNode(' Use BoardsCleaner global colour shift'));
-            innerWrap.appendChild(globalShiftLabel);
-
-            const overlayDelayLabel = document.createElement('label');
-            overlayDelayLabel.style.display = 'block';
-            overlayDelayLabel.style.marginTop = '4px';
-            overlayDelayLabel.appendChild(document.createTextNode('Overlay delay (seconds):'));
-            const overlayDelayInputEl = document.createElement('input');
-            overlayDelayInputEl.id = 'bc-setting-overlay-delay';
-            overlayDelayInputEl.type = 'number';
-            overlayDelayInputEl.min = '0';
-            overlayDelayInputEl.max = '10';
-            overlayDelayInputEl.style.width = '80px';
-            overlayDelayInputEl.style.marginLeft = '4px';
-            overlayDelayLabel.appendChild(overlayDelayInputEl);
-            innerWrap.appendChild(overlayDelayLabel);
-
-            const overlayMessageLabel = document.createElement('label');
-            overlayMessageLabel.style.display = 'block';
-            overlayMessageLabel.style.marginTop = '4px';
-            overlayMessageLabel.appendChild(document.createTextNode('Overlay message:'));
-            const overlayMessageInputEl = document.createElement('input');
-            overlayMessageInputEl.id = 'bc-setting-overlay-message';
-            overlayMessageInputEl.type = 'text';
-            overlayMessageInputEl.style.width = '100%';
-            overlayMessageInputEl.style.marginTop = '2px';
-            overlayMessageLabel.appendChild(overlayMessageInputEl);
-            innerWrap.appendChild(overlayMessageLabel);
-
-            const hr = document.createElement('hr');
-            hr.style.margin = '12px 0';
-            innerWrap.appendChild(hr);
-
-            const membershipHeading = document.createElement('h4');
-            membershipHeading.textContent = 'Membership Activation';
-            innerWrap.appendChild(membershipHeading);
-
-            const activationLabel = document.createElement('label');
-            activationLabel.appendChild(document.createTextNode('Activation code:'));
-            const activationInput = document.createElement('input');
-            activationInput.id = 'bc-member-code-input';
-            activationInput.type = 'password';
-            activationInput.autocomplete = 'new-password';
-            activationInput.setAttribute('inputmode', 'text');
-            activationInput.style.width = '100%';
-            activationInput.style.marginTop = '4px';
-            activationLabel.appendChild(activationInput);
-            innerWrap.appendChild(activationLabel);
-
-            const showCodeWrap = document.createElement('div');
-            showCodeWrap.style.marginTop = '4px';
-            const showCodeLabel = document.createElement('label');
-            showCodeLabel.style.fontSize = '12px';
-            const showCodeInput = document.createElement('input');
-            showCodeInput.type = 'checkbox';
-            showCodeInput.id = 'bc-member-show-code';
-            showCodeLabel.appendChild(showCodeInput);
-            showCodeLabel.appendChild(document.createTextNode(' Show code'));
-            showCodeWrap.appendChild(showCodeLabel);
-            innerWrap.appendChild(showCodeWrap);
-
-            const statusDiv = document.createElement('div');
-            statusDiv.id = 'bc-member-status';
-            statusDiv.style.marginTop = '8px';
-            statusDiv.style.color = 'orange';
-            statusDiv.textContent = 'Enter code and click Activate, or detect from profile.';
-            innerWrap.appendChild(statusDiv);
-
-            const detectWrap = document.createElement('div');
-            detectWrap.style.marginTop = '8px';
-            const detectButton = document.createElement('button');
-            detectButton.id = 'bc-member-detect-profile-btn';
-            detectButton.type = 'button';
-            detectButton.textContent = 'Detect membership from my Boards profile';
-            detectWrap.appendChild(detectButton);
-            innerWrap.appendChild(detectWrap);
-
-            const membersFeaturesWrap = document.createElement('div');
-            membersFeaturesWrap.id = 'bc-members-features';
-            membersFeaturesWrap.style.marginTop = '12px';
-            membersFeaturesWrap.style.display = 'none';
-
-            const membersHeading = document.createElement('h4');
-            membersHeading.textContent = 'Members-only features';
-            membersFeaturesWrap.appendChild(membersHeading);
-
-            const cmpLabel = document.createElement('label');
-            cmpLabel.style.display = 'block';
-            cmpLabel.style.marginTop = '4px';
-            cmpLabel.style.opacity = '0.6';
-            const cmpInput = document.createElement('input');
-            cmpInput.type = 'checkbox';
-            cmpInput.id = 'bc-setting-cmp-block';
-            cmpInput.disabled = true;
-            cmpLabel.appendChild(cmpInput);
-            cmpLabel.appendChild(document.createTextNode(' CMP block (not available on boards.ie – dialog must be answered)'));
-            membersFeaturesWrap.appendChild(cmpLabel);
-
-            const cookieLabel = document.createElement('label');
-            cookieLabel.style.display = 'block';
-            cookieLabel.style.marginTop = '4px';
-            const cookieInput = document.createElement('input');
-            cookieInput.type = 'checkbox';
-            cookieInput.id = 'bc-setting-cookie-disagree';
-            cookieLabel.appendChild(cookieInput);
-            cookieLabel.appendChild(document.createTextNode(' Privacy dialog – auto-click “DISAGREE” when shown'));
-            membersFeaturesWrap.appendChild(cookieLabel);
-
-            const adsLabel = document.createElement('label');
-            adsLabel.style.display = 'block';
-            adsLabel.style.marginTop = '4px';
-            const adsInput = document.createElement('input');
-            adsInput.type = 'checkbox';
-            adsInput.id = 'bc-setting-remove-ads';
-            adsLabel.appendChild(adsInput);
-            adsLabel.appendChild(document.createTextNode(' Remove ads – delete ad containers from the page'));
-            membersFeaturesWrap.appendChild(adsLabel);
-
-            const alertsLabel = document.createElement('label');
-            alertsLabel.style.display = 'block';
-            alertsLabel.style.marginTop = '4px';
-            const alertsInput = document.createElement('input');
-            alertsInput.type = 'checkbox';
-            alertsInput.id = 'bc-setting-remove-alerts';
-            alertsLabel.appendChild(alertsInput);
-            alertsLabel.appendChild(document.createTextNode(' Remove warning / subscription banners'));
-            membersFeaturesWrap.appendChild(alertsLabel);
-
-            const dangerWrap = document.createElement('div');
-            dangerWrap.style.marginTop = '10px';
-            dangerWrap.style.paddingTop = '8px';
-            dangerWrap.style.borderTop = '1px solid #ccc';
-
-            const dangerStrong = document.createElement('strong');
-            dangerStrong.style.color = '#c00';
-            dangerStrong.textContent = 'Danger zone';
-            dangerWrap.appendChild(dangerStrong);
-            dangerWrap.appendChild(document.createElement('br'));
-
-            const deactivateButton = document.createElement('button');
-            deactivateButton.id = 'bc-members-deactivate-btn';
-            deactivateButton.type = 'button';
-            deactivateButton.style.color = '#c00';
-            deactivateButton.style.marginTop = '4px';
-            deactivateButton.textContent = 'Deactivate membership and reset features';
-            dangerWrap.appendChild(deactivateButton);
-
-            membersFeaturesWrap.appendChild(dangerWrap);
-            innerWrap.appendChild(membersFeaturesWrap);
-
-            const actionsWrap = document.createElement('div');
-            actionsWrap.style.marginTop = '12px';
-            actionsWrap.style.display = 'flex';
-            actionsWrap.style.gap = '8px';
-            actionsWrap.style.justifyContent = 'flex-end';
-
-            const saveButton = document.createElement('button');
-            saveButton.id = 'bc-members-save-btn';
-            saveButton.type = 'button';
-            saveButton.textContent = 'Save';
-
-            const activateButton = document.createElement('button');
-            activateButton.id = 'bc-member-activate-btn';
-            activateButton.type = 'button';
-            activateButton.textContent = 'Activate';
-
-            const closeButton = document.createElement('button');
-            closeButton.id = 'bc-member-close-btn';
-            closeButton.type = 'button';
-            closeButton.textContent = 'Close';
-
-            actionsWrap.appendChild(saveButton);
-            actionsWrap.appendChild(activateButton);
-            actionsWrap.appendChild(closeButton);
-            innerWrap.appendChild(actionsWrap);
-
-            modal.appendChild(innerWrap);
-
-            document.body.appendChild(modal);
-            modal.showModal();
-
-            // Make the inner content scrollable if too tall
-            const inner = modal.firstElementChild;
-            if (inner) {
-                inner.style.maxHeight = '80vh';
-                inner.style.overflowY = 'auto';
-            }
-			
-						
-			const globalColourShiftCheckbox = modal.querySelector("#bc-setting-global-colour-shift");
-            const codeInput = modal.querySelector('#bc-member-code-input');
-            const statusEl = modal.querySelector('#bc-member-status');
-            const activateBtn = modal.querySelector('#bc-member-activate-btn');
-            const closeBtn = modal.querySelector('#bc-member-close-btn');
-            const showCodeCheckbox = modal.querySelector('#bc-member-show-code');
-            const detectBtn = modal.querySelector('#bc-member-detect-profile-btn');
-            const overlayDelayInput = modal.querySelector('#bc-setting-overlay-delay');
-            const overlayMessageInput = modal.querySelector('#bc-setting-overlay-message');
-            const membersFeatures = modal.querySelector('#bc-members-features');
-            const cmpBlockCheckbox = modal.querySelector('#bc-setting-cmp-block');
-            const removeAdsCheckbox = modal.querySelector('#bc-setting-remove-ads');
-            const removeAlertsCheckbox = modal.querySelector('#bc-setting-remove-alerts');
-            const cookieDisagreeCheckbox = modal.querySelector('#bc-setting-cookie-disagree');
-			const deactivateBtn = modal.querySelector('#bc-members-deactivate-btn');
-			
-			const saveBtn = modal.querySelector('#bc-members-save-btn');
 
 if (saveBtn) {
   saveBtn.addEventListener('click', async (event) => {
@@ -2269,16 +2671,14 @@ if (saveBtn) {
     try {
       const state = await loadMemberState();
       const safeState = state || {};
-	const currentSettings = normaliseBcSettings(safeState[STORAGE_KEYS.settings]);
+      const currentSettings = normaliseBcSettings(safeState[STORAGE_KEYS.settings]);
 
-      // Read overlay delay
       const delayRaw = overlayDelayInput ? overlayDelayInput.value.trim() : '';
       let delaySeconds = Number(delayRaw);
       if (!Number.isFinite(delaySeconds) || delaySeconds < 0) {
         delaySeconds = 3;
       }
 
-      // Read overlay message
       const messageText =
         overlayMessageInput && overlayMessageInput.value
           ? overlayMessageInput.value.trim()
@@ -2286,29 +2686,45 @@ if (saveBtn) {
               ? 'Boards.ie Cleaner | Loading...'
               : 'Boards.ie Cleaner | Created by corkie! | Thanks for supporting the site | Loading...');
 
-const newSettings = {
-  ...currentSettings,
-  globalColourShift: globalColourShiftCheckbox ? globalColourShiftCheckbox.checked : currentSettings.globalColourShift,
-  overlayDelay: delaySeconds,
-  overlayMessage: messageText,
-  cmpBlock: cmpBlockCheckbox ? cmpBlockCheckbox.checked : currentSettings.cmpBlock,
-  removeAds: removeAdsCheckbox ? removeAdsCheckbox.checked : currentSettings.removeAds,
-  removeAlerts: removeAlertsCheckbox ? removeAlertsCheckbox.checked : currentSettings.removeAlerts,
-  cookieDisagree: cookieDisagreeCheckbox ? cookieDisagreeCheckbox.checked : currentSettings.cookieDisagree
-};
+      const newSettings = {
+        ...currentSettings,
+        globalColourShift: globalColourShiftCheckbox ? globalColourShiftCheckbox.checked : currentSettings.globalColourShift,
+        logoSolid: logoSolidCheckbox ? logoSolidCheckbox.checked : currentSettings.logoSolid,
+        headerOverride: headerOverrideCheckbox ? headerOverrideCheckbox.checked : currentSettings.headerOverride,
+        overlayDelay: delaySeconds,
+        overlayMessage: messageText,
+        cmpBlock: cmpBlockCheckbox ? cmpBlockCheckbox.checked : currentSettings.cmpBlock,
+        removeAds: removeAdsCheckbox ? removeAdsCheckbox.checked : currentSettings.removeAds,
+        removeAlerts: removeAlertsCheckbox ? removeAlertsCheckbox.checked : currentSettings.removeAlerts,
+        cookieDisagree: cookieDisagreeCheckbox ? cookieDisagreeCheckbox.checked : currentSettings.cookieDisagree,
+        blockTwitterWidgets: blockTwitterWidgetsCheckbox ? blockTwitterWidgetsCheckbox.checked : currentSettings.blockTwitterWidgets,
+        blockInmobiCmp: blockInmobiCmpCheckbox ? blockInmobiCmpCheckbox.checked : currentSettings.blockInmobiCmp,
+      };
 
       await saveMemberState(
         safeState[STORAGE_KEYS.memberCode] || 'SAVED',
         !!safeState[STORAGE_KEYS.memberActive],
         newSettings
       );
-	  // Check here
-	  applyGlobalColourShift(newSettings.globalColourShift !== false);
-if (!isBoardsThemeActive()) {
-  injectExtensionCSS();
-}
+	  
+	  await logMemberState('after modal save');
 
-      // Update overlay config for current page
+      applyGlobalColourShift(
+        newSettings.globalColourShift !== false,
+        newSettings.headerOverride !== false
+      );
+      applyLogoSolid(!!newSettings.logoSolid);
+
+      if (!isBoardsThemeActive()) {
+        injectExtensionCSS();
+      }
+	  
+	    // Give your own theme engine a tick to add its classes,
+  // then remove the Boards custom.css if a BC theme is active.
+  // setTimeout(() => {
+  //  disableBoardsThemeCssIfActive();
+  // }, 0);
+
       bcOverlayDelayMs = delaySeconds * 1000;
       bcOverlayMessage = messageText;
 
@@ -2318,7 +2734,8 @@ if (!isBoardsThemeActive()) {
       alert('Error saving BoardsCleaner settings. See console for details.');
     }
   });
-}
+} 
+
 
 if (deactivateBtn) {
   deactivateBtn.addEventListener('click', async (event) => {
@@ -2332,9 +2749,8 @@ if (deactivateBtn) {
       const state = await loadMemberState();
       const safeState = state || {};
 
-      // Reset settings to defaults (you can tweak these defaults as you like)
       const defaultSettings = {
-		globalColourShift: true,  
+        globalColourShift: true,
         overlayDelay: 1,
         overlayMessage: (navigator.userAgent.toLowerCase().match(/android|iphone|ipad|ipod|mobile/)
           ? 'Boards.ie Cleaner | Loading...'
@@ -2342,24 +2758,29 @@ if (deactivateBtn) {
         cmpBlock: false,
         removeAds: false,
         removeAlerts: false,
-        cookieDisagree: false
+        cookieDisagree: false,
+        logoSolid: false,
+        headerOverride: true,
+        blockTwitterWidgets: false,
+        blockInmobiCmp: false
       };
 
       await saveMemberState(
-        safeState[STORAGE_KEYS.memberCode] || '',   // clear or keep code; your choice
-        false,                                      // memberActive: false
+        safeState[STORAGE_KEYS.memberCode] || '',
+        false,
         defaultSettings
       );
-	  
-// Check here	  
-	  applyGlobalColourShift(defaultSettings.globalColourShift !== false);
-if (!isBoardsThemeActive()) {
-  injectExtensionCSS();
-}
 
-// if (statusEl) statusEl.textContent = "Membership deactivated. Defaults restored.";
+      applyGlobalColourShift(
+        defaultSettings.globalColourShift !== false,
+        defaultSettings.headerOverride !== false
+      );
+      applyLogoSolid(!!defaultSettings.logoSolid);
 
-      // Update modal UI to reflect reset
+      if (!isBoardsThemeActive()) {
+        injectExtensionCSS();
+      }
+
       if (statusEl) {
         statusEl.textContent = 'Membership deactivated. Defaults restored.';
         statusEl.style.color = 'orange';
@@ -2369,6 +2790,15 @@ if (!isBoardsThemeActive()) {
         membersFeatures.style.display = 'none';
       }
 
+      if (globalColourShiftCheckbox) {
+        globalColourShiftCheckbox.checked = defaultSettings.globalColourShift !== false;
+      }
+      if (logoSolidCheckbox) {
+        logoSolidCheckbox.checked = !!defaultSettings.logoSolid;
+      }
+      if (headerOverrideCheckbox) {
+        headerOverrideCheckbox.checked = defaultSettings.headerOverride !== false;
+      }
       if (overlayDelayInput) {
         overlayDelayInput.value = defaultSettings.overlayDelay;
       }
@@ -2380,7 +2810,10 @@ if (!isBoardsThemeActive()) {
       if (removeAdsCheckbox) removeAdsCheckbox.checked = false;
       if (removeAlertsCheckbox) removeAlertsCheckbox.checked = false;
       if (cookieDisagreeCheckbox) cookieDisagreeCheckbox.checked = false;
+      if (blockTwitterWidgetsCheckbox) blockTwitterWidgetsCheckbox.checked = false;
+      if (blockInmobiCmpCheckbox) blockInmobiCmpCheckbox.checked = false;
 
+      updateCmpIconMembershipState();
       alert('BoardsCleaner membership deactivated and features reset to defaults.');
     } catch (err) {
       console.error('Error deactivating BoardsCleaner membership', err);
@@ -2389,98 +2822,480 @@ if (!isBoardsThemeActive()) {
   });
 }
 
-            // Initialise modal based on current membership state
-            (async() => {
-                const state = await loadMemberState();
-                const isActive = !!state[STORAGE_KEYS.memberActive];
 
-				const settings = normaliseBcSettings(state[STORAGE_KEYS.settings]);
-                
-				if (globalColourShiftCheckbox) {
-  globalColourShiftCheckbox.checked = settings.globalColourShift !== false;
+
+
+(async () => {
+  const state = await loadMemberState();
+  const safeState = state || {};
+  const isActive = !!safeState[STORAGE_KEYS.memberActive];
+  const settings = normaliseBcSettings(safeState[STORAGE_KEYS.settings]);
+
+  if (globalColourShiftCheckbox) {
+    globalColourShiftCheckbox.checked = settings.globalColourShift !== false;
+  }
+  if (logoSolidCheckbox) {
+    logoSolidCheckbox.checked = !!settings.logoSolid;
+  }
+  if (headerOverrideCheckbox) {
+    headerOverrideCheckbox.checked = settings.headerOverride !== false;
+  }
+
+  if (overlayDelayInput) {
+    overlayDelayInput.value =
+      typeof settings.overlayDelay === 'number' && !Number.isNaN(settings.overlayDelay)
+        ? settings.overlayDelay
+        : 3;
+  }
+
+  if (overlayMessageInput) {
+    overlayMessageInput.value =
+      typeof settings.overlayMessage === 'string' && settings.overlayMessage.trim()
+        ? settings.overlayMessage
+        : (navigator.userAgent.toLowerCase().match(/android|iphone|ipad|ipod|mobile/)
+            ? 'Boards.ie Cleaner | Loading...'
+            : 'Boards.ie Cleaner | Created by corkie! | Thanks for supporting the site | Loading...');
+  }
+
+  if (cmpBlockCheckbox) cmpBlockCheckbox.checked = !!settings.cmpBlock;
+  if (removeAdsCheckbox) removeAdsCheckbox.checked = !!settings.removeAds;
+  if (removeAlertsCheckbox) removeAlertsCheckbox.checked = !!settings.removeAlerts;
+  if (cookieDisagreeCheckbox) cookieDisagreeCheckbox.checked = !!settings.cookieDisagree;
+  if (blockTwitterWidgetsCheckbox) blockTwitterWidgetsCheckbox.checked = !!settings.blockTwitterWidgets;
+  if (blockInmobiCmpCheckbox) blockInmobiCmpCheckbox.checked = !!settings.blockInmobiCmp;
+
+  if (isActive) {
+    statusEl.textContent = 'Membership already active.';
+    statusEl.style.color = 'green';
+  } else {
+    statusEl.textContent = 'Enter code and click Activate, or detect from profile.';
+    statusEl.style.color = 'orange';
+  }
+
+  if (membersFeatures) {
+    membersFeatures.style.display = isActive ? 'block' : 'none';
+  }
+})();
+
+showCodeCheckbox.addEventListener('change', () => {
+  codeInput.type = showCodeCheckbox.checked ? 'text' : 'password';
+});
+
+detectBtn.addEventListener('click', () => {
+  statusEl.textContent = 'Opening your Boards profile to detect membership…';
+  statusEl.style.color = 'orange';
+  window.location.href = 'https://www.boards.ie/profile/discussions/';
+});
+
+activateBtn.addEventListener('click', async () => {
+  const code = codeInput.value.trim();
+  if (!code) {
+    statusEl.textContent = 'Please enter a code.';
+    statusEl.style.color = 'red';
+    return;
+  }
+
+  const ok = await validateMember(code);
+  if (ok) {
+    const state = await loadMemberState();
+    const safeState = state || {};
+    const currentSettings = normaliseBcSettings(safeState[STORAGE_KEYS.settings]);
+
+    await saveMemberState(code, true, currentSettings);
+	await logMemberState('after activate');
+
+    statusEl.textContent = 'Membership activated.';
+    statusEl.style.color = 'green';
+
+    if (membersFeatures) {
+      membersFeatures.style.display = 'block';
+    }``
+
+    updateCmpIconMembershipState();
+  } else {
+    statusEl.textContent = 'Invalid code.';
+    statusEl.style.color = 'red';
+  }
+});
+
+closeBtn.addEventListener('click', () => {
+  modal.close();
+});
+
+modal.addEventListener('close', () => {
+  host.remove();
+});
 }
 
-                // Membership status text
-                if (isActive) {
-                    statusEl.textContent = 'Membership already active.';
-                    statusEl.style.color = 'green';
-                } else {
-                    statusEl.textContent = 'Enter code and click Activate, or detect from profile.';
-                    statusEl.style.color = 'orange';
-                }
+function getCurrentForumSlug() {
+  const path = window.location.pathname.toLowerCase();
 
-                // Show/hide members-only block (this was missing)
-                if (membersFeatures) {
-                    membersFeatures.style.display = isActive ? 'block' : 'none';
-                }
+  const patterns = [
+    /^\/categories\/([^/?#]+)/,
+    /^\/discussion\/[^/]+\/([^/?#]+)/,
+    /^\/forum\/([^/?#]+)/
+  ];
 
-             
-              // General settings defaults
-if (overlayDelayInput) {
-  overlayDelayInput.value =
-    typeof settings.overlayDelay === 'number' && !Number.isNaN(settings.overlayDelay)
-      ? settings.overlayDelay
-      : 3;
+  for (const re of patterns) {
+    const match = path.match(re);
+    if (match && match[1]) {
+      return decodeURIComponent(match[1]).trim().toLowerCase();
+    }
+  }
+
+  const canonical = document.querySelector('link[rel="canonical"]');
+  if (canonical) {
+    try {
+      const u = new URL(canonical.href);
+      const m = u.pathname.toLowerCase().match(/^\/categories\/([^/?#]+)/);
+      if (m && m[1]) return decodeURIComponent(m[1]).trim().toLowerCase();
+    } catch (_) {}
+  }
+
+  return '';
 }
 
-if (overlayMessageInput) {
-  overlayMessageInput.value =
-    typeof settings.overlayMessage === 'string' && settings.overlayMessage.trim()
-      ? settings.overlayMessage
-      : (navigator.userAgent.toLowerCase().match(/android|iphone|ipad|ipod|mobile/)
-          ? 'Boards.ie Cleaner | Loading...'
-          : 'Boards.ie Cleaner | Created by corkie! | Thanks for supporting the site | Loading...');
+function openOptionsForCurrentForum() {
+  const slug = getCurrentForumSlug();
+  const baseUrl = chrome.runtime.getURL('options.html');
+  const url = slug
+    ? `${baseUrl}?forum=${encodeURIComponent(slug)}`
+    : baseUrl;
+
+  window.open(url, '_blank', 'noopener');
 }
 
-                // Members-only toggle defaults
-                if (cmpBlockCheckbox)
-                    cmpBlockCheckbox.checked = !!settings.cmpBlock;
-                if (removeAdsCheckbox)
-                    removeAdsCheckbox.checked = !!settings.removeAds;
-                if (removeAlertsCheckbox)
-                    removeAlertsCheckbox.checked = !!settings.removeAlerts;
-                if (cookieDisagreeCheckbox)
-                    cookieDisagreeCheckbox.checked = !!settings.cookieDisagree;
-            })();
 
-            showCodeCheckbox.addEventListener('change', () => {
-                codeInput.type = showCodeCheckbox.checked ? 'text' : 'password';
-            });
 
-            detectBtn.addEventListener('click', () => {
-                statusEl.textContent = 'Opening your Boards profile to detect membership…';
-                statusEl.style.color = 'orange';
-                window.location.href = 'https://www.boards.ie/profile/discussions/';
-            });
+async function showStyledForumsModal() {
+//  alert('BC styled forums modal debug v1');
+//  console.log('BC showStyledForumsModal debug v1');
+  let existingHost = document.getElementById('bc-styled-forums-host');
+  let existingModal = existingHost?.shadowRoot?.getElementById('bc-styled-forums-modal');
+  if (existingModal) {
+    existingModal.showModal();
+    return;
+  }
 
-            activateBtn.addEventListener('click', async() => {
-                const code = codeInput.value.trim();
-                if (!code) {
-                    statusEl.textContent = 'Please enter a code.';
-                    statusEl.style.color = 'red';
-                    return;
-                }
+  const host = document.createElement('div');
+  host.id = 'bc-styled-forums-host';
+  document.body.appendChild(host);
 
-                const ok = await validateMember(code);
-                if (ok) {
-                    await saveMemberState(code, true, {});
-                    statusEl.textContent = 'Membership activated.';
-                    statusEl.style.color = 'green';
-                    updateCmpIconMembershipState();
-                } else {
-                    statusEl.textContent = 'Invalid code.';
-                    statusEl.style.color = 'red';
-                }
-            });
+  const shadow = host.attachShadow({ mode: 'open' });
 
-            closeBtn.addEventListener('click', () => {
-                modal.close();
-            });
+  const style = document.createElement('style');
+  style.textContent = `
+    :host {
+      box-sizing: border-box;
+    }
+    dialog#bc-styled-forums-modal {
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      max-width: 90vw;
+      max-height: 90vh;
+      width: 520px;
+      padding: 0;
+      overflow: hidden;
+      background: #f5f5f5;
+      color: #222;
+      font: 14px/1.4 Arial, sans-serif;
+    }
+    dialog#bc-styled-forums-modal::backdrop {
+      background: rgba(0,0,0,0.55);
+    }
+    .bc-inner {
+      padding: 16px;
+      max-height: 80vh;
+      overflow-y: auto;
+      background: #f5f5f5;
+      color: #222;
+    }
+    .bc-header-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .bc-header-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      flex: 0 0 auto;
+    }
+    h3 {
+      margin: 0;
+      line-height: 1.1;
+      font-size: 20px;
+    }
+    p {
+      margin: 4px 0 10px;
+    }
+    .bc-search-row {
+      margin-bottom: 10px;
+    }
+    .bc-search-row input[type="text"] {
+      width: 100%;
+      box-sizing: border-box;
+      background: #fff;
+      color: #111;
+      border: 1px solid #999;
+      border-radius: 4px;
+      padding: 6px 8px;
+      font: inherit;
+    }
+    .bc-count {
+      font-size: 12px;
+      opacity: 0.75;
+      margin-bottom: 6px;
+    }
+    .bc-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .bc-row {
+      padding: 8px 10px;
+      border-radius: 6px;
+      background: #fff;
+      border: 1px solid #ccc;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .bc-row-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 2px;
+    }
+    .bc-row-title {
+      font-weight: bold;
+      font-size: 14px;
+      word-break: break-word;
+    }
+    .bc-row-theme {
+      font-size: 12px;
+      opacity: 0.85;
+    }
+    .bc-row-flags {
+      font-size: 11px;
+      opacity: 0.8;
+    }
+    .bc-row-actions {
+      margin-top: 4px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .bc-row-actions a,
+    .bc-row-actions button {
+      background: #296db5;
+      color: #fff;
+      border: 1px solid #1f5691;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 11px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .bc-row-actions a:hover,
+    .bc-row-actions button:hover {
+      background: #1f5d9d;
+    }
+    .bc-empty {
+      margin-top: 8px;
+      font-size: 13px;
+      opacity: 0.8;
+    }
+    .bc-actions-wrap {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+    .bc-actions-wrap button {
+      background: #296db5;
+      color: #fff;
+      border: 1px solid #1f5691;
+      border-radius: 4px;
+      padding: 8px 12px;
+      font: inherit;
+      cursor: pointer;
+    }
+    .bc-actions-wrap button:hover {
+      background: #1f5d9d;
+    }
+  `;
+  shadow.appendChild(style);
 
-            modal.addEventListener('close', () => {
-                modal.remove();
-            });
-        }
+  const modal = document.createElement('dialog');
+  modal.id = 'bc-styled-forums-modal';
+
+  const inner = document.createElement('div');
+  inner.className = 'bc-inner';
+
+  // Header
+  const headerRow = document.createElement('div');
+  headerRow.className = 'bc-header-row';
+
+  const headerIcon = document.createElement('img');
+  headerIcon.src = chrome.runtime.getURL('assets/icon48.png');
+  headerIcon.alt = 'BoardsCleaner icon';
+  headerIcon.className = 'bc-header-icon';
+
+  const headerTitle = document.createElement('h3');
+  headerTitle.textContent = 'Styled forums';
+
+  headerRow.appendChild(headerIcon);
+  headerRow.appendChild(headerTitle);
+  inner.appendChild(headerRow);
+
+const noteBox = document.createElement('div');
+noteBox.className = 'bc-note-box';
+noteBox.textContent =
+  'This list is read-only here. To edit, clear, or choose which styled forums BoardsCleaner controls, use the extension settings page.';
+
+const settingsLink = document.createElement('button');
+settingsLink.type = 'button';
+settingsLink.textContent = 'Open BoardsCleaner settings';
+settingsLink.style.marginTop = '6px';
+
+settingsLink.addEventListener('click', () => {
+  chrome.runtime.sendMessage({ action: 'bc-open-options' });
+});
+
+noteBox.appendChild(document.createElement('br'));
+noteBox.appendChild(settingsLink);
+
+inner.appendChild(noteBox);
+
+  // Search
+  const searchRow = document.createElement('div');
+  searchRow.className = 'bc-search-row';
+  const searchInput = document.createElement('input');
+  searchInput.type = 'text';
+  searchInput.placeholder = 'Filter by forum key or theme id...';
+  searchRow.appendChild(searchInput);
+  inner.appendChild(searchRow);
+
+  const countEl = document.createElement('div');
+  countEl.className = 'bc-count';
+  inner.appendChild(countEl);
+
+  const listEl = document.createElement('div');
+  listEl.className = 'bc-list';
+  inner.appendChild(listEl);
+
+  const emptyEl = document.createElement('div');
+  emptyEl.className = 'bc-empty';
+  emptyEl.textContent =
+    'No styled forums found yet. Use the theme engine to assign themes.';
+  inner.appendChild(emptyEl);
+
+  // Footer actions
+  const actionsWrap = document.createElement('div');
+  actionsWrap.className = 'bc-actions-wrap';
+  const closeBtn = document.createElement('button');
+  closeBtn.type = 'button';
+  closeBtn.textContent = 'Close';
+  actionsWrap.appendChild(closeBtn);
+  inner.appendChild(actionsWrap);
+
+  modal.appendChild(inner);
+  shadow.appendChild(modal);
+  modal.showModal();
+  
+
+
+
+  // Data + render
+const allItems = await getStyledForumsList();
+// console.log('BC styled forums list:', allItems);
+// console.log('BC styled forums count:', Array.isArray(allItems) ? allItems.length : 'not-array');
+  function render(filterText) {
+    const query = (filterText || '').trim().toLowerCase();
+    listEl.innerHTML = '';
+
+    const visible = allItems.filter(item => {
+      if (!query) return true;
+      const hay = `${item.forumKey} ${item.themeId || ''}`.toLowerCase();
+      return hay.includes(query);
+    });
+
+    countEl.textContent = `${visible.length} styled forum${visible.length === 1 ? '' : 's'}`;
+    emptyEl.style.display = visible.length === 0 ? 'block' : 'none';
+
+    visible.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'bc-row';
+
+      const header = document.createElement('div');
+      header.className = 'bc-row-header';
+
+      const title = document.createElement('div');
+      title.className = 'bc-row-title';
+      title.textContent = item.forumKey;
+
+      const theme = document.createElement('div');
+      theme.className = 'bc-row-theme';
+      theme.textContent = item.themeId
+        ? `Theme: ${item.themeId}`
+        : 'Theme: (custom CSS only)';
+
+      header.appendChild(title);
+      header.appendChild(theme);
+      row.appendChild(header);
+
+      const flags = document.createElement('div');
+      flags.className = 'bc-row-flags';
+      flags.textContent = `Custom CSS: ${item.hasCustomCss ? 'Yes' : 'No'}`;
+      row.appendChild(flags);
+
+const actions = document.createElement('div');
+actions.className = 'bc-row-actions';
+
+const openLink = document.createElement('a');
+openLink.href = `https://www.boards.ie/categories/${encodeURIComponent(item.forumKey)}`;
+openLink.target = '_top';
+openLink.textContent = 'Open forum';
+actions.appendChild(openLink);
+
+const editBtn = document.createElement('button');
+editBtn.type = 'button';
+editBtn.textContent = 'Edit theme';
+editBtn.addEventListener('click', () => {
+  chrome.runtime.sendMessage({
+    action: 'bc-open-options',
+    forumKey: item.forumKey
+  });
+});
+actions.appendChild(editBtn);
+
+row.appendChild(actions);
+listEl.appendChild(row);
+    });
+  }
+
+
+  render('');
+
+  searchInput.addEventListener('input', () => {
+    render(searchInput.value);
+  });
+
+  closeBtn.addEventListener('click', () => {
+    modal.close();
+  });
+
+  modal.addEventListener('close', () => {
+    host.remove();
+  });
+}
+
+
+
 
         cmpIcon.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
@@ -2537,28 +3352,33 @@ if (overlayMessageInput) {
             }
             ul.appendChild(li);
         }
+		
+		
 
-        function addShortcutLinkItem(labelText, linkText, href) {
-            const li = document.createElement('li');
-            const bold = document.createElement('b');
-            bold.textContent = labelText;
-            li.appendChild(bold);
-            li.appendChild(document.createTextNode(' '));
+function addShortcutLinkItem(labelText, linkText, href) {
+    const li = document.createElement('li');
+    li.className = 'bc-shortcut-item';
 
-            const a = document.createElement('a');
-            a.href = href;
-            a.target = '_top';
-            a.textContent = linkText;
+    const bold = document.createElement('b');
+    bold.textContent = labelText;
+    li.appendChild(bold);
+    li.appendChild(document.createTextNode(' '));
 
-            li.appendChild(a);
-            ul.appendChild(li);
-        }
+    const a = document.createElement('a');
+    a.href = href;
+    a.target = '_top';
+    a.rel = 'noopener noreferrer';
+    a.textContent = linkText;
+    a.className = 'bc-shortcut-link';
+    a.title = `${labelText} ${linkText}`;
+
+    li.appendChild(a);
+    ul.appendChild(li);
+}
 
         addShortcutItem('Info this popup', 'Alt + i');
         addShortcutItem('Toggle Profiles:', 'Alt + p');
         addShortcutItem('Toggle Quotes:', 'Alt + 2');
-        addShortcutItem('Clear overlay msg & delay:', 'Alt + q');
-        addShortcutItem('Cycle overlay delay', 'See 🍪 for new settings!');
         addShortcutLinkItem('Bookmarks:', 'Alt + 8', 'https://www.boards.ie/discussions/bookmarked');
         addShortcutLinkItem('Mike Comments:', 'Alt + m', 'https://www.boards.ie/profile/comments/Boards.ie%3A%20Mike');
         addShortcutLinkItem('Odhran Comments:', 'Alt + o', 'https://www.boards.ie/profile/comments/Boards.ie%3A%20Odhran');
@@ -2569,30 +3389,48 @@ if (overlayMessageInput) {
         addShortcutLinkItem('Drafts:', 'Alt + x', 'https://www.boards.ie/drafts');
 
         content.appendChild(ul);
+		
+		
+	
+const styledForumsBtn = document.createElement('button');
+styledForumsBtn.type = 'button';
+styledForumsBtn.className = 'bc-shortcut-action-btn';
+styledForumsBtn.textContent = 'View styled forums list';
+styledForumsBtn.addEventListener('click', () => {
+  if (typeof showStyledForumsModal === 'function') {
+    showStyledForumsModal();
+  } else {
+    showPopup('Styled forums modal not available on this page.');
+  }
+});
+content.appendChild(styledForumsBtn);
 
-        const hr = document.createElement('hr');
-        content.appendChild(hr);
+// New: “Edit theme for this forum” button
+const editThemeBtn = document.createElement('button');
+editThemeBtn.type = 'button';
+editThemeBtn.className = 'bc-shortcut-action-btn';
 
-        const resetBtn = document.createElement('button');
-        resetBtn.id = 'bc-reset-overlay-btn';
-        resetBtn.type = 'button';
-        resetBtn.textContent = 'Clear overlay message & delay (mobile friendly)';
-        content.appendChild(resetBtn);
+const currentForumSlug = detectForumKey?.() || getCurrentForumSlug?.() || '';
+editThemeBtn.textContent = currentForumSlug
+  ? `Edit theme for this forum (${currentForumSlug})`
+  : 'Open theme options';
 
-        dialog.appendChild(content);
-
-const resetOverlayBtn = content.querySelector('#bc-reset-overlay-btn');
-if (resetOverlayBtn) {
-  resetOverlayBtn.addEventListener('click', async () => {
-    try {
-      await resetOverlaySettingsToDefaults();
-      alert('Overlay message and delay reset to defaults, a refresh maybe needed!');
-    } catch (err) {
-      console.error('BoardsCleaner: failed to reset overlay settings from dialog', err);
-      alert('Could not reset overlay settings. See console for details.');
-    }
+editThemeBtn.addEventListener('click', () => {
+  chrome.runtime.sendMessage({
+    action: 'bc-open-options',
+    forumKey: currentForumSlug
   });
-}
+});
+
+content.appendChild(editThemeBtn);
+
+
+// Needed line below to create the content above!
+     dialog.appendChild(content);
+
+
+
+
 
         window.addEventListener('keydown', function (e) {
             if (e.altKey && e.key.toLowerCase() === 'i') {
@@ -2872,11 +3710,13 @@ window.addEventListener('keydown', async function (e) {
 
 
 // Run overlay configuration, then features
-(async() => {
-    try {
-        await configureOverlayIfNeeded();
-    } catch (e) {}
-//  startOverlayStabilityLoop();
+(async () => {
+  try {
+    await configureOverlayIfNeeded();
+  } catch (e) {
+    console.error('configureOverlayIfNeeded error', e);
+  }
+  logMemberState('startup');
   runExtensionFeatures();
 })();
 
