@@ -2,7 +2,9 @@ function fmt(ts) {
   try { return new Date(ts).toLocaleString(); } catch { return String(ts); }
 }
 
-function byId(id) { return document.getElementById(id); }
+function byId(id) {
+  return document.getElementById(id);
+}
 
 function setActiveMode(mode) {
   byId('mode-block').classList.toggle('active', mode === 'block');
@@ -13,22 +15,30 @@ function setActiveMode(mode) {
 function renderLogs(logs) {
   const logsEl = byId('logs');
   logsEl.innerHTML = '';
+
   if (!logs.length) {
     const li = document.createElement('li');
     li.textContent = 'Extension ran, but has not detected anything yet.';
     logsEl.appendChild(li);
     return;
   }
+
   for (const log of logs) {
     const li = document.createElement('li');
+
     if (log.type === 'probe') {
       li.innerHTML = `<div><strong>${log.action === 'block' ? 'Blocked' : 'Observed'}</strong> via ${log.method || 'unknown'}</div>
                       <div class="muted">${log.host || ''} · ${fmt(log.time)}</div>
                       <div><code>${log.url || ''}</code></div>`;
+    } else if (log.type === 'slow-page') {
+      li.innerHTML = `<div><strong>Slow-page protection</strong></div>
+                      <div>${log.rule || ''}</div>
+                      <div class="muted">${log.host || ''} · ${fmt(log.time)}</div>`;
     } else {
       li.innerHTML = `<div><strong>${log.type}</strong>: ${log.message || ''}</div>
                       <div class="muted">${fmt(log.time)}</div>`;
     }
+
     logsEl.appendChild(li);
   }
 }
@@ -43,17 +53,62 @@ function summarize(perHostCounts) {
 
 async function load() {
   const state = await chrome.runtime.sendMessage({ type: 'getSettings' });
-  byId('init').textContent = state?.status?.lastInit ? `Last init: ${fmt(state.status.lastInit)}` : 'Initialized, but no timestamp yet';
+
+  byId('init').textContent = state?.status?.lastInit
+    ? `Last init: ${fmt(state.status.lastInit)}`
+    : 'Initialized, but no timestamp yet';
+
   byId('summary').textContent = summarize(state?.perHostCounts || {});
   byId('notifications').checked = !!state?.notificationsEnabled;
+
+  const slowChk = byId('slow-page-protection');
+  if (slowChk) {
+    slowChk.checked = !!state?.slowPageProtection;
+  }
+
   setActiveMode(state?.mode || 'block');
   renderLogs(state?.logs || []);
 }
 
-byId('mode-block').addEventListener('click', async () => { await chrome.runtime.sendMessage({ type: 'setMode', mode: 'block' }); load(); });
-byId('mode-log').addEventListener('click', async () => { await chrome.runtime.sendMessage({ type: 'setMode', mode: 'log' }); load(); });
-byId('mode-allow').addEventListener('click', async () => { await chrome.runtime.sendMessage({ type: 'setMode', mode: 'allow' }); load(); });
-byId('notifications').addEventListener('change', async (e) => { await chrome.runtime.sendMessage({ type: 'setNotifications', enabled: e.target.checked }); load(); });
-byId('clear').addEventListener('click', async () => { await chrome.runtime.sendMessage({ type: 'clearLogs' }); load(); });
+document.addEventListener('DOMContentLoaded', () => {
+  load().catch(console.error);
 
-load();
+  byId('mode-block').addEventListener('click', async () => {
+    await chrome.runtime.sendMessage({ type: 'setMode', mode: 'block' });
+    await load();
+  });
+
+  byId('mode-log').addEventListener('click', async () => {
+    await chrome.runtime.sendMessage({ type: 'setMode', mode: 'log' });
+    await load();
+  });
+
+  byId('mode-allow').addEventListener('click', async () => {
+    await chrome.runtime.sendMessage({ type: 'setMode', mode: 'allow' });
+    await load();
+  });
+
+  byId('notifications').addEventListener('change', async (e) => {
+    await chrome.runtime.sendMessage({
+      type: 'setNotifications',
+      enabled: e.target.checked
+    });
+    await load();
+  });
+
+  const slowChk = byId('slow-page-protection');
+  if (slowChk) {
+    slowChk.addEventListener('change', async () => {
+      await chrome.runtime.sendMessage({
+        type: 'setSlowPageProtection',
+        enabled: slowChk.checked
+      });
+      await load();
+    });
+  }
+
+  byId('clear').addEventListener('click', async () => {
+    await chrome.runtime.sendMessage({ type: 'clearLogs' });
+    await load();
+  });
+});

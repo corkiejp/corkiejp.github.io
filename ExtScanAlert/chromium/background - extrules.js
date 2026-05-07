@@ -21,18 +21,17 @@ function getSlowPageHosts() {
     const inits = cond.initiatorDomains || [];
     for (const d of inits) {
       hosts.add(d);
- applyDnrSlowPageRules
- }
+    }
   }
   return Array.from(hosts);
 }
 
 async function applyDnrSlowPageRules(enabled) {
   if (!chrome.declarativeNetRequest) return;
-
+  
   if (!SLOW_PAGE_RULES.length) {
-    await loadSlowPageRules();
-  }
+  await loadSlowPageRules();
+}
 
   const ruleIds = SLOW_PAGE_RULES.map(r => r.id);
 
@@ -55,23 +54,10 @@ async function applyDnrSlowPageRules(enabled) {
     await appendLog({
       type: 'slowPageRules',
       message: enabled
-        ? `Slow-page protection enabled for: ${hosts.join(', ')}`
-        : 'Slow-page protection disabled',
+        ? `Slow‑page protection enabled for: ${hosts.join(', ')}`
+        : 'Slow‑page protection disabled',
       time: Date.now()
     });
-  }
-
-  if (enabled) {
-    for (const rule of SLOW_PAGE_RULES) {
-      await appendLog({
-        type: 'slow-page',
-        source: 'slow-page-protection',
-        ruleId: rule.id,
-        rule: rule.description,
-        host: (rule.condition?.initiatorDomains || []).join(', '),
-        time: Date.now()
-      });
-    }
   }
 }
 

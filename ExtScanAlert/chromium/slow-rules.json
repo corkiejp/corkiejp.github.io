@@ -1,0 +1,128 @@
+[
+{
+    "id": 101,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "initiatorDomains": ["boards.ie", "www.boards.ie"],
+      "requestDomains": ["platform.twitter.com"],
+      "resourceTypes": ["script"],
+      "urlFilter": "widgets.js"
+    }
+  },
+  {
+    "id": 102,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "initiatorDomains": ["boards.ie", "www.boards.ie"],
+      "requestDomains": ["cmp.inmobi.com"],
+      "resourceTypes": ["script"]
+    }
+  },
+  {
+    "id": 1001,
+    "description": "Block Twitter widgets on entertainment.ie",
+    "condition": {
+      "initiatorDomains": ["entertainment.ie", "www.entertainment.ie"],
+      "requestDomains": ["platform.twitter.com"],
+      "resourceTypes": ["script"]
+    }
+  },
+  {
+    "id": 1002,
+    "description": "Block InMobi CMP on entertainment.ie",
+    "condition": {
+      "initiatorDomains": ["entertainment.ie", "www.entertainment.ie"],
+      "requestDomains": ["cmp.inmobi.com"],
+      "resourceTypes": ["script"]
+    }
+  },
+  {
+    "id": 1101,
+    "description": "Block GTM on irishtimes.com",
+    "condition": {
+      "initiatorDomains": ["irishtimes.com", "www.irishtimes.com", "www.independent.ie"],
+      "requestDomains": ["www.googletagmanager.com"]
+    }
+  },
+  {
+    "id": 1102,
+    "description": "Block Permutive on irishtimes.com",
+    "condition": {
+      "initiatorDomains": ["irishtimes.com", "www.irishtimes.com", "www.independent.ie"],
+      "requestDomains": ["permutive.app"]
+    }
+  },
+  {
+    "id": 1103,
+    "description": "Block Webpush SDK on irishtimes.com",
+    "condition": {
+      "initiatorDomains": ["irishtimes.com", "www.irishtimes.com", "www.independent.ie"],
+      "requestDomains": ["prod.webpu.sh"]
+    }
+  },
+  {
+    "id": 1104,
+    "description": "Block InMobi CMP on irishtimes.com",
+    "condition": {
+      "initiatorDomains": ["irishtimes.com", "www.irishtimes.com", "www.independent.ie"],
+      "requestDomains": ["cmp.inmobi.com"],
+      "resourceTypes": ["script"]
+    }
+  },
+  {
+    "id": 1105,
+    "description": "Block PoWa boot script on irishtimes.com",
+    "condition": {
+      "initiatorDomains": ["irishtimes.com", "www.irishtimes.com", "www.independent.ie"],
+      "urlFilter": "powaBoot.js",
+      "resourceTypes": ["script"]
+    }
+  },
+ {
+  "id": 1201,
+  "description": "Block PBSTCK boot tag on independent.ie",
+  "condition": {
+    "initiatorDomains": ["www.independent.ie"],
+    "requestDomains": ["boot.pbstck.com", "cdn.pbstck.com"],
+    "resourceTypes": ["script"]
+  }
+  },  
+ {
+  "id": 1202,
+  "description": "Block dfp-setup.js on independent.ie",
+  "condition": {
+    "initiatorDomains": ["www.independent.ie"],
+    "urlFilter": "||www.independent.ie/extra/assets/advertising/dfp-setup.js",
+    "resourceTypes": ["script"]
+  }
+},
+ {
+  "id": 1301,
+  "description": "Block cdn.onesignal.com on www.irishmirror.ie",
+  "condition": {
+    "initiatorDomains": ["www.irishmirror.ie", "www.thesun.ie"],
+    "requestDomains": ["cdn.onesignal.com", "scripts.webcontentassessor.com", "tags.tiqcdn.com"],
+    "resourceTypes": ["script"]
+  }
+  },  
+ {
+  "id": 1302,
+  "description": "Block wp-emoji-release on www.thesun.ie",
+  "condition": {
+    "initiatorDomains": ["www.thesun.ie"],
+    "urlFilter": "||www.thesun.ie/wp-includes/js/wp-emoji-release.min.js",
+    "resourceTypes": ["script"]
+  }
+},
+ {
+  "id": 1303,
+  "description": "Block champagne.futurecdn.net on www.pcgamer.com",
+  "condition": {
+    "initiatorDomains": ["www.pcgamer.com"],
+    "requestDomains": ["champagne.futurecdn.net", "sdk.mrf.io", "sr.studiostack.com"],
+    "resourceTypes": ["script"]
+  }
+  }
+]

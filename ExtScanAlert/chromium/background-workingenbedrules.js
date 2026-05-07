@@ -1,38 +1,68 @@
-// Ensure SLOW_PAGE_RULES is available
-let SLOW_PAGE_RULES = [];
-
-async function loadSlowPageRules() {
-  try {
-    const url = chrome.runtime.getURL('slow-rules.json');
-    const res = await fetch(url);
-    SLOW_PAGE_RULES = await res.json();
-  } catch (err) {
-    console.error('Failed to load slow-page rules', err);
-    SLOW_PAGE_RULES = [];
+const SLOW_PAGE_RULES = [
+  {
+    id: 1001,
+    description: 'Block Twitter widgets on entertainment.ie',
+    condition: {
+      initiatorDomains: ['entertainment.ie', 'www.entertainment.ie'],
+      requestDomains: ['platform.twitter.com'],
+      resourceTypes: ['script']
+    }
+  },
+  {
+    id: 1002,
+    description: 'Block InMobi CMP on entertainment.ie',
+    condition: {
+      initiatorDomains: ['entertainment.ie', 'www.entertainment.ie'],
+      requestDomains: ['cmp.inmobi.com'],
+      resourceTypes: ['script']
+    }
+  },
+  {
+  "id": 1101,
+  "description": "Block GTM on irishtimes.com",
+  "condition": {
+    "initiatorDomains": ["irishtimes.com", "www.irishtimes.com"],
+    "requestDomains": ["www.googletagmanager.com"]
+   
+  }
+},
+{
+  "id": 1102,
+  "description": "Block Permutive on irishtimes.com",
+  "condition": {
+    "initiatorDomains": ["irishtimes.com", "www.irishtimes.com"],
+    "requestDomains": ["permutive.app"],
+  }
+},
+{
+  "id": 1103,
+  "description": "Block Webpush SDK on irishtimes.com",
+  "condition": {
+    "initiatorDomains": ["irishtimes.com", "www.irishtimes.com"],
+    "requestDomains": ["prod.webpu.sh"]
+  }
+},
+{
+  "id": 1104,
+  "description": "Block InMobi CMP on irishtimes.com",
+  "condition": {
+    "initiatorDomains": ["irishtimes.com", "www.irishtimes.com"],
+    "requestDomains": ["cmp.inmobi.com"]
+  }
+},
+{
+  id: 1105,
+  description: 'Block PoWa boot script on irishtimes.com',
+  condition: {
+    initiatorDomains: ['irishtimes.com', 'www.irishtimes.com'],
+    urlFilter: 'powaBoot.js',
+    resourceTypes: ['script']
   }
 }
-
-
-
-function getSlowPageHosts() {
-  const hosts = new Set();
-  for (const rule of SLOW_PAGE_RULES) {
-    const cond = rule.condition || {};
-    const inits = cond.initiatorDomains || [];
-    for (const d of inits) {
-      hosts.add(d);
- applyDnrSlowPageRules
- }
-  }
-  return Array.from(hosts);
-}
+];
 
 async function applyDnrSlowPageRules(enabled) {
   if (!chrome.declarativeNetRequest) return;
-
-  if (!SLOW_PAGE_RULES.length) {
-    await loadSlowPageRules();
-  }
 
   const ruleIds = SLOW_PAGE_RULES.map(r => r.id);
 
@@ -49,33 +79,20 @@ async function applyDnrSlowPageRules(enabled) {
     addRules,
     removeRuleIds: ruleIds
   });
-
-  const hosts = getSlowPageHosts();
-  if (hosts.length) {
-    await appendLog({
-      type: 'slowPageRules',
-      message: enabled
-        ? `Slow-page protection enabled for: ${hosts.join(', ')}`
-        : 'Slow-page protection disabled',
-      time: Date.now()
-    });
-  }
-
-  if (enabled) {
-    for (const rule of SLOW_PAGE_RULES) {
-      await appendLog({
-        type: 'slow-page',
-        source: 'slow-page-protection',
-        ruleId: rule.id,
-        rule: rule.description,
-        host: (rule.condition?.initiatorDomains || []).join(', '),
-        time: Date.now()
-      });
-    }
-  }
 }
 
-
+// top-level
+chrome.runtime.onStartup?.addListener(async () => {
+  const state = await getState();
+  await savePartial({
+    status: {
+      initialized: true,
+      lastInit: Date.now(),
+      installs: state.status?.installs || 1
+    }
+  });
+  await applyDnrSlowPageRules(!!state.slowPageProtection);
+});
 
 const MAX_LOGS = 100;
 const DEFAULT_SETTINGS = {
@@ -179,7 +196,6 @@ chrome.runtime.onStartup?.addListener(async () => {
       installs: state.status?.installs || 1
     }
   });
-  await applyDnrSlowPageRules(!!state.slowPageProtection);
 });
 
 chrome.tabs.onActivated.addListener(async ({ tabId }) => {
