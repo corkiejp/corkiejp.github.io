@@ -172,6 +172,7 @@ const state = {
   channels: [],
   selected: new Set(),
   timeRange: DEFAULT_TIME,
+  selectedDate: getTodayDateString(),
   slideIndex: 0,
   activeIndex: 0   // which selected channel is active on mobile
 };
@@ -325,13 +326,12 @@ function showTvPopup(meta) {
   // Build channel listings link if we have a channel slug
   let channelLinkHtml = '';
   if (channelSlug) {
-    const dateStr   = getTodayDateString();           // e.g. "28-04-2026"
+    const dateStr   = state.selectedDate;           // e.g. "28-04-2026"
     const focusTime = extractTimeFromHtml(meta.timeHtml);
     const url = new URL(`/tv/${channelSlug}/`, window.location.origin);
 
-    url.searchParams.set('date', dateStr);
-    // Use "evening-night" or whatever makes sense for your viewer
-    url.searchParams.set('time', 'evening-night');
+  url.searchParams.set('date', dateStr);
+  url.searchParams.set('time', state.timeRange || DEFAULT_TIME);
     if (focusTime)  url.searchParams.set('viewerFocusTime', focusTime);
     if (meta.title) url.searchParams.set('viewerFocusTitle', meta.title);
 
@@ -485,7 +485,7 @@ function getChannels() {
 }
 
 function getScheduleForChannel(slug) {
-  const dateStr = getTodayDateString();
+  const dateStr = state.selectedDate;
   const key = `${slug}|${dateStr}|${state.timeRange}`;
 
   if (USE_DEMO_SCHEDULES) {
@@ -587,7 +587,18 @@ function columnHTML(channel) {
           <div class="tv-programmes">${shows}</div>
         </section>`;
     }
-	
+
+
+
+function toSiteDate(isoDate) {
+  const [yyyy, mm, dd] = (isoDate || '').split('-');
+  return (dd && mm && yyyy) ? `${dd}-${mm}-${yyyy}` : getTodayDateString();
+}
+
+function toIsoDate(siteDate) {
+  const [dd, mm, yyyy] = (siteDate || '').split('-');
+  return (dd && mm && yyyy) ? `${yyyy}-${mm}-${dd}` : '';
+}	
 	
 	
 function render() {
@@ -618,7 +629,9 @@ function render() {
     .filter(c => state.selected.has(c.slug))
     .slice(0, maxChannels);
 	
-  const todayStr = getTodayDateString(); // e.g. "23-04-2026"	
+  const todayStr = state.selectedDate; // e.g. "23-04-2026"	
+  
+  
 
   let slidesHtml;
   if (isMobile()) {
@@ -643,12 +656,13 @@ function render() {
 
       <div class="tv-statusbar">
         <div class="tv-status-controls">
-          <select data-time-range>
-            <option value="now" ${state.timeRange==='now'?'selected':''}>Now</option>
-            <option value="tonight" ${state.timeRange==='tonight'?'selected':''}>Tonight</option>
-            <option value="evening-night" ${state.timeRange===DEFAULT_TIME?'selected':''}>Evening & Night</option>
+<select data-time-range>
             <option value="all-day" ${state.timeRange==='all-day'?'selected':''}>All Day</option>
+            <option value="day" ${state.timeRange==='day'?'selected':''}>Day</option>
+            <option value="evening-night" ${state.timeRange===DEFAULT_TIME?'selected':''}>Evening & Night</option>
+            <option value="after-midnight" ${state.timeRange==='after-midnight'?'selected':''}>After midnight</option>
           </select>
+		  <input type="date" data-date-picker>
           <button type="button" class="tv-primary" data-fill-demo>Load demo set</button>
           <button type="button" data-reset-selection>Reset channels</button>
 		  <button type="button" data-max-toggle>Max 5/10</button>
@@ -786,6 +800,10 @@ function focusListingFromQuery() {
 function bindEvents() {
   const el = root;
   if (!el) return;
+  el.querySelector('[data-date-picker]')?.addEventListener('change', e => {
+  state.selectedDate = toSiteDate(e.target.value);
+  render();
+});
 
   el.querySelector('[data-open-viewer]')?.addEventListener('click', () => {
     open();
@@ -990,15 +1008,15 @@ function bindEvents() {
 
       console.log('[TV Viewer] details: using dataset', ds, 'channelSlug =', channelSlug);
 
-      showTvPopup({
-        title,
-        date: ds.title || '',
-        genre: ds.genre || ds.genres || '',
-        description: ds.description || '',
-        timeHtml: ds.time || '',
-        image: ds.src || '',
-        channelSlug
-      });
+showTvPopup({
+  title,
+  date: state.selectedDate || '',
+  genre: '',
+  description: ds.description || '',
+  timeHtml: time,
+//  image: ds.img || ds.src || '',
+  channelSlug
+});
     });
   });
   

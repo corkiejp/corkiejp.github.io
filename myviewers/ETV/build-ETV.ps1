@@ -64,9 +64,9 @@ function Build-Target {
     $Version = [string]$manifest.version
 
     $BaseName = if ($Kind -eq "chrome") {
-        "PV3-ETV5or10Viewer-chrome-v$Version"
+        "PV4-ETV5or10Viewer-chrome-v$Version"
     } else {
-        "PV3-ETV5or10Viewer-firefox-v$Version"
+        "PV4-ETV5or10Viewer-firefox-v$Version"
     }
 
     $zipPath = Join-Path $OutputFolder ($BaseName + ".zip")
