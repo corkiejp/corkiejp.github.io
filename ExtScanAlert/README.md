@@ -1,13 +1,15 @@
 # Warning
 
 **Extensions are a security and privacy risk in them selves use at your own discretion!**
-
+This repository is meant for discussion, local testing, and forum follow-up. It is **not** a polished security product, and it is **not** intended for Chrome Web Store or AMO publication.[^3][^4]
 
 # ExtScanAlert
 
 ExtScanAlert is a small proof-of-concept extension project for **Chromium** and **Firefox** that explores a specific privacy question: can a browser extension notice or interfere with websites that try to probe for installed browser extensions.[^1][^2]
 
-This repository is meant for discussion, local testing, and forum follow-up. It is **not** a polished security product, and it is **not** intended for Chrome Web Store or AMO publication.[^3][^4]
+## Chromium Browsers
+
+Added DNR rules option for some slow loading pages due to privacy tools.
 
 ## Repository layout
 
