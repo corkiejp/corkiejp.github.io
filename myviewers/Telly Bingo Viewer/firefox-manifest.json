@@ -1,0 +1,29 @@
+{
+  "manifest_version": 2,
+  "name": "Telly Bingo Column Viewer",
+  "version": "0.1.0",
+  "description": "Shows Telly Bingo history results in staged B I N G O columns with a floating toggle viewer.",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.lottery.ie/results/telly-bingo/history*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "viewer.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "permissions": [
+    "https://www.lottery.ie/*"
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "telly-bingo-column-viewer@corkiejp.github.io",
+      "strict_min_version": "109.0"
+    }
+  }
+}
