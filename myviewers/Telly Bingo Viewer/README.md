@@ -1,1 +1,1 @@
-[png][./myviewers/Telly Bingo Viewer/assets/Demo-ScrrenShot.png](https://github.com/corkiejp/corkiejp.github.io/blob/well-known/myviewers/Telly%20Bingo%20Viewer/assets/Demo-ScrrenShot.png?raw=true)[/png]
+[img]https://corkiejp.github.io/myviewers/Telly%20Bingo%20Viewer/assets/Demo-ScrrenShot.png[/img]
