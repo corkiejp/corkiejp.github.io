@@ -125,7 +125,7 @@ The extension is scoped to `https://www.boards.ie/*` and currently uses the `sto
 
 ## Status
 
-Current version in the attached manifests: `2.0.5`.
+Current version in the attached manifests: `2.0.6`.
 
 ## Notes
 
