@@ -132,6 +132,28 @@ html.boards-preset-peonies-in-spring [class*="TitleBar"] button {
   background: transparent !important;
 }
 
+/* Modern title bar (React header) */
+html.boards-preset-peonies-in-spring .titleBar, 
+html.boards-preset-peonies-in-spring #MainHeader,
+html.boards-preset-peonies-in-spring #MainHeader .Container,
+html.boards-preset-peonies-in-spring #MainHeader .row,
+html.boards-preset-peonies-in-spring [class*="TitleBar-classes-bg"],
+html.boards-preset-peonies-in-spring [class*="TitleBar-classes-bgContainer"],
+html.boards-preset-peonies-in-spring [class*="TitleBar-classes-bar"] {
+  background: linear-gradient(
+    180deg,
+    var(--t-header-top) 0%,
+    var(--t-header-bottom) 100%
+  ) !important;
+  border-bottom: 1px solid var(--t-header-border) !important;
+}
+
+/* Header nav links */
+html.boards-preset-peonies-in-spring [class*="TitleBar-classes-topElement-"] {
+  color: var(--t-link) !important;
+  background: transparent !important;
+}
+
 /* Header nav links – always white */
 html.boards-preset-peonies-in-spring #themeHeader a,
 html.boards-preset-peonies-in-spring #themeHeader .linkContentClassName,

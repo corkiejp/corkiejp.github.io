@@ -116,6 +116,29 @@ html.boards-preset-afterhours-dark [class*="TitleBar"] button {
   background: transparent !important;
 }
 
+/* Modern title bar (React header) */
+html.boards-preset-afterhours-dark .titleBar, 
+html.boards-preset-afterhours-dark #MainHeader,
+html.boards-preset-afterhours-dark #MainHeader .Container,
+html.boards-preset-afterhours-dark #MainHeader .row,
+html.boards-preset-afterhours-dark [class*="TitleBar-classes-bg"],
+html.boards-preset-afterhours-dark [class*="TitleBar-classes-bgContainer"],
+html.boards-preset-afterhours-dark [class*="TitleBar-classes-bar"] {
+  background: linear-gradient(
+    180deg,
+    var(--t-header-top) 0%,
+    var(--t-header-bottom) 100%
+  ) !important;
+  border-bottom: 1px solid var(--t-header-border) !important;
+}
+
+
+/* Header nav links */
+html.boards-preset-afterhours-dark [class*="TitleBar-classes-topElement-"] {
+  color: var(--t-link) !important;
+  background: transparent !important;
+}
+
 /* ============================================================
    STEP 4 — Breadcrumbs
    The navigation trail: Home › Topics › After Hours

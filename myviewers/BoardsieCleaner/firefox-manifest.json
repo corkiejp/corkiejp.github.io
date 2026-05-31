@@ -1,17 +1,18 @@
 {
   "manifest_version": 3,
-  "name": "Boards.ie Cleaner V2",
-  "version": "2.0.6",
+  "name": "Boards.ie Cleaner V3",
+  "version": "3.0.1",
   "description": "Boards.ie helper: overlay loader, profile toggles, quote tools, and CMP handling.",
 
-  "host_permissions": [
-    "https://www.boards.ie/*"
+  "permissions": [
+    "storage",
+    "declarativeNetRequest"
   ],
 
-"permissions": [
-  "storage",
-  "declarativeNetRequest"
-],
+  "host_permissions": [
+    "https://www.boards.ie/*",
+    "https://boards.ie/*"
+  ],
 
   "options_ui": {
     "page": "options.html",
@@ -22,6 +23,57 @@
     "scripts": ["background.js"],
     "type": "module"
   },
+
+"commands": {
+  "open-shortcut-dialog": {
+    "description": "Open BoardsCleaner shortcut dialog"
+  },
+  "open-editor-modal": {
+    "description": "Open comment editor modal"
+  },
+  "toggle-profile-links": {
+    "description": "Toggle profile links between discussions and comments"
+  },
+  "toggle-quotes": {
+    "description": "Toggle quote display feature"
+  },
+  "open-mike-comments": {
+    "description": "Open Mike comments"
+  },
+  "open-odhran-comments": {
+    "description": "Open Odhran comments"
+  },
+    "open-ignore": {
+    "description": "Open ignore list"
+  },
+    "open-sign": {
+    "description": "Open Signature Settings"
+  },  
+  "open-bookmarks": {
+    "suggested_key": {
+      "default": "Alt+8"
+    },
+    "description": "* Open Boards bookmarks"
+  },
+  "open-my-comments": {
+    "suggested_key": {
+      "default": "Alt+C"
+    },
+    "description": "* Open your comments"
+  },
+  "open-notifications": {
+    "suggested_key": {
+      "default": "Alt+6"
+    },
+    "description": "* Open notifications"
+  },
+  "open-drafts": {
+    "suggested_key": {
+      "default": "Alt+X"
+    },
+    "description": "* Open drafts"
+  }
+},
 
   "icons": {
     "16": "assets/icon16.png",
@@ -42,35 +94,60 @@
   "content_scripts": [
     {
       "matches": ["https://www.boards.ie/*"],
-      "js": ["themes/theme-engine-2.js", "content.js"],
+      "js": ["assets/js/features/overlay-manager.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://www.boards.ie/*"],
+      "js": ["themes/theme-engine-2.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.boards.ie/*"],
+      "js": ["assets/js/bootstrap.js"],
       "run_at": "document_idle"
     }
   ],
 
-"web_accessible_resources": [
-  {
-    "resources": [
-      "themes/presets/*.css",
-      "assets/icon16.png",
-      "assets/icon32.png",
-      "assets/icon48.png",
-      "assets/icon128.png",
-      "assets/boardsedited128.png"
-    ],
-    "matches": ["https://www.boards.ie/*"]
-  }
-],
-
-"browser_specific_settings": {
-  "gecko": {
-    "id": "boards.ie@corkiejp.github.io",
-    "strict_min_version": "140.0",
-    "data_collection_permissions": {
-      "required": ["none"]
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "themes/presets/*.css",
+        "assets/icon16.png",
+        "assets/icon32.png",
+        "assets/icon48.png",
+        "assets/icon128.png",
+        "assets/boardsedited128.png",
+        "assets/css/boards-cleaner.css",
+        "assets/css/boards-modals.css",
+        "assets/js/core/storage.js",
+        "assets/js/core/member-state.js",
+        "assets/js/core/dom-observer.js",
+        "assets/js/features/boards-styling.js",
+        "assets/js/features/boards-modals.js",
+        "assets/js/features/dom-enhancements.js",
+        "assets/js/features/editor-modal-launcher.js",
+        "assets/js/features/experimental-theme-css-swap.js",
+        "assets/js/features/legacy-nav-popup.js",
+        "assets/js/features/member-features.js",
+        "assets/js/features/overlay-manager.js",
+        "assets/js/features/shortcut-dialog.js",
+        "assets/js/features/utility-toolbar.js"
+      ],
+      "matches": ["https://www.boards.ie/*"]
     }
-  },
-  "gecko_android": {
-    "strict_min_version": "142.0"
+  ],
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "boards.ie@corkiejp.github.io",
+      "strict_min_version": "140.0",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    },
+    "gecko_android": {
+      "strict_min_version": "142.0"
+    }
   }
-}
 }

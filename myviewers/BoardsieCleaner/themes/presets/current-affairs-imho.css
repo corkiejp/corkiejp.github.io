@@ -115,6 +115,28 @@ html.boards-preset-current-affairs-imho [class*="TitleBar"] button {
   background: transparent !important;
 }
 
+/* Modern title bar (React header) */
+html.boards-preset-current-affairs-imho .titleBar, 
+html.boards-preset-current-affairs-imho #MainHeader,
+html.boards-preset-current-affairs-imho #MainHeader .Container,
+html.boards-preset-current-affairs-imho #MainHeader .row,
+html.boards-preset-current-affairs-imho [class*="TitleBar-classes-bg"],
+html.boards-preset-current-affairs-imho [class*="TitleBar-classes-bgContainer"],
+html.boards-preset-current-affairs-imho [class*="TitleBar-classes-bar"] {
+  background: linear-gradient(
+    180deg,
+    var(--t-header-top) 0%,
+    var(--t-header-bottom) 100%
+  ) !important;
+  border-bottom: 1px solid var(--t-header-border) !important;
+}
+
+/* Header nav links */
+html.boards-preset-current-affairs-imho [class*="TitleBar-classes-topElement-"] {
+  color: var(--t-link) !important;
+  background: transparent !important;
+}
+
 /* ============================================================
    STEP 4 — Breadcrumbs
    The navigation trail: Home › Topics › After Hours

@@ -20,7 +20,10 @@ const STORAGE_KEYS = {
 const BUILTIN_PRESETS = {
   'after-hours': 'afterhours-dark',
   'current-affairs': 'current-affairs-imho',
-  'forestry': 'forest'
+  'forestry': 'forest',
+  'peonies-in-spring': 'gardening',
+  'wild-rust': 'celebrity-showbiz',
+  'sepia': 'bargain-alerts'
 };
 
 

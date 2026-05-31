@@ -64,7 +64,10 @@ html .Comments.pageBox {
 }
 
 /* Modern title bar (React header) */
-html .titleBar,
+html .titleBar, 
+html #MainHeader,
+html #MainHeader .Container,
+html #MainHeader .row,
 html [class*="TitleBar-classes-bg"],
 html [class*="TitleBar-classes-bgContainer"],
 html [class*="TitleBar-classes-bar"] {

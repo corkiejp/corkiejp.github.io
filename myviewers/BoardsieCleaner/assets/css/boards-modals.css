@@ -1,0 +1,322 @@
+/* assets/css/boards-modals.css */
+
+:host {
+  all: initial;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+.bc-modal {
+  width: min(720px, calc(100vw - 32px));
+  max-width: 720px;
+  border: 0;
+  border-radius: 12px;
+  padding: 0;
+  color: #1f2937;
+  background: #ffffff;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+}
+
+.bc-modal::backdrop {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.bc-modal-wrap {
+  padding: 18px;
+}
+
+.bc-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.bc-header-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  flex: 0 0 auto;
+}
+
+.bc-modal h3,
+.bc-modal h4 {
+  margin: 0 0 12px;
+}
+
+.bc-field {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.bc-field input {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.bc-show-code-wrap {
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.bc-status {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #f3f4f6;
+  color: #374151;
+  font-size: 14px;
+}
+
+.bc-status[data-state="success"] {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.bc-status[data-state="error"] {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+
+
+.bc-search {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 9px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.bc-count {
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: #475569;
+}
+
+.bc-empty {
+  display: none;
+  padding: 14px 0;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.bc-list {
+  display: grid;
+  gap: 12px;
+}
+
+.bc-row {
+  border: 1px solid #dbe3ee;
+  border-radius: 10px;
+  padding: 12px;
+  background: #f8fafc;
+}
+
+.bc-row-header {
+  margin-bottom: 8px;
+}
+
+.bc-row-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.bc-row-theme,
+.bc-row-flags {
+  font-size: 13px;
+  color: #475569;
+}
+
+.bc-row-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.bc-detect-wrap {
+  margin: 12px 0;
+}
+
+.bc-members-features {
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid #d8dee9;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.bc-members-features label,
+.bc-cmp-label {
+  display: block;
+  margin: 10px 0;
+  line-height: 1.45;
+}
+
+.bc-members-features input[type="checkbox"],
+.bc-cmp-label input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+.bc-danger-wrap {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #d8dee9;
+}
+
+.bc-danger-strong {
+  color: #a12626;
+}
+
+.bc-danger-btn {
+  margin-top: 10px;
+}
+
+
+:host,
+.bc-modal,
+.bc-modal-wrap {
+  --bc-blue: #3c5587;
+  --bc-blue-dark: #2d436c;
+  --bc-blue-hover: #4a65a0;
+  --bc-blue-hover-dark: #34507e;
+  --bc-blue-border: #223455;
+}
+
+.bc-actions-wrap,
+.bc-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.bc-actions-wrap button,
+.bc-actions button,
+.bc-detect-wrap button,
+.bc-row-actions button,
+.bc-row-actions a,
+.bc-danger-btn {
+  appearance: none;
+  border: 1px solid var(--bc-blue-border);
+  background: linear-gradient(to bottom, var(--bc-blue) 0%, var(--bc-blue-dark) 100%);
+  color: #fff;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 14px;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.15);
+}
+
+.bc-actions-wrap button:hover,
+.bc-actions button:hover,
+.bc-detect-wrap button:hover,
+.bc-row-actions button:hover,
+.bc-row-actions a:hover,
+.bc-danger-btn:hover {
+  background: linear-gradient(to bottom, var(--bc-blue-hover) 0%, var(--bc-blue-hover-dark) 100%);
+  color: #fff;
+}
+
+.bc-actions-wrap button:focus-visible,
+.bc-actions button:focus-visible,
+.bc-detect-wrap button:focus-visible,
+.bc-row-actions button:focus-visible,
+.bc-row-actions a:focus-visible,
+.bc-danger-btn:focus-visible {
+  outline: 2px solid #89a8e8;
+  outline-offset: 2px;
+}
+
+.bc-actions-wrap button:active,
+.bc-actions button:active,
+.bc-detect-wrap button:active,
+.bc-row-actions button:active,
+.bc-row-actions a:active,
+.bc-danger-btn:active {
+  transform: translateY(1px);
+}
+
+.bc-danger-btn {
+  background: linear-gradient(to bottom, #8a2d2d 0%, #6d1e1e 100%);
+  border-color: #561717;
+}
+
+.bc-danger-btn:hover {
+  background: linear-gradient(to bottom, #a13838 0%, #7f2424 100%);
+}
+
+.bc-toggle-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid #d8dee9;
+  border-radius: 10px;
+  background: #f8fafc;
+  cursor: pointer;
+}
+
+.bc-toggle-row input[type="checkbox"] {
+  margin: 2px 0 0;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
+.bc-toggle-text-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bc-toggle-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.35;
+}
+
+.bc-toggle-help {
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.35;
+}
+
+.bc-member-links a {
+  display: block;
+  margin: 0 0 8px;
+  color: #3c5587;
+  text-decoration: underline;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.bc-member-links a:last-child {
+  margin-bottom: 0;
+}
+
+.bc-member-links a:hover {
+  color: #2d436c;
+}
+
+.bc-member-links a:hover {
+  color: #2d436c;
+}

@@ -55,6 +55,13 @@ const THEME_PRESETS = {
   className: 'boards-preset-wild-rust',
   cssFile: 'themes/presets/wild-rust.css',
   shadowPatch: applyThemeHeaderShadowPatch
+},
+'sepia': {
+  id: 'sepia',
+  label: 'Sepia',
+  className: 'boards-preset-sepia',
+  cssFile: 'themes/presets/sepia.css',
+  shadowPatch: applyThemeHeaderShadowPatch
 }
 };
 

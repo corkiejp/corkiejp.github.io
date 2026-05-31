@@ -1,0 +1,289 @@
+/* assets/css/boards-cleaner.css */
+
+:root {
+  --t-bg: #ffffff;
+  --t-bg-2: #f4f4f4;
+  --t-link: #3c5587;
+  --t-link-hover: #1d5d9d;
+  --t-header-top: #3c5587;
+  --t-header-bottom: #2d436c;
+  --t-header-border: #223455;
+  --t-button-top: #3c5587;
+  --t-button-bottom: #2d436c;
+  --t-button-hover-top: #4a65a0;
+  --t-button-hover-bottom: #34507e;
+  --t-button-border: #223455;
+}
+
+html[data-bc-global-colour-shift="on"] {
+  --t-bg: #c3d3e5;
+  --t-bg-2: #c3d3e5;
+  --t-link: #296db5;
+  --t-link-hover: #296db5;
+  --t-header-top: #296db5;
+  --t-header-bottom: #296db5;
+  --t-header-border: #296db5;
+  --t-button-top: #296db5;
+  --t-button-bottom: #296db5;
+  --t-button-hover-top: #296db5;
+  --t-button-hover-bottom: #296db5;
+  --t-button-border: #296db5;
+}
+
+body.overlay-hide {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+body.overlay-hide > *:not(#custom-loader) {
+  opacity: 0 !important;
+}
+
+#custom-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--t-link, #3c5587);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  color: #fff;
+  font-size: 20px;
+  line-height: 1.4;
+  text-align: center;
+  padding: 24px;
+  background-image: var(--bc-loader-logo-url);
+  background-repeat: no-repeat;
+  background-position: center 48px;
+  background-size: 256px auto;
+  box-sizing: border-box;
+}
+
+#custom-loader-message {
+  margin-top: 120px;
+  max-width: 90vw;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.css-141gbze-modal-overlayContent {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  z-index: 2147483647 !important;
+  background: rgba(0, 0, 0, 0.6) !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.css-z6n287-modal {
+  position: relative !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.frame.css-ab90li-frameStyles-root {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  overflow-y: auto !important;
+  box-sizing: border-box !important;
+}
+
+.css-1usqrh9-frameStyles-bodyWrap {
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+.buttonClose,
+.closeButton {
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  z-index: 2147483648 !important;
+  background: transparent !important;
+}
+
+body.modal-active,
+html.modal-active {
+  overflow: hidden !important;
+}
+
+.Options {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.Options a,
+.Options span.ToggleFlyout {
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+body,
+.Frame,
+.Content.MainContent,
+.page-content,
+.richEditor-text,
+.generic-block-wrapper,
+.generic-tab-page,
+.threads-wrapper-body,
+.sponsored-content,
+.sponsored-content .image-wrapper,
+.ttf-main,
+.ttf-forumactivity,
+.forum-threadlist-wrapper,
+.postbit-wrapper,
+.postbit-postbody,
+.postbit-actions,
+.forum-tools,
+.user-tools ul,
+.homepage-filter {
+  background-color: var(--t-bg) !important;
+}
+
+.postbit-postdetails,
+.postbit-actionscontainer,
+.postbit-userinfo,
+.PostBitUser,
+.threadrow-container-zebra,
+.threadrow-container-zebra td,
+.forum-threadlist-lastpost,
+.forum-threadlist-replies,
+.forum-threadlist-views,
+.forum-threadlist-deleteinfo {
+  background-color: var(--t-bg-2) !important;
+}
+
+html[data-bc-header-override="on"] .titleBar,
+html[data-bc-header-override="on"] .titleBar-inner,
+html[data-bc-header-override="on"] .titleBar-region,
+html[data-bc-header-override="on"] .titleBar .row,
+html[data-bc-header-override="on"] .titleBar .container,
+html[data-bc-header-override="on"] .header,
+html[data-bc-header-override="on"] .header-navigation,
+html[data-bc-header-override="on"] .header-container,
+html[data-bc-header-override="on"] .navigation,
+html[data-bc-header-override="on"] .navigation-wrap,
+html[data-bc-header-override="on"] .navBar,
+html[data-bc-header-override="on"] .navbar {
+  background-color: var(--t-header-bottom) !important;
+  background-image: none !important;
+  border-color: var(--t-header-bottom) !important;
+}
+
+.DataTable thead,
+.CommentHeaderBoards,
+.postbit-header,
+.Header,
+.GenericWrapperHeader,
+.SideNav-header,
+h1.GenericWrapperHeader,
+.generic-wrapper-header,
+.generic-wrapper-header .active,
+.forum-threadlist-header,
+.modal-title,
+.PageControls.Top,
+.PageControls.Bottom {
+  position: relative !important;
+  z-index: 20 !important;
+  background: var(--t-header-bottom) !important;
+  border-color: var(--t-header-border) !important;
+}
+
+@media (max-width: 768px) {
+  .DataTable thead {
+    position: static !important;
+    z-index: auto !important;
+  }
+}
+
+.forum-threadlist-header {
+  position: relative !important;
+  z-index: 1 !important;
+  background: var(--t-header-bottom) !important;
+  border-color: var(--t-header-border) !important;
+}
+
+[class^="vanilla-"][class$="-dropDown-item"]:hover,
+.dropDown-contents .frameFooter a:hover,
+.dropDown-contents .frameFooter button:hover,
+ul.suggestedTextInput-menuItems li.suggestedTextInput-item:hover *,
+.postbit-header .Options li:hover,
+.Options .Flyout.MenuItems li.no-icon:hover,
+.forum-threadlist-forumtools.active,
+.homepage-filter li a:hover {
+  background-color: var(--t-link) !important;
+  color: #fff !important;
+}
+
+.dropDown-contents,
+.postbit-header .Options ul {
+  background-color: var(--t-link) !important;
+}
+
+html[data-bc-header-override="on"] .css-12tkh2i-TitleBar-classes-container,
+html[data-bc-header-override="on"] .css-dp9rce-TitleBar-classes-bgContainer,
+html[data-bc-header-override="on"] .css-1oj11qk-TitleBar-classes-bg1,
+html[data-bc-header-override="on"] .css-4dzs6r-TitleBar-classes-overlay,
+html[data-bc-header-override="on"] .css-3tnqcv-TitleBar-classes-titleBarContainer,
+html[data-bc-header-override="on"] .css-14h4976-TitleBar-classes-bar,
+html[data-bc-header-override="on"] .headerNavigation,
+html[data-bc-header-override="on"] .css-1523lre-TitleBar-classes-nav,
+html[data-bc-header-override="on"] .css-ukn4zc-titleBarNavStyles-navigation,
+html[data-bc-header-override="on"] .css-8fcb8p-titleBarNavStyles-items,
+html[data-bc-header-override="on"] .css-1t3ndu5-titleBarNavStyles-firstItem,
+html[data-bc-header-override="on"] .css-1c21t3e-titleBarNavStyles-root,
+html[data-bc-header-override="on"] .css-1shblo9-TitleBar-classes-topElement-titleBarNavStyles-link {
+  background-color: var(--t-header-bottom) !important;
+  background-image: none !important;
+  border-color: var(--t-header-bottom) !important;
+}
+
+.Frame-contentWrap.noad-top,
+.Container,
+.Content.MainContent,
+.forum-threadlist-wrapper,
+page-sidebar.pageBox.non-home {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+.no-ad-top-spacer,
+h1.H.HomepageTitle {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+}
+
+html .headerLogo-logoFrame {
+  padding: 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+html.bc-logo-solid .headerLogo-logoFrame {
+  background-color: #255ba3 !important;
+  padding: 3px 8px !important;
+  border-radius: 4px !important;
+}

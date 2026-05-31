@@ -1,28 +1,85 @@
 {
   "manifest_version": 3,
-  "name": "Boards.ie Cleaner V2",
-  "version": "2.0.6",
+  "name": "Boards.ie Cleaner V3",
+  "version": "3.0.1",
   "description": "Boards.ie helper: overlay loader, profile toggles, quote tools, and CMP handling.",
+
   "permissions": [
     "storage",
     "declarativeNetRequest",
     "declarativeNetRequestFeedback"
   ],
+
   "host_permissions": [
     "https://www.boards.ie/*",
     "https://boards.ie/*"
   ],
+
   "options_page": "options.html",
+
   "background": {
     "service_worker": "background.js",
     "type": "module"
   },
+
+"commands": {
+  "open-shortcut-dialog": {
+    "description": "Open BoardsCleaner shortcut dialog"
+  },
+  "open-editor-modal": {
+    "description": "Open comment editor modal"
+  },
+  "toggle-profile-links": {
+    "description": "Toggle profile links between discussions and comments"
+  },
+  "toggle-quotes": {
+    "description": "Toggle quote display feature"
+  },
+  "open-mike-comments": {
+    "description": "Open Mike comments"
+  },
+  "open-odhran-comments": {
+    "description": "Open Odhran comments"
+  },
+    "open-ignore": {
+    "description": "Open ignore list"
+  },
+    "open-sign": {
+    "description": "Open Signature Settings"
+  },  
+  "open-bookmarks": {
+    "suggested_key": {
+      "default": "Alt+8"
+    },
+    "description": "* Open Boards bookmarks"
+  },
+  "open-my-comments": {
+    "suggested_key": {
+      "default": "Alt+C"
+    },
+    "description": "* Open your comments"
+  },
+  "open-notifications": {
+    "suggested_key": {
+      "default": "Alt+6"
+    },
+    "description": "* Open notifications"
+  },
+  "open-drafts": {
+    "suggested_key": {
+      "default": "Alt+X"
+    },
+    "description": "* Open drafts"
+  }
+},
+
   "icons": {
     "16": "assets/icon16.png",
     "32": "assets/icon32.png",
     "48": "assets/icon48.png",
     "128": "assets/icon128.png"
   },
+
   "action": {
     "default_icon": {
       "16": "assets/icon16.png",
@@ -31,13 +88,25 @@
       "128": "assets/icon128.png"
     }
   },
+
   "content_scripts": [
     {
       "matches": ["https://www.boards.ie/*"],
-      "js": ["themes/theme-engine-2.js", "content.js"],
+      "js": ["assets/js/features/overlay-manager.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://www.boards.ie/*"],
+      "js": ["themes/theme-engine-2.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.boards.ie/*"],
+      "js": ["assets/js/bootstrap.js"],
       "run_at": "document_idle"
     }
   ],
+
   "web_accessible_resources": [
     {
       "resources": [
@@ -46,7 +115,22 @@
         "assets/icon32.png",
         "assets/icon48.png",
         "assets/icon128.png",
-        "assets/boardsedited128.png"
+        "assets/boardsedited128.png",
+        "assets/css/boards-cleaner.css",
+        "assets/css/boards-modals.css",
+        "assets/js/core/storage.js",
+        "assets/js/core/member-state.js",
+        "assets/js/core/dom-observer.js",
+        "assets/js/features/boards-styling.js",
+        "assets/js/features/boards-modals.js",
+        "assets/js/features/dom-enhancements.js",
+        "assets/js/features/editor-modal-launcher.js",
+        "assets/js/features/experimental-theme-css-swap.js",
+        "assets/js/features/legacy-nav-popup.js",
+        "assets/js/features/member-features.js",
+        "assets/js/features/overlay-manager.js",
+        "assets/js/features/shortcut-dialog.js",
+        "assets/js/features/utility-toolbar.js"
       ],
       "matches": ["https://www.boards.ie/*"]
     }

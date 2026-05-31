@@ -94,10 +94,71 @@ chrome.runtime.onStartup.addListener(() => {
   syncMemberRules().catch(console.error);
 });
 
-chrome.storage.onChanged.addListener((changes, areaName) => {
-  if (areaName !== "sync") return;
 
-  if (changes.bc_member_active || changes.bc_settings) {
-    syncMemberRules().catch(console.error);
+
+const COMMAND_URLS = {
+  "open-bookmarks": "https://www.boards.ie/discussions/bookmarked",
+  "open-my-comments": "https://www.boards.ie/profile/comments",
+  "open-notifications": "https://www.boards.ie/profile/notifications",
+  "open-drafts": "https://www.boards.ie/drafts"
+};
+
+chrome.commands.onCommand.addListener(async (command) => {
+  const url = COMMAND_URLS[command];
+  if (!url) return;
+
+  try {
+    await chrome.tabs.update({ url });
+  } catch (err) {
+    console.error("BoardsCleaner command failed:", command, err);
+  }
+});
+
+chrome.commands.onCommand.addListener(async (command) => {
+  try {
+    const { shortcutsEnabled = true } = await chrome.storage.sync.get('shortcutsEnabled');
+    if (shortcutsEnabled === false) {
+      return;
+    }
+
+    const tabs = await chrome.tabs.query({
+      active: true,
+      lastFocusedWindow: true,
+      url: [
+        'https://www.boards.ie/*',
+        'https://boards.ie/*'
+      ]
+    });
+
+    const activeTab = tabs && tabs[0];
+    if (!activeTab?.id) {
+      return;
+    }
+
+    await chrome.tabs.sendMessage(activeTab.id, {
+      action: 'bc-run-command',
+      command
+    });
+  } catch (err) {
+    console.warn('[BoardsCleaner][background] command forwarding failed', err);
+  }
+});
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (!message) return;
+
+  if (message.action === 'bc-get-commands') {
+    chrome.commands.getAll((commands) => {
+      sendResponse({ commands: commands || [] });
+    });
+    return true;
+  }
+
+  if (message.action === 'bc-open-extension-shortcuts-page') {
+    chrome.tabs.create({
+      url: 'chrome://extensions/shortcuts'
+    });
+    sendResponse({ ok: true });
+    return false;
   }
 });

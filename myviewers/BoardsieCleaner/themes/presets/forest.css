@@ -117,6 +117,28 @@ html.boards-preset-forest [class*="TitleBar"] button {
   background: transparent !important;
 }
 
+/* Modern title bar (React header) */
+html.boards-preset-forest .titleBar, 
+html.boards-preset-forest #MainHeader,
+html.boards-preset-forest #MainHeader .Container,
+html.boards-preset-forest #MainHeader .row,
+html.boards-preset-forest [class*="TitleBar-classes-bg"],
+html.boards-preset-forest [class*="TitleBar-classes-bgContainer"],
+html.boards-preset-forest [class*="TitleBar-classes-bar"] {
+  background: linear-gradient(
+    180deg,
+    var(--t-header-top) 0%,
+    var(--t-header-bottom) 100%
+  ) !important;
+  border-bottom: 1px solid var(--t-header-border) !important;
+}
+
+/* Header nav links */
+html.boards-preset-forest [class*="TitleBar-classes-topElement-"] {
+  color: var(--t-link) !important;
+  background: transparent !important;
+}
+
 /* ============================================================
    STEP 4 — Breadcrumbs
    The navigation trail: Home › Topics › After Hours
