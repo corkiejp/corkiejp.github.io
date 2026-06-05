@@ -1,1 +1,1 @@
-Just a place to share some vibe code extesnions.
+Just a place to share some vibe code extensions.
