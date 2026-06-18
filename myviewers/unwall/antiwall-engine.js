@@ -358,17 +358,37 @@ function createAntiWallRestoreSession() {
         value: element.getAttribute('class')
       });
     },
-    hideElement(element, reason) {
-      records.push({
-        type: 'style-attribute',
-        element,
-        value: element.getAttribute('style')
-      });
-      this.setAttribute(element, 'aria-hidden', 'true');
-      this.setAttribute(element, 'data-antiwall-hidden', reason);
-      element.style.setProperty('display', 'none', 'important');
-      element.style.setProperty('pointer-events', 'none', 'important');
-    },
+hideElement(element, reason) {
+  records.push({
+    type: 'style-attribute',
+    element,
+    value: element.getAttribute('style')
+  });
+
+  this.setAttribute(element, 'aria-hidden', 'true');
+  this.setAttribute(element, 'data-antiwall-hidden', reason);
+
+  if (element instanceof HTMLDialogElement) {
+    records.push({
+      type: 'attribute',
+      element,
+      name: 'open',
+      hadValue: element.hasAttribute('open'),
+      value: element.getAttribute('open')
+    });
+
+    try {
+      if (element.open) {
+        element.close();
+      }
+    } catch {}
+
+    element.removeAttribute('open');
+  }
+
+  element.style.setProperty('display', 'none', 'important');
+  element.style.setProperty('pointer-events', 'none', 'important');
+},
     restore() {
       antiwallState.suppressObserver = true;
 
@@ -435,6 +455,121 @@ function unlockAntiWallScroll(detection, restore) {
   return true;
 }
 
+
+function looksLikeLeftoverClickBlocker(element) {
+  if (!(element instanceof Element)) return false;
+  if (element.hasAttribute('data-antiwall-hidden')) return false;
+  if (antiwallContainsProtectedContent(element)) return false;
+
+  const style = getComputedStyle(element);
+  const rect = element.getBoundingClientRect();
+  const z = antiwallNumericZIndex(element);
+
+  const fullScreen =
+    rect.width >= window.innerWidth * 0.9 &&
+    rect.height >= window.innerHeight * 0.9;
+
+  const fixedLike =
+    style.position === 'fixed' || style.position === 'absolute';
+
+  const intercepts =
+    style.pointerEvents !== 'none' &&
+    style.visibility !== 'hidden' &&
+    style.display !== 'none';
+
+  const backdropLike =
+    antiwallHasBlur(style) ||
+    antiwallColorAlpha(style.backgroundColor) > 0.01 ||
+    Number(style.opacity || 1) < 0.15;
+
+  return fullScreen && fixedLike && intercepts && z >= 5 && backdropLike;
+}
+
+function looksLikeLeftoverClickBlocker(element) {
+  if (!(element instanceof Element)) return false;
+  if (element.hasAttribute('data-antiwall-hidden')) return false;
+  if (antiwallContainsProtectedContent(element)) return false;
+
+  const style = getComputedStyle(element);
+  if (style.display === 'none' || style.visibility === 'hidden') return false;
+  if (style.pointerEvents === 'none') return false;
+
+  const rect = element.getBoundingClientRect();
+  const z = antiwallNumericZIndex(element);
+
+  const coversViewport =
+    rect.width >= window.innerWidth * 0.9 &&
+    rect.height >= window.innerHeight * 0.9;
+
+  const pinned =
+    style.position === 'fixed' ||
+    style.position === 'absolute' ||
+    style.position === 'sticky';
+
+  const transparentish =
+    antiwallColorAlpha(style.backgroundColor) < 0.08 &&
+    Number(style.opacity || 1) <= 1;
+
+  const backdropish =
+    antiwallHasBlur(style) ||
+    transparentish ||
+    style.cursor === 'not-allowed';
+
+  return coversViewport && pinned && z >= 5 && backdropish;
+}
+
+function antiwallCenterHitCandidates() {
+  const points = [
+    [window.innerWidth / 2, window.innerHeight / 2],
+    [window.innerWidth / 2, window.innerHeight * 0.25],
+    [window.innerWidth / 2, window.innerHeight * 0.75]
+  ];
+
+  return antiwallUnique(
+    points
+      .map(([x, y]) => document.elementFromPoint(x, y))
+      .filter(Boolean)
+  );
+}
+
+function unlockAntiWallInteraction(restore) {
+  const roots = [document.documentElement, document.body].filter(Boolean);
+  let neutralizedCount = 0;
+
+  for (const el of roots) {
+    restore.setStyle(el, 'pointer-events', 'auto');
+    restore.setStyle(el, 'touch-action', 'auto');
+  }
+
+  for (const dialog of document.querySelectorAll('dialog[open]')) {
+    if (!(dialog instanceof HTMLDialogElement)) continue;
+
+    restore.setAttribute(dialog, 'open', null);
+
+    try {
+      if (dialog.open) dialog.close();
+    } catch {}
+
+    dialog.removeAttribute('open');
+    restore.hideElement(dialog, 'leftover-open-dialog');
+    neutralizedCount++;
+  }
+
+  const allElements = [...document.querySelectorAll('body *')];
+  const hitCandidates = typeof antiwallCenterHitCandidates === 'function'
+    ? antiwallCenterHitCandidates()
+    : [];
+  const candidates = antiwallUnique([...hitCandidates, ...allElements]);
+
+  for (const el of candidates) {
+    if (!looksLikeLeftoverClickBlocker(el)) continue;
+    restore.hideElement(el, 'leftover-click-blocker');
+    neutralizedCount++;
+  }
+
+  return neutralizedCount;
+}
+
 function cleanAntiWallDetection(detection) {
   const restore = createAntiWallRestoreSession();
   antiwallState.suppressObserver = true;
@@ -460,13 +595,15 @@ function cleanAntiWallDetection(detection) {
     }
 
     const cssScrollUnlocked = unlockAntiWallScroll(detection, restore);
+	const interactionUnlocked = unlockAntiWallInteraction(restore);
 
     return {
       restore,
       popupCount: detection.popups.length,
       backdropCount: detection.backdrops.length,
       blurCount: detection.blurElements.length,
-      cssScrollUnlocked
+      cssScrollUnlocked,
+	  interactionUnlocked
     };
   } finally {
     antiwallState.suppressObserver = false;
