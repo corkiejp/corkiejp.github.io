@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Unwall
+// @name         Unwall-Patched
 // @namespace    https://github.com/kelesmert/unwall
-// @version      0.1.6
+// @version      0.1.7
 // @description  Detects anti-adblock access walls and removes them only with user approval.
 // @author       Mert Keleş
 // @license      GPL-3.0-or-later
