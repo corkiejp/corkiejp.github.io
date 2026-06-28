@@ -44,6 +44,16 @@ Compared with many spoofing-focused privacy extensions, this project is centered
 - extension-probe detection as a first-class feature,
 - per-site and per-provider policy control instead of a single global setting.
 
+## Privacy / data handling
+
+ExtScanAlert is designed as a local-only tool.
+
+- No backend: the extension does not talk to any remote server owned by the author.
+- No telemetry or analytics: it does not send usage data, browsing history, or logs off your machine.
+- Storage: all configuration, logs, and provider definitions are stored locally in your browser via the extension storage APIs.
+
+In other words, everything the extension records or configures stays in your browser profile unless you explicitly export it yourself.
+
 ## Current status
 
 This is still a WIP build.
