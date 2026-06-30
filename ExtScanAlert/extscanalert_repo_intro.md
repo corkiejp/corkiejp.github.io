@@ -1,6 +1,8 @@
 # ExtScanAlert WIP build
 
-[Download the current Chromium WIP build](https://corkiejp.github.io/ExtScanAlert/ExtScanAlert+Fingerprint-observe-block-chromium.zip)
+[Download the current Chromium WIP build](./ExtScanAlert/ExtScanAlert+Fingerprint-observe-block-chromium.zip)
+
+[Latest Patch issue](https://github.com/corkiejp/corkiejp.github.io/issues/27)
 
 ## What this is
 
