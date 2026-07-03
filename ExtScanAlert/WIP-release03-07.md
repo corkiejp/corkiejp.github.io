@@ -15,7 +15,6 @@ A nice real‑world example is Euronews:
 
 To keep the signal‑to‑noise ratio sane, common ad and CDN infrastructure (DoubleClick, Google Ads, big CDNs, etc.) is treated as “noise” and ignored, so alerts focus on the more interesting third‑party vendors instead of the usual ad pipes.
 
-<div align="center">⁂</div>
 
 [^1]: https://www.tinystruggles.com/posts/extension_release_checklist/
 
