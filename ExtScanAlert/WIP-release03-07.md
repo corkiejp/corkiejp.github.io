@@ -4,7 +4,7 @@
 
 I’ve pushed a work‑in‑progress build with a few practical improvements:
 
-- Mobile‑friendly UI (codename Quetta): the interface now behaves properly on smaller screens, with working controls first, looks second.[^1]
+- Mobile‑friendly UI (for Quetta): the interface now behaves properly on smaller screens, with working controls first, looks second.[^1]
 - Third‑party vendor tracking: ExtScanAlert can spot and follow vendor activity across sites (within the usual limits of changing subdomains and inconsistent naming).
 - Not an ad blocker: it doesn’t try to block ads itself, but it can show where sites lean on third‑party scripts for ads, analytics, anti‑bot checks, or fingerprinting.
 
