@@ -10,7 +10,7 @@ For a `notes/html-load.com.md`:
 **Role in tracking / fingerprinting**
 
 - Sites may include HTML‑Load scripts as a **canary**: if the script fails to load, they infer ad blocking and potentially alter behaviour or show warnings.[^16][^19]
-- When it does load, it can pull in ad content and related tracking, which makes it a good candidate for your extension to flag when fingerprint‑style events are seen around those scripts.[^20][^15]
+- When it does load, it can pull in ad content and related tracking, which makes it a good candidate for the extension to flag when fingerprint‑style events are seen around those scripts.[^20][^15]
 
 
 [^15]: https://github.com/celenityy/BadBlock/issues/78
