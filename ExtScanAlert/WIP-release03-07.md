@@ -15,6 +15,11 @@ A nice real‑world example is Euronews:
 
 To keep the signal‑to‑noise ratio sane, common ad and CDN infrastructure (DoubleClick, Google Ads, big CDNs, etc.) is treated as “noise” and ignored, so alerts focus on the more interesting third‑party vendors instead of the usual ad pipes.
 
+## Testing notes and observations
+Adding these here for my own refference mainly.
+
+“Ad and tracker blocking doesn’t just hide obvious ads; it also reduces the number of third‑party measurement scripts that can run fingerprint‑style code. My extension is there to show you which ones still get through and what kind of behaviour they’re performing.”
+
 
 [^1]: https://www.tinystruggles.com/posts/extension_release_checklist/
 
