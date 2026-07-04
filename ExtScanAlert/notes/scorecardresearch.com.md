@@ -14,7 +14,7 @@ Because it’s a shared measurement script, it’s normal for you to see it acro
 **Role in tracking / fingerprinting**
 
 - The tag functions as an **audience and advertising measurement beacon**, often loaded via ad tech or tag managers alongside other analytics scripts.[^11][^12]
-- Your extension has seen WebGL fingerprint‑style calls (e.g. `webgl.getParameter` on a `WebGLRenderingContext`) while ScorecardResearch’s beacon script is active, so you treat it as a tracking/measurement vendor that can appear in the fingerprinting chain.[^13][^14]
+- Extension has seen WebGL fingerprint‑style calls (e.g. `webgl.getParameter` on a `WebGLRenderingContext`) while ScorecardResearch’s beacon script is active, so you treat it as a tracking/measurement vendor that can appear in the fingerprinting chain.[^13][^14]
 
 
 [^9]: https://www.opel.ie/content/dam/opel/ireland/tools/pdf/cookies/GDPR_ScorecardResearch.pdf
