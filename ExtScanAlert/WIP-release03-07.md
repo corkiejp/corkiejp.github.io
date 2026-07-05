@@ -2,6 +2,8 @@
 
 [Download the current Chromium WIP build](https://corkiejp.github.io/ExtScanAlert/ExtScanAlert+Fingerprint-observe-block-chromium.zip)
 
+[Extension Permissions sought and store submission why not](Extension_Permissions_sought_and_store_submission-why_not.md)
+
 I’ve pushed a work‑in‑progress build with a few practical improvements:
 
 - Mobile‑friendly UI (for Quetta): the interface now behaves properly on smaller screens, with working controls first, looks second.[^1]
