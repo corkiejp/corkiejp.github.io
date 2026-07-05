@@ -5,8 +5,8 @@
 [ExtScanAlert WIP update/build 03-07](WIP-release03-07.md)
 
 [Latest Patched issue](https://github.com/corkiejp/corkiejp.github.io/issues/27)
-
-[Extension Permissions sought and store submission (why not!)](Extension Permissions sought and store submission (why not!).md)
+Ex
+[Extension Permissions sought and store submission (why not!)](%20Permissions%20sought%20and%20store%20submission%20(why%20not!).md)
 
 ## What this is
 
