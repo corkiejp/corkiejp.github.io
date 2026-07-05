@@ -24,7 +24,7 @@ A Chrome Web Store review would also focus heavily on broad permissions and host
 
 ## Permission overview
 
-The table below summarizes the permissions that would typically need justification in a store submission flow like the one shown in the dashboard screenshot.[cite:1380]
+The table below summarizes the permissions that would typically need justification in a store submission flow.
 
 | Permission | Why it is needed | Practical use in ExtScanAlert |
 |---|---|---|
