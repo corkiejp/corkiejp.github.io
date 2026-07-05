@@ -1,0 +1,314 @@
+[
+  {
+    "id": "recaptcha",
+    "name": "Google reCAPTCHA",
+    "family": "anti-bot / fraud",
+    "category": "anti-bot / captcha",
+    "patterns": ["recaptcha", "gstatic.com/recaptcha", "google.com/recaptcha"],
+    "domains": ["gstatic.com", "google.com", "www.gstatic.com", "www.google.com"],
+    "scoreBoost": 4
+  },
+  {
+    "id": "turnstile",
+    "name": "Cloudflare Turnstile",
+    "family": "anti-bot / fraud",
+    "category": "anti-bot / captcha",
+    "patterns": ["turnstile", "challenges.cloudflare.com"],
+    "domains": ["challenges.cloudflare.com"],
+    "scoreBoost": 3
+  },
+  {
+    "id": "hcaptcha",
+    "name": "hCaptcha",
+    "family": "anti-bot / fraud",
+    "category": "anti-bot / captcha",
+    "patterns": ["hcaptcha", "hcaptcha.com", "*.hcaptcha.com"],
+    "domains": ["hcaptcha.com"],
+    "scoreBoost": 3
+  },
+  {
+    "id": "castle",
+    "name": "Castle",
+    "family": "anti-bot / fraud",
+    "category": "anti-bot / device fingerprinting",
+    "patterns": ["castle.io", "ondemand.castle.io"],
+	"_note": "Do NOT add abs.twimg.com as a domain; it hosts X front-end assets.",
+    "domains": ["castle.io", "ondemand.castle.io"],
+    "scoreBoost": 4
+  },
+  {
+  "id": "castle-bundled",
+  "name": "Castle (bundled)",
+  "family": "anti-bot / fraud",
+  "category": "anti-bot / device fingerprinting",
+  "patterns": ["castle.umd"],
+  "domains": [],
+  "scoreBoost": 4,
+  "actionMode": "observe-only",
+  "uiNote": "Detected from bundled first-party script. No provider-domain blocking is configured."
+},
+  {
+    "id": "datadome",
+    "name": "DataDome",
+    "family": "anti-bot / fraud",
+    "category": "anti-bot / device fingerprinting",
+    "patterns": ["datadome", "captcha-delivery.com", "ddjs"],
+    "domains": ["captcha-delivery.com"],
+    "scoreBoost": 4
+  },
+  {
+    "id": "fingerprint",
+    "name": "Fingerprint",
+    "family": "anti-bot / fraud",
+    "category": "device intelligence / fraud",
+    "patterns": ["fingerprint.com", "fpjscdn", "@fingerprint"],
+    "domains": ["fingerprint.com"],
+    "scoreBoost": 3
+  },
+  {
+    "id": "arkose",
+    "name": "Arkose Labs",
+    "family": "anti-bot / fraud",
+    "category": "anti-bot / challenge platform",
+    "patterns": ["arkoselabs", "funcaptcha", "client-api.arkoselabs.com"],
+    "domains": ["client-api.arkoselabs.com"],
+    "scoreBoost": 4
+  },
+  {
+    "id": "human",
+    "name": "HUMAN / PerimeterX",
+    "family": "anti-bot / fraud",
+    "category": "anti-bot / behavioral detection",
+    "patterns": ["perimeterx", "humansecurity", "px-cdn.net", "client.perimeterx.net"],
+    "domains": ["px-cdn.net", "client.perimeterx.net"],
+    "scoreBoost": 4
+  },
+  {
+    "id": "clarity",
+    "name": "Microsoft Clarity",
+    "family": "analytics / UX",
+    "category": "session recording / behavioral analytics",
+    "patterns": ["clarity.ms", "scripts.clarity.ms", "clarity.context.js"],
+    "domains": ["clarity.ms", "scripts.clarity.ms"],
+    "scoreBoost": 1
+  },
+  {
+    "id": "hotjar",
+    "name": "Hotjar",
+    "family": "analytics / UX",
+    "category": "heatmaps / session recording",
+    "patterns": ["hotjar", "static.hotjar.com", "script.hotjar.com"],
+    "domains": ["static.hotjar.com", "script.hotjar.com"],
+    "scoreBoost": 1
+  },
+  {
+    "id": "fullstory",
+    "name": "FullStory",
+    "family": "analytics / UX",
+    "category": "session replay / digital experience analytics",
+    "patterns": ["fullstory", "fullstory.com", "edge.fullstory.com"],
+    "domains": ["fullstory.com", "edge.fullstory.com"],
+    "scoreBoost": 1
+  },
+  {
+    "id": "smartlook",
+    "name": "Smartlook",
+    "family": "analytics / UX",
+    "category": "session replay / product analytics",
+    "patterns": ["smartlook", "web-sdk.smartlook.com"],
+    "domains": ["web-sdk.smartlook.com"],
+    "scoreBoost": 1
+  },
+  {
+    "id": "imperva",
+    "name": "Imperva / Incapsula",
+    "family": "anti-bot / fraud",
+    "category": "anti-bot / WAF",
+    "patterns": ["imperva", "incapsula", "visid"],
+    "domains": ["imperva.com", "incapsula.com"],
+    "scoreBoost": 4
+  },
+  {
+    "id": "akamai",
+    "name": "Akamai Bot Manager",
+    "family": "anti-bot / fraud",
+    "category": "anti-bot / bot management",
+    "patterns": ["akamai", "abck", "bm_sz", "botman"],
+    "domains": ["akamai.com"],
+    "scoreBoost": 4
+  },
+  {
+    "id": "radware",
+    "name": "Radware Bot Manager",
+    "family": "anti-bot / fraud",
+    "category": "anti-bot / bot management",
+    "patterns": ["radware", "radwarebot"],
+    "domains": ["radware.com"],
+    "scoreBoost": 4
+  },
+  {
+    "id": "kasada",
+    "name": "Kasada",
+    "family": "anti-bot / fraud",
+    "category": "anti-bot / bot detection",
+    "patterns": ["kasada", "kasada.io", "x-kpsdk"],
+    "domains": ["kasada.io"],
+    "scoreBoost": 4
+  },
+  {
+    "id": "threatmetrix",
+    "name": "ThreatMetrix / LexisNexis Risk",
+    "family": "anti-bot / fraud",
+    "category": "device risk / fraud",
+    "patterns": ["threatmetrix", "tmx"],
+    "domains": ["threatmetrix.com"],
+    "scoreBoost": 3
+  },
+  {
+    "id": "sift",
+    "name": "Sift",
+    "family": "anti-bot / fraud",
+    "category": "fraud decisioning",
+    "patterns": ["sift", "sift.com"],
+    "domains": ["sift.com"],
+    "scoreBoost": 3
+  },
+  {
+    "id": "onfido",
+    "name": "Onfido",
+    "family": "anti-bot / fraud",
+    "category": "identity verification",
+    "patterns": ["onfido"],
+    "domains": ["onfido.com"],
+    "scoreBoost": 2
+  },
+  {
+    "id": "jumio",
+    "name": "Jumio",
+    "family": "anti-bot / fraud",
+    "category": "identity verification",
+    "patterns": ["jumio"],
+    "domains": ["jumio.com"],
+    "scoreBoost": 2
+  },
+  {
+    "id": "geetest",
+    "name": "GeeTest",
+    "family": "anti-bot / fraud",
+    "category": "anti-bot / captcha",
+    "patterns": ["geetest", "gt.js"],
+    "domains": ["geetest.com"],
+    "scoreBoost": 3
+  },
+  {
+    "id": "smartcaptcha",
+    "name": "Yandex SmartCaptcha",
+    "family": "anti-bot / fraud",
+    "category": "anti-bot / captcha",
+    "patterns": ["smartcaptcha", "yandex"],
+    "domains": ["smartcaptcha.yandexcloud.net"],
+    "scoreBoost": 3
+  },
+  {
+    "id": "logrocket",
+    "name": "LogRocket",
+    "family": "analytics / UX",
+    "category": "session replay / product analytics",
+    "patterns": ["logrocket"],
+    "domains": ["logrocket.com"],
+    "scoreBoost": 1
+  },
+  {
+    "id": "posthog",
+    "name": "PostHog",
+    "family": "analytics / UX",
+    "category": "product analytics",
+    "patterns": ["posthog"],
+    "domains": ["posthog.com"],
+    "scoreBoost": 1
+  },
+  {
+    "id": "heap",
+    "name": "Heap",
+    "family": "analytics / UX",
+    "category": "product analytics",
+    "patterns": ["heap"],
+    "domains": ["heap.io"],
+    "scoreBoost": 1
+  },
+  {
+    "id": "amplitude",
+    "name": "Amplitude",
+    "family": "analytics / UX",
+    "category": "product analytics",
+    "patterns": ["amplitude"],
+    "domains": ["amplitude.com"],
+    "scoreBoost": 1
+  },
+  {
+    "id": "mixpanel",
+    "name": "Mixpanel",
+    "family": "analytics / UX",
+    "category": "product analytics",
+    "patterns": ["mixpanel"],
+    "domains": ["mixpanel.com"],
+    "scoreBoost": 1
+  },
+  {
+  "id": "zendesk",
+  "name": "Zendesk",
+  "family": "analytics / UX",
+  "category": "support widget / session interaction",
+  "patterns": ["zdassets", "zendesk", "static.zdassets.com"],
+  "domains": ["static.zdassets.com"],
+  "scoreBoost": 1
+},
+{
+  "id": "google-tag-manager",
+  "name": "Google Tag Manager / gtag.js",
+  "family": "analytics / measurement",
+  "category": "tracking / tag orchestration",
+  "patterns": ["googletagmanager.com", "gtag/js", "google tag"],
+  "domains": ["googletagmanager.com"],
+  "scoreBoost": 1,
+  "actionMode": "observe-only",
+  "uiNote": "Detected via Google Tag Manager / gtag.js in the script chain. Observe-only by default; no provider-domain blocking is recommended.",
+  "_note": "Use for attribution/logging when fingerprint calls occur with gtag.js in the chain. This is not a dedicated fingerprint vendor."
+},
+{
+  "id": "html-load",
+  "name": "HTML-Load ad/fingerprinting canary",
+  "family": "anti-bot / fraud",
+  "category": "ad-tech / anti-adblock / fingerprinting",
+  "patterns": [
+    "html-load.com", "html-load.cc"
+  ],
+  "domains": [
+    "html-load.com",
+    "2.html-load.com",
+    "4.html-load.com",
+    "7.html-load.com",
+	"html-load.cc"
+  ],
+  "scoreBoost": 3,
+  "uiNote": "Used by sites to load ads / canary scripts",
+  "_note": "Used by sites to load ads / canary scripts via html-load.com / .cc when ad blockers are present"
+},
+{
+  "id": "scorecardresearch",
+  "name": "Comscore ScorecardResearch",
+  "family": "analytics / measurement",
+  "category": "audience measurement / advertising analytics",
+  "patterns": [
+    "scorecardresearch",
+    "sb.scorecardresearch.com"
+  ],
+  "domains": [
+    "scorecardresearch.com",
+    "sb.scorecardresearch.com"
+  ],
+  "scoreBoost": 2,
+  "uiNote": "Audience and advertising measurement beacon from Comscore. Often loaded via third-party tags alongside ads and analytics.",
+  "_note": "ScorecardResearch is a Comscore measurement tag used to collect page-view and visitor behavior data for audience and advertising analytics. Treat as a tracking/measurement vendor; not a dedicated fingerprint vendor, but may appear in the chain when fingerprint-like events occur."
+}
+]

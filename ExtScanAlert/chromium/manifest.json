@@ -1,20 +1,21 @@
 {
   "manifest_version": 3,
   "name": "ExtScanAlert",
-  "version": "0.3.0",
-  "description": "Detects and logs likely extension enumeration attempts.",
+  "version": "0.4.0",
+  "description": "Detects and logs likely extension enumeration and fingerprinting-related activity.",
   "permissions": [
-  "storage",
-  "scripting",
-  "tabs",
-  "notifications",
-  "declarativeNetRequest"
-],
+    "storage",
+    "scripting",
+    "tabs",
+    "notifications",
+    "declarativeNetRequest",
+    "webRequest"
+  ],
   "host_permissions": ["<all_urls>"],
-"background": {
-  "service_worker": "background.js",
-  "type": "module"
-},
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
@@ -22,17 +23,37 @@
       "run_at": "document_start"
     }
   ],
+  "options_page": "options.html",
   "web_accessible_resources": [
-  {
-    "resources": [
-      "page-hook.js",
-      "slow-rules.json"
-    ],
-    "matches": ["<all_urls>"]
-  }
+    {
+      "resources": [
+        "page-hook.js",
+        "slow-rules.json",
+		"providers.json",
+		"whitelist.json",
+		"noise-domains-curated.json",
+		"icons/icon-128.png",
+		"icons/icon-48.png",
+		"icons/icon-32.png",
+		"icons/icon-16.png"
+      ],
+      "matches": ["<all_urls>"]
+    }
   ],
+  "icons": {
+  "16": "icons/icon-16.png",
+  "32": "icons/icon-32.png",
+  "48": "icons/icon-48.png",
+  "128": "icons/icon-128.png"
+},
   "action": {
     "default_title": "ExtScanAlert",
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+	  "default_icon": {
+        "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  }
   }
 }

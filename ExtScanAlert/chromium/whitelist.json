@@ -1,0 +1,29 @@
+[
+  {
+    "host": "keep.google.com",
+    "fingerprintProtectionBypass": true,
+    "contentHooksBypass": true,
+    "whitelistassociateddomains": [
+      "apis.google.com",
+	  "clients6.google.com",
+      "www.gstatic.com"
+    ],
+    "_note": "When this site is active: bypass fingerprint DNR rules and auto-set site policy to allow (anti-bot / fraud)."
+  },
+    {
+    "host": "messages.google.com",
+    "fingerprintProtectionBypass": true,
+    "contentHooksBypass": true,
+    "whitelistassociateddomains": [
+      "apis.google.com",
+      "clients6.google.com",
+      "www.gstatic.com"
+    ],
+    "_note": "Google Messages for Web: treat first-party anti-bot / fraud as allowed; avoid breaking RCS/SMS session."
+  },
+  {
+  "host": "corkiejp.github.io",
+  "fingerprintProtectionBypass": true,
+  "_note": "GitHub Pages site uses third-party embeds (Bluesky/Modernizr); observe only."
+  }
+]

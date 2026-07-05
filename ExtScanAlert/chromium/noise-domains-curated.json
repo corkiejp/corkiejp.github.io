@@ -1,0 +1,48 @@
+{
+  "noiseDomains": [
+    "doubleclick.net",
+    "googlesyndication.com",
+    "2mdn.net",
+    "amazon-adsystem.com",
+    "appsflyersdk.com",
+    "appsflyer.com",
+    "casalemedia.com",
+    "openx.net",
+    "adnxs.com",
+    "pubmatic.com",
+    "criteo.com",
+    "criteo.net",
+    "taboola.com",
+    "mgid.com",
+    "media.net",
+    "rubiconproject.com",
+    "bidswitch.net",
+    "adroll.com",
+    "smaato.net",
+    "inmobi.com",
+    "appier.net",
+    "adsafeprotected.com",
+    "adswizz.com",
+    "smartadserver.com",
+    "admanmedia.com",
+    "ad-srv.net",
+    "adsrvr.org",
+
+    "rfihub.com",
+    "demdex.net",
+    "imrworldwide.com",
+
+    "sitey.me",
+    "mybluehost.me",
+
+    "unity3d.com",
+
+    "cloudfront.net",
+    "amazonaws.com",
+    "aws-prd.net",
+    "cloudflare.net",
+    "edgesuite.net",
+    "edgekey.net",
+    "b-cdn.net"
+  ]
+}

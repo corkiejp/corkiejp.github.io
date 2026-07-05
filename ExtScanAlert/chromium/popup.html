@@ -1,55 +1,287 @@
 <!doctype html>
 <html>
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   <title>ExtScanAlert</title>
+  <link rel="stylesheet" href="theme.css" />
   <style>
-    body { font: 14px/1.4 Arial, sans-serif; margin: 0; padding: 12px; width: 380px; color: #111; background: #fff; }
-    .row { margin-bottom: 12px; }
-    .status { padding: 8px 10px; background: #f3f4f6; border-radius: 8px; }
-    .ok { color: #166534; font-weight: 700; }
-    .muted { color: #555; }
-    .controls { display: flex; gap: 6px; flex-wrap: wrap; }
-    button { border: 1px solid #cbd5e1; background: #fff; color: #111827; padding: 8px 10px; border-radius: 8px; cursor: pointer; }
-    button.active { background: #111827; color: #fff; border-color: #111827; }
-    label { display: flex; align-items: center; gap: 8px; }
-    ul { padding-left: 18px; max-height: 260px; overflow: auto; }
-    li { margin-bottom: 8px; }
-    code { word-break: break-all; }
+    :root {
+      color-scheme: light dark;
+      font-family: system-ui, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-width: 380px;
+      max-width: 460px;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .wrap {
+      padding: 14px;
+    }
+
+    h1 {
+      font-size: 16px;
+      margin: 0 0 10px;
+    }
+
+    h2 {
+      font-size: 13px;
+      margin: 16px 0 8px;
+      color: var(--muted);
+    }
+
+    h3 {
+      font-size: 12px;
+      margin: 14px 0 6px;
+      color: var(--text);
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .section {
+      padding-top: 8px;
+      margin-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    .section:first-of-type {
+      padding-top: 0;
+      margin-top: 0;
+      border-top: 0;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin: 8px 0;
+    }
+
+    .host {
+      font-weight: 600;
+      color: var(--text);
+      word-break: break-word;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .tiny {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .helper {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.4;
+      margin: 0 0 8px;
+    }
+
+    .pill-row,
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    button {
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+    }
+
+    button:hover {
+      border-color: var(--accent);
+    }
+
+    button.active {
+      border-color: var(--accent);
+      background: rgba(96,165,250,.14);
+      color: var(--text);
+    }
+
+    button.danger {
+      background: rgba(248,113,113,.12);
+      border-color: rgba(248,113,113,.35);
+      color: var(--text);
+    }
+
+    label.toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      margin: 8px 0;
+    }
+
+    #activity {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .entry {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .entry-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .entry-title {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .entry pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 11px;
+      color: var(--muted);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px;
+      overflow: auto;
+    }
+
+    .policy-chip {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 11px;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--muted);
+      margin-right: 6px;
+      margin-top: 4px;
+    }
+
+    a.link-btn {
+      color: var(--accent);
+      font-size: 12px;
+      text-decoration: none;
+    }
+
+    .empty {
+      color: var(--muted);
+      font-size: 12px;
+      padding: 8px 0;
+    }
+
+    .status {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--accent);
+      min-height: 16px;
+    }
   </style>
 </head>
-<body>
-  <div class="row status">
-    <div><span class="ok">Running</span></div>
-    <div class="muted" id="init"></div>
-    <div class="muted" id="summary"></div>
-  </div>
+<body class="theme-dark">
+  <div class="wrap">
+    <h1>ExtScanAlert</h1>
 
-  <div class="row">
-    <div class="muted">Mode</div>
-    <div class="controls">
-      <button id="mode-block">Block all</button>
-      <button id="mode-log">Log only</button>
-      <button id="mode-allow">Allow all</button>
+    <div class="theme-toggle">
+      <label>
+        <input type="checkbox" id="theme-toggle-checkbox">
+        Dark theme
+      </label>
     </div>
-  </div>
 
-  <div class="row">
-    <label><input type="checkbox" id="notifications"> Notify once per host when blocked</label>
-  </div>
+    <div class="card">
+      <div class="row">
+        <div>
+          <div class="muted">Status</div>
+          <div id="status-line">Running</div>
+        </div>
+      </div>
 
-<label>
-  <input type="checkbox" id="slow-page-protection">
-  Enable slow‑page protection (block known heavy widgets)
-</label>
+      <div class="section">
+        <h3>Ext Probe</h3>
+        <div class="helper">Controls how extension-probe attempts are handled.</div>
 
-  <div class="row">
-    <button id="clear">Clear log</button>
-  </div>
+        <div class="muted">Mode</div>
+        <div class="pill-row">
+          <button id="mode-block">Block all</button>
+          <button id="mode-log">Log only</button>
+          <button id="mode-allow">Allow all</button>
+        </div>
 
-  <div class="row">
-    <strong>Recent activity</strong>
-    <ul id="logs"></ul>
+        <label class="toggle">
+          <input type="checkbox" id="notify-toggle" />
+          Notify once per host when blocked
+        </label>
+      </div>
+
+      <div class="section">
+        <h3>Performance testing</h3>
+        <div class="helper">Optional test feature for blocking known heavy widgets.</div>
+
+        <label class="toggle">
+          <input type="checkbox" id="slowpage-toggle" />
+          Enable slow-page protection
+        </label>
+      </div>
+
+      <div class="section">
+        <h3>Fingerprint monitor</h3>
+        <div class="helper">Vendor-based fingerprint monitoring, blocking, and logs.</div>
+
+        <label class="toggle">
+          <input type="checkbox" id="fingerprint-toggle" />
+          Enable fingerprint protection
+        </label>
+
+        <div class="action-row">
+          <button id="export-fingerprint-logs">Export logs</button>
+          <button id="clear-log" class="danger">Clear logs</button>
+          <a class="link-btn" id="manage-rules" href="options.html" target="_blank" rel="noopener noreferrer">Manage fingerprint rules</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Current site</h2>
+      <div id="current-site-host" class="host">No active tab</div>
+      <div id="current-site-policy" class="muted">No saved site rule</div>
+      <div class="pill-row">
+        <button id="site-allow">Allow</button>
+        <button id="site-observe">Observe</button>
+        <button id="site-block">Block</button>
+        <button id="site-clear" class="danger">Clear</button>
+      </div>
+
+      <div id="site-action-status" class="status"></div>
+    </div>
+
+    <h2>Recent activity</h2>
+    <div id="activity"></div>
   </div>
 
   <script src="popup.js"></script>

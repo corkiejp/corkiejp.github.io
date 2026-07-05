@@ -1,0 +1,750 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>ExtScanAlert Rules</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="theme.css">
+  <style>
+/* Options page layout and components (theme colors come from theme.css) */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+body {
+  padding: 20px;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--accent);
+}
+
+.wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  gap: 16px;
+}
+
+.hero {
+  background: linear-gradient(180deg, rgba(96,165,250,.16), rgba(96,165,250,.04));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+
+.hero p {
+  margin-top: 8px;
+  color: var(--muted);
+  max-width: 80ch;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 16px;
+}
+
+.card {
+  grid-column: span 12;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,.02);
+}
+
+.card-header p {
+  margin-top: 4px;
+  color: var(--muted);
+}
+
+.card-body {
+  padding: 16px;
+}
+
+@media (min-width: 980px) {
+  .span-5 { grid-column: span 5; }
+  .span-7 { grid-column: span 7; }
+  .span-6 { grid-column: span 6; }
+}
+
+.stack {
+  display: grid;
+  gap: 12px;
+}
+
+.row {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 700px) {
+  .row-2 { grid-template-columns: 1fr 1fr; }
+  .row-3 { grid-template-columns: 1.2fr .8fr .8fr; }
+  .row-4 { grid-template-columns: 1.2fr 1.1fr .8fr auto; }
+}
+
+label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+input,
+select,
+button,
+textarea {
+  font: inherit;
+}
+
+input[type="text"],
+input[type="search"],
+select,
+textarea {
+  width: 100%;
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  outline: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(96,165,250,.18);
+}
+
+button {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: var(--accent);
+}
+
+button.primary {
+  background: rgba(96,165,250,.14);
+  border-color: rgba(96,165,250,.4);
+}
+
+button.good {
+  background: rgba(52,211,153,.12);
+  border-color: rgba(52,211,153,.35);
+}
+
+button.warn {
+  background: rgba(251,191,36,.12);
+  border-color: rgba(251,191,36,.35);
+}
+
+button.danger {
+  background: rgba(248,113,113,.12);
+  border-color: rgba(248,113,113,.35);
+}
+
+.inline-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.toolbar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.toolbar .left,
+.toolbar .right {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 10px;
+  color: var(--muted);
+  background: rgba(255,255,255,.02);
+}
+
+.status {
+  min-height: 20px;
+  color: var(--muted);
+}
+
+.status.error {
+  color: #fca5a5;
+}
+
+.status.ok {
+  color: #86efac;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px; /* desktop/tablet baseline */
+}
+
+th,
+td {
+  padding: 10px 12px;
+  border-top: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  color: var(--muted);
+  font-weight: 700;
+  background: rgba(255,255,255,.02);
+}
+
+.table-wrap {
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.small {
+  font-size: 12px;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.empty {
+  padding: 14px;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  color: var(--muted);
+  background: rgba(255,255,255,.02);
+}
+
+datalist option {
+  color: #000;
+}
+
+/* Mobile layout tweaks */
+@media (max-width: 768px) {
+  body {
+    padding: 12px;
+    font-size: 13px;
+  }
+
+  .wrap {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .grid {
+    display: block;
+  }
+
+  .card {
+    margin-bottom: 12px;
+    border-radius: 10px;
+    box-shadow: none;
+  }
+
+  /* Stack complex rows vertically so controls don't go off-screen */
+  .row,
+  .row-2,
+  .row-3,
+  .row-4 {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  label {
+    font-size: 13px;
+  }
+
+  input[type="text"],
+  input[type="search"],
+  select,
+  textarea {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  button {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  /* Make inline actions wrap nicely on small screens */
+  .inline-actions {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .inline-actions button {
+    flex: 1 1 auto;
+  }
+
+  /* Tables: allow horizontal scroll if needed, but don't force extra min-width here */
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  th,
+  td {
+    padding: 8px 10px;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .toolbar .left,
+  .toolbar .right {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+/* Extra-tight layout for very small screens (rule tables only) */
+@media (max-width: 480px) {
+  /* Site rules table */
+  #site-rules-body td:nth-child(1) {
+    max-width: 110px;
+    word-break: break-all;
+  }
+
+  #site-rules-body td:nth-child(2),
+  #site-rules-body td:nth-child(4) {
+    white-space: nowrap;
+  }
+
+  #site-rules-body td:nth-child(4) button {
+    min-width: 72px;
+  }
+
+  /* Provider rules table */
+  #provider-rules-body td:nth-child(1) {
+    max-width: 110px;
+    word-break: break-all;
+  }
+
+  #provider-rules-body td:nth-child(2) {
+    max-width: 150px;
+    word-break: break-word;
+  }
+
+  #provider-rules-body td:nth-child(3) {
+    display: none;
+  }
+
+  #provider-rules-body td:nth-child(2) .provider-meta {
+    display: block;
+    margin-top: 2px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  #provider-rules-body td:nth-child(4),
+  #provider-rules-body td:nth-child(5) {
+    white-space: nowrap;
+  }
+
+  #provider-rules-body td:nth-child(5) button {
+    min-width: 72px;
+  }
+
+  /* Candidate + known-provider tables */
+  #unknown-providers-body td:nth-child(1),
+  #known-providers-body td:nth-child(1) {
+    min-width: 180px;
+    max-width: none;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* Known ad/tracker/CDN noise domains in candidate list */
+.noise-row {
+  opacity: 0.5;
+}
+
+.noise-row td:first-child::after {
+  content: " (known ad/analytics/CDN)";
+  font-size: 11px;
+  color: var(--muted);
+}
+.rules-table td:nth-child(5) {
+  word-break: break-all;
+}
+  </style>
+</head>
+<body class="theme-dark">
+ <main class="layout stack">
+  <header class="page-header">
+    <h1>ExtScanAlert options</h1>
+    <p>
+      Manage site and provider fingerprint rules, view logs, and configure the extension.
+    </p>
+  </header>
+
+  <article class="card span-12">
+    <div class="card-header">
+      <h2>Rule effect</h2>
+      <p>
+        Manage site-level and provider-level fingerprint rules here. Site rules affect
+        the whole site, while provider rules override behavior for a specific provider
+        on a specific host.
+      </p>
+    </div>
+    <div class="card-body">
+      <div class="stack">
+        <div>
+          <div id="dnr-status" class="mono small">Checking DNR support…</div>
+          <div id="fp-status" class="mono small">Checking fingerprint protection…</div>
+        </div>
+        <p id="rules-note" class="muted small">
+          Rule effect: checking current fingerprint protection state…
+        </p>
+      </div>
+    </div>
+  </article>
+
+  <article class="card span-12">
+    <div class="card-header">
+      <h2>Add site rule</h2>
+      <p>
+        Manual site rules save as <code>anti-bot / fraud</code> by default using the
+        existing background rule flow.
+      </p>
+    </div>
+    <div class="card-body">
+      <div class="row row-3">
+        <label>
+          Host
+          <input id="site-host" type="text" placeholder="example.com or https://example.com">
+        </label>
+        <label>
+          Mode
+          <select id="site-mode">
+            <option value="block">block</option>
+            <option value="observe">observe</option>
+            <option value="allow">allow</option>
+          </select>
+        </label>
+        <div class="inline-actions" style="align-items:flex-end;">
+          <button id="save-site-rule" type="button">Save site rule</button>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <article class="card span-12">
+    <div class="card-header">
+      <h2>Add provider rule</h2>
+      <p>
+        Create a per-host override for a known provider from <code>providers.json</code>.
+      </p>
+    </div>
+    <div class="card-body">
+      <div class="row row-3">
+        <label>
+          Host
+          <input id="provider-host" type="text" placeholder="example.com or https://example.com">
+        </label>
+        <label>
+          Provider
+          <input id="provider-search" list="provider-list" placeholder="Provider id or name">
+          <datalist id="provider-list"></datalist>
+          <div id="provider-meta" class="small muted">
+            Pick a provider to see its family and domains.
+          </div>
+        </label>
+        <label>
+          Mode
+          <select id="provider-mode"></select>
+        </label>
+      </div>
+      <div class="inline-actions" style="align-items:flex-end;">
+        <button id="save-provider-rule" type="button">Save provider rule</button>
+      </div>
+    </div>
+  </article>
+
+  <article class="card span-12">
+    <div class="card-header">
+      <h2>Rules</h2>
+      <p>
+        Filter and review site and provider rules. Site rules apply globally per host,
+        provider rules override matching providers on a host.
+      </p>
+    </div>
+    <div class="card-body stack">
+      <label>
+        Filter rules
+        <input id="filter-text" type="search" placeholder="Filter by host, provider, family, or mode">
+      </label>
+
+      <section class="stack">
+        <h3>Site rules</h3>
+        <p id="site-rules-empty" class="muted">
+          No site rules yet. Add one above or import from JSON.
+        </p>
+		<div class="mobile-open-row">
+		  <button
+    id="open-site-rules-vertical"
+    type="button"
+    class="primary mobile-only"
+  >
+    Open vertical site rules
+  </button>
+  </div>
+        <table class="rules-table">
+          <thead>
+            <tr>
+              <th>Host</th>
+              <th>Mode</th>
+              <th>Families</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="site-rules-body"></tbody>
+        </table>
+      </section>
+
+<section class="stack">
+  <h3>Provider rules</h3>
+  <p id="provider-rules-empty" class="muted">
+    No provider rules yet. Add one above or import from JSON.
+  </p>
+  <div class="mobile-open-row">
+    <button
+    id="open-provider-rules-vertical"
+    type="button"
+    class="primary mobile-only"
+  >
+    Open vertical provider rules
+  </button>
+
+  </div>
+  
+  <div class="table-wrap">
+    <table class="rules-table">
+      <thead>
+        <tr>
+          <th>Host</th>
+          <th>Provider</th>
+          <th>Family / Category</th>
+          <th>Mode</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="provider-rules-body"></tbody>
+    </table>
+  </div>
+</section>
+    </div>
+  </article>
+  
+<article class="card span-12">
+  <div class="card-header">
+    <h2>Potential providers</h2>
+    <p>
+      Third-party scripts that triggered fingerprinting but are not yet recognized
+      as providers. Use this list to decide which ones to add to providers.json.
+    </p>
+  </div>
+  
+  <div class="card-body">
+    <div class="mobile-open-row">
+      <button
+        id="open-unknown-providers-vertical"
+        type="button"
+        class="primary mobile-only"
+      >
+        Open vertical candidates
+      </button>
+	      <button
+    id="clear-unknown-providers"
+    type="button"
+    class="secondary"
+    style="margin-left: 8px;"
+  >
+    Clear candidates
+  </button>
+    </div>
+    <p id="unknown-providers-empty" class="muted">
+      No candidate providers yet.
+    </p>
+    <div class="table-wrap">
+      <table class="rules-table">
+        <thead>
+          <tr>
+            <th>Script host</th>
+            <th>Sites</th>
+            <th>Events</th>
+            <th>Last seen</th>
+            <th>Example URL</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="unknown-providers-body"></tbody>
+      </table>
+    </div>
+  </div>
+</article>
+
+<article class="card span-12">
+  <div class="card-header">
+    <h2>High-usage known providers</h2>
+    <p>
+      Known providers seen across multiple sites. This helps identify vendor endpoints
+      that may need tighter rules or a dedicated providers.json entry.
+    </p>
+  </div>
+  <div class="card-body">
+      <div class="mobile-open-row">
+      <button
+        id="open-known-providers-vertical"
+        type="button"
+        class="primary mobile-only"
+      >
+        Open vertical known providers
+      </button>
+    </div>
+    <p id="known-providers-empty" class="muted">
+      No high-usage known providers yet.
+    </p>
+    <div class="table-wrap">
+      <table class="rules-table">
+        <thead>
+          <tr>
+            <th>Script host</th>
+            <th>Provider</th>
+            <th>Sites</th>
+            <th>Events</th>
+            <th>Last seen</th>
+            <th>Example URL</th>
+          </tr>
+        </thead>
+        <tbody id="known-providers-body"></tbody>
+      </table>
+    </div>
+  </div>
+</article>  
+
+  <article class="card span-12">
+    <div class="card-header">
+      <h2>Import / export</h2>
+      <p>
+        Site-policy and provider-policy export/import are supported. Import can merge
+        into existing rules or replace everything.
+      </p>
+    </div>
+    <div class="card-body stack">
+      <div class="inline-actions">
+        <button id="export-rules" type="button">Export site rules</button>
+        <button id="export-provider-rules" type="button">Export provider rules</button>
+      </div>
+
+      <div class="row row-4">
+        <label>
+          Import file
+          <input id="import-file" type="file" accept="application/json">
+        </label>
+
+        <div></div>
+        <div></div>
+
+        <div class="inline-actions" style="justify-content:flex-end; align-items:flex-end; flex-wrap:wrap;">
+          <button id="import-merge" class="warn" type="button">Import site merge</button>
+          <button id="import-replace" class="danger" type="button">Import site replace</button>
+          <button id="import-provider-merge" class="warn" type="button">Import provider merge</button>
+          <button id="import-provider-replace" class="danger" type="button">Import provider replace</button>
+        </div>
+      </div>
+
+      <section id="fingerprint-tools" class="stack">
+        <h3>Fingerprint logs</h3>
+        <p class="muted small">
+          Export only fingerprint events as JSON for offline review of sites and provider activity.
+        </p>
+        <div class="inline-actions">
+          <button id="options-export-fingerprint-logs" type="button">
+            Export fingerprint logs (JSON)
+          </button>
+        </div>
+      </section>
+    </div>
+  </article>
+
+  <article class="card span-12">
+    <div class="card-header">
+      <h2>Appearance</h2>
+      <p>Switch between light and dark themes for this page.</p>
+    </div>
+    <div class="card-body">
+      <label class="inline-actions">
+        <input id="options-theme-toggle" type="checkbox">
+        Use dark theme
+      </label>
+    </div>
+  </article>
+
+  <p id="status" class="status"></p>
+
+  <script src="options.js"></script>
+</main>
+</body>
+</html>
