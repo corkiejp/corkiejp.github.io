@@ -7,7 +7,7 @@
 [Latest Patched issue](https://github.com/corkiejp/corkiejp.github.io/issues/27)
 
 
-[Extension Permissions sought and store submission why not!](Extension Permissions sought and store submission (why not!).md)
+[Extension Permissions sought and store submission why not!](ExtScanAlert/Extension Permissions sought and store submission (why not!).md)
 
 ## What this is
 
