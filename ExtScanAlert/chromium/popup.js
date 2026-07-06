@@ -244,6 +244,12 @@ async function renderPopup() {
   byId('notify-toggle').checked = !!settings.notificationsEnabled;
   byId('slowpage-toggle').checked = !!settings.slowPageProtection;
   byId('fingerprint-toggle').checked = !!settings.fingerprintProtectionEnabled;
+  
+    const dangerousWarn = byId('dangerous-copy-enabled');
+  const dangerousBlock = byId('dangerous-copy-block');
+
+  if (dangerousWarn) dangerousWarn.checked = !!settings?.dangerousCopyEnabled;
+  if (dangerousBlock) dangerousBlock.checked = !!settings?.dangerousCopyBlockMode;
 
   byId('status-line').textContent = settings.status?.initialized
     ? `Running • installs: ${settings.status.installs || 0}`
@@ -270,15 +276,7 @@ async function renderPopup() {
   byId('site-observe').classList.toggle('active', sitePolicy?.mode === 'observe');
   byId('site-block').classList.toggle('active', sitePolicy?.mode === 'block');
   
-  byId('theme-toggle-checkbox')?.addEventListener('change', async (e) => {
-  const useDark = e.target.checked;
-  const theme = useDark ? 'dark' : 'light';
-
-  document.body.classList.toggle('theme-dark', useDark);
-  document.body.classList.toggle('theme-light', !useDark);
-
-  await sendMessage({ type: 'setTheme', theme });
-});
+ 
 }
 
 async function saveSitePolicy(mode) {
@@ -309,6 +307,17 @@ async function clearSitePolicy() {
 
 
 document.addEventListener('DOMContentLoaded', async () => {
+	
+  byId('mode-block').addEventListener('click', async () => {
+    await sendMessage({ type: 'setMode', mode: 'block' });
+    await renderPopup();
+  });
+
+  byId('mode-log').addEventListener('click', async () => {
+    await sendMessage({ type: 'setMode', mode: 'log' });
+    await renderPopup();
+  });
+  
   byId('mode-block').addEventListener('click', async () => {
     await sendMessage({ type: 'setMode', mode: 'block' });
     await renderPopup();
@@ -394,6 +403,29 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.body.classList.toggle('theme-light', !useDark);
 
       await sendMessage({ type: 'setTheme', theme: newTheme });
+    });
+  }
+  
+    const dangerousWarn = byId('dangerous-copy-enabled');
+  const dangerousBlock = byId('dangerous-copy-block');
+
+  if (dangerousWarn) {
+    dangerousWarn.addEventListener('change', async (e) => {
+      await sendMessage({
+        type: 'setDangerousCopyEnabled',
+        enabled: e.target.checked
+      });
+      await renderPopup();
+    });
+  }
+
+  if (dangerousBlock) {
+    dangerousBlock.addEventListener('change', async (e) => {
+      await sendMessage({
+        type: 'setDangerousCopyBlockMode',
+        enabled: e.target.checked
+      });
+      await renderPopup();
     });
   }
 

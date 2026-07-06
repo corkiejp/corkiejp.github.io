@@ -310,5 +310,22 @@
   "scoreBoost": 2,
   "uiNote": "Audience and advertising measurement beacon from Comscore. Often loaded via third-party tags alongside ads and analytics.",
   "_note": "ScorecardResearch is a Comscore measurement tag used to collect page-view and visitor behavior data for audience and advertising analytics. Treat as a tracking/measurement vendor; not a dedicated fingerprint vendor, but may appear in the chain when fingerprint-like events occur."
+},
+{
+  "id": "fastclick",
+  "name": "Fastclick / Epsilon",
+  "family": "advertising / tracking",
+  "category": "canvas fingerprinting / tracking",
+  "patterns": [
+    "secure.cdn.fastclick.net",
+    "fastclick.net"
+  ],
+  "domains": [
+    "secure.cdn.fastclick.net",
+    "cdn.fastclick.net",
+    "fastclick.net"
+  ],
+  "scoreBoost": 3,
+  "_note": "The hostname belongs to the fastclick.net domain, associated with Epsilon and typically fronted by Akamai."
 }
 ]

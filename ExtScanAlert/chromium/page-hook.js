@@ -1,3 +1,16 @@
+  // At top of page-hook.js
+window.__extScanAlertDangerousCopyBlock =
+  document.documentElement.getAttribute('data-extscanalert-copy-block') === 'true';
+
+// Optionally still listen for dynamic updates (if you later re-send config)
+window.addEventListener('message', (event) => {
+  const msg = event.data;
+  if (!msg || msg.source !== 'extscanalert-config') return;
+  if (msg.kind === 'dangerous-copy-config') {
+    window.__extScanAlertDangerousCopyBlock = !!msg.blockMode;
+  }
+});
+
 (() => {
   if (!location || !/^https?:\/\//.test(location.href)) return;
 
@@ -12,6 +25,69 @@
   function isSuspicious(value) {
     return typeof value === 'string' && suspiciousSchemes.some((prefix) => value.startsWith(prefix));
   }
+  
+
+  
+  // NEW: basic matcher for dangerous-looking commands
+function looksLikeDangerousCommand(text) {
+  if (!text || typeof text !== 'string') return false;
+  const trimmed = text.trim();
+
+  // Too short to be interesting
+  if (trimmed.length < 10) return false;
+
+  const lower = trimmed.toLowerCase();
+
+  // Simple heuristics — you can expand these over time
+const patterns = [
+  // Windows / PowerShell
+  'powershell -command',
+  'powershell -nop',
+  'powershell.exe',
+  'invoke-webrequest',
+  'iex(',
+  'reg add ',
+  'reg delete ',
+  'schtasks /create',
+  'wmic process call',
+  'cmd.exe /c',
+  'start-process powershell',
+  'certutil -urlcache',
+  'bitsadmin /transfer',
+
+  // Cross-platform / *nix-ish
+  'curl ',
+  'wget ',
+  'bash -c',
+  'sh -c',
+  '| bash',
+  '| sh',
+
+  // Explicit high‑risk *nix commands
+  'sudo rm -rf /',
+  'sudo rm -rf --no-preserve-root /',
+  'sudo curl ',
+  'sudo wget ',
+  'sudo bash -c',
+  'sudo sh -c'
+];
+
+  return patterns.some((p) => lower.includes(p));
+}
+
+
+
+
+
+window.addEventListener('message', (event) => {
+  const msg = event.data;
+  if (!msg || msg.source !== 'extscanalert-config') return;
+  if (msg.kind === 'dangerous-copy-config') {
+    window.__extScanAlertDangerousCopyBlock = !!msg.blockMode;
+  }
+});
+
+
 
   function postObserve(kind, subtype, details = {}) {
     window.postMessage({
@@ -240,6 +316,101 @@
       }
     });
   }
+  
+function wrapCopyProtection() {
+  document.addEventListener(
+    'copy',
+    (event) => {
+      try {
+        const selection = window.getSelection();
+        const text = selection ? selection.toString() : '';
+
+        if (!looksLikeDangerousCommand(text)) return;
+
+        // Always notify background for logging + notification
+        postObserve('dangerous-copy', 'command', {
+          target: 'clipboard',
+          meta: {
+            preview: text.slice(0, 160),
+            length: text.length
+          }
+        });
+
+        // Block locally when advanced mode is enabled
+        if (window.__extScanAlertDangerousCopyBlock) {
+          event.preventDefault();
+        }
+      } catch (err) {
+        console.warn('[ExtScanAlert] copy handler error', err);
+      }
+    },
+    true
+  );
+}
+
+function wrapClipboardAPI() {
+  if (!navigator.clipboard) return;
+
+  // Intercept writeText
+  const origWriteText = navigator.clipboard.writeText;
+  if (typeof origWriteText === 'function') {
+    navigator.clipboard.writeText = async function(text) {
+      if (looksLikeDangerousCommand(text)) {
+        postObserve('dangerous-copy', 'command', {
+          target: 'clipboard',
+          meta: {
+            preview: text.slice(0, 160),
+            length: text.length
+          }
+        });
+
+        if (window.__extScanAlertDangerousCopyBlock) {
+          throw new DOMException('Clipboard write blocked by ExtScanAlert', 'SecurityError');
+        }
+      }
+      return origWriteText.apply(this, arguments);
+    };
+  }
+
+  // Intercept write (ClipboardItem[])
+  const origWrite = navigator.clipboard.write;
+  if (typeof origWrite === 'function') {
+    navigator.clipboard.write = async function(data) {
+      try {
+        let hasDangerous = false;
+        let text = '';
+        for (const item of data) {
+          if (item.types.includes('text/plain')) {
+            const blob = await item.getType('text/plain');
+            text = await blob.text();
+            if (looksLikeDangerousCommand(text)) {
+              hasDangerous = true;
+              break;
+            }
+          }
+        }
+
+        if (hasDangerous) {
+          postObserve('dangerous-copy', 'command', {
+            target: 'clipboard',
+            meta: {
+              preview: text.slice(0, 160),
+              length: text.length
+            }
+          });
+
+          if (window.__extScanAlertDangerousCopyBlock) {
+            throw new DOMException('Clipboard write blocked by ExtScanAlert', 'SecurityError');
+          }
+        }
+      } catch (e) {
+        console.warn('[ExtScanAlert] failed to check clipboard write', e);
+      }
+
+      return origWrite.apply(this, arguments);
+    };
+  }
+}
 
   wrapFetch();
   wrapXHR();
@@ -252,4 +423,6 @@
   wrapCanvasContext2D();
   wrapOffscreenCanvas();
   wrapWebGL();
+  wrapCopyProtection();
+  wrapClipboardAPI(); 
 })();

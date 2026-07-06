@@ -90,7 +90,9 @@ const DEFAULT_SETTINGS = {
   slowPageProtection: false,
   theme: 'dark',
   unknownProviders: {},
-  interestingKnownProviders: {}
+  interestingKnownProviders: {},
+  dangerousCopyEnabled: true,
+  dangerousCopyBlockMode: false
 };
 
 let PROVIDER_RULES = [];
@@ -145,9 +147,6 @@ function normalizeHost(input) {
 
 
 
-
-// Debug F
-
 function debugKeep(...args) {
   if (!DEBUG_DNR_KEEP) return;
   console.log('[ExtScanAlert DNR DEBUG]', ...args);
@@ -158,7 +157,7 @@ function isKeepHost(host) {
   return normalized === 'keep.google.com';
 }
 
-// debug f ends
+
 
 function getProviderRuleForHost(host, providerId, state) {
   if (!host || !providerId) return null;
@@ -344,24 +343,7 @@ async function loadProviderRules() {
 }
 
 
-/* without debug?
-async function loadSiteWhitelistRules() {
-  try {
-    const url = chrome.runtime.getURL('whitelist.json');
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-    const data = await res.json();
-    if (!Array.isArray(data)) throw new Error('whitelist.json is not an array');
-
-    SITE_WHITELIST_RULES = data;
-  } catch (err) {
-    console.warn('Failed to load whitelist.json, using empty site whitelist', err);
-    SITE_WHITELIST_RULES = [];
-  }
-}
-
-*/
 
 async function loadSiteWhitelistRules() {
   try {
@@ -487,66 +469,6 @@ function getProviderDomainsById(providerId) {
 // - providerPolicies allow/observe for matching providers
 // - whitelist.json per-site fingerprintProtectionBypass entries
 
-/* Without debug
-function getFingerprintPolicyExemptHosts(state, target = {}) {
-  const exemptHosts = new Set();
-
-  const targetFamilies = Array.isArray(target.families)
-    ? target.families.map(String).filter(Boolean)
-    : [];
-  const wantedFamilies = new Set(targetFamilies);
-
-  const targetProviderId = normalizeProviderId(target.providerId || '');
-
-  // Site-policy-driven exemptions
-  const sitePolicies = state.sitePolicies || {};
-  for (const [host, policy] of Object.entries(sitePolicies)) {
-    if (!policy || !host) continue;
-
-    const mode = policy.mode || 'observe';
-    if (mode !== 'allow' && mode !== 'observe') continue;
-
-    const policyFamilies =
-      Array.isArray(policy.families) && policy.families.length
-        ? policy.families.map(String)
-        : [];
-
-    const familyMatch =
-      wantedFamilies.size === 0 ||
-      policyFamilies.some((f) => wantedFamilies.has(f));
-
-    if (!familyMatch) continue;
-
-    exemptHosts.add(host);
-    exemptHosts.add(`www.${host}`.replace(/^www\.www\./, 'www.'));
-  }
-
-  // Provider-policy-driven exemptions
-  if (targetProviderId) {
-    const providerPolicies = state.providerPolicies || {};
-
-    for (const [host, hostPolicies] of Object.entries(providerPolicies)) {
-      if (!host || !hostPolicies || typeof hostPolicies !== 'object') continue;
-
-      const providerRule = hostPolicies[targetProviderId];
-      if (!providerRule || typeof providerRule !== 'object') continue;
-
-      const mode = providerRule.mode || 'observe';
-      if (mode !== 'allow' && mode !== 'observe') continue;
-
-      exemptHosts.add(host);
-      exemptHosts.add(`www.${host}`.replace(/^www\.www\./, 'www.'));
-    }
-  }
-
-  // Explicit site-specific fingerprint DNR bypasses from whitelist.json
-  for (const host of getSiteWhitelistHosts({ fingerprintProtectionBypass: true })) {
-    exemptHosts.add(host);
-  }
-
-  return Array.from(exemptHosts);
-}
-*/
 
 function getFingerprintPolicyExemptHosts(state, target = {}) {
   const exemptHosts = new Set();
@@ -646,77 +568,6 @@ function buildFingerprintProtectionRules(ruleSpecs = [], baseId = 30000) {
 // - enabled families
 // - site/provider policy exemptions
 // - whitelist.json site-specific bypasses
-
-/* Without debug
-async function applyFingerprintProtectionRules(enabled, families = ['anti-bot / fraud']) {
-  if (!chrome.declarativeNetRequest) return;
-
-  const state = await getState();
-  const selectedFamilies =
-    Array.isArray(families) && families.length
-      ? families.map(String)
-      : ['anti-bot / fraud'];
-  const wantedFamilies = new Set(selectedFamilies);
-
-  const ruleSpecs = [];
-
-  if (enabled) {
-    for (const provider of PROVIDER_RULES) {
-      if (!provider || !wantedFamilies.has(provider.family)) continue;
-
-      const providerId = normalizeProviderId(provider.id);
-      const domains = Array.isArray(provider.domains)
-        ? provider.domains.map(String).filter(Boolean)
-        : [];
-
-      if (!domains.length) continue;
-
-      // Hosts listed here become excludedInitiatorDomains in the DNR rule.
-      const exemptHosts = getFingerprintPolicyExemptHosts(state, {
-        providerId,
-        families: [provider.family]
-      });
-
-      for (const domain of domains) {
-        ruleSpecs.push({
-          providerId,
-          family: provider.family,
-          domain,
-          exemptHosts
-        });
-      }
-    }
-  }
-
-  const newRules = buildFingerprintProtectionRules(ruleSpecs);
-
-  const existingRules = await chrome.declarativeNetRequest.getDynamicRules();
-  const existingFingerprintRuleIds = existingRules
-    .map((r) => r.id)
-    .filter((id) => id >= 30000 && id < 40000);
-
-  await chrome.declarativeNetRequest.updateDynamicRules({
-    removeRuleIds: existingFingerprintRuleIds,
-    addRules: newRules
-  });
-
-  const exemptHostsUnion = new Set();
-  for (const spec of ruleSpecs) {
-    for (const host of spec.exemptHosts || []) {
-      exemptHostsUnion.add(host);
-    }
-  }
-
-  await appendLog({
-    type: 'fingerprint-protection',
-    message: enabled
-      ? `Fingerprint protection enabled for ${selectedFamilies.join(', ')} (${ruleSpecs.length} domains, ${exemptHostsUnion.size} exempt initiators)`
-      : 'Fingerprint protection disabled',
-    time: Date.now()
-  });
-}
-
-*/
 
 async function applyFingerprintProtectionRules(enabled, families = ['anti-bot / fraud']) {
   if (!chrome.declarativeNetRequest) return;
@@ -1444,13 +1295,71 @@ sendResponse({
   perHostCounts: state.perHostCounts,
   logs: state.logs,
   status: state.status,
-  theme: state.theme || 'dark'
+  theme: state.theme || 'dark',
+      dangerousCopyEnabled: !!state.dangerousCopyEnabled,
+    dangerousCopyBlockMode: !!state.dangerousCopyBlockMode
 });
       return;
     }
 	
 	
 // Check here down to	
+
+if (msg?.type === 'dangerous-copy') {
+  const state = await getState();
+  const host = safeHost(msg.page || '') || '';
+  const preview = String(msg.preview || '').trim();
+  const length = typeof msg.length === 'number' ? msg.length : preview.length;
+
+  const enabled = !!state.dangerousCopyEnabled;
+  const blockMode = !!state.dangerousCopyBlockMode;
+
+  if (!host || !preview || !enabled) {
+    // Explicitly say "allow" so front end knows not to block.
+    sendResponse({ ok: true, action: 'allow' });
+    return;
+  }
+
+  const entry = {
+    type: 'dangerous-copy',
+    action: blockMode ? 'block' : 'observe-only',
+    classification: 'likely system-command copy',
+    host,
+    page: msg.page || '',
+    meta: { preview, length },
+    policyFamilies: ['clipboard / command safety'],
+    policyMode: blockMode ? 'block' : 'observe',
+    policyScope: 'global',
+    providers: [],
+    recentScripts: [],
+    score: 5,
+    stack: '',
+    stackSummary: '',
+    subtype: 'command',
+    summary: `copy · clipboard · preview: ${preview.slice(0, 80)}`,
+    target: 'clipboard',
+    time: Date.now()
+  };
+
+  await appendLog(entry);
+
+  if (state.fingerprintNotificationsEnabled) {
+    await chrome.notifications.create(`dangerous-copy-${host}-${Date.now()}`, {
+      type: 'basic',
+      iconUrl: chrome.runtime.getURL('icons/icon-128.png'),
+      title: 'ExtScanAlert',
+      message:
+        `You just copied a system command from ${host}. ` +
+        `If you didn’t expect to run commands from this site, ` +
+        `consider cancelling before pasting into a terminal or PowerShell.`,
+      priority: 0
+    });
+  }
+
+  // This is the crucial part: return 'block' vs 'allow'.
+  sendResponse({ ok: true, action: blockMode ? 'block' : 'allow' });
+  return;
+}
 
 if (msg?.type === 'setTheme') {
   const theme = msg.theme === 'light' ? 'light' : 'dark';
@@ -1972,6 +1881,18 @@ if (msg?.type === 'importSitePolicies') {
       sendResponse({ ok: true });
       return;
     }
+	
+	if (msg?.type === 'setDangerousCopyEnabled') {
+  await savePartial({ dangerousCopyEnabled: !!msg.enabled });
+  sendResponse({ ok: true });
+  return;
+}
+
+if (msg?.type === 'setDangerousCopyBlockMode') {
+  await savePartial({ dangerousCopyBlockMode: !!msg.enabled });
+  sendResponse({ ok: true });
+  return;
+}
 
     if (msg?.type === 'setSlowPageProtection') {
       const enabled = !!msg.enabled;

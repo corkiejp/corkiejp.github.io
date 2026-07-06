@@ -36,6 +36,7 @@
   async function main() {
     if (!location || !/^https?:\/\//.test(location.href)) return;
 
+    // Heartbeat so background knows this tab is active
     chrome.runtime.sendMessage({ type: 'heartbeat', page: location.href }).catch(() => {});
 
     const whitelistRules = await loadSiteWhitelistRules();
@@ -46,31 +47,79 @@
       return;
     }
 
+    // Get settings and expose block flag synchronously via DOM attribute
+    try {
+      const settings = await chrome.runtime.sendMessage({ type: 'getSettings' });
+      const blockMode = !!settings?.dangerousCopyBlockMode;
+
+      document.documentElement.setAttribute(
+        'data-extscanalert-copy-block',
+        blockMode ? 'true' : 'false'
+      );
+
+      // Optional: if you still want dynamic config messages, you can keep this:
+      // window.postMessage(
+      //   {
+      //     source: 'extscanalert-config',
+      //     kind: 'dangerous-copy-config',
+      //     blockMode
+      //   },
+      //   '*'
+      // );
+    } catch (err) {
+      console.warn('ExtScanAlert: failed to read settings for copy block', err);
+    }
+
+    // Inject page-hook.js into the main world
     const s = document.createElement('script');
     s.src = chrome.runtime.getURL('page-hook.js');
     s.onload = () => s.remove();
     (document.documentElement || document.head || document.body).appendChild(s);
 
+    // Relay messages from page-hook.js to background.js
     window.addEventListener('message', async (event) => {
-      if (event.source !== window || !event.data || event.data.source !== 'extscanalert') return;
+      const msg = event.data;
+      if (event.source !== window || !msg || msg.source !== 'extscanalert') return;
 
+      // Dangerous-copy relay (sent by page-hook via postObserve)
+      if (msg.kind === 'dangerous-copy') {
+        try {
+          await chrome.runtime.sendMessage({
+            type: 'dangerous-copy',
+            page: msg.page,
+            preview: msg.meta?.preview || '',
+            length: msg.meta?.length || 0
+          });
+        } catch (err) {
+          console.warn('ExtScanAlert: failed to send dangerous-copy message', err);
+        }
+        return;
+      }
+
+      // Existing behaviour: extension-probe, fingerprint-api, etc.
       try {
-        const response = await chrome.runtime.sendMessage(event.data);
+        const response = await chrome.runtime.sendMessage(msg);
 
-        if (event.data.requestId) {
-          window.postMessage({
-            source: 'extscanalert-response',
-            requestId: event.data.requestId,
-            action: response?.action || 'allow'
-          }, '*');
+        if (msg.requestId) {
+          window.postMessage(
+            {
+              source: 'extscanalert-response',
+              requestId: msg.requestId,
+              action: response?.action || 'allow'
+            },
+            '*'
+          );
         }
       } catch {
-        if (event.data.requestId) {
-          window.postMessage({
-            source: 'extscanalert-response',
-            requestId: event.data.requestId,
-            action: 'allow'
-          }, '*');
+        if (msg.requestId) {
+          window.postMessage(
+            {
+              source: 'extscanalert-response',
+              requestId: msg.requestId,
+              action: 'allow'
+            },
+            '*'
+          );
         }
       }
     });
