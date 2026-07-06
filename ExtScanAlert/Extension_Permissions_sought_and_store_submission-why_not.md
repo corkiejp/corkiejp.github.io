@@ -1,12 +1,12 @@
 # Extension Permissions sought and store submission (why not!)
 
-This note explains why ExtScanAlert asks for certain extension permissions, what those permissions are used for in practice, and why the project currently makes more sense as a manual-install extension than a Chrome Web Store release.[cite:1380][cite:1381]
+This note explains why ExtScanAlert asks for certain extension permissions, what those permissions are used for in practice, and why the project currently makes more sense as a manual-install extension than a Chrome Web Store release.
 
 ## Why this note exists
 
-ExtScanAlert is designed as a user-controlled privacy and auditing tool. It inspects technical signals such as extension-probe attempts, vendor-linked fingerprinting activity, site-specific rules, and optional blocking behavior. Because of that, it needs permissions that can look broad at first glance, especially scripting, request handling, and host access.[cite:1380]
+ExtScanAlert is designed as a user-controlled privacy and auditing tool. It inspects technical signals such as extension-probe attempts, vendor-linked fingerprinting activity, site-specific rules, and optional blocking behavior. Because of that, it needs permissions that can look broad at first glance, especially scripting, request handling, and host access.
 
-At the same time, the extension is still intended to be edited by advanced users who want to tune provider behavior and noise reduction for their own browsing style. That manual-edit model is one of the main reasons a normal store submission is not the ideal fit right now.[cite:1380]
+At the same time, the extension is still intended to be edited by advanced users who want to tune provider behavior and noise reduction for their own browsing style. That manual-edit model is one of the main reasons a normal store submission is not the ideal fit right now.
 
 ## Why store submission is not the best fit right now
 
@@ -18,13 +18,13 @@ The main files that may need manual editing are:
 - `slow-rules.json` — contains optional rules for blocking known heavy widgets or scripts that can degrade page performance.
 - `noise-domains-curated.json` — used to suppress or downgrade known noisy domains that are not useful for the user’s own analysis.
 
-That model is practical for a GitHub-distributed project, but it is awkward for a normal store listing because store users generally expect ready-to-use defaults, minimal manual editing, and settings to be changed through the extension UI rather than by editing packaged files.[cite:1380][cite:1381]
+That model is practical for a GitHub-distributed project, but it is awkward for a normal store listing because store users generally expect ready-to-use defaults, minimal manual editing, and settings to be changed through the extension UI rather than by editing packaged files.
 
-A Chrome Web Store review would also focus heavily on broad permissions and host access. Even if those permissions are justified, the review burden is higher when the extension injects scripts, observes web activity, and uses host permissions across many sites.[cite:1380][cite:1381]
+A Chrome Web Store review would also focus heavily on broad permissions and host access. Even if those permissions are justified, the review burden is higher when the extension injects scripts, observes web activity, and uses host permissions across many sites.
 
 ## Permission overview
 
-The table below summarizes the permissions that would typically need justification in a store submission flow like the one shown in the dashboard screenshot.[cite:1380]
+The table below summarizes the permissions that would typically need justification in a store submission flow.
 
 | Permission | Why it is needed | Practical use in ExtScanAlert |
 |---|---|---|
@@ -83,6 +83,6 @@ That flexibility is one of the project’s strengths, but it also makes the exte
 
 ## Practical takeaway
 
-ExtScanAlert can justify its permissions in a coherent way because each one maps to a visible feature: page-level detection, local logging, site rules, notifications, and optional blocking.[cite:1380]
+ExtScanAlert can justify its permissions in a coherent way because each one maps to a visible feature: page-level detection, local logging, site rules, notifications, and optional blocking.
 
-The bigger reason not to push for store submission right now is not that the permissions are impossible to explain. It is that the project still expects technically confident users to edit core JSON configuration files for their own preferences, which fits manual installation and repository-based distribution far better than a typical one-click store install.[cite:1380][cite:1381]
+The bigger reason not to push for store submission right now is not that the permissions are impossible to explain. It is that the project still expects technically confident users to edit core JSON configuration files for their own preferences, which fits manual installation and repository-based distribution far better than a typical one-click store install.
