@@ -281,14 +281,15 @@
   "family": "anti-bot / fraud",
   "category": "ad-tech / anti-adblock / fingerprinting",
   "patterns": [
-    "html-load.com", "html-load.cc"
+    "html-load.com", "html-load.cc", "fb.html-load.com"
   ],
   "domains": [
     "html-load.com",
     "2.html-load.com",
     "4.html-load.com",
     "7.html-load.com",
-	"html-load.cc"
+	"html-load.cc",
+	"fb.html-load.com"
   ],
   "scoreBoost": 3,
   "uiNote": "Used by sites to load ads / canary scripts",
@@ -327,5 +328,42 @@
   ],
   "scoreBoost": 3,
   "_note": "The hostname belongs to the fastclick.net domain, associated with Epsilon and typically fronted by Akamai."
+},
+{
+  "id": "doubleverify",
+  "name": "DoubleVerify",
+  "family": "ad verification / measurement",
+  "category": "advertising measurement / brand safety",
+  "patterns": [
+    "doubleverify",
+    "dv.tech",
+    "vtrk.dv.tech",
+    "vast.doubleverify.com"
+  ],
+  "domains": [
+    "vtrk.dv.tech",
+    "vast.doubleverify.com"
+  ],
+  "scoreBoost": 2,
+  "uiNote": "Ad verification and measurement tags from DoubleVerify. Commonly used to track ad impressions, viewability, and fraud across video and display inventory.",
+  "_note": "DoubleVerify provides ad verification, fraud detection, and campaign measurement services. Domains such as vtrk.dv.tech and vast.doubleverify.com are used as tracking/measurement endpoints (for impression tags and VAST creatives) and will often fire alongside ad calls and other ad-tech vendors. Treat as an ad-tech measurement provider rather than a dedicated fingerprint vendor, but it may appear in chains that include fingerprint-like or profiling activity."
+},
+{
+  "id": "cxense",
+  "name": "Cxense",
+  "family": "content personalization / analytics",
+  "category": "behavioral analytics / personalization",
+  "patterns": [
+    "cxense",
+    "cdn.cxense.com",
+    "scdn.cxense.com"
+  ],
+  "domains": [
+    "cdn.cxense.com",
+    "scdn.cxense.com"
+  ],
+  "scoreBoost": 2,
+  "uiNote": "Content personalization and analytics tags from Cxense. Used to track page interactions and build profiles for recommendations and audience targeting.",
+  "_note": "Cxense is a personalization and analytics platform that tracks user interactions, browser information, and other signals to build behavioral profiles and deliver targeted content or ads. Hostnames like cdn.cxense.com and scdn.cxense.com are commonly loaded as part of site analytics/personalization stacks. Treat as a tracking/personalization vendor; not a pure fingerprint provider, but it may co-occur with vendors that perform fingerprinting or more advanced profiling."
 }
 ]
