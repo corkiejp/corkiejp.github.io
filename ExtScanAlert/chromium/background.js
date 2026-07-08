@@ -893,6 +893,7 @@ function classifyFingerprintEvent(msg, recentScripts = []) {
   const providerMatches = detectProviders(msg, recentScripts);
   const score = scoreFingerprintEvent(msg, recentScripts);
 
+  const subtype = String(msg.subtype || '').toLowerCase();
   let label = 'unclassified';
 
   if (providerMatches.length) {
@@ -900,10 +901,20 @@ function classifyFingerprintEvent(msg, recentScripts = []) {
     label = score >= 8
       ? `likely ${top.name} (${top.category})`
       : `possible ${top.name} (${top.category})`;
-  } else if (msg.subtype === 'webgl.getParameter' && score >= 6) {
+  } else if (subtype === 'webgl.getparameter' && score >= 6) {
     label = 'likely WebGL-based fingerprinting';
-  } else if ((msg.subtype || '').startsWith('canvas.') && score >= 5) {
+  } else if (subtype.startsWith('canvas.') && score >= 5) {
     label = 'canvas-based fingerprinting';
+  } else if (subtype === 'navigator.hardware' && score >= 5) {
+    label = 'hardware-based fingerprinting';
+  } else if (
+    (subtype === 'storage.localstorage.setitem' ||
+     subtype === 'storage.sessionstorage.setitem') &&
+    score >= 4
+  ) {
+    label = 'storage-based fingerprinting';
+  } else if (subtype === 'geolocation.getcurrentposition' && score >= 4) {
+    label = 'geolocation-based fingerprinting';
   } else if (score >= 8) {
     label = 'high-confidence fingerprinting';
   } else if (score >= 4) {
@@ -1136,6 +1147,66 @@ function shouldLogFingerprint(msg) {
 function shouldNotifyFingerprint(score, providers = []) {
   if (typeof score === 'number' && score >= 8) return true;
   return providers.some((p) => p.family === 'anti-bot / fraud');
+}
+
+function inferFingerprintTechniques(entry) {
+  const techniques = [];
+  const meta = entry.meta || {};
+  const stack = String(entry.stackSummary || entry.stack || '').toLowerCase();
+  const subtype = String(entry.subtype || '').toLowerCase();
+
+  // Canvas/WebGL (optional, if you want explicit tags)
+  if (subtype.startsWith('canvas.')) {
+    techniques.push('canvas');
+  }
+  if (subtype === 'webgl.getparameter' || subtype.startsWith('offscreen.')) {
+    techniques.push('webgl');
+  }
+
+  // Navigator hardware fingerprinting
+  if (subtype === 'navigator.hardware') {
+    techniques.push('hardware');
+  }
+
+  // Storage-based fingerprinting
+  if (
+    subtype === 'storage.localstorage.setitem' ||
+    subtype === 'storage.sessionstorage.setitem'
+  ) {
+    techniques.push('storage');
+  }
+
+  // Geolocation
+  if (subtype === 'geolocation.getcurrentposition') {
+    techniques.push('geolocation');
+  }
+
+  // Clipboard (dangerous-copy, already logged separately)
+  if (entry.type === 'dangerous-copy' || subtype.startsWith('clipboard')) {
+    techniques.push('clipboard');
+  }
+
+  // Fallback regexes for any future signals
+  if (
+    /hardwareconcurrency|devicememory|maxtouchpoints/.test(stack) &&
+    !techniques.includes('hardware')
+  ) {
+    techniques.push('hardware');
+  }
+  if (
+    /localstorage\.setitem|sessionstorage/.test(stack) &&
+    !techniques.includes('storage')
+  ) {
+    techniques.push('storage');
+  }
+  if (
+    /indexeddb\.databases/.test(stack) &&
+    !techniques.includes('indexeddb')
+  ) {
+    techniques.push('indexeddb');
+  }
+
+  return techniques;
 }
 
 (async () => {
@@ -1922,6 +1993,8 @@ if (msg?.type === 'setDangerousCopyBlockMode') {
       return;
     }
 
+
+// find this again.
     if (msg?.source === 'extscanalert' && msg.kind === 'extension-probe') {
       const state = await getState();
       const host = safeHost(msg.page);
@@ -1993,6 +2066,14 @@ if (msg?.type === 'setDangerousCopyBlockMode') {
     summary: summarizeFingerprint(msg, recentScripts),
     time: eventTime
   };
+
+      // NEW: infer techniques and enrich summary (purely informational)
+      const techniques = inferFingerprintTechniques(entry);
+	  console.log('fingerprint techniques', techniques);
+      if (techniques.length) {
+        entry.techniques = techniques;
+        entry.summary = `${entry.summary} · techniques: ${techniques.join(', ')}`;
+      }
 
 await updateProviderUsageFromFingerprintLog(entry);
 

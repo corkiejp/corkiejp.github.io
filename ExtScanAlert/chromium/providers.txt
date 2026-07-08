@@ -1,0 +1,3 @@
+"Google reCAPTCHA", "Cloudflare Turnstile", "hCaptcha", "Castle (bundled)", "DataDome", "Fingerprint", "Arkose Labs", "HUMAN / PerimeterX", "Microsoft Clarity", "Hotjar", "FullStory", "Smartlook", "Imperva / Incapsula", "Akamai Bot Manager", "Radware Bot Manager", "Kasada", "ThreatMetrix / LexisNexis Risk", "Sift", "Onfido", "Jumio", "GeeTest", "Yandex SmartCaptcha", "LogRocket", "PostHog", "Heap", "Amplitude", "Mixpanel", "Zendesk", "Google Tag Manager / gtag.js", "HTML-Load ad/fingerprinting canary", "Comscore ScorecardResearch", "Fastclick / Epsilon", "DoubleVerify", "Cxense"
+
+

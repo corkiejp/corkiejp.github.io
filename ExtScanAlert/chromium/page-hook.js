@@ -412,6 +412,118 @@ function wrapClipboardAPI() {
   }
 }
 
+
+function wrapNavigatorHardware() {
+  try {
+    const nav = navigator;
+
+    // Read-only properties — log once when accessed
+    const logHardware = () => {
+      window.postMessage({
+        source: SOURCE,
+        kind: 'fingerprint-api',
+        subtype: 'navigator.hardware',
+        page: location.href,
+        time: now(),
+        stack: new Error().stack || '',
+        meta: {
+          hardwareConcurrency: nav.hardwareConcurrency,
+          deviceMemory: nav.deviceMemory,
+          maxTouchPoints: nav.maxTouchPoints
+        }
+      }, '*');
+    };
+
+    // Hook a common access path: Object.keys(navigator), etc. is too broad;
+    // instead, log the first time code reads any of these fields.
+    let logged = false;
+    const props = ['hardwareConcurrency', 'deviceMemory', 'maxTouchPoints'];
+
+    props.forEach((prop) => {
+      const desc = Object.getOwnPropertyDescriptor(nav, prop);
+      if (!desc || !desc.get) return;
+      Object.defineProperty(nav, prop, {
+        configurable: true,
+        enumerable: desc.enumerable,
+        get() {
+          if (!logged) {
+            logged = true;
+            logHardware();
+          }
+          return desc.get.call(nav);
+        }
+      });
+    });
+  } catch (e) {
+    console.warn('[ExtScanAlert] navigator hardware hook failed', e);
+  }
+}
+
+function wrapWebStorage() {
+  try {
+    const origLocalSet = localStorage?.setItem;
+    if (typeof origLocalSet === 'function') {
+      localStorage.setItem = function(key, value) {
+        window.postMessage({
+          source: SOURCE,
+          kind: 'fingerprint-api',
+          subtype: 'storage.localStorage.setItem',
+          page: location.href,
+          time: now(),
+          stack: new Error().stack || '',
+          meta: { key }
+        }, '*');
+        return origLocalSet.apply(this, arguments);
+      };
+    }
+
+    const origSessionSet = sessionStorage?.setItem;
+    if (typeof origSessionSet === 'function') {
+      sessionStorage.setItem = function(key, value) {
+        window.postMessage({
+          source: SOURCE,
+          kind: 'fingerprint-api',
+          subtype: 'storage.sessionStorage.setItem',
+          page: location.href,
+          time: now(),
+          stack: new Error().stack || '',
+          meta: { key }
+        }, '*');
+        return origSessionSet.apply(this, arguments);
+      };
+    }
+  } catch (e) {
+    console.warn('[ExtScanAlert] storage hook failed', e);
+  }
+}
+
+function wrapGeolocation() {
+  try {
+    const geo = navigator.geolocation;
+    if (!geo) return;
+
+    const origGetCurrentPosition = geo.getCurrentPosition;
+    if (typeof origGetCurrentPosition === 'function') {
+      geo.getCurrentPosition = function(success, error, options) {
+        window.postMessage({
+          source: SOURCE,
+          kind: 'fingerprint-api',
+          subtype: 'geolocation.getCurrentPosition',
+          page: location.href,
+          time: now(),
+          stack: new Error().stack || '',
+          meta: {}
+        }, '*');
+        return origGetCurrentPosition.call(this, success, error, options);
+      };
+    }
+  } catch (e) {
+    console.warn('[ExtScanAlert] geolocation hook failed', e);
+  }
+}
+
+
+
   wrapFetch();
   wrapXHR();
   wrapBeacon();
@@ -424,5 +536,8 @@ function wrapClipboardAPI() {
   wrapOffscreenCanvas();
   wrapWebGL();
   wrapCopyProtection();
-  wrapClipboardAPI(); 
+  wrapClipboardAPI();
+  wrapNavigatorHardware();
+  wrapWebStorage();
+  wrapGeolocation();
 })();
