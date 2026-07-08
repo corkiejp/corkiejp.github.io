@@ -1,28 +1,13 @@
 [
-{
-  "id": "recaptcha",
-  "name": "Google reCAPTCHA",
-  "family": "anti-bot / fraud",
-  "category": "anti-bot / captcha",
-  "patterns": [
-    "recaptcha",
-    "grecaptcha",
-    "g-recaptcha",
-    "gstatic.com/recaptcha",
-    "google.com/recaptcha",
-    "www.google.com/recaptcha",
-    "www.google.com/verify"
-  ],
-  "domains": [
-    "gstatic.com",
-    
-    "www.gstatic.com",
-  "www.google.com"
-  ],
-  "scoreBoost": 4,
-  "uiNote": "Google reCAPTCHA (v2/v3) and related verification endpoints used to protect sites from spam, abuse, and automated traffic.",
-  "_note": "Google reCAPTCHA provides human-verification challenges and behavioral analysis to protect websites from bots and abuse. It is often detected via global grecaptcha objects, g-recaptcha DOM classes, and scripts or verification endpoints under www.google.com/recaptcha and related /verify URLs. This definition is partially informed by vendor signals similar to those used in Scrapfly's open-source Antibot Detector."
-},
+  {
+    "id": "recaptcha",
+    "name": "Google reCAPTCHA",
+    "family": "anti-bot / fraud",
+    "category": "anti-bot / captcha",
+    "patterns": ["recaptcha", "gstatic.com/recaptcha", "google.com/recaptcha"],
+    "domains": ["gstatic.com", "google.com", "www.gstatic.com", "www.google.com"],
+    "scoreBoost": 4
+  },
   {
     "id": "turnstile",
     "name": "Cloudflare Turnstile",
@@ -32,28 +17,6 @@
     "domains": ["challenges.cloudflare.com"],
     "scoreBoost": 3
   },
-  {
-  "id": "cloudflare-bot",
-  "name": "Cloudflare Bot Management",
-  "family": "anti-bot / fraud",
-  "category": "anti-bot / bot management",
-  "patterns": [
-    "cloudflare",
-    "_cf_chl_opt",
-    "__cf_bm",
-    "challenges.cloudflare.com",
-    "cf_chl_jschl_tk_",
-    "cf_chl_rc_ni"
-  ],
-  "domains": [
-    "challenges.cloudflare.com",
-    "cf-ipfs.com",
-    "cloudflareinsights.com"
-  ],
-  "scoreBoost": 3,
-  "uiNote": "Cloudflare Bot Management and challenge pages (Turnstile/CAPTCHA and browser integrity checks). Commonly used to detect automation and block suspected bots.",
-  "_note": "Cloudflare Bot Management provides AI-powered bot detection and mitigation integrated with Cloudflare's CDN. It is often detected via challenge options objects like _cf_chl_opt, bot-management cookies such as __cf_bm, and challenge scripts from challenges.cloudflare.com. This provider definition is partially informed by patterns similar to those surfaced by Scrapfly's Antibot Detector, which identifies Cloudflare bot management via window objects, challenge URLs, and bot-management cookies."
-},
   {
     "id": "hcaptcha",
     "name": "hCaptcha",
@@ -402,24 +365,5 @@
   "scoreBoost": 2,
   "uiNote": "Content personalization and analytics tags from Cxense. Used to track page interactions and build profiles for recommendations and audience targeting.",
   "_note": "Cxense is a personalization and analytics platform that tracks user interactions, browser information, and other signals to build behavioral profiles and deliver targeted content or ads. Hostnames like cdn.cxense.com and scdn.cxense.com are commonly loaded as part of site analytics/personalization stacks. Treat as a tracking/personalization vendor; not a pure fingerprint provider, but it may co-occur with vendors that perform fingerprinting or more advanced profiling."
-},
-{
-  "id": "aws-waf",
-  "name": "AWS WAF Bot Control",
-  "family": "anti-bot / bot management",
-  "category": "application firewall / bot control",
-  "patterns": [
-    "awswaf",
-    "token.awswaf.com",
-    "/verify",
-    "amazonaws.com/waf"
-  ],
-  "domains": [
-    "token.awswaf.com",
-    "waf.amazonaws.com"
-  ],
-  "scoreBoost": 3,
-  "uiNote": "Amazon Web Services Web Application Firewall (WAF) with bot control features, including browser challenges and integrity checks.",
-  "_note": "AWS WAF Bot Control uses browser-based challenges and fingerprint-style checks (such as canvas/WebGL, script and header inspection) to distinguish bots from human traffic. URLs like token.awswaf.com and WAF-related /verify endpoints can indicate WAF challenges in progress. This provider definition is partially informed by Scrapfly's Antibot Detector, which flags AWS WAF via characteristic verification URLs and challenge resources."
 }
 ]
