@@ -440,5 +440,23 @@
   "scoreBoost": 3,
   "uiNote": "CHEQ bot management and security scripts used to detect automated traffic and protect sites from fraud.",
   "_note": "CHEQ provides bot detection and fraud prevention using browser fingerprinting and behavioral analysis. This provider entry is informed in part by Scrapfly's Antibot Detector, which identifies CHEQ as an anti-bot vendor via script content and network signatures."
+},
+{
+  "id": "bombora-ml314",
+  "name": "Bombora Visitor Insights",
+  "family": "intent / identity tracking",
+  "category": "analytics / profiling",
+  "patterns": [
+    "Bombora Visitor Insights",
+    "vi.ml314.com",
+    "ml314.com"
+  ],
+  "domains": [
+    "ml314.com",
+    "vi.ml314.com"
+  ],
+  "scoreBoost": 3,
+  "uiNote": "Bombora Visitor Insights tags identify and enrich website visitors in real time using cookies, IP, user-agent and engagement metrics to build marketing and intent profiles.",
+  "_note": "Bombora's Visitor Insights JavaScript tag is deployed across brand sites and ads. Docs show preconnect/dns-prefetch hints to https://vi.ml314.com and a real-time tag that returns segment IDs for account-based marketing and personalization, indicating cross-site tracking and profiling behavior informed by Bombora’s own implementation guides and third-party tracker listings."
 }
 ]

@@ -910,9 +910,9 @@ function classifyFingerprintEvent(msg, recentScripts = []) {
   } else if (
     (subtype === 'storage.localstorage.setitem' ||
      subtype === 'storage.sessionstorage.setitem') &&
-    score >= 4
+    score >= 8
   ) {
-    label = 'storage-based fingerprinting';
+	label = 'storage maybe used in fingerprint context';
   } else if (subtype === 'geolocation.getcurrentposition' && score >= 4) {
     label = 'geolocation-based fingerprinting';
   } else if (score >= 8) {
@@ -1558,16 +1558,93 @@ if (msg?.type === 'exportFingerprintLogs') {
 
   const fingerprintLogs = logs.filter((entry) => entry.type === 'fingerprint');
 
+sendResponse({
+  ok: true,
+  data: {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    description: "Heuristic detection of fingerprint-like signals and anti-bot/fraud vendors. Events may be benign features in a fingerprinting context.",
+    schema: {
+      score: "0–20 heuristic confidence; higher = more suspicious",
+      classification: "label summarizing techniques and/or vendor",
+      providers: "matched anti-bot/fraud/analytics vendors (best-effort)",
+      techniques: "APIs used (canvas, WebGL, storage, etc.), not proof of tracking"
+    },
+    logs: fingerprintLogs
+  }
+});
+  return;
+}  
+
+if (msg?.type === 'exportFingerprintSummary') {
+  const state = await getState();
+  const logs = Array.isArray(state.logs) ? state.logs : [];
+  const fingerprintLogs = logs.filter(entry => entry.type === 'fingerprint');
+
+  const summaryByHost = {};
+
+  for (const entry of fingerprintLogs) {
+    const host = entry.host || '';
+    if (!host) continue;
+
+    const s = summaryByHost[host] || {
+      count: 0,
+      maxScore: 0,
+      techniques: new Set(),
+      providers: new Set(),
+      examples: []  // store up to a few short examples
+    };
+
+    s.count += 1;
+
+    if (typeof entry.score === 'number' && entry.score > s.maxScore) {
+      s.maxScore = entry.score;
+    }
+
+    // Collect techniques
+    (entry.techniques || []).forEach(t => s.techniques.add(t));
+
+    // Collect provider names
+    (entry.providers || []).forEach(p => {
+      if (p && p.name) s.providers.add(p.name);
+    });
+
+    // Collect a few example labels/summaries
+    if (s.examples.length < 3) {
+      s.examples.push({
+        score: entry.score,
+        classification: entry.classification || entry.label || '',
+        summary: entry.summary || '',
+        subtype: entry.subtype || ''
+      });
+    }
+
+    summaryByHost[host] = s;
+  }
+
+  // Convert Sets to arrays for JSON
+  const jsonSummary = {};
+  for (const [host, s] of Object.entries(summaryByHost)) {
+    jsonSummary[host] = {
+      count: s.count,
+      maxScore: s.maxScore,
+      techniques: Array.from(s.techniques),
+      providers: Array.from(s.providers),
+      examples: s.examples
+    };
+  }
+
   sendResponse({
     ok: true,
     data: {
       version: 1,
       exportedAt: new Date().toISOString(),
-      logs: fingerprintLogs
+      description: "Per-host summary of fingerprint-like events",
+      hosts: jsonSummary
     }
   });
   return;
-}  
+}
 
 if (msg?.type === 'getUnknownProviders') {
   const state = await getState();

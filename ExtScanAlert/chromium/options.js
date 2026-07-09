@@ -739,6 +739,26 @@ function bindEvents() {
     );
     setStatus('Exported fingerprint logs.', 'ok');
   });
+  // Fingerprint summary export
+$('options-export-fingerprint-summary')?.addEventListener('click', async () => {
+  const res = await sendMessage({ type: 'exportFingerprintSummary' });
+  if (!res?.ok) {
+    setStatus(
+      `Failed to export fingerprint summary: ${
+        res?.error || 'unknown error'
+      }`,
+      'error'
+    );
+    return;
+  }
+
+  const exported = res.data || { hosts: {} };
+  downloadJson(
+    `extscanalert-fingerprint-summary-${Date.now()}.json`,
+    exported
+  );
+  setStatus('Exported fingerprint summary.', 'ok');
+});
 }
 
 function renderCapabilityStatus(settings = {}) {
