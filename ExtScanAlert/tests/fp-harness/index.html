@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ExtScanAlert Fingerprint Harness</title>
+  <style>
+    :root{
+      --bg:#0f1115;
+      --panel:#171a21;
+      --panel2:#1e2430;
+      --text:#e8ecf3;
+      --muted:#a9b4c7;
+      --border:#2d3647;
+      --accent:#61dafb;
+      --accent2:#8ef0c2;
+      --warn:#ffcc66;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+    main{
+      max-width:1100px;
+      margin:0 auto;
+      padding:24px;
+    }
+    h1,h2{line-height:1.2}
+    .lead{color:var(--muted);max-width:75ch}
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      gap:16px;
+      margin:20px 0;
+    }
+    .card{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px;
+    }
+    .card h2{
+      margin:0 0 8px;
+      font-size:16px;
+    }
+    .card p{
+      margin:0 0 12px;
+      color:var(--muted);
+    }
+    .row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+    }
+    button{
+      appearance:none;
+      border:1px solid var(--border);
+      background:var(--panel2);
+      color:var(--text);
+      border-radius:10px;
+      padding:10px 12px;
+      cursor:pointer;
+    }
+    button:hover{border-color:var(--accent)}
+    button.primary{
+      background:var(--accent);
+      color:#051018;
+      border-color:var(--accent);
+      font-weight:600;
+    }
+    .log{
+      background:#0c0e13;
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+      min-height:220px;
+      white-space:pre-wrap;
+      overflow:auto;
+      font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+    }
+    .meta{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      gap:10px;
+      margin:14px 0 20px;
+    }
+    .meta div{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:10px 12px;
+    }
+    code{color:var(--accent2)}
+    .tiny{font-size:12px;color:var(--muted)}
+    canvas{
+      border:1px dashed var(--border);
+      margin-top:10px;
+      max-width:100%;
+    }
+    .hidden-zone{
+      position:absolute;
+      left:-9999px;
+      top:auto;
+      width:1px;
+      height:1px;
+      overflow:hidden;
+    }
+    .pill{
+      display:inline-block;
+      border:1px solid var(--border);
+      border-radius:999px;
+      padding:4px 8px;
+      margin:4px 6px 0 0;
+      color:var(--muted);
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>ExtScanAlert Fingerprint Harness</h1>
+  <p class="lead">
+    This page intentionally exercises common fingerprinting surfaces so you can verify detection hooks,
+    source attribution, and event classification in a controlled environment. Common signals include canvas,
+    WebGL, audio, fonts, screen, language, and timezone [web:116][web:118].
+  </p>
+
+  <div class="meta">
+    <div><strong>Origin:</strong> <span id="origin"></span></div>
+    <div><strong>User agent:</strong> <span id="ua"></span></div>
+    <div><strong>Platform:</strong> <span id="platform"></span></div>
+    <div><strong>Languages:</strong> <span id="langs"></span></div>
+  </div>
+
+  <div class="row">
+    <button class="primary" id="run-all">Run all tests</button>
+    <button id="clear-log">Clear log</button>
+    <button id="run-inline-script">Run inline script block</button>
+    <button id="load-external">Load external script</button>
+  </div>
+
+  <div class="grid">
+    <section class="card">
+      <h2>Canvas</h2>
+      <p>Creates both a pre-existing canvas and a dynamic canvas, then reads pixels via <code>toDataURL()</code> and <code>getImageData()</code>.</p>
+      <button data-test="canvas">Run canvas test</button>
+      <canvas id="preset-canvas" width="320" height="90"></canvas>
+      <div class="tiny">Includes a pre-rendered canvas because some detectors only watch dynamic creation paths [web:123][web:159].</div>
+    </section>
+
+    <section class="card">
+      <h2>WebGL</h2>
+      <p>Queries renderer/vendor style parameters and selected capabilities from a WebGL context.</p>
+      <button data-test="webgl">Run WebGL test</button>
+    </section>
+
+    <section class="card">
+      <h2>Audio</h2>
+      <p>Uses an OfflineAudioContext render path, which is a common fingerprinting primitive [web:116][web:118].</p>
+      <button data-test="audio">Run audio test</button>
+    </section>
+
+    <section class="card">
+      <h2>Fonts</h2>
+      <p>Measures text metrics across fallback stacks to infer font availability and rendering differences [web:118][web:120].</p>
+      <button data-test="fonts">Run font test</button>
+    </section>
+
+    <section class="card">
+      <h2>Navigator</h2>
+      <p>Reads language, memory, concurrency, vendor, and related browser-exposed values.</p>
+      <button data-test="navigator">Run navigator test</button>
+    </section>
+
+    <section class="card">
+      <h2>Screen & time</h2>
+      <p>Reads screen dimensions, pixel ratio, color depth, timezone, and locale formatting surfaces [web:118].</p>
+      <button data-test="screen">Run screen/time test</button>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>Expected signal classes</h2>
+    <div>
+      <span class="pill">canvas-readback</span>
+      <span class="pill">canvas-dynamic-create</span>
+      <span class="pill">canvas-preexisting</span>
+      <span class="pill">webgl-context</span>
+      <span class="pill">webgl-parameter-query</span>
+      <span class="pill">audio-offline-render</span>
+      <span class="pill">font-metric-probe</span>
+      <span class="pill">navigator-entropy</span>
+      <span class="pill">screen-entropy</span>
+      <span class="pill">timezone-locale</span>
+      <span class="pill">inline-script</span>
+      <span class="pill">external-script</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Event log</h2>
+    <div id="log" class="log" aria-live="polite"></div>
+  </section>
+
+  <div id="font-probe-zone" class="hidden-zone" aria-hidden="true"></div>
+</main>
+
+<script>
+(() => {
+  const logEl = document.getElementById('log');
+  const out = (type, detail) => {
+    const ts = new Date().toISOString();
+    const text = `[${ts}] ${type}: ${typeof detail === 'string' ? detail : JSON.stringify(detail, null, 2)}`;
+    logEl.textContent += text + "\\n\\n";
+    logEl.scrollTop = logEl.scrollHeight;
+    console.log(type, detail);
+  };
+
+  document.getElementById('origin').textContent = location.origin;
+  document.getElementById('ua').textContent = navigator.userAgent;
+  document.getElementById('platform').textContent = navigator.platform || 'n/a';
+  document.getElementById('langs').textContent = (navigator.languages || []).join(', ') || 'n/a';
+
+  function shaLike(input) {
+    let h1 = 0xdeadbeef ^ input.length;
+    let h2 = 0x41c6ce57 ^ input.length;
+    for (let i = 0; i < input.length; i++) {
+      const ch = input.charCodeAt(i);
+      h1 = Math.imul(h1 ^ ch, 2654435761);
+      h2 = Math.imul(h2 ^ ch, 1597334677);
+    }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(16);
+  }
+
+  function runPresetCanvasPaint() {
+    const canvas = document.getElementById('preset-canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.textBaseline = 'top';
+    ctx.font = '16px Arial';
+    ctx.fillStyle = '#f60';
+    ctx.fillRect(8, 8, 120, 28);
+    ctx.fillStyle = '#069';
+    ctx.fillText('ExtScanAlert preset', 12, 14);
+    ctx.fillStyle = 'rgba(120, 40, 180, 0.75)';
+    ctx.font = '18px serif';
+    ctx.fillText('Ω≈ç√∫˜µ≤≥÷', 12, 45);
+  }
+
+  function testCanvas() {
+    runPresetCanvasPaint();
+
+    const preset = document.getElementById('preset-canvas');
+    const presetCtx = preset.getContext('2d');
+    const presetData = preset.toDataURL();
+    const presetPixels = presetCtx.getImageData(0, 0, 64, 32).data;
+
+    out('canvas-preexisting', {
+      width: preset.width,
+      height: preset.height,
+      toDataURLHash: shaLike(presetData),
+      pixelHash: shaLike(Array.from(presetPixels).slice(0, 128).join(','))
+    });
+
+    const dyn = document.createElement('canvas');
+    dyn.width = 320;
+    dyn.height = 90;
+    const ctx = dyn.getContext('2d');
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = '#101820';
+    ctx.fillRect(0, 0, 320, 90);
+    ctx.fillStyle = '#f2f2f2';
+    ctx.font = "16px 'Arial'";
+    ctx.fillText('Cwm fjordbank glyphs vext quiz 😃', 8, 24);
+    ctx.fillStyle = 'rgba(255,0,255,.7)';
+    ctx.font = "20px 'Times New Roman'";
+    ctx.fillText('Sphinx of black quartz, judge my vow', 8, 56);
+    const dataUrl = dyn.toDataURL();
+    const imgData = ctx.getImageData(0, 0, 80, 40).data;
+
+    out('canvas-dynamic-create', { width: dyn.width, height: dyn.height });
+    out('canvas-readback', {
+      toDataURLHash: shaLike(dataUrl),
+      pixelHash: shaLike(Array.from(imgData).slice(0, 200).join(','))
+    });
+  }
+
+  function testWebGL() {
+    const canvas = document.createElement('canvas');
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    if (!gl) {
+      out('webgl-context', 'WebGL unavailable');
+      return;
+    }
+    const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+    const result = {
+      version: gl.getParameter(gl.VERSION),
+      shadingLanguageVersion: gl.getParameter(gl.SHADING_LANGUAGE_VERSION),
+      vendor: gl.getParameter(gl.VENDOR),
+      renderer: gl.getParameter(gl.RENDERER),
+      maxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE),
+      maxCubeMapTextureSize: gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE),
+      aliasedLineWidthRange: gl.getParameter(gl.ALIASED_LINE_WIDTH_RANGE)
+    };
+    if (dbg) {
+      result.unmaskedVendor = gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL);
+      result.unmaskedRenderer = gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL);
+    }
+    out('webgl-context', 'created');
+    out('webgl-parameter-query', result);
+  }
+
+  async function testAudio() {
+    const Ctx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    if (!Ctx) {
+      out('audio-offline-render', 'OfflineAudioContext unavailable');
+      return;
+    }
+    const ctx = new Ctx(1, 44100, 44100);
+    const osc = ctx.createOscillator();
+    osc.type = 'triangle';
+    osc.frequency.value = 1000;
+    const comp = ctx.createDynamicsCompressor();
+    comp.threshold.value = -50;
+    comp.knee.value = 40;
+    comp.ratio.value = 12;
+    comp.attack.value = 0;
+    comp.release.value = 0.25;
+    osc.connect(comp);
+    comp.connect(ctx.destination);
+    osc.start(0);
+    const rendered = await ctx.startRendering();
+    const channel = rendered.getChannelData(0);
+    const slice = Array.from(channel.slice(4500, 4700));
+    out('audio-offline-render', {
+      sampleHash: shaLike(slice.join(',')),
+      sampleWindowSize: slice.length
+    });
+  }
+
+  function testFonts() {
+    const zone = document.getElementById('font-probe-zone');
+    zone.innerHTML = '';
+    const sample = 'mmmmmmmmmmlliOO00W@#漢字';
+    const baseFamilies = ['monospace', 'sans-serif', 'serif'];
+    const probeFonts = [
+      'Arial', 'Times New Roman', 'Courier New',
+      'Georgia', 'Trebuchet MS', 'Verdana',
+      'Segoe UI', 'Calibri'
+    ];
+
+    const measure = (fontFamily) => {
+      const span = document.createElement('span');
+      span.textContent = sample;
+      span.style.fontSize = '72px';
+      span.style.position = 'absolute';
+      span.style.whiteSpace = 'nowrap';
+      span.style.fontFamily = fontFamily;
+      zone.appendChild(span);
+      const rect = { w: span.offsetWidth, h: span.offsetHeight };
+      span.remove();
+      return rect;
+    };
+
+    const baseline = {};
+    baseFamilies.forEach(base => baseline[base] = measure(base));
+
+    const results = probeFonts.map(name => {
+      const comparisons = {};
+      baseFamilies.forEach(base => {
+        const rect = measure(`"${name}",${base}`);
+        const b = baseline[base];
+        comparisons[base] = { width: rect.w, height: rect.h, differs: rect.w !== b.w || rect.h !== b.h };
+      });
+      return { font: name, comparisons };
+    });
+
+    out('font-metric-probe', results);
+  }
+
+  function testNavigator() {
+    out('navigator-entropy', {
+      userAgent: navigator.userAgent,
+      language: navigator.language,
+      languages: navigator.languages,
+      hardwareConcurrency: navigator.hardwareConcurrency,
+      deviceMemory: navigator.deviceMemory,
+      vendor: navigator.vendor,
+      cookieEnabled: navigator.cookieEnabled,
+      pdfViewerEnabled: navigator.pdfViewerEnabled,
+      doNotTrack: navigator.doNotTrack
+    });
+  }
+
+  function testScreenTime() {
+    out('screen-entropy', {
+      width: screen.width,
+      height: screen.height,
+      availWidth: screen.availWidth,
+      availHeight: screen.availHeight,
+      colorDepth: screen.colorDepth,
+      pixelDepth: screen.pixelDepth,
+      devicePixelRatio: window.devicePixelRatio
+    });
+    out('timezone-locale', {
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      locale: Intl.DateTimeFormat().resolvedOptions().locale,
+      nowFormatted: new Intl.DateTimeFormat(undefined, {
+        dateStyle: 'full',
+        timeStyle: 'long'
+      }).format(new Date())
+    });
+  }
+
+  function runInlineScriptBlock() {
+    const s = document.createElement('script');
+    s.textContent = `
+      window.__fpHarnessInlineRan = true;
+      console.log('fp-inline-script executed');
+    `;
+    document.documentElement.appendChild(s);
+    s.remove();
+    out('inline-script', { executed: !!window.__fpHarnessInlineRan });
+  }
+
+  function loadExternalScript() {
+    return new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = './fp-external.js?ts=' + Date.now();
+      s.async = true;
+      s.onload = () => {
+        out('external-script', {
+          loaded: true,
+          marker: window.__fpHarnessExternalMarker || null
+        });
+        resolve();
+      };
+      s.onerror = (e) => {
+        out('external-script', { loaded: false, error: String(e) });
+        reject(e);
+      };
+      document.head.appendChild(s);
+    });
+  }
+
+  async function runAll() {
+    out('session', 'run-all started');
+    testCanvas();
+    testWebGL();
+    await testAudio();
+    testFonts();
+    testNavigator();
+    testScreenTime();
+    runInlineScriptBlock();
+    await loadExternalScript();
+    out('session', 'run-all completed');
+  }
+
+  document.querySelectorAll('[data-test]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const t = btn.dataset.test;
+      if (t === 'canvas') testCanvas();
+      if (t === 'webgl') testWebGL();
+      if (t === 'audio') await testAudio();
+      if (t === 'fonts') testFonts();
+      if (t === 'navigator') testNavigator();
+      if (t === 'screen') testScreenTime();
+    });
+  });
+
+  document.getElementById('run-all').addEventListener('click', runAll);
+  document.getElementById('clear-log').addEventListener('click', () => logEl.textContent = '');
+  document.getElementById('run-inline-script').addEventListener('click', runInlineScriptBlock);
+  document.getElementById('load-external').addEventListener('click', loadExternalScript);
+
+  runPresetCanvasPaint();
+  out('ready', 'Harness loaded');
+})();
+</script>
+</body>
+</html>
