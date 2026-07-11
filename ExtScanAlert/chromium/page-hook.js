@@ -79,15 +79,6 @@ const patterns = [
 
 
 
-window.addEventListener('message', (event) => {
-  const msg = event.data;
-  if (!msg || msg.source !== 'extscanalert-config') return;
-  if (msg.kind === 'dangerous-copy-config') {
-    window.__extScanAlertDangerousCopyBlock = !!msg.blockMode;
-  }
-});
-
-
 
   function postObserve(kind, subtype, details = {}) {
     window.postMessage({

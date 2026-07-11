@@ -458,5 +458,49 @@
   "scoreBoost": 3,
   "uiNote": "Bombora Visitor Insights tags identify and enrich website visitors in real time using cookies, IP, user-agent and engagement metrics to build marketing and intent profiles.",
   "_note": "Bombora's Visitor Insights JavaScript tag is deployed across brand sites and ads. Docs show preconnect/dns-prefetch hints to https://vi.ml314.com and a real-time tag that returns segment IDs for account-based marketing and personalization, indicating cross-site tracking and profiling behavior informed by Bombora’s own implementation guides and third-party tracker listings."
+},
+{
+  "id": "meta-pixel",
+  "name": "Meta Pixel",
+  "family": "advertising / profiling",
+  "category": "tracking pixel / ad attribution",
+  "patterns": [
+    "Meta Pixel",
+    "Facebook Pixel",
+    "fbq(",
+    "fbevents.js",
+    "connect.facebook.net"
+  ],
+  "domains": [
+    "connect.facebook.net"
+  ],
+  "relatedDomains": [
+    "facebook.com",
+    "www.facebook.com",
+    "static.xx.fbcdn.net"
+  ],
+  "scoreBoost": 4,
+  "uiNote": "Meta Pixel tracks website activity and sends events to Meta for ad targeting, audience building, conversion measurement, and profiling.",
+  "_note": "Meta documents that the pixel tracks website activity via code commonly loaded from connect.facebook.net, especially fbevents.js. Related Meta-owned domains may appear in stacks or supporting script loads, but blocking should target the pixel delivery domain rather than blanket-blocking facebook.com."
+},
+{
+  "id": "linkedin-insight",
+  "name": "LinkedIn Insight Tag",
+  "family": "advertising / profiling",
+  "category": "tracking pixel / ad attribution",
+  "patterns": [
+    "LinkedIn Insight Tag",
+    "linkedin pixel",
+    "li_insight",
+    "px.ads.linkedin.com",
+    "snap.licdn.com"
+  ],
+  "domains": [
+    "px.ads.linkedin.com",
+    "snap.licdn.com"
+  ],
+  "scoreBoost": 4,
+  "uiNote": "LinkedIn Insight Tag tracks website conversions and visitor behavior for LinkedIn Ads, enabling retargeting and audience insights.",
+  "_note": "LinkedIn documents the Insight Tag as a JavaScript-based tracking tag used to measure conversions, retarget visitors, and learn aggregate insights about LinkedIn members visiting a site. Requests are sent to px.ads.linkedin.com and related LinkedIn tracking endpoints."
 }
 ]
