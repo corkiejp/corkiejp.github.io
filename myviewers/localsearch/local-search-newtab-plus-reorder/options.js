@@ -13,6 +13,8 @@ const linkNameEl=document.getElementById('linkName');
 const linkUrlEl=document.getElementById('linkUrl');
 const engineNameEl=document.getElementById('engineName');
 const engineTemplateEl=document.getElementById('engineTemplate');
+const copyLocalBlankUrlBtn = document.getElementById('copyLocalBlankUrlBtn');
+const localBlankHelpEl = document.getElementById('localBlankHelp');
 let settings;
 function setStatus(message){settingsStatusEl.textContent=message;}
 function renderDefaultEngineDropdown(allEngines,selectedId){defaultEngineEl.innerHTML='';Object.entries(allEngines).forEach(([id,engine])=>{const option=document.createElement('option');option.value=id;option.textContent=engine.name;if(id===selectedId)option.selected=true;defaultEngineEl.appendChild(option);});}
@@ -21,6 +23,41 @@ function renderLinks(){linksListEl.innerHTML='';settings.quickLinks.forEach((lin
 function renderEngines(){enginesListEl.innerHTML='';settings.customEngines.forEach((engine,index)=>{const item=document.createElement('div');item.className='item';item.innerHTML='<div class="item-top"><div><strong></strong><div class="muted"></div></div>'+buildActionButtons('engine',index,settings.customEngines.length)+'</div>';item.querySelector('strong').textContent=engine.name;item.querySelector('.muted').textContent=engine.searchUrl;enginesListEl.appendChild(item);});if(!settings.customEngines.length){const empty=document.createElement('div');empty.className='item';empty.innerHTML='<div class="muted">No custom engines added yet.</div>';enginesListEl.appendChild(empty);}}
 function sanitizeImportedSettings(raw){const quickLinks=Array.isArray(raw.quickLinks)?raw.quickLinks.filter((item)=>item&&typeof item.name==='string'&&isValidUrl(item.url)).map((item)=>({name:item.name.trim()||'Untitled',url:item.url.trim()})):[...DEFAULT_QUICK_LINKS];const customEngines=Array.isArray(raw.customEngines)?raw.customEngines.filter((item)=>item&&typeof item.name==='string'&&typeof item.searchUrl==='string'&&isValidTemplate(item.searchUrl)).map((item)=>({id:typeof item.id==='string'&&item.id.trim()?item.id.trim():createEngineId(item.name),name:item.name.trim()||'Custom engine',searchUrl:item.searchUrl.trim()})):[];const allEngines=getAllEngines(customEngines);const engine=typeof raw.engine==='string'&&allEngines[raw.engine]?raw.engine:STORAGE_DEFAULTS.engine;return{engine,quickLinks,customEngines};}
 function downloadJson(filename,data){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+
+function detectBrowserFamily() {
+  const ua = navigator.userAgent || '';
+  if (ua.includes('Firefox/')) return 'firefox';
+  if (ua.includes('Chrome/') || ua.includes('Chromium/') || ua.includes('Edg/')) return 'chromium';
+  return 'other';
+}
+
+if (copyLocalBlankUrlBtn && localBlankHelpEl) {
+  copyLocalBlankUrlBtn.addEventListener('click', async () => {
+    const urlField = document.getElementById('localBlankUrl');
+    if (!urlField) return;
+
+    const value = urlField.value.trim();
+    if (!value) return;
+
+    try {
+      await navigator.clipboard.writeText(value);
+      localBlankHelpEl.textContent = 'Copied. Paste this into your browser’s custom search engine URL field.';
+    } catch (error) {
+      console.error('Clipboard copy failed', error);
+      localBlankHelpEl.textContent = 'Copy failed. Select and copy the URL manually.';
+    }
+  });
+
+  const family = detectBrowserFamily();
+  if (family === 'chromium') {
+    localBlankHelpEl.textContent = 'Chrome/Comet: paste this into Settings → Search engine → Manage search engines and site search.';
+  } else if (family === 'firefox') {
+    localBlankHelpEl.textContent = 'Firefox: paste this into about:preferences#search under Search shortcuts or custom engines.';
+  } else {
+    localBlankHelpEl.textContent = 'Use this in your browser’s search engine settings.';
+  }
+}
+
 async function persistAndRender(message){await storageSet({engine:settings.engine,customEngines:settings.customEngines,quickLinks:settings.quickLinks});const allEngines=getAllEngines(settings.customEngines);if(!allEngines[settings.engine]){settings.engine=STORAGE_DEFAULTS.engine;await storageSet({engine:settings.engine});}renderDefaultEngineDropdown(allEngines,settings.engine);renderLinks();renderEngines();setStatus(message);}
 defaultEngineEl.addEventListener('change',async()=>{const allEngines=getAllEngines(settings.customEngines);settings.engine=allEngines[defaultEngineEl.value]?defaultEngineEl.value:STORAGE_DEFAULTS.engine;await storageSet({engine:settings.engine});setStatus('Saved default engine: '+allEngines[settings.engine].name);});
 addLinkBtn.addEventListener('click',async()=>{const name=linkNameEl.value.trim();const url=linkUrlEl.value.trim();if(!name||!isValidUrl(url)){setStatus('Enter a link name and a valid full URL.');return;}settings.quickLinks.push({name,url});linkNameEl.value='';linkUrlEl.value='';await persistAndRender('Added quick link: '+name);});
