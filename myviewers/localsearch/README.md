@@ -24,6 +24,7 @@ Supported (and tested) environments:
 - Comet desktop
 - Firefox Developer Edition (desktop)
 - Firefox Nightly/Beta (Android)
+- Quetta (Android)
 
 ---
 
