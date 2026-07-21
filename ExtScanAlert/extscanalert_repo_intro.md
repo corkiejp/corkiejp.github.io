@@ -69,6 +69,8 @@ Source cleanup, fuller documentation, and a more complete public repo layout are
 
 ## Feedback wanted
 
+[How to find new providers](How_to_find_new_providers.md)
+
 Useful feedback would include:
 
 - sites where the extension catches something interesting,
