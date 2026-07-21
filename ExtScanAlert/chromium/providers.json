@@ -309,16 +309,18 @@
   "patterns": ["googletagmanager.com", "gtag/js", "google tag"],
   "domains": ["googletagmanager.com"],
   "scoreBoost": 1,
-  "actionMode": "observe-only",
+  
   "uiNote": "Detected via Google Tag Manager / gtag.js in the script chain. Observe-only by default; no provider-domain blocking is recommended.",
   "_note": "Use for attribution/logging when fingerprint calls occur with gtag.js in the chain. This is not a dedicated fingerprint vendor."
 },
 {
   "id": "html-load",
-  "name": "HTML-Load ad/fingerprinting canary",
-  "family": "anti-bot / fraud",
-  "category": "ad-tech / anti-adblock / fingerprinting",
+  "name": "HTML-Load ad/fingerprinting canary / Content Loader",
+  "family": "ad-tech / anti-adblock / content delivery",
+  "category": "content / ad loader / anti-adblock / fingerprinting",
   "patterns": [
+    "content-loader.com",
+    "fb.content-loader.com",
     "html-load.com", "html-load.cc", "fb.html-load.com"
   ],
   "domains": [
@@ -327,11 +329,54 @@
     "4.html-load.com",
     "7.html-load.com",
 	"html-load.cc",
-	"fb.html-load.com"
+	"fb.html-load.com",
+	"content-loader.com",
+	"fb.content-loader.com"
   ],
   "scoreBoost": 3,
-  "uiNote": "Used by sites to load ads / canary scripts",
-  "_note": "Used by sites to load ads / canary scripts via html-load.com / .cc when ad blockers are present"
+  "uiNote": "Ad reinsertion / content loader used by some sites to inject ads and sometimes bypass ad blockers.",
+  "_note": "html-load.com and content-loader.com are part of the same ad recovery infrastructure. content-loader.com can redirect to html-load.com, and both are used to serve ads and detect/counter ad blockers. fb.* subdomains are Meta‑branded variants used in some publisher stacks."
+},
+{
+  "id": "meta-consent-loader",
+  "name": "Meta Consent Loader",
+  "family": "consent management",
+  "category": "consent / privacy UI",
+  "patterns": [
+    "Meta consent",
+    "fb.content-loader.com",
+    "fbq('consent'"
+  ],
+  "domains": [
+    "fb.content-loader.com"
+  ],
+  "scriptOrigins": [
+    "fb.content-loader.com"
+  ],
+  "scoreBoost": 1,
+  "uiNote": "Meta‑related consent loader used by some publishers to gate Meta Pixel and other data collection until consent is given.",
+  "_note": "Publisher consent setups often integrate Meta Pixel consent handling via fb.content-loader.com. Meta’s docs describe gating Pixel with fbq('consent', 'revoke'/'grant'). Blocking this may prevent Meta Pixel from firing or change how consent is handled on the site."
+},
+{
+  "id": "sourcepoint-cmp",
+  "name": "Sourcepoint CMP",
+  "family": "consent management",
+  "category": "consent / privacy UI",
+  "patterns": [
+    "Sourcepoint",
+    "_sp_queue",
+    "cdn.privacy-mgmt.com",
+    "wrapperMessagingWithoutDetection.js"
+  ],
+  "domains": [
+    "cdn.privacy-mgmt.com"
+  ],
+  "scriptOrigins": [
+    "cdn.privacy-mgmt.com"
+  ],
+  "scoreBoost": 1,
+  "uiNote": "Sourcepoint Consent Management Platform (CMP) – shows cookie/privacy banners and manages consent for downstream ads and analytics.",
+  "_note": "Sourcepoint’s GDPR/consent implementation uses cdn.privacy-mgmt.com (baseEndpoint) and loads wrapperMessagingWithoutDetection.js from that domain. Blocking may break or alter consent banners and how other trackers are enabled."
 },
 {
   "id": "scorecardresearch",
