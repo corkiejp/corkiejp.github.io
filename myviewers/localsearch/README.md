@@ -6,9 +6,9 @@ It grew out of a simple annoyance: most “default” search engines ping home o
 
 [Source code](https://github.com/corkiejp/corkiejp.github.io/tree/well-known/myviewers/localsearch/local-search-newtab-plus-reorder)
 
-** Manual install: - ** [Chromium .zip](https://corkiejp.github.io/myviewers/localsearch/local-search-newtab-plus-reorder%20(2).zip) or [Firefox .xpi](https://corkiejp.github.io/myviewers/localsearch/LS-Firefox.zip.xpi) 
+**Manual install**: -  [Chromium .zip](https://corkiejp.github.io/myviewers/localsearch/local-search-newtab-plus-reorder%20(2).zip) or [Firefox .xpi](https://corkiejp.github.io/myviewers/localsearch/LS-Firefox.zip.xpi) 
 
-** Stores:- ** [Chrome Webstore](https://chromewebstore.google.com/detail/local-search-new-tab-plus/phaiahobckjnphelhkmldgmgneelcgbm) ~ Still waitinng on AMO review,
+**Stores**:-  [Chrome Webstore](https://chromewebstore.google.com/detail/local-search-new-tab-plus/phaiahobckjnphelhkmldgmgneelcgbm) ~ Still waitinng on AMO review,
 
 ---
 
