@@ -31,51 +31,146 @@ window.addEventListener('message', (event) => {
   // NEW: basic matcher for dangerous-looking commands
 function looksLikeDangerousCommand(text) {
   if (!text || typeof text !== 'string') return false;
-  const trimmed = text.trim();
 
-  // Too short to be interesting
+  const trimmed = text.trim();
   if (trimmed.length < 10) return false;
 
   const lower = trimmed.toLowerCase();
 
-  // Simple heuristics — you can expand these over time
-const patterns = [
-  // Windows / PowerShell
-  'powershell -command',
-  'powershell -nop',
-  'powershell.exe',
-  'invoke-webrequest',
-  'iex(',
-  'reg add ',
-  'reg delete ',
-  'schtasks /create',
-  'wmic process call',
-  'cmd.exe /c',
-  'start-process powershell',
-  'certutil -urlcache',
-  'bitsadmin /transfer',
+  const directPatterns = [
+    // PowerShell / cmd
+    'powershell -command',
+    'powershell.exe',
+    'pwsh ',
+    'cmd.exe /c',
+    'start-process powershell',
+    'invoke-webrequest',
+    'invoke-expression',
+    'iex ',
+    'iex(',
+    'frombase64string',
+    '-encodedcommand',
+    ' -enc ',
+    ' -nop',
+    ' -noni',
+    ' -w hidden',
+    '-windowstyle hidden',
+    '-executionpolicy bypass',
+    ' -ep bypass',
+    'start-bitstransfer',
+    'downloadfile(',
+    'reg add ',
+    'reg delete ',
+    'schtasks /create',
+    'wmic process call',
+    'rundll32 ',
+    'regsvr32 ',
+    'mshta ',
+    'certutil -urlcache',
+    'bitsadmin /transfer',
 
-  // Cross-platform / *nix-ish
-  'curl ',
-  'wget ',
-  'bash -c',
-  'sh -c',
-  '| bash',
-  '| sh',
+    // Cross-platform / downloader-exec
+    'curl ',
+    'wget ',
+    'bash -c',
+    'sh -c',
+    '| bash',
+    '| sh',
 
-  // Explicit high‑risk *nix commands
-  'sudo rm -rf /',
-  'sudo rm -rf --no-preserve-root /',
-  'sudo curl ',
-  'sudo wget ',
-  'sudo bash -c',
-  'sudo sh -c'
-];
+    // Explicitly destructive / high-risk
+    'sudo rm -rf /',
+    'sudo rm -rf --no-preserve-root /',
+    'sudo curl ',
+    'sudo wget ',
+    'sudo bash -c',
+    'sudo sh -c'
+  ];
 
-  return patterns.some((p) => lower.includes(p));
+  if (directPatterns.some((p) => lower.includes(p))) {
+    return true;
+  }
+
+  // ClickFix-style "download + execute" combos
+  const hasDownloader =
+    lower.includes('invoke-webrequest') ||
+    lower.includes('curl ') ||
+    lower.includes('wget ') ||
+    lower.includes('downloadfile(') ||
+    lower.includes('start-bitstransfer') ||
+    lower.includes('certutil -urlcache');
+
+  const hasExecution =
+    lower.includes('powershell') ||
+    lower.includes('pwsh ') ||
+    lower.includes('cmd.exe') ||
+    lower.includes('start-process') ||
+    lower.includes('iex ') ||
+    lower.includes('iex(') ||
+    lower.includes('bash -c') ||
+    lower.includes('sh -c') ||
+    lower.includes('rundll32 ') ||
+    lower.includes('regsvr32 ') ||
+    lower.includes('mshta ');
+
+  const hasEncodedOrHidden =
+    lower.includes('-encodedcommand') ||
+    lower.includes('frombase64string') ||
+    lower.includes(' -enc ') ||
+    lower.includes('-windowstyle hidden') ||
+    lower.includes(' -w hidden') ||
+    lower.includes('-executionpolicy bypass') ||
+    lower.includes(' -ep bypass') ||
+    lower.includes(' -nop') ||
+    lower.includes(' -noni');
+
+  if ((hasDownloader && hasExecution) || (hasExecution && hasEncodedOrHidden)) {
+    return true;
+  }
+
+  return false;
 }
 
+function getClickFixSignals() {
+  try {
+    const text = (document.body?.innerText || '').toLowerCase().slice(0, 50000);
 
+    const patterns = [
+      'press windows+r',
+      'press win+r',
+      'windows + r',
+      'win + r',
+      'open the run dialog',
+      'paste the command',
+      'copy this command',
+      'copy and paste',
+      'run this command',
+      'run in powershell',
+      'run in terminal',
+      'open powershell',
+      'open terminal',
+      'verification step',
+      'complete verification',
+      'verify you are human',
+      'i am not a robot',
+      'fix the error',
+      'security check'
+    ];
+
+    const matched = patterns.filter((p) => text.includes(p));
+
+    return {
+      matched,
+      score: matched.length,
+      hasHints: matched.length > 0
+    };
+  } catch {
+    return {
+      matched: [],
+      score: 0,
+      hasHints: false
+    };
+  }
+}
 
 
 
@@ -319,13 +414,21 @@ function wrapCopyProtection() {
         if (!looksLikeDangerousCommand(text)) return;
 
         // Always notify background for logging + notification
-        postObserve('dangerous-copy', 'command', {
-          target: 'clipboard',
-          meta: {
-            preview: text.slice(0, 160),
-            length: text.length
-          }
-        });
+const signals = getClickFixSignals();
+
+postObserve('dangerous-copy', 'command', {
+  target: 'clipboard',
+  preview: text.slice(0, 160),
+  length: text.length,
+  clickFixHints: signals.matched,
+  clickFixHintScore: signals.score,
+  meta: {
+    preview: text.slice(0, 160),
+    length: text.length,
+    clickFixHints: signals.matched,
+    clickFixHintScore: signals.score
+  }
+});
 
         // Block locally when advanced mode is enabled
         if (window.__extScanAlertDangerousCopyBlock) {
@@ -347,13 +450,21 @@ function wrapClipboardAPI() {
   if (typeof origWriteText === 'function') {
     navigator.clipboard.writeText = async function(text) {
       if (looksLikeDangerousCommand(text)) {
-        postObserve('dangerous-copy', 'command', {
-          target: 'clipboard',
-          meta: {
-            preview: text.slice(0, 160),
-            length: text.length
-          }
-        });
+const signals = getClickFixSignals();
+
+postObserve('dangerous-copy', 'command', {
+  target: 'clipboard',
+  preview: text.slice(0, 160),
+  length: text.length,
+  clickFixHints: signals.matched,
+  clickFixHintScore: signals.score,
+  meta: {
+    preview: text.slice(0, 160),
+    length: text.length,
+    clickFixHints: signals.matched,
+    clickFixHintScore: signals.score
+  }
+});
 
         if (window.__extScanAlertDangerousCopyBlock) {
           throw new DOMException('Clipboard write blocked by ExtScanAlert', 'SecurityError');
@@ -382,13 +493,21 @@ function wrapClipboardAPI() {
         }
 
         if (hasDangerous) {
-          postObserve('dangerous-copy', 'command', {
-            target: 'clipboard',
-            meta: {
-              preview: text.slice(0, 160),
-              length: text.length
-            }
-          });
+const signals = getClickFixSignals();
+
+postObserve('dangerous-copy', 'command', {
+  target: 'clipboard',
+  preview: text.slice(0, 160),
+  length: text.length,
+  clickFixHints: signals.matched,
+  clickFixHintScore: signals.score,
+  meta: {
+    preview: text.slice(0, 160),
+    length: text.length,
+    clickFixHints: signals.matched,
+    clickFixHintScore: signals.score
+  }
+});
 
           if (window.__extScanAlertDangerousCopyBlock) {
             throw new DOMException('Clipboard write blocked by ExtScanAlert', 'SecurityError');

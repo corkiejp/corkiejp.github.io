@@ -1379,35 +1379,65 @@ sendResponse({
 if (msg?.type === 'dangerous-copy') {
   const state = await getState();
   const host = safeHost(msg.page || '') || '';
-  const preview = String(msg.preview || '').trim();
-  const length = typeof msg.length === 'number' ? msg.length : preview.length;
+  const preview = String(msg.preview || msg.meta?.preview || '').trim();
+  const length =
+    typeof msg.length === 'number'
+      ? msg.length
+      : typeof msg.meta?.length === 'number'
+        ? msg.meta.length
+        : preview.length;
+
+  const clickFixHints = Array.isArray(msg.clickFixHints)
+    ? msg.clickFixHints
+    : Array.isArray(msg.meta?.clickFixHints)
+      ? msg.meta.clickFixHints
+      : [];
+
+  const clickFixHintScore =
+    typeof msg.clickFixHintScore === 'number'
+      ? msg.clickFixHintScore
+      : typeof msg.meta?.clickFixHintScore === 'number'
+        ? msg.meta.clickFixHintScore
+        : 0;
 
   const enabled = !!state.dangerousCopyEnabled;
   const blockMode = !!state.dangerousCopyBlockMode;
 
   if (!host || !preview || !enabled) {
-    // Explicitly say "allow" so front end knows not to block.
     sendResponse({ ok: true, action: 'allow' });
     return;
   }
 
+  const isLikelyClickFix = clickFixHints.length > 0 || clickFixHintScore > 0;
+
+  const classification = isLikelyClickFix
+    ? 'likely ClickFix-style social engineering command'
+    : 'likely system-command copy';
+
   const entry = {
     type: 'dangerous-copy',
     action: blockMode ? 'block' : 'observe-only',
-    classification: 'likely system-command copy',
+    classification,
     host,
     page: msg.page || '',
-    meta: { preview, length },
+    meta: {
+      preview,
+      length,
+      clickFixHints,
+      clickFixHintScore
+    },
     policyFamilies: ['clipboard / command safety'],
     policyMode: blockMode ? 'block' : 'observe',
     policyScope: 'global',
     providers: [],
     recentScripts: [],
-    score: 5,
+    score: isLikelyClickFix ? 9 : 5,
     stack: '',
     stackSummary: '',
     subtype: 'command',
-    summary: `copy · clipboard · preview: ${preview.slice(0, 80)}`,
+    summary: isLikelyClickFix
+      ? `clickfix-style copy · clipboard · hints: ${clickFixHints.slice(0, 3).join(', ') || 'present'} · preview: ${preview.slice(0, 80)}`
+      : `copy · clipboard · preview: ${preview.slice(0, 80)}`,
     target: 'clipboard',
     time: Date.now()
   };
@@ -1419,15 +1449,13 @@ if (msg?.type === 'dangerous-copy') {
       type: 'basic',
       iconUrl: chrome.runtime.getURL('icons/icon-128.png'),
       title: 'ExtScanAlert',
-      message:
-        `You just copied a system command from ${host}. ` +
-        `If you didn’t expect to run commands from this site, ` +
-        `consider cancelling before pasting into a terminal or PowerShell.`,
+      message: isLikelyClickFix
+        ? `This page may be using a ClickFix-style prompt on ${host}, attempting to get you to paste and run a command in PowerShell, Terminal, or the Run dialog.`
+        : `You just copied a system command from ${host}. If you didn’t expect to run commands from this site, consider cancelling before pasting into a terminal or PowerShell.`,
       priority: 0
     });
   }
 
-  // This is the crucial part: return 'block' vs 'allow'.
   sendResponse({ ok: true, action: blockMode ? 'block' : 'allow' });
   return;
 }
