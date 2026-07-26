@@ -4,11 +4,11 @@ Local Search New Tab is a cross‑browser extension that keeps your new tab page
 
 It grew out of a simple annoyance: most “default” search engines ping home on every new tab, even when you just want a blank page and will decide what to search later.
 
-[Source code](https://github.com/corkiejp/corkiejp.github.io/tree/well-known/myviewers/localsearch/local-search-newtab-plus-reorder)
+[Source code](https://github.com/corkiejp/corkiejp.github.io/tree/well-known/myviewers/localsearch/local-search-newtab-plus-reorder) [Purpose and notes + Alternatives](https://github.com/corkiejp/corkiejp.github.io/issues/28)
 
 **Manual install**: -  [Chromium .zip](https://corkiejp.github.io/myviewers/localsearch/local-search-new-tab-chrome-v1.3.2.zip) or [Firefox .xpi](https://corkiejp.github.io/myviewers/localsearch/local-search-new-tab-firefox-v1.3.2.xpi) 
 
-**Stores**:-  [Chrome Webstore](https://chromewebstore.google.com/detail/local-search-new-tab-plus/phaiahobckjnphelhkmldgmgneelcgbm) ~ Still waitinng on AMO review,
+**Stores**:-  [Chrome Webstore](https://chromewebstore.google.com/detail/local-search-new-tab-plus/phaiahobckjnphelhkmldgmgneelcgbm) , [Firefox (AMO)](https://addons.mozilla.org/addon/local-search-new-tab-plus/)
 
 ---
 
