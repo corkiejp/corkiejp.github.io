@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notes - Local Search New Tab Plus</title>
+<style>
+  :root {
+    --bg: #f7f6f2;
+    --surface: #fbfbf9;
+    --surface-2: #f0ede7;
+    --text: #28251d;
+    --muted: #726f68;
+    --border: rgba(40, 37, 29, 0.12);
+    --primary: #01696f;
+    --ring: rgba(1, 105, 111, 0.24);
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #171614;
+    --surface: #1d1c1a;
+    --surface-2: #24221f;
+    --text: #ece8df;
+    --muted: #aaa59c;
+    --border: rgba(236, 232, 223, 0.12);
+    --primary: #4f98a3;
+    --ring: rgba(79, 152, 163, 0.24);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 20px;
+    font: 16px/1.45 system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  .shell {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    gap: 18px;
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    padding: 20px;
+  }
+
+  .topbar, .toolbar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .toolbar {
+    justify-content: flex-start;
+    margin-top: 12px;
+  }
+
+  h1, h2 {
+    margin-top: 0;
+  }
+
+  .muted {
+    color: var(--muted);
+  }
+
+  .row {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  @media (min-width: 760px) {
+    .row.two {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  input, textarea, button, a.action-link {
+    font: inherit;
+  }
+
+  input, textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: inherit;
+    outline: none;
+  }
+
+  textarea {
+    min-height: 180px;
+    resize: vertical;
+  }
+
+  input:focus, textarea:focus, button:focus-visible, a.action-link:focus-visible {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px var(--ring);
+  }
+
+  button, a.action-link {
+    min-height: 42px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: inherit;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+  }
+
+  .notes-list {
+    display: grid;
+    gap: 12px;
+  }
+
+  .note-card {
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: var(--surface-2);
+    padding: 14px;
+    display: grid;
+    gap: 10px;
+  }
+
+  .note-card-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .note-card-text {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .status {
+    color: var(--muted);
+  }
+
+  .source-link-row {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+  
+.note-card,
+.note-card-text,
+.note-card .muted,
+#openSourceHint,
+#noteSourceUrl,
+#noteCapturedText,
+#noteText {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.note-card strong,
+.note-card-text,
+.note-card .muted {
+  white-space: normal;
+}
+
+#openSourceLink,
+#openSourceHint {
+  max-width: 100%;
+  display: block;
+}  
+</style>
+</head>
+<body>
+<main class="shell">
+  <section class="panel">
+    <div class="topbar">
+      <div>
+        <h1>Notes</h1>
+        <p class="muted">Plain-text notes with optional source title and source URL.</p>
+      </div>
+      <div class="toolbar">
+        <a class="action-link" href="newtab.html">New tab</a>
+        <a class="action-link" href="options.html">Settings</a>
+      </div>
+    </div>
+
+    <div class="row two">
+      <div>
+        <label for="noteTitle">Title</label>
+        <input id="noteTitle" placeholder="Note title">
+      </div>
+      <div>
+        <label for="noteSourceTitle">Source title</label>
+        <input id="noteSourceTitle" placeholder="Source title">
+      </div>
+    </div>
+
+    <div class="row two">
+      <div>
+        <label for="noteSourceUrl">Source URL</label>
+        <input id="noteSourceUrl" placeholder="https://example.com/article">
+      </div>
+      <div>
+        <label for="noteCapturedText">Captured text</label>
+        <input id="noteCapturedText" placeholder="Optional captured text">
+      </div>
+    </div>
+
+    <div class="source-link-row">
+      <a class="action-link" id="openSourceLink" href="#" target="_blank" rel="noopener noreferrer" hidden>Open source link</a>
+      <span class="muted" id="openSourceHint">No source link on the selected note.</span>
+    </div>
+
+    <div class="row">
+      <div>
+        <label for="noteText">Note text</label>
+        <textarea id="noteText" placeholder="Write your plain-text note here"></textarea>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <button id="saveNoteBtn" type="button">Save note</button>
+      <button id="newNoteBtn" type="button">New note</button>
+      <button id="deleteNoteBtn" type="button">Delete selected note</button>
+      <button id="exportSingleJsonBtn" type="button">Export selected note JSON</button>
+      <button id="exportSingleTxtBtn" type="button">Export selected note TXT</button>
+    </div>
+
+    <div class="status" id="notesStatus">Loading notes…</div>
+  </section>
+
+  <section class="panel">
+    <h2>Saved notes</h2>
+    <div class="notes-list" id="notesList"></div>
+  </section>
+</main>
+
+<script src="shared.js"></script>
+<script src="notes.js"></script>
+</body>
+</html>

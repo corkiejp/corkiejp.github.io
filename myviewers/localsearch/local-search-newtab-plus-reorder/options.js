@@ -1,4 +1,5 @@
 const defaultEngineEl = document.getElementById('defaultEngine');
+const themeSettingEl = document.getElementById('themeSetting');
 const settingsStatusEl = document.getElementById('settingsStatus');
 const linksListEl = document.getElementById('linksList');
 const enginesListEl = document.getElementById('enginesList');
@@ -9,6 +10,11 @@ const resetEnginesBtn = document.getElementById('resetEnginesBtn');
 const exportBtn = document.getElementById('exportBtn');
 const importBtn = document.getElementById('importBtn');
 const importFileEl = document.getElementById('importFile');
+const exportNotesBtn = document.getElementById('exportNotesBtn');
+const importNotesReplaceBtn = document.getElementById('importNotesReplaceBtn');
+const importNotesAppendBtn = document.getElementById('importNotesAppendBtn');
+const importNotesFileEl = document.getElementById('importNotesFile');
+const notesSummaryEl = document.getElementById('notesSummary');
 const linkNameEl = document.getElementById('linkName');
 const linkUrlEl = document.getElementById('linkUrl');
 const engineNameEl = document.getElementById('engineName');
@@ -17,9 +23,37 @@ const copyLocalBlankUrlBtn = document.getElementById('copyLocalBlankUrlBtn');
 const localBlankHelpEl = document.getElementById('localBlankHelp');
 
 let settings;
+let stopThemeWatcher = () => {};
+let pendingNotesImportMode = 'replace';
 
 function setStatus(message) {
   settingsStatusEl.textContent = message;
+}
+
+function syncThemeUi() {
+  if (themeSettingEl) {
+    themeSettingEl.value = normalizeTheme(settings?.theme);
+  }
+}
+
+function applyCurrentTheme() {
+  const effective = applyTheme(settings?.theme);
+  syncThemeUi();
+  stopThemeWatcher();
+  stopThemeWatcher = watchSystemTheme(settings?.theme, () => applyTheme(settings?.theme));
+  return effective;
+}
+
+function renderNotesSummary() {
+  const count = Array.isArray(settings?.notes) ? settings.notes.length : 0;
+  if (!count) {
+    notesSummaryEl.textContent = 'No notes saved yet.';
+    return;
+  }
+
+  const latest = settings.notes[0];
+  const latestLabel = latest?.title || latest?.sourceTitle || 'Untitled note';
+  notesSummaryEl.textContent = `${count} note${count === 1 ? '' : 's'} saved. Latest: ${latestLabel}`;
 }
 
 function renderDefaultEngineDropdown(allEngines, selectedId) {
@@ -116,32 +150,6 @@ function renderEngines() {
   });
 }
 
-function sanitizeImportedSettings(raw) {
-  const quickLinks = Array.isArray(raw.quickLinks)
-    ? raw.quickLinks
-        .filter((item) => item && typeof item.name === 'string' && isValidUrl(item.url))
-        .map((item) => ({
-          name: item.name.trim() || 'Untitled',
-          url: item.url.trim()
-        }))
-    : [...DEFAULT_QUICK_LINKS];
-
-  const customEngines = Array.isArray(raw.customEngines)
-    ? raw.customEngines
-        .filter((item) => item && typeof item.name === 'string' && typeof item.searchUrl === 'string' && isValidTemplate(item.searchUrl))
-        .map((item) => ({
-          id: typeof item.id === 'string' && item.id.trim() ? item.id.trim() : createEngineId(item.name),
-          name: item.name.trim() || 'Custom engine',
-          searchUrl: item.searchUrl.trim()
-        }))
-    : [];
-
-  const allEngines = getAllEngines(customEngines);
-  const engine = typeof raw.engine === 'string' && allEngines[raw.engine] ? raw.engine : STORAGE_DEFAULTS.engine;
-
-  return { engine, quickLinks, customEngines };
-}
-
 function downloadJson(filename, data) {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -156,7 +164,9 @@ async function persistAndRender(message) {
   await storageSet({
     engine: settings.engine,
     customEngines: settings.customEngines,
-    quickLinks: settings.quickLinks
+    quickLinks: settings.quickLinks,
+    theme: normalizeTheme(settings.theme),
+    notes: sanitizeNotes(settings.notes)
   });
 
   const allEngines = getAllEngines(settings.customEngines);
@@ -168,6 +178,8 @@ async function persistAndRender(message) {
   renderDefaultEngineDropdown(allEngines, settings.engine);
   renderLinks();
   renderEngines();
+  renderNotesSummary();
+  applyCurrentTheme();
   setStatus(message);
 }
 
@@ -177,6 +189,15 @@ defaultEngineEl.addEventListener('change', async () => {
   await storageSet({ engine: settings.engine });
   setStatus('Saved default engine: ' + allEngines[settings.engine].name);
 });
+
+if (themeSettingEl) {
+  themeSettingEl.addEventListener('change', async () => {
+    settings.theme = normalizeTheme(themeSettingEl.value);
+    applyCurrentTheme();
+    await storageSet({ theme: settings.theme });
+    setStatus('Saved theme: ' + settings.theme + '.');
+  });
+}
 
 addLinkBtn.addEventListener('click', async () => {
   const name = linkNameEl.value.trim();
@@ -256,6 +277,7 @@ function handleRemoveAction(type, index) {
     if (settings.engine === removed.id) {
       settings.engine = STORAGE_DEFAULTS.engine;
     }
+
     return persistAndRender('Removed custom engine: ' + removed.name);
   }
 }
@@ -288,15 +310,7 @@ document.addEventListener('click', async (event) => {
 });
 
 exportBtn.addEventListener('click', async () => {
-  const exportPayload = {
-    schemaVersion: 1,
-    exportedAt: new Date().toISOString(),
-    engine: settings.engine,
-    quickLinks: settings.quickLinks,
-    customEngines: settings.customEngines
-  };
-
-  downloadJson('local-search-newtab-plus-settings.json', exportPayload);
+  downloadJson('local-search-newtab-plus-settings.json', buildSettingsExportPayload(settings));
   setStatus('Exported settings to JSON.');
 });
 
@@ -304,9 +318,7 @@ importBtn.addEventListener('click', () => importFileEl.click());
 
 importFileEl.addEventListener('change', async () => {
   const file = importFileEl.files?.[0];
-  if (!file) {
-    return;
-  }
+  if (!file) return;
 
   try {
     const text = await file.text();
@@ -318,6 +330,47 @@ importFileEl.addEventListener('change', async () => {
     setStatus('Could not import JSON settings file.');
   } finally {
     importFileEl.value = '';
+  }
+});
+
+exportNotesBtn.addEventListener('click', () => {
+  downloadJson('local-search-newtab-plus-notes.json', buildNotesExportPayload(settings.notes));
+  setStatus('Exported notes to JSON.');
+});
+
+importNotesReplaceBtn.addEventListener('click', () => {
+  pendingNotesImportMode = 'replace';
+  importNotesFileEl.click();
+});
+
+importNotesAppendBtn.addEventListener('click', () => {
+  pendingNotesImportMode = 'append';
+  importNotesFileEl.click();
+});
+
+importNotesFileEl.addEventListener('change', async () => {
+  const file = importNotesFileEl.files?.[0];
+  if (!file) return;
+
+  try {
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+    const incomingNotes = sanitizeNotes(parsed?.notes);
+
+    settings.notes = pendingNotesImportMode === 'append'
+      ? mergeNotes(settings.notes, incomingNotes)
+      : incomingNotes;
+
+    await persistAndRender(
+      pendingNotesImportMode === 'append'
+        ? 'Appended notes from ' + file.name
+        : 'Replaced notes from ' + file.name
+    );
+  } catch (error) {
+    console.error('Notes import failed', error);
+    setStatus('Could not import notes JSON file.');
+  } finally {
+    importNotesFileEl.value = '';
   }
 });
 
@@ -338,14 +391,10 @@ function detectBrowserFamily() {
 if (copyLocalBlankUrlBtn && localBlankHelpEl) {
   copyLocalBlankUrlBtn.addEventListener('click', async () => {
     const urlField = document.getElementById('localBlankUrl');
-    if (!urlField) {
-      return;
-    }
+    if (!urlField) return;
 
     const value = urlField.value.trim();
-    if (!value) {
-      return;
-    }
+    if (!value) return;
 
     try {
       await navigator.clipboard.writeText(value);
@@ -368,6 +417,8 @@ if (copyLocalBlankUrlBtn && localBlankHelpEl) {
 
 async function init() {
   settings = await readSettings();
+  applyCurrentTheme();
+
   const allEngines = getAllEngines(settings.customEngines);
 
   if (!allEngines[settings.engine]) {
@@ -378,6 +429,8 @@ async function init() {
   renderDefaultEngineDropdown(allEngines, settings.engine);
   renderLinks();
   renderEngines();
+  renderNotesSummary();
+  syncThemeUi();
   setStatus('Settings loaded.');
 }
 

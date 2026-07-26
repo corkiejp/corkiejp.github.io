@@ -6,7 +6,7 @@ It grew out of a simple annoyance: most “default” search engines ping home o
 
 [Source code](https://github.com/corkiejp/corkiejp.github.io/tree/well-known/myviewers/localsearch/local-search-newtab-plus-reorder)
 
-**Manual install**: -  [Chromium .zip](https://corkiejp.github.io/myviewers/localsearch/local-search-newtab-plus-reorder%20(2).zip) or [Firefox .xpi](https://corkiejp.github.io/myviewers/localsearch/LS-Firefox.zip.xpi) 
+**Manual install**: -  [Chromium .zip](https://corkiejp.github.io/myviewers/localsearch/local-search-new-tab-chrome-v1.3.2.zip) or [Firefox .xpi](https://corkiejp.github.io/myviewers/localsearch/local-search-new-tab-firefox-v1.3.2.xpi) 
 
 **Stores**:-  [Chrome Webstore](https://chromewebstore.google.com/detail/local-search-new-tab-plus/phaiahobckjnphelhkmldgmgneelcgbm) ~ Still waitinng on AMO review,
 
@@ -19,6 +19,7 @@ It grew out of a simple annoyance: most “default” search engines ping home o
 - Provides quick links and reordering for your most-used sites.
 - Only sends a network request when you press Enter on a search.
 - Offers a **LocalBlank** fallback search engine for browsers that don’t allow new-tab overrides.
+- **Latest** Dark/Light/System theme option + A mobile friendly notes feature.
 
 Supported (and tested) environments:
 
