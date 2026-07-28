@@ -2,7 +2,7 @@ const DEFAULT_BUILTIN_ENGINES = {
   google: { name: 'Google', searchUrl: 'https://www.google.com/search?q=%s', builtin: true },
   googleNoAI: { name: 'Google NoAI', searchUrl: 'https://www.google.com/search?q=%s&udm=14', builtin: true },
   duckduckgo: { name: 'DuckDuckGo', searchUrl: 'https://duckduckgo.com/?q=%s', builtin: true },
-  duckduckgoNoAI: { name: 'DuckDuckGo NoAI', searchUrl: 'https://duckduckgo.com/?q=%s&noai=1', builtin: true },
+  duckduckgoNoAI: { name: 'DuckDuckGo NoAI', searchUrl: 'https://noai.duckduckgo.com/?q=%s&noai=1', builtin: true },
   qwant: { name: 'Qwant', searchUrl: 'https://www.qwant.com/?q=%s', builtin: true },
   bing: { name: 'Bing', searchUrl: 'https://www.bing.com/search?q=%s', builtin: true },
   startpage: { name: 'Startpage', searchUrl: 'https://www.startpage.com/sp/search?query=%s', builtin: true },
