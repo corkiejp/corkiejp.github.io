@@ -9,43 +9,129 @@
     --bg: #f7f6f2;
     --surface: #fbfbf9;
     --surface-2: #f0ede7;
+    --surface-3: #ebe7e0;
     --text: #28251d;
     --muted: #726f68;
     --border: rgba(40, 37, 29, 0.12);
     --primary: #01696f;
+    --primary-strong: #0c4e54;
     --ring: rgba(1, 105, 111, 0.24);
-    --radius: 16px;
+    --danger: #964219;
+    --ok: #437a22;
+    --radius-sm: 12px;
+    --radius-md: 16px;
+    --radius-lg: 22px;
+    --shadow: 0 8px 24px rgba(40, 37, 29, 0.05);
   }
 
   :root[data-theme="dark"] {
     --bg: #171614;
     --surface: #1d1c1a;
     --surface-2: #24221f;
+    --surface-3: #2b2926;
     --text: #ece8df;
     --muted: #aaa59c;
     --border: rgba(236, 232, 223, 0.12);
     --primary: #4f98a3;
+    --primary-strong: #6eb4be;
     --ring: rgba(79, 152, 163, 0.24);
+    --danger: #bb653b;
+    --ok: #6daa45;
+    --shadow: none;
   }
 
   * { box-sizing: border-box; }
-
+  html { color-scheme: light dark; }
   body {
     margin: 0;
-    padding: 24px;
-    font: 16px/1.45 system-ui, sans-serif;
+    padding: 18px;
+    font: 16px/1.5 system-ui, sans-serif;
     color: var(--text);
     background: var(--bg);
   }
 
-  .shell { max-width: 1100px; margin: 0 auto; display: grid; gap: 18px; }
-  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 22px; padding: 22px; }
-  h1, h2 { margin-top: 0; }
-  .lead { color: var(--muted); max-width: 70ch; }
-  .grid { display: grid; gap: 18px; grid-template-columns: 1fr; }
+  .shell {
+    max-width: 1120px;
+    margin: 0 auto;
+    display: grid;
+    gap: 16px;
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    box-shadow: var(--shadow);
+  }
+
+  .hero,
+  .stack,
+  .list,
+  .summary-strip,
+  .preview-list,
+  .preview-controls,
+  .subsection {
+    display: grid;
+    gap: 12px;
+  }
+
+  .hero-top,
+  .section-head,
+  .item-top,
+  .localblank-actions,
+  .preview-meta,
+  .preview-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .title-wrap { min-width: 0; }
+  h1, h2, h3 { margin: 0; line-height: 1.15; }
+  h1 { font-size: 1.7rem; }
+  h2 { font-size: 1.1rem; margin-bottom: 6px; }
+  h3 { font-size: 1rem; }
+
+  .lead,
+  .muted,
+  .helper,
+  .status-line,
+  .tiny,
+  .item-detail,
+  .preview-empty {
+    color: var(--muted);
+  }
+
+  .lead { margin: 0; max-width: 76ch; }
+
+  .row,
+  .two-col {
+    display: grid;
+    gap: 12px;
+  }
+
+  .row.two,
+  .two-col {
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 760px) {
+    .row.two,
+    .summary-strip {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
 
   @media (min-width: 980px) {
-    .grid { grid-template-columns: 1fr 1fr; }
+    .two-col {
+      grid-template-columns: 1fr 1fr;
+    }
+    .summary-strip {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
   }
 
   label {
@@ -56,34 +142,46 @@
     color: var(--muted);
   }
 
-  input, select, textarea {
+  input,
+  select,
+  textarea,
+  button,
+  a {
+    font: inherit;
+  }
+
+  input,
+  select,
+  textarea {
     width: 100%;
     padding: 12px 14px;
-    border-radius: var(--radius);
+    border-radius: var(--radius-md);
     border: 1px solid var(--border);
     background: var(--surface-2);
     color: inherit;
     outline: none;
-    font: inherit;
   }
 
-  textarea {
-    min-height: 120px;
-    resize: vertical;
-  }
-
-  input:focus, select:focus, textarea:focus, button:focus-visible, a:focus-visible {
+  input:focus,
+  select:focus,
+  textarea:focus,
+  button:focus-visible,
+  a:focus-visible {
     border-color: var(--primary);
     box-shadow: 0 0 0 4px var(--ring);
+    outline: none;
   }
 
-  .row { display: grid; gap: 12px; margin-bottom: 14px; }
-
-  @media (min-width: 720px) {
-    .row.two { grid-template-columns: 1fr 1fr; }
+  .toolbar,
+  .item-actions,
+  .preview-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
-  button, .action-link {
+  button,
+  .action-link {
     min-height: 40px;
     padding: 9px 12px;
     border-radius: 12px;
@@ -98,22 +196,190 @@
     justify-content: center;
   }
 
-  .toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
-  .list { display: grid; gap: 10px; margin-top: 16px; }
-  .item { display: grid; gap: 10px; border: 1px solid var(--border); border-radius: 18px; background: var(--surface-2); padding: 14px; }
-  .item-top { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; flex-wrap: wrap; }
-  .muted { color: var(--muted); }
-  .status { margin-top: 10px; color: var(--muted); }
-  code { background: var(--surface-2); padding: 2px 6px; border-radius: 8px; }
+  button.primary,
+  .action-link.primary {
+    background: var(--primary);
+    color: #fff;
+    border-color: transparent;
+  }
+
+  button.primary:hover,
+  .action-link.primary:hover {
+    background: var(--primary-strong);
+  }
+
+  button.danger { color: var(--danger); }
+
+  button.drag-handle {
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+  }
+
+  .summary-card,
+  .status-box,
+  .localblank-box,
+  .empty-card,
+  .item,
+  .preview-shell,
+  .preview-card {
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    border-radius: var(--radius-md);
+  }
+
+  .summary-card,
+  .status-box,
+  .localblank-box,
+  .empty-card,
+  .preview-shell {
+    padding: 14px;
+  }
+
+  .summary-card strong {
+    display: block;
+    font-size: 1.05rem;
+    margin-bottom: 4px;
+  }
+
+  .status-box.ok { color: var(--ok); }
+  .status-box.error { color: var(--danger); }
+
+  .item,
+  .preview-card {
+    padding: 14px;
+    display: grid;
+    gap: 12px;
+  }
+
+  .item.dragging { opacity: 0.55; }
+
+  .item.drag-over {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--ring);
+  }
+
+  .item-title,
+  .preview-title {
+    font-weight: 700;
+    word-break: break-word;
+  }
+
+  .item-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 26px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: var(--surface-3);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .edit-card {
+    padding-top: 4px;
+    border-top: 1px solid var(--border);
+    display: none;
+  }
+
+  .item.is-editing .edit-card {
+    display: grid;
+    gap: 10px;
+  }
+
+  .item.is-editing .item-summary {
+    display: none;
+  }
+
+  .edit-grid {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 720px) {
+    .edit-grid.two {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
   .file-input { display: none; }
-  .item-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .hidden { display: none !important; }
+
+  .preview-shell {
+    display: grid;
+    gap: 12px;
+  }
+
+  .preview-card {
+    grid-template-columns: auto 1fr;
+    align-items: start;
+  }
+
+  .preview-card input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+  }
+
+  .preview-card.is-duplicate {
+    opacity: 0.72;
+  }
+
+  .preview-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .preview-tag {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    background: var(--surface-3);
+    border-radius: 999px;
+    padding: 4px 8px;
+  }
+
+  .list {
+    display: grid;
+    gap: 10px;
+    margin-top: 16px;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  code {
+    background: var(--surface-3);
+    padding: 2px 6px;
+    border-radius: 8px;
+  }
+
+  @media (max-width: 560px) {
+    body { padding: 12px; }
+    .panel { padding: 14px; }
+    h1 { font-size: 1.45rem; }
+    .toolbar > button,
+    .toolbar > .action-link,
+    .localblank-actions > button,
+    .preview-actions > button {
+      width: 100%;
+    }
+  }
 </style>
 </head>
 <body>
 <main class="shell">
-  <section class="panel">
-    <h1>Local Search New Tab Plus</h1>
-    <p class="lead">Manage the default engine, custom templates, quick links, notes, and export or import your data in one place.</p>
+  <section class="panel hero">
+    <div class="hero-top">
+      <div class="title-wrap">
+        <h1>Local Search New Tab Plus</h1>
+      </div>
+      <a class="action-link" href="notes.html">Open notes</a>
+    </div>
+
+    <p class="lead">Manage search engines, quick links, notes, and import or export your data from one settings page.</p>
 
     <div class="row two">
       <div>
@@ -130,24 +396,42 @@
       </div>
     </div>
 
+    <div class="summary-strip">
+      <div class="summary-card">
+        <strong id="summaryLinksCount">0</strong>
+        <div class="status-line">Quick links</div>
+      </div>
+      <div class="summary-card">
+        <strong id="summaryEnginesCount">0</strong>
+        <div class="status-line">Custom engines</div>
+      </div>
+      <div class="summary-card">
+        <strong id="summaryNotesCount">0</strong>
+        <div class="status-line">Notes saved</div>
+      </div>
+    </div>
+
     <div class="toolbar">
       <button id="exportBtn" type="button">Export all settings</button>
       <button id="importBtn" type="button">Import all settings</button>
       <button id="exportNotesBtn" type="button">Export notes only</button>
       <button id="importNotesReplaceBtn" type="button">Import notes (replace)</button>
       <button id="importNotesAppendBtn" type="button">Import notes (append)</button>
-      <a class="action-link" href="notes.html">Open notes page</a>
       <input class="file-input" id="importFile" type="file" accept="application/json,.json">
       <input class="file-input" id="importNotesFile" type="file" accept="application/json,.json">
     </div>
 
-    <div class="status" id="settingsStatus">Loading settings…</div>
+    <div class="status-box" id="settingsStatus" role="status" aria-live="polite">Loading settings…</div>
   </section>
 
-  <section class="grid">
-    <article class="panel">
-      <h2>Quick links</h2>
-      <p class="muted">Add sites you want on the new tab page. Use full URLs. Order is preserved in export/import.</p>
+  <section class="two-col">
+    <article class="panel stack">
+      <div class="section-head">
+        <div class="title-wrap">
+          <h2>Quick links</h2>
+          <div class="helper">Drag to reorder on desktop, or use the buttons. Bookmark HTML import now previews candidates before saving.</div>
+        </div>
+      </div>
 
       <div class="row two">
         <div>
@@ -161,16 +445,51 @@
       </div>
 
       <div class="toolbar">
-        <button id="addLinkBtn" type="button">Add quick link</button>
+        <button class="primary" id="addLinkBtn" type="button">Add quick link</button>
+        <button id="importBookmarksBtn" type="button">Preview bookmarks HTML & Import</button>
         <button id="resetLinksBtn" type="button">Restore default links</button>
+        <input class="file-input" id="importBookmarksFile" type="file" accept="text/html,.html">
       </div>
+
+      <section class="preview-shell hidden" id="bookmarkPreviewSection" aria-live="polite">
+        <div class="preview-meta">
+          <div class="title-wrap">
+            <h3>Bookmark import preview</h3>
+            <div class="helper" id="bookmarkPreviewSummary">No file loaded.</div>
+          </div>
+        </div>
+
+        <div class="preview-controls">
+          <div class="preview-actions">
+            <button id="bookmarkSelectAllBtn" type="button">Select all</button>
+            <button id="bookmarkSelectNoneBtn" type="button">Select none</button>
+            <button id="bookmarkSelectNewBtn" type="button">Select only new</button>
+            <button class="danger" id="bookmarkClearPreviewBtn" type="button">Clear preview</button>
+          </div>
+          <div class="preview-actions">
+            <button class="primary" id="bookmarkImportSelectedBtn" type="button">Import selected</button>
+          </div>
+        </div>
+
+        <div class="preview-list" id="bookmarkPreviewList"></div>
+        <div class="preview-actions">
+          <button id="bookmarkSelectAllBottomBtn" type="button">Select all</button>
+          <button id="bookmarkSelectNoneBottomBtn" type="button">Select none</button>
+          <button id="bookmarkSelectNewBottomBtn" type="button">Select only new</button>
+          <button class="primary" id="bookmarkImportSelectedBottomBtn" type="button">Import selected</button>
+        </div>
+      </section>
 
       <div class="list" id="linksList"></div>
     </article>
 
-    <article class="panel">
-      <h2>Custom engines</h2>
-      <p class="muted">Each custom engine needs a name and a search URL template with <code>%s</code> inside it. Order is preserved in export/import.</p>
+    <article class="panel stack">
+      <div class="section-head">
+        <div class="title-wrap">
+          <h2>Custom engines</h2>
+          <div class="helper">Each custom engine needs a URL template with <code>%s</code> inside it. Existing rows can be edited inline.</div>
+        </div>
+      </div>
 
       <div class="row two">
         <div>
@@ -184,43 +503,53 @@
       </div>
 
       <div class="toolbar">
-        <button id="addEngineBtn" type="button">Add engine</button>
+        <button class="primary" id="addEngineBtn" type="button">Add engine</button>
         <button id="resetEnginesBtn" type="button">Remove custom engines</button>
       </div>
 
       <div class="list" id="enginesList"></div>
     </article>
 
-    <section class="panel">
-      <h2>Notes</h2>
-      <p class="muted">Plain-text notes are stored with optional source title and source URL. Use the notes page for fuller editing on mobile or desktop.</p>
-      <div class="toolbar">
-        <a class="action-link" href="notes.html">Open notes</a>
+    <section class="panel stack">
+      <div class="section-head">
+        <div class="title-wrap">
+          <h2>Notes</h2>
+          <div class="helper">Stored in extension sync storage. Use the dedicated page for fuller editing.</div>
+        </div>
       </div>
-      <div class="status" id="notesSummary">Loading notes…</div>
+
+      <div class="toolbar">
+        <a class="action-link primary" href="notes.html">Open notes page</a>
+      </div>
+
+      <div class="status-box" id="notesSummary">Loading notes…</div>
     </section>
 
-    <section class="panel">
-      <h2>LocalBlank search engine</h2>
-      <p class="muted">
-        Use this dummy search engine so the browser sends queries to the local new tab page
-        instead of a remote provider. Then the extension redirects them to the bundled page.
-      </p>
-
-      <div class="row two">
-        <div>
-          <label for="localBlankName">Engine name</label>
-          <input id="localBlankName" value="LocalBlank" readonly>
-        </div>
-        <div>
-          <label for="localBlankUrl">Search URL template</label>
-          <input id="localBlankUrl" value="https://127.0.0.1/?q=%s" readonly>
+    <section class="panel stack">
+      <div class="section-head">
+        <div class="title-wrap">
+          <h2>LocalBlank search engine</h2>
+          <div class="helper">Use this dummy engine so searches are routed through the local new tab page.</div>
         </div>
       </div>
 
-      <div class="toolbar">
-        <button id="copyLocalBlankUrlBtn" type="button">Copy URL</button>
-        <span class="muted" id="localBlankHelp">Use this in your browser's search engine settings.</span>
+      <div class="localblank-box">
+        <div class="row two">
+          <div>
+            <label for="localBlankName">Engine name</label>
+            <input id="localBlankName" value="LocalBlank" readonly>
+          </div>
+          <div>
+            <label for="localBlankUrl">Search URL template</label>
+            <input id="localBlankUrl" value="https://127.0.0.1/?q=%s" readonly>
+          </div>
+        </div>
+
+        <div class="localblank-actions">
+          <button id="copyLocalBlankUrlBtn" type="button">Copy URL</button>
+        </div>
+
+        <div class="tiny muted" id="localBlankHelp">Use this in your browser’s search engine settings.</div>
       </div>
     </section>
   </section>

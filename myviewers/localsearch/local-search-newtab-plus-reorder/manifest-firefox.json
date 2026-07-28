@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Local Search New Tab Plus",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "Local new tab page with quick links, custom search engines, notes, import/export, and reorder controls.",
   "permissions": [
     "storage",

@@ -6,7 +6,8 @@ const DEFAULT_BUILTIN_ENGINES = {
   qwant: { name: 'Qwant', searchUrl: 'https://www.qwant.com/?q=%s', builtin: true },
   bing: { name: 'Bing', searchUrl: 'https://www.bing.com/search?q=%s', builtin: true },
   startpage: { name: 'Startpage', searchUrl: 'https://www.startpage.com/sp/search?query=%s', builtin: true },
-  brave: { name: 'Brave', searchUrl: 'https://search.brave.com/search?q=%s', builtin: true }
+  brave: { name: 'Brave', searchUrl: 'https://search.brave.com/search?q=%s', builtin: true },
+  youtube: { name: 'youtube', searchUrl: 'https://www.youtube.com/results?search_query=%s', builtin: true }
 };
 
 const DEFAULT_QUICK_LINKS = [
@@ -241,6 +242,20 @@ function sanitizeImportedSettings(raw) {
   const notes = sanitizeNotes(raw.notes);
 
   return { engine, quickLinks, customEngines, theme, notes };
+}
+
+function getSanitizedSettingsPayload(settings) {
+  return {
+    engine: settings.engine,
+    customEngines: sanitizeCustomEngines(settings.customEngines),
+    quickLinks: sanitizeQuickLinks(settings.quickLinks),
+    theme: normalizeTheme(settings.theme),
+    notes: sanitizeNotes(settings.notes)
+  };
+}
+
+async function writeSettings(settings) {
+  await storageSet(getSanitizedSettingsPayload(settings));
 }
 
 async function readSettings() {
