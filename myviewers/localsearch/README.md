@@ -6,7 +6,7 @@ It grew out of a simple annoyance: most “default” search engines ping home o
 
 [Source code](https://github.com/corkiejp/corkiejp.github.io/tree/well-known/myviewers/localsearch/local-search-newtab-plus-reorder) [Purpose and notes + Alternatives](https://github.com/corkiejp/corkiejp.github.io/issues/28)
 
-**Manual install**: -  [Chromium .zip](https://corkiejp.github.io/myviewers/localsearch/local-search-new-tab-chrome-v1.3.3.zip) or [Firefox .xpi](https://corkiejp.github.io/myviewers/localsearch/local-search-new-tab-firefox-v1.3.4.xpi) 
+**Manual install**: -  [Chromium .zip](https://corkiejp.github.io/myviewers/localsearch/local-search-new-tab-chrome-v1.3.4.zip) or [Firefox .xpi](https://corkiejp.github.io/myviewers/localsearch/local-search-new-tab-firefox-v1.3.4.xpi) 
 
 **Stores**:-  [Chrome Webstore](https://chromewebstore.google.com/detail/local-search-new-tab-plus/phaiahobckjnphelhkmldgmgneelcgbm) , [Firefox (AMO)](https://addons.mozilla.org/addon/local-search-new-tab-plus/)
 
@@ -23,6 +23,8 @@ It grew out of a simple annoyance: most “default” search engines ping home o
 - **28-07**  Desktop Drag & Drop, edit link/queries inline & Import quick links from (ctrl+shift+O browser) html.
 - **29-07**  'LocalBlank' search now pre-defined on Firefox (Desktop Only), just make it default if wanted. Not possible with Chrome.
 
+
+
 Supported (and tested) environments:
 
 - Chrome desktop
@@ -37,7 +39,7 @@ Supported (and tested) environments:
 
 - As this is cross browser and device extension, ideally set up your extension on desktop and export the settings to mobile.
 - Lack of links icons or search engine favicons is a developer choice not to be pinging servers.
-- Links import from HTML chosen over using bookmarks API, not complicating the ext with more permissions
+- Links import from HTML chosen over using bookmarks API, not complicating the ext with more permissions. Filtering/Search added.
 
 ---
 

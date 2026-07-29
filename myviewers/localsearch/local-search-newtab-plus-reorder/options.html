@@ -259,6 +259,11 @@
     box-shadow: 0 0 0 3px var(--ring);
   }
 
+  .item--filtered-out {
+    opacity: 0.45;
+    pointer-events: none;
+  }
+
   .item-title,
   .preview-title {
     font-weight: 700;
@@ -444,9 +449,16 @@
         </div>
       </div>
 
+      <div class="row two hidden" id="quickLinksFilterRow">
+        <div>
+          <label for="quickLinksFilter">Filter quick links (name or URL)</label>
+          <input id="quickLinksFilter" placeholder="Type to filter when you have more than 10 links">
+        </div>
+      </div>
+
       <div class="toolbar">
         <button class="primary" id="addLinkBtn" type="button">Add quick link</button>
-        <button id="importBookmarksBtn" type="button">Preview bookmarks HTML & Import</button>
+        <button id="importBookmarksBtn" type="button">Preview bookmarks HTML &amp; Import</button>
         <button id="resetLinksBtn" type="button">Restore default links</button>
         <input class="file-input" id="importBookmarksFile" type="file" accept="text/html,.html">
       </div>
@@ -456,6 +468,13 @@
           <div class="title-wrap">
             <h3>Bookmark import preview</h3>
             <div class="helper" id="bookmarkPreviewSummary">No file loaded.</div>
+          </div>
+        </div>
+
+        <div class="row two">
+          <div>
+            <label for="bookmarkPreviewFilter">Filter bookmarks (name, URL, or folder)</label>
+            <input id="bookmarkPreviewFilter" placeholder="Type to narrow large imports">
           </div>
         </div>
 

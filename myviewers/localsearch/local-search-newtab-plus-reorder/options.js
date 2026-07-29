@@ -38,12 +38,17 @@ const localBlankHelpEl = document.getElementById('localBlankHelp');
 const summaryLinksCountEl = document.getElementById('summaryLinksCount');
 const summaryEnginesCountEl = document.getElementById('summaryEnginesCount');
 const summaryNotesCountEl = document.getElementById('summaryNotesCount');
+const quickLinksFilterEl = document.getElementById('quickLinksFilter');
+const quickLinksFilterRowEl = document.getElementById('quickLinksFilterRow');
+const bookmarkPreviewFilterEl = document.getElementById('bookmarkPreviewFilter');
 
 let settings;
 let stopThemeWatcher = () => {};
 let pendingNotesImportMode = 'replace';
 let draggedLinkIndex = null;
 let bookmarkPreviewItems = [];
+let quickLinksFilterText = '';
+let bookmarkPreviewFilterText = '';
 
 function setStatus(message, tone = 'neutral') {
   settingsStatusEl.textContent = message;
@@ -352,15 +357,51 @@ function createEngineItem(engine, index) {
   return item;
 }
 
+function getFilteredQuickLinksOrder() {
+  const items = settings.quickLinks || [];
+  if (!quickLinksFilterText || items.length <= 10) {
+    return items.map((link, index) => ({ link, index, match: true }));
+  }
+  const q = quickLinksFilterText.toLowerCase();
+  const matches = [];
+  const nonMatches = [];
+  items.forEach((link, index) => {
+    const text = (link.name + '\n' + link.url).toLowerCase();
+    const match = text.includes(q);
+    (match ? matches : nonMatches).push({ link, index, match });
+  });
+  return matches.concat(nonMatches);
+}
+
+function applyQuickLinksFilterVisibility() {
+  const row = quickLinksFilterRowEl;
+  if (!row) return;
+  const count = (settings.quickLinks || []).length;
+  if (count > 10) {
+    row.classList.remove('hidden');
+  } else {
+    row.classList.add('hidden');
+  }
+}
+
 function renderLinks() {
   linksListEl.textContent = '';
-  if (!settings.quickLinks.length) {
+  const items = settings.quickLinks || [];
+  if (!items.length) {
     linksListEl.appendChild(createEmptyCard('No quick links saved.'));
+    applyQuickLinksFilterVisibility();
     return;
   }
-  settings.quickLinks.forEach((link, index) => {
-    linksListEl.appendChild(createQuickLinkItem(link, index));
+  const ordered = getFilteredQuickLinksOrder();
+  ordered.forEach(({ link, index, match }) => {
+    const item = createQuickLinkItem(link, index);
+    if (!match && quickLinksFilterText && items.length > 10) {
+      item.classList.add('item--filtered-out');
+      item.dataset.filterDisabled = 'true';
+    }
+    linksListEl.appendChild(item);
   });
+  applyQuickLinksFilterVisibility();
 }
 
 function renderEngines() {
@@ -414,7 +455,15 @@ function renderBookmarkPreview() {
   bookmarkPreviewSectionEl.classList.remove('hidden');
   bookmarkPreviewListEl.textContent = '';
 
+  const q = bookmarkPreviewFilterText.toLowerCase();
   bookmarkPreviewItems.forEach((item, index) => {
+    if (q) {
+      const text = (item.name + '\n' + item.url + '\n' + (item.folderPath || '')).toLowerCase();
+      if (!text.includes(q)) {
+        return;
+      }
+    }
+
     const card = document.createElement('label');
     card.className = 'preview-card';
     if (item.duplicate) card.classList.add('is-duplicate');
@@ -463,6 +512,8 @@ function renderBookmarkPreview() {
 
 function clearBookmarkPreview() {
   bookmarkPreviewItems = [];
+  bookmarkPreviewFilterText = '';
+  if (bookmarkPreviewFilterEl) bookmarkPreviewFilterEl.value = '';
   renderBookmarkPreview();
 }
 
@@ -537,6 +588,8 @@ async function handleImportBookmarksFile() {
       };
     });
 
+    bookmarkPreviewFilterText = '';
+    if (bookmarkPreviewFilterEl) bookmarkPreviewFilterEl.value = '';
     renderBookmarkPreview();
     setStatus(
       `Loaded ${bookmarkPreviewItems.length} bookmark candidate` +
@@ -579,6 +632,8 @@ async function importSelectedBookmarks() {
 
   settings.quickLinks = merged;
   clearBookmarkPreview();
+  quickLinksFilterText = '';
+  if (quickLinksFilterEl) quickLinksFilterEl.value = '';
   await persistSettings(
     `Imported ${added} bookmark link` + (added === 1 ? '' : 's') + ' into quick links.',
     'ok'
@@ -637,6 +692,8 @@ async function handleAddLink() {
 async function handleResetLinks() {
   settings.quickLinks = [...DEFAULT_QUICK_LINKS];
   clearBookmarkPreview();
+  quickLinksFilterText = '';
+  if (quickLinksFilterEl) quickLinksFilterEl.value = '';
   await persistSettings('Restored default quick links.');
 }
 
@@ -747,6 +804,8 @@ async function handleImportSettingsFile() {
     const parsed = JSON.parse(text);
     settings = sanitizeImportedSettings(parsed);
     clearBookmarkPreview();
+    quickLinksFilterText = '';
+    if (quickLinksFilterEl) quickLinksFilterEl.value = '';
     await persistSettings('Imported settings from ' + file.name);
   } catch (error) {
     console.error('Import failed', error);
@@ -870,6 +929,20 @@ function bindEvents() {
     copyLocalBlankUrlBtn.addEventListener('click', handleCopyLocalBlankUrl);
   }
 
+  if (quickLinksFilterEl) {
+    quickLinksFilterEl.addEventListener('input', () => {
+      quickLinksFilterText = quickLinksFilterEl.value.trim();
+      renderLinks();
+    });
+  }
+
+  if (bookmarkPreviewFilterEl) {
+    bookmarkPreviewFilterEl.addEventListener('input', () => {
+      bookmarkPreviewFilterText = bookmarkPreviewFilterEl.value.trim();
+      renderBookmarkPreview();
+    });
+  }
+
   bookmarkPreviewListEl.addEventListener('change', (event) => {
     const checkbox = event.target.closest('[data-preview-index]');
     if (!checkbox) return;
@@ -880,6 +953,11 @@ function bindEvents() {
   });
 
   document.addEventListener('click', async (event) => {
+    const filteredHost = event.target.closest('[data-filter-disabled="true"]');
+    if (filteredHost) {
+      return;
+    }
+
     const up = event.target.closest('[data-move-up]');
     if (up) {
       const { type, index } = parseAction(up.dataset.moveUp);
