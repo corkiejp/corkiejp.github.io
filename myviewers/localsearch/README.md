@@ -6,7 +6,7 @@ It grew out of a simple annoyance: most “default” search engines ping home o
 
 [Source code](https://github.com/corkiejp/corkiejp.github.io/tree/well-known/myviewers/localsearch/local-search-newtab-plus-reorder) [Purpose and notes + Alternatives](https://github.com/corkiejp/corkiejp.github.io/issues/28)
 
-**Manual install**: -  [Chromium .zip](https://corkiejp.github.io/myviewers/localsearch/local-search-new-tab-chrome-v1.3.3.zip) or [Firefox .xpi](https://corkiejp.github.io/myviewers/localsearch/local-search-new-tab-firefox-v1.3.3.xpi) 
+**Manual install**: -  [Chromium .zip](https://corkiejp.github.io/myviewers/localsearch/local-search-new-tab-chrome-v1.3.3.zip) or [Firefox .xpi](https://corkiejp.github.io/myviewers/localsearch/local-search-new-tab-firefox-v1.3.4.xpi) 
 
 **Stores**:-  [Chrome Webstore](https://chromewebstore.google.com/detail/local-search-new-tab-plus/phaiahobckjnphelhkmldgmgneelcgbm) , [Firefox (AMO)](https://addons.mozilla.org/addon/local-search-new-tab-plus/)
 
@@ -21,6 +21,7 @@ It grew out of a simple annoyance: most “default” search engines ping home o
 - Offers a **LocalBlank** fallback search engine for browsers that don’t allow new-tab overrides.
 - **Latest** Dark/Light/System theme option + A mobile friendly notes feature.
 - **28-07**  Desktop Drag & Drop, edit link/queries inline & Import quick links from (ctrl+shift+O browser) html.
+- **29-07**  'LocalBlank' search now pre-defined on Firefox (Desktop Only), just make it default if wanted. Not possible with Chrome.
 
 Supported (and tested) environments:
 
@@ -102,7 +103,8 @@ This avoids typos in the dummy search URL.
    - Name: `LocalBlank`
    - Shortcut (optional): `lb`
    - URL: `https://127.0.0.1/?q=%s`
-4. Save, then set **LocalBlank** as the default search engine if you want all address‑bar searches to go through the extension.
+4. Save, then set **LocalBlank** as the default search engine if you want all address bar searches to go through the extension.
+5. Firefox can predefine a search, not possible on chrome because of browsers limitations and how it is handled, don't want to hijack the browser with it.
 
 ### 3. Firefox desktop
 
@@ -112,10 +114,11 @@ This avoids typos in the dummy search URL.
    - Name: `LocalBlank`
    - URL: `https://127.0.0.1/?q=%s`
 4. Make sure the extension is installed and enabled so it can handle the dummy URL.
+5. Manifest can now predefine a search option on desktop only. Just make it default if you want.
 
 ### 4. Firefox mobile (Nightly / Beta)
 
-Firefox for Android does not always respect new‑tab overrides, but it will still use your configured search engine. After adding `LocalBlank` as above (using desktop or mobile):
+Firefox for Android does not always respect new tab overrides, but it will still use your configured search engine. After adding `LocalBlank` as above (using desktop or mobile):
 
 - Set **LocalBlank** as the default search engine.
 - When you search from the address bar, the extension will capture `https://127.0.0.1/?q=%s` and open its local page with the query prefilled.

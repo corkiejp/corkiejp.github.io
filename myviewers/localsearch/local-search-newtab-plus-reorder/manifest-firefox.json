@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Local Search New Tab Plus",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "description": "Local new tab page with quick links, custom search engines, notes, import/export, and reorder controls.",
   "permissions": [
     "storage",
@@ -20,6 +20,15 @@
   },
   "chrome_url_overrides": {
     "newtab": "newtab.html"
+  },
+  "chrome_settings_overrides": {
+    "search_provider": {
+      "name": "LocalBlank",
+      "search_url": "https://127.0.0.1/?q={searchTerms}",
+      "keyword": "localblank",
+      "favicon_url": "assets/icon32.png",
+      "is_default": false
+    }
   },
   "web_accessible_resources": [
     "redirect.html",
