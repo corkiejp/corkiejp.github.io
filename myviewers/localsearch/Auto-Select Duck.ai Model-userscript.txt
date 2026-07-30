@@ -1,0 +1,80 @@
+// ==UserScript==
+// @name         Duck.ai Auto-Select Model
+// @namespace    https://duck.ai/
+// @version      1.0
+// @description  Automatically selects a preferred Duck.ai model on load
+// @match        https://duck.ai/*
+// @run-at       document-idle
+// @grant        none
+// ==/UserScript==
+
+(function () {
+    'use strict';
+
+    // Set this to one of the current model labels shown in the dropdown, e.g.:
+    //
+    //   'GPT-5.4 nano'
+    //   'GPT-5.4 mini'
+    //   'Claude Haiku 4.5'
+    //   'Mistral Small 4'
+    //   'gpt-oss 120B'
+    //   'Gemma 4 31B'
+    //
+    const TARGET_MODEL = 'GPT-5.4 nano';
+
+    // Opens the model picker dropdown once, using its data-testid.
+    function openModelMenuOnce() {
+        const btn = document.querySelector('button[data-testid="model-picker-button"]');
+        if (!btn) return false;
+        if (btn.getAttribute('aria-expanded') === 'true') {
+            // Already open
+            return true;
+        }
+        btn.click();
+        return true;
+    }
+
+    // Attempts to click the menu entry whose text contains TARGET_MODEL.
+    function clickModelIfPresent() {
+        const candidates = document.querySelectorAll('button, [role="menuitem"], [role="option"]');
+        for (const el of candidates) {
+            const text = (el.innerText || '').trim();
+            if (!text) continue;
+            if (text.includes(TARGET_MODEL)) {
+                el.click();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function setModel() {
+        if (!openModelMenuOnce()) {
+            return;
+        }
+
+        let attempts = 0;
+        const maxAttempts = 20;
+
+        const interval = setInterval(() => {
+            attempts++;
+
+            // Stop if the picker button disappears or the menu closes.
+            const btn = document.querySelector('button[data-testid="model-picker-button"]');
+            if (!btn || btn.getAttribute('aria-expanded') === 'false') {
+                clearInterval(interval);
+                return;
+            }
+
+            // Try to click the target model.
+            if (clickModelIfPresent()) {
+                clearInterval(interval);
+            } else if (attempts >= maxAttempts) {
+                clearInterval(interval);
+            }
+        }, 150);
+    }
+
+    // Give the app a moment to mount, then run the selection logic.
+    setTimeout(setModel, 800);
+})();
