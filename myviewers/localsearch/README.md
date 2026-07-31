@@ -6,6 +6,10 @@ It grew out of a simple annoyance: most “default” search engines ping home o
 
 [Source code](https://github.com/corkiejp/corkiejp.github.io/tree/well-known/myviewers/localsearch/local-search-newtab-plus-reorder) [Purpose and notes + Alternatives](https://github.com/corkiejp/corkiejp.github.io/issues/28)
 
+**WIP Builds**
+
+[Omnibox AI Chat search](https://github.com/corkiejp/corkiejp.github.io/blob/well-known/myviewers/localsearch/wip-omnibox.md)
+
 **Manual install**: -  [Chromium .zip](https://corkiejp.github.io/myviewers/localsearch/local-search-new-tab-chrome-v1.3.4.zip) or [Firefox .xpi](https://corkiejp.github.io/myviewers/localsearch/local-search-new-tab-firefox-v1.3.4.xpi) 
 
 **Stores**:-  [Chrome Webstore](https://chromewebstore.google.com/detail/local-search-new-tab-plus/phaiahobckjnphelhkmldgmgneelcgbm) , [Firefox (AMO)](https://addons.mozilla.org/addon/local-search-new-tab-plus/)
