@@ -94,3 +94,4 @@ When you type `ails chat this is a test`, the omnibox will suggest these options
   - Omnibox is **not supported** by Firefox for Android.  
   - Chromium-based mobile browsers have incomplete extension and omnibox support.  
   - These omnibox commands are intended for **desktop only** and may not work on mobile.
+  - Firefox Android does not support omnibox or custom new-tab overrides; mobile users should use the extension’s UI pages instead
