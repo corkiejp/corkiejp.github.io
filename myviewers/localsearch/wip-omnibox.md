@@ -1,4 +1,4 @@
-# LocalSeacrh | Omnibox commands (desktop only)
+# LocalSearch | Omnibox commands (desktop only)
 
 This extension adds a keyword to the browser address bar to trigger different flows on **desktop** Chrome and Firefox.  
 
