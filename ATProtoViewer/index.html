@@ -1899,7 +1899,7 @@ async function parseAtUri(atUri, fetchAfter = true) {
   // --- Handle Bluesky and deer.social post URLs ---
   // Match: https://bsky.app/profile/handle-or-did/post/rkey
   // Match: https://deer.social/profile/handle-or-did/post/rkey
-  let urlMatch = atUri.match(/^https:\/\/(bsky\.app|deer\.social|wsocial\.eu)\/profile\/([^/]+)\/post\/([^/?#]+)/);
+  let urlMatch = atUri.match(/^https:\/\/(bsky\.app|deer\.social)\/profile\/([^/]+)\/post\/([^/?#]+)/);
   if (urlMatch) {
     const handleOrDid = urlMatch[2];
     const rkey = urlMatch[3];
