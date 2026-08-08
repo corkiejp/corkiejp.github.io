@@ -2003,6 +2003,43 @@ async function parseAtUri(atUri, fetchAfter = true) {
     }
     return;
   }
+  
+// --- Handle wsocial.eu post/profile URLs ---
+// https://wsocial.eu/profile/<handle>/post/<rkey>
+const wsocialMatch = atUri.match(/^https?:\/\/wsocial\.eu\/profile\/([^/?#]+)\/post\/([^/?#]+)/i);
+if (wsocialMatch) {
+  const handleOrDid = wsocialMatch[1]; // e.g. "kevinhaelterman.wsocial.eu"
+  const rkey = wsocialMatch[2];        // e.g. "3mslrey6se226"
+
+  let did = handleOrDid;
+
+  // If it's a handle (not a DID), resolve to DID
+  if (!handleOrDid.startsWith('did:')) {
+    try {
+      const resp = await fetch(
+        `https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(handleOrDid)}`
+      );
+      const data = await resp.json();
+      if (!data.did) throw new Error('Could not resolve handle');
+      did = data.did;
+    } catch (e) {
+      alert('Failed to resolve wsocial handle: ' + handleOrDid);
+      return;
+    }
+  }
+
+  document.querySelector('[name="repo"]').value = did;
+  document.querySelector('[name="collection"]').value = 'app.bsky.feed.post';
+  document.querySelector('[name="rkey"]').value = rkey;
+
+  // Set PDS to wsocial's PDS
+  document.querySelector('[name="pds"]').value = 'pds.wsocial.network';
+
+  if (fetchAfter) {
+    triggerFetchIfReady();
+  }
+  return;
+}  
 
   // --- If nothing matched ---
   alert('Invalid AT URI or Bluesky/Deer.social URL format.');
