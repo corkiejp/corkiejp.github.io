@@ -2012,33 +2012,42 @@ async function parseAtUri(atUri, fetchAfter = true) {
 
 
 
-  // --- Repo input change: auto-fill PDS if PLC DID ---
-  const repoInput = document.getElementById('repo');
-  if (repoInput) {
-    repoInput.addEventListener('change', () => {
-      const repoValue = repoInput.value.trim();
-      if (repoValue.startsWith('did:plc:')) {
-        fetch('https://plc.directory/' + repoValue)
-          .then(resp => {
-            if (!resp.ok) throw new Error('DID not found in PLC directory');
-            return resp.json();
-          })
-          .then(data => {
-            if (data?.service?.[0]?.serviceEndpoint) {
-              document.querySelector('[name="pds"]').value =
-                data.service[0].serviceEndpoint.replace(/^https?:\/\//, '');
-            }
-          })
-          .catch(() => {
-            document.querySelector('[name="pds"]').value = '';
-          });
-      }
-      const collectionField = document.querySelector('[name="collection"]');
-      if (collectionField && !collectionField.value) {
-        collectionField.value = DEFAULT_COLLECTION;
-      }
-    });
-  }
+  
+// --- Repo input change auto-fill PDS if PLC or web DID ---
+const repoInput = document.getElementById('repo');
+if (repoInput) {
+  repoInput.addEventListener('change', () => {
+    const repoValue = repoInput.value.trim();
+
+    if (repoValue.startsWith('did:plc:')) {
+      fetch('https://plc.directory/' + repoValue)
+        .then(resp => {
+          if (!resp.ok) throw new Error('DID not found in PLC directory');
+          return resp.json();
+        })
+        .then(data => {
+          if (data?.service?.[0]?.serviceEndpoint) {
+            document.querySelector('[name="pds"]').value = data.service[0].serviceEndpoint.replace(/^https?:\/\//, '');
+          }
+        })
+        .catch(() => {
+          document.querySelector('[name="pds"]').value = '';
+        });
+    } else if (repoValue.startsWith('did:web:')) {
+      const domain = repoValue.slice('did:web:'.length);
+      const pdsHost = 'pds.' + domain;
+      document.querySelector('[name="pds"]').value = pdsHost;
+    } else {
+      // Non-DID input (handle, etc.) – you may clear or leave PDS as-is
+      // document.querySelector('[name="pds"]').value = '';
+    }
+
+    const collectionField = document.querySelector('[name="collection"]');
+    if (collectionField && !collectionField.value) {
+      collectionField.value = DEFAULTCOLLECTION;
+    }
+  });
+}
 
   // --- Parse AT URI button ---
   const parseUriBtn = document.getElementById('parseUriBtn');
@@ -2161,27 +2170,35 @@ function fetchAndDisplayProfile(did) {
 
 
 
-  // 2. If no URI, try DID parameter
-  if (!alreadyFetched && params.has('did')) {
-    const did = params.get('did').trim();
-    if (did) {
-      document.querySelector('[name="repo"]').value = did;
-      if (did.startsWith('did:plc:')) {
-        fetch('https://plc.directory/' + did)
-          .then(resp => resp.json())
-          .then(data => {
-            if (data?.service?.[0]?.serviceEndpoint) {
-              document.querySelector('[name="pds"]').value = data.service[0].serviceEndpoint.replace(/^https?:\/\//, '');
-            }
-            triggerFetchIfReady();
-          })
-          .catch(() => triggerFetchIfReady());
-      } else {
-        triggerFetchIfReady();
-      }
-      alreadyFetched = true;
+// 2. If no URI, try DID parameter
+if (!alreadyFetched && params.has('did')) {
+  const did = params.get('did').trim();
+  if (did) {
+    document.querySelector('[name="repo"]').value = did;
+
+    if (did.startsWith('did:plc:')) {
+      fetch('https://plc.directory/' + did)
+        .then(resp => resp.json())
+        .then(data => {
+          if (data?.service?.[0]?.serviceEndpoint) {
+            document.querySelector('[name="pds"]').value = data.service[0].serviceEndpoint.replace(/^https?:\/\//, '');
+          }
+          triggerFetchIfReady();
+        })
+        .catch(() => triggerFetchIfReady());
+    } else if (did.startsWith('did:web:')) {
+      // Handle did:web:wsocial.network -> pds.wsocial.network
+      const domain = did.slice('did:web:'.length); // e.g. "wsocial.network"
+      const pdsHost = 'pds.' + domain;             // e.g. "pds.wsocial.network"
+      document.querySelector('[name="pds"]').value = pdsHost;
+      triggerFetchIfReady();
+    } else {
+      triggerFetchIfReady();
     }
+
+    alreadyFetched = true;
   }
+}
 
   // 3. Check for individual parameters (repo, collection, pds)
   if (!alreadyFetched && (params.has('repo') || params.has('collection') || params.has('pds'))) {
