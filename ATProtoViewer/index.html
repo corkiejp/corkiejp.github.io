@@ -1953,31 +1953,59 @@ async function parseAtUri(atUri, fetchAfter = true) {
   }
 
   // --- Handle at:// URIs with collection/rkey ---
-  let match = atUri.match(/^at:\/\/([^/]+)\/([^/]+)(?:\/([^/]+))?$/);
-  if (match) {
-    const [, repo, collection, rkey] = match;
-    document.querySelector('[name="repo"]').value = repo;
-    document.querySelector('[name="collection"]').value = collection;
-    if (rkey && document.querySelector('[name="rkey"]')) {
-      document.querySelector('[name="rkey"]').value = rkey;
-    }
-    if (repo.startsWith('did:plc:')) {
-      fetch('https://plc.directory/' + repo)
-        .then(resp => resp.json())
-        .then(data => {
-          if (data && data.service && data.service[0] && data.service[0].serviceEndpoint) {
-            document.querySelector('[name="pds"]').value = data.service[0].serviceEndpoint.replace(/^https?:\/\//, '');
-          }
-          if (fetchAfter) triggerFetchIfReady();
-        })
-        .catch(() => {
-          if (fetchAfter) triggerFetchIfReady();
-        });
-    } else {
-      if (fetchAfter) triggerFetchIfReady();
-    }
-    return;
+let match = atUri.match(/^at:\/\/([^/]+)\/([^/]+)(?:\/([^/]+))?$/);
+if (match) {
+  const [, repo, collection, rkey] = match;
+  document.querySelector('[name="repo"]').value = repo;
+  document.querySelector('[name="collection"]').value = collection;
+  if (rkey && document.querySelector('[name="rkey"]')) {
+    document.querySelector('[name="rkey"]').value = rkey;
   }
+
+  // If repo is a handle, resolve to DID first
+  if (!repo.startsWith('did:')) {
+    (async () => {
+      try {
+        const resp = await fetch(
+          `https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(repo)}`
+        );
+        const data = await resp.json();
+        if (!data.did) throw new Error('Could not resolve handle');
+        const did = data.did;
+
+        if (did.startsWith('did:plc:')) {
+          const plcResp = await fetch('https://plc.directory/' + did);
+          const plcData = await plcResp.json();
+          if (plcData?.service?.[0]?.serviceEndpoint) {
+            document.querySelector('[name="pds"]').value =
+              plcData.service[0].serviceEndpoint.replace(/^https?:\/\//, '');
+          }
+        }
+      } catch (e) {
+        console.warn('Handle resolution failed for at:// URI:', e);
+      } finally {
+        if (fetchAfter) triggerFetchIfReady();
+      }
+    })();
+  } else if (repo.startsWith('did:plc:')) {
+    // Existing PLC-only logic
+    fetch('https://plc.directory/' + repo)
+      .then(resp => resp.json())
+      .then(data => {
+        if (data && data.service && data.service[0] && data.service[0].serviceEndpoint) {
+          document.querySelector('[name="pds"]').value = data.service[0].serviceEndpoint.replace(/^https?:\/\//, '');
+        }
+        if (fetchAfter) triggerFetchIfReady();
+      })
+      .catch(() => {
+        if (fetchAfter) triggerFetchIfReady();
+      });
+  } else {
+    if (fetchAfter) triggerFetchIfReady();
+  }
+
+  return;
+}
 
   // --- Handle at:// URIs for profiles (just the DID) ---
   match = atUri.match(/^at:\/\/([^/]+)$/);
