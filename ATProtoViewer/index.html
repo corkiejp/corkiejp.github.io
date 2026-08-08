@@ -1899,29 +1899,45 @@ async function parseAtUri(atUri, fetchAfter = true) {
   // --- Handle Bluesky and deer.social post URLs ---
   // Match: https://bsky.app/profile/handle-or-did/post/rkey
   // Match: https://deer.social/profile/handle-or-did/post/rkey
-  let urlMatch = atUri.match(/^https:\/\/(bsky\.app|deer\.social)\/profile\/([^/]+)\/post\/([^/?#]+)/);
-  if (urlMatch) {
-    const handleOrDid = urlMatch[2];
-    const rkey = urlMatch[3];
-    let did = handleOrDid;
-    if (!did.startsWith('did:')) {
-      try {
-        const resp = await fetch(`https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=${handleOrDid}`);
-        const data = await resp.json();
-        if (!data.did) throw new Error('Could not resolve handle');
-        did = data.did;
-      } catch (e) {
-        alert('Failed to resolve handle: ' + handleOrDid);
-        return;
-      }
+let urlMatch = atUri.match(/^https:\/\/(bsky\.app|deer\.social|wsocial\.eu)\/profile\/([^/]+)\/post\/([^/?#]+)/);
+if (urlMatch) {
+  const domain = urlMatch[1];
+  const handleOrDid = urlMatch[2];
+  const rkey = urlMatch[3];
+  let did = handleOrDid;
+
+  if (!did.startsWith('did:')) {
+    try {
+      const resp = await fetch(
+        `https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(handleOrDid)}`
+      );
+      const data = await resp.json();
+      if (!data.did) throw new Error('Could not resolve handle');
+      did = data.did;
+    } catch (e) {
+      alert('Failed to resolve handle: ' + handleOrDid);
+      return;
     }
-    document.querySelector('[name="repo"]').value = did;
-    document.querySelector('[name="collection"]').value = 'app.bsky.feed.post';
-    document.querySelector('[name="rkey"]').value = rkey;
-    document.querySelector('[name="pds"]').value = 'bsky.social';
-    if (fetchAfter) triggerFetchIfReady();
-    return;
   }
+
+  document.querySelector('[name="repo"]').value = did;
+  document.querySelector('[name="collection"]').value = 'app.bsky.feed.post';
+  document.querySelector('[name="rkey"]').value = rkey;
+
+  // Choose PDS based on domain
+  if (domain === 'wsocial.eu') {
+    document.querySelector('[name="pds"]').value = 'pds.wsocial.network';
+  } else if (domain === 'deer.social') {
+    // if deer uses its own PDS, set it here; otherwise keep bsky.social
+    document.querySelector('[name="pds"]').value = 'bsky.social';
+  } else {
+    // bsky.app
+    document.querySelector('[name="pds"]').value = 'bsky.social';
+  }
+
+  if (fetchAfter) triggerFetchIfReady();
+  return;
+}
 
   // --- Handle Bluesky profile URLs: https://bsky.app/profile/handle or https://bsky.app/profile/did:plc:... ---
   if (atUri.startsWith('https://bsky.app/')) {
