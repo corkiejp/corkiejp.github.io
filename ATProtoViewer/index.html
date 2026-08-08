@@ -1924,18 +1924,24 @@ if (urlMatch) {
   document.querySelector('[name="collection"]').value = 'app.bsky.feed.post';
   document.querySelector('[name="rkey"]').value = rkey;
 
-  // Choose PDS based on domain
-  if (domain === 'wsocial.eu') {
-    document.querySelector('[name="pds"]').value = 'pds.wsocial.network';
-  } else if (domain === 'deer.social') {
-    // if deer uses its own PDS, set it here; otherwise keep bsky.social
-    document.querySelector('[name="pds"]').value = 'bsky.social';
+  // Resolve PDS from DID, not from domain
+  if (did.startsWith('did:plc:')) {
+    fetch('https://plc.directory/' + did)
+      .then(r => r.json())
+      .then(data => {
+        if (data?.service?.[0]?.serviceEndpoint) {
+          document.querySelector('[name="pds"]').value =
+            data.service[0].serviceEndpoint.replace(/^https?:\/\//, '');
+        }
+        if (fetchAfter) triggerFetchIfReady();
+      })
+      .catch(() => {
+        if (fetchAfter) triggerFetchIfReady();
+      });
   } else {
-    // bsky.app
-    document.querySelector('[name="pds"]').value = 'bsky.social';
+    if (fetchAfter) triggerFetchIfReady();
   }
 
-  if (fetchAfter) triggerFetchIfReady();
   return;
 }
 
