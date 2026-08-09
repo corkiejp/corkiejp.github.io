@@ -1,11 +1,16 @@
 # AT Protocol Handler ~ Extension to open at did urls
-## Now available on Chrome Webstore/FireFox ADDon.
+## NEW: - Support for wsocial.eu
 
-[AT Protocol Handler - Chrome Webstore](https://chromewebstore.google.com/detail/at-protocol-handler/foippfcmhngnjdlfhgaifppajnhlmafk)
+[AT Protocol Handler - Chrome Webstore](https://chromewebstore.google.com/detail/at-protocol-handler/foippfcmhngnjdlfhgaifppajnhlmafk) ~ Waiting for review.
 
-[AT Protocol Handler - FireFox ADDon](https://addons.mozilla.org/en-US/firefox/addon/at-protocol-handler/) 
+[AT Protocol Handler - FireFox ADDon](https://addons.mozilla.org/en-US/firefox/addon/at-protocol-handler/) ~ Live
 
 The [webpage](https://corkiejp.github.io/ATProtocolHandler/index.html), has a input field to test primary function of it
+
+## Manual Install
+
+[Chrome zip](ATProtocolHandler-chrome.zip)
+[Firefox xpi](ATProtocolHandler.xpi)
 
 ## Overview
 
