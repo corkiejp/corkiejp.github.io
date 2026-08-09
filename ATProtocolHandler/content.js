@@ -30,6 +30,7 @@ function showPopup(aturl, x, y) {
   popup.style.zIndex = 99999;
   popup.style.fontFamily = 'sans-serif';
   popup.style.minWidth = '220px';
+  popup.style.pointerEvents = 'auto';
 
   popup.innerHTML = `
   <h3 title="Drag to move" style="margin-top:0;margin-bottom:0.5em;cursor:move;user-select:none;">
@@ -40,10 +41,9 @@ function showPopup(aturl, x, y) {
     <em>Tip: Drag the title bar to move this popup</em>
   </div>
     <b>Open at:// URI with:</b><br>
-	
-	
-	<a href="https://corkiejp.github.io/ATProtocolHandler/${aturl}" target="_blank" style="display:block; margin-top:8px;">AT Handler + custom links</a>
-	
+
+<a href="https://corkiejp.github.io/ATProtocolHandler/${aturl}" target="_blank" style="display:block; margin-top:8px;">AT Handler + custom links</a>
+
     <a href="https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(aturl)}" target="_blank" style="display:block; margin-top:8px;">ATProtoViewer</a>
     <a href="https://corkiejp.github.io/ttospwa/index.html?uri=${encodeURIComponent(aturl)}" target="_blank" style="display:block; margin-top:4px;">List of sites to open!</a>
     <a href="${extensionListUrl}" target="_blank" style="display:block; margin-top:4px;">Extension List Page</a>
@@ -60,50 +60,49 @@ function showPopup(aturl, x, y) {
   `;
 
   document.body.appendChild(popup);
-  
-  
-// Inject robust CSS for popup and buttons, including dark mode support
-if (!document.getElementById('atproto-popup-style')) {
-  const style = document.createElement('style');
-  style.id = 'atproto-popup-style';
-  style.textContent = `
-    #atproto-popup {
-      background: #fff !important;
-      color: #222 !important;
-      border-radius: 8px !important;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.15) !important;
-      z-index: 99999 !important;
-      min-width: 220px !important;
-      font-family: sans-serif !important;
-      padding: 1em !important;
-      border: 1px solid #0074d9 !important;
-    }
-    #atproto-popup button {
-      display: block !important;
-      width: 100% !important;
-      margin: 8px 0 0 0 !important;
-      background: #0074d9 !important;
-      color: #fff !important;
-      border: none !important;
-      border-radius: 4px !important;
-      padding: 0.5em 1em !important;
-      font-size: 1em !important;
-      cursor: pointer !important;
-      box-sizing: border-box !important;
-      transition: background 0.2s;
-    }
-    #atproto-popup button:hover, #atproto-popup button:focus {
-      background: #005fa3 !important;
-    }
-    #atproto-popup a {
-      color: #0074d9 !important;
-      text-decoration: underline !important;
-      word-break: break-all !important;
-    }
-    #atproto-popup ul {
-      margin: 0 0 0 1.2em !important;
-      padding: 0 !important;
-    }
+
+  // Inject robust CSS for popup and buttons, including dark mode support
+  if (!document.getElementById('atproto-popup-style')) {
+    const style = document.createElement('style');
+    style.id = 'atproto-popup-style';
+    style.textContent = `
+      #atproto-popup {
+        background: #fff !important;
+        color: #222 !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15) !important;
+        z-index: 99999 !important;
+        min-width: 220px !important;
+        font-family: sans-serif !important;
+        padding: 1em !important;
+        border: 1px solid #0074d9 !important;
+      }
+      #atproto-popup button {
+        display: block !important;
+        width: 100% !important;
+        margin: 8px 0 0 0 !important;
+        background: #0074d9 !important;
+        color: #fff !important;
+        border: none !important;
+        border-radius: 4px !important;
+        padding: 0.5em 1em !important;
+        font-size: 1em !important;
+        cursor: pointer !important;
+        box-sizing: border-box !important;
+        transition: background 0.2s;
+      }
+      #atproto-popup button:hover, #atproto-popup button:focus {
+        background: #005fa3 !important;
+      }
+      #atproto-popup a {
+        color: #0074d9 !important;
+        text-decoration: underline !important;
+        word-break: break-all !important;
+      }
+      #atproto-popup ul {
+        margin: 0 0 0 1.2em !important;
+        padding: 0 !important;
+      }
     #atproto-popup h3 {
       margin-top: 0 !important;
       margin-bottom: 0.5em !important;
@@ -115,34 +114,52 @@ if (!document.getElementById('atproto-popup-style')) {
       align-items: center;
       gap: 0.3em;
     }
-    #atproto-popup em {
-      color: #666 !important;
-    }
-    @media (prefers-color-scheme: dark) {
-      #atproto-popup {
-        background: #222 !important;
-        color: #fff !important;
-        border: 1px solid #39a9ff !important;
-      }
-      #atproto-popup button {
-        background: #39a9ff !important;
-        color: #222 !important;
-      }
-      #atproto-popup button:hover, #atproto-popup button:focus {
-        background: #0074d9 !important;
-        color: #fff !important;
-      }
-      #atproto-popup a {
-        color: #39a9ff !important;
-      }
       #atproto-popup em {
-        color: #aaa !important;
+        color: #666 !important;
       }
-    }
-  `;
-  document.head.appendChild(style);
-}
-  
+      @media (prefers-color-scheme: dark) {
+        #atproto-popup {
+          background: #222 !important;
+          color: #fff !important;
+          border: 1px solid #39a9ff !important;
+        }
+        #atproto-popup button {
+          background: #39a9ff !important;
+          color: #222 !important;
+        }
+        #atproto-popup button:hover, #atproto-popup button:focus {
+          background: #0074d9 !important;
+          color: #fff !important;
+        }
+        #atproto-popup a {
+          color: #39a9ff !important;
+        }
+        #atproto-popup em {
+          color: #aaa !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  // --- Ensure popup is fully on-screen initially ---
+  const rect = popup.getBoundingClientRect();
+  let newX = x;
+  let newY = y;
+
+  const margin = 10;
+
+  if (newX < margin) newX = margin;
+  if (newY < margin) newY = margin;
+  if (newX + rect.width > window.innerWidth) {
+    newX = window.innerWidth - rect.width - margin;
+  }
+  if (newY + rect.height > window.innerHeight) {
+    newY = window.innerHeight - rect.height - margin;
+  }
+
+  popup.style.left = newX + 'px';
+  popup.style.top = newY + 'px';
 
   // --- Draggable logic (mouse + touch, with viewport limiting) ---
   const header = popup.querySelector('h3');
@@ -156,30 +173,36 @@ if (!document.getElementById('atproto-popup-style')) {
     return Math.max(min, Math.min(max, val));
   }
 
-  // Mouse drag
-  header.addEventListener('mousedown', function(e) {
-    isDragging = true;
-    offsetX = e.clientX - popup.offsetLeft;
-    offsetY = e.clientY - popup.offsetTop;
-    document.body.style.userSelect = 'none';
+// Mouse drag (listen on popup, but only drag if click is on header)
+popup.addEventListener('mousedown', function(e) {
+  const header = popup.querySelector('h3');
+  if (e.target !== header && !header.contains(e.target)) {
+    return;
+  }
 
-    function onMouseMove(e) {
-      if (isDragging) {
-        const left = clamp(e.clientX - offsetX, 0, window.innerWidth - popup.offsetWidth);
-        const top = clamp(e.clientY - offsetY, 0, window.innerHeight - popup.offsetHeight);
-        popup.style.left = left + 'px';
-        popup.style.top = top + 'px';
-      }
+  console.log('popup mousedown on header', e.clientX, e.clientY);
+  isDragging = true;
+  offsetX = e.clientX - popup.offsetLeft;
+  offsetY = e.clientY - popup.offsetTop;
+  document.body.style.userSelect = 'none';
+
+  function onMouseMove(e) {
+    if (isDragging) {
+      const left = clamp(e.clientX - offsetX, 0, window.innerWidth - popup.offsetWidth);
+      const top = clamp(e.clientY - offsetY, 0, window.innerHeight - popup.offsetHeight);
+      popup.style.left = left + 'px';
+      popup.style.top = top + 'px';
     }
-    function onMouseUp() {
-      isDragging = false;
-      document.body.style.userSelect = '';
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-    }
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-  });
+  }
+  function onMouseUp() {
+    isDragging = false;
+    document.body.style.userSelect = '';
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+  }
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
+});
 
   // Touch drag
   header.addEventListener('touchstart', function(e) {
@@ -281,66 +304,7 @@ document.body.addEventListener('click', (e) => {
   }
 });
 
-// --- Keydown shortcut for posts and feeds (Alt+C)
-document.addEventListener('keydown', async function(e) {
-  if (e.altKey && e.key.toLowerCase() === 'c') {
-    const url = window.location.href;
 
-    // Patterns for posts
-    const isDeerPost = url.startsWith('https://deer.social/') && url.includes('/post/');
-    const isBskyPost = url.startsWith('https://bsky.app/profile/') && url.includes('/post/');
-
-    // Patterns for feeds/lists
-    const isDeerFeed = url.startsWith('https://deer.social/') && url.includes('/feed/');
-    const isBskyFeed = url.startsWith('https://bsky.app/profile/') && url.includes('/feed/');
-
-    try {
-      // Copy the URL in all cases
-      if (isDeerPost || isBskyPost || isDeerFeed || isBskyFeed) {
-        await navigator.clipboard.writeText(url);
-      }
-
-      // Open the right viewer for posts
-      if (isDeerPost || isBskyPost) {
-        window.open(
-          `https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(url)}`,
-          '_blank'
-        );
-        console.log('Post URL copied and viewer opened:', url);
-      }
-      // Open the right viewer for feeds/lists
-      else if (isDeerFeed || isBskyFeed) {
-        window.open(
-          `https://corkiejp.github.io/ATProtoViewer/ATProtoSimpleFeeds.html?input=${encodeURIComponent(url)}`,
-          '_blank'
-        );
-        console.log('Feed URL copied and viewer opened:', url);
-      }
-      // --- Klearsky support ---
-      else if (window.location.hostname === 'klearsky.pages.dev') {
-        // Try to extract the at:// URI from the hash
-        const hash = window.location.hash;
-        const match = hash.match(/[?&]uri=([^&]+)/);
-        if (match) {
-          const aturl = decodeURIComponent(match[1]);
-          await navigator.clipboard.writeText(aturl);
-
-          // Open the post in ATProtoViewer
-          window.open(
-            `https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(aturl)}`,
-            '_blank'
-          );
-          console.log('Klearsky at:// URI copied and viewer opened:', aturl);
-        } else {
-          // Optionally, handle feeds or lists if you want (klearsky doesn't have a standard feed/list URL pattern)
-          alert('No at:// post URI found in the current Klearsky page.');
-        }
-      }
-    } catch (err) {
-      console.error('Clipboard write failed:', err);
-    }
-  }
-});
 
 
 // --- KLEASKY: Show popup when navigating to a post (hash-based SPA navigation), with snooze
@@ -377,23 +341,80 @@ if (window.location.hostname === 'klearsky.pages.dev') {
   maybeShowPopupForPost();
 }
 
-document.addEventListener('keydown', function(e) {
-  // Alt+L for opening the external popup
-  if (e.altKey && e.key.toLowerCase() === 'l') {
+// --- Unified keydown shortcuts (Alt+C and Alt+L) ---
+document.addEventListener('keydown', async function(e) {
+  if (!e.altKey) return;
+
+  const key = e.key.toLowerCase();
+
+  // --- Alt+C: copy URL / open ATProtoViewer for post or feed ---
+  if (key === 'c') {
+    const url = window.location.href;
+
+    const isDeerPost = url.startsWith('https://deer.social/') && url.includes('/post/');
+    const isBskyPost = url.startsWith('https://bsky.app/profile/') && url.includes('/post/');
+    const isWsPost   = url.startsWith('https://wsocial.eu/profile/') && url.includes('/post/');
+
+    const isDeerFeed = url.startsWith('https://deer.social/') && url.includes('/feed/');
+    const isBskyFeed = url.startsWith('https://bsky.app/profile/') && url.includes('/feed/');
+    const isWsFeed   = url.startsWith('https://wsocial.eu/profile/') && url.includes('/feed/');
+
+    try {
+      if (isDeerPost || isBskyPost || isWsPost || isDeerFeed || isBskyFeed || isWsFeed) {
+        await navigator.clipboard.writeText(url);
+      }
+
+      if (isDeerPost || isBskyPost || isWsPost) {
+        window.open(
+          `https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(url)}`,
+          '_blank'
+        );
+        console.log('Post URL copied and viewer opened:', url);
+      } else if (isDeerFeed || isBskyFeed || isWsFeed) {
+        window.open(
+          `https://corkiejp.github.io/ATProtoViewer/ATProtoSimpleFeeds.html?input=${encodeURIComponent(url)}`,
+          '_blank'
+        );
+        console.log('Feed URL copied and viewer opened:', url);
+      } else if (window.location.hostname === 'klearsky.pages.dev') {
+        const hash = window.location.hash;
+        const match = hash.match(/[?&]uri=([^&]+)/);
+        if (match) {
+          const aturl = decodeURIComponent(match[1]);
+          await navigator.clipboard.writeText(aturl);
+          window.open(
+            `https://corkiejp.github.io/ATProtoViewer/index.html?uri=${encodeURIComponent(aturl)}`,
+            '_blank'
+          );
+          console.log('Klearsky at:// URI copied and viewer opened:', aturl);
+        } else {
+          alert('No at:// post URI found in the current Klearsky page.');
+        }
+      }
+    } catch (err) {
+      console.error('Clipboard write failed:', err);
+    }
+    return;
+  }
+
+  // --- Alt+L: open mobile view list (ttospwa) ---
+  if (key === 'l') {
     let url = null;
 
-    // For bsky.app and deer.social, just use the current URL if it's a post
     if (
-      (window.location.hostname === 'bsky.app' && window.location.pathname.startsWith('/profile/') && window.location.pathname.includes('/post/')) ||
-      (window.location.hostname === 'deer.social' && window.location.pathname.includes('/post/'))
+      (window.location.hostname === 'bsky.app' &&
+       window.location.pathname.startsWith('/profile/') &&
+       window.location.pathname.includes('/post/')) ||
+      (window.location.hostname === 'deer.social' &&
+       window.location.pathname.includes('/post/')) ||
+      (window.location.hostname === 'wsocial.eu' &&
+       window.location.pathname.includes('/post/'))
     ) {
       url = window.location.href;
     }
 
-    // For klearsky, extract the Bluesky or at:// url from the hash
     if (window.location.hostname === 'klearsky.pages.dev') {
       const hash = window.location.hash;
-      // Try to get a Bluesky or at:// URL from the hash
       const match = hash.match(/[?&]uri=([^&]+)/);
       if (match) url = decodeURIComponent(match[1]);
     }
@@ -407,5 +428,6 @@ document.addEventListener('keydown', function(e) {
     } else {
       alert('Not on a supported post page.');
     }
+    return;
   }
 });
