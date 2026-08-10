@@ -440,6 +440,7 @@ document.addEventListener('keydown', async function(e) {
   const HANDLE_BUTTON_CLASS = 'atproto-handle-copy-button';
   const HANDLE_PROCESSED_ATTR = 'data-atproto-handle-processed';
   const HANDLE_VALUE_ATTR = 'data-atproto-full-handle';
+  const HANDLE_STYLE_ID = 'atproto-handle-copy-style';
 
   const SUPPORTED_CLIENTS = new Set([
     'wsocial.eu',
@@ -460,45 +461,177 @@ document.addEventListener('keydown', async function(e) {
       .trim();
   }
 
-  function getProfileHandleFromHref(anchor) {
-    const href = anchor.getAttribute('href') || '';
+  function getProfileRepository(anchor) {
+    const rawHref = anchor.getAttribute('href') || '';
 
-    // Match only /profile/<handle>.
-    // This deliberately excludes /profile/<handle>/post/<rkey>.
-    const match = href.match(/^\/profile\/([^/?#]+)\/?$/);
+    let url;
 
-    return match ? decodeURIComponent(match[1]) : null;
-  }
-
-  function isHandleAnchor(anchor) {
-    if (!(anchor instanceof HTMLAnchorElement)) {
-      return false;
+    try {
+      url = new URL(rawHref, window.location.href);
+    } catch {
+      return null;
     }
 
-    const handle = getProfileHandleFromHref(anchor);
-    if (!handle) {
-      return false;
+    if (url.origin !== window.location.origin) {
+      return null;
+    }
+
+    /*
+     * Match only:
+     *
+     *   /profile/<repo>
+     *
+     * This excludes:
+     *
+     *   /profile/<repo>/post/<rkey>
+     */
+    const match = url.pathname.match(/^\/profile\/([^/?#]+)\/?$/);
+
+    if (!match) {
+      return null;
+    }
+
+    try {
+      return decodeURIComponent(match[1]);
+    } catch {
+      return match[1];
+    }
+  }
+
+  function getHandleInfo(anchor) {
+    if (!(anchor instanceof HTMLAnchorElement)) {
+      return null;
+    }
+
+    const repository = getProfileRepository(anchor);
+
+    if (!repository) {
+      return null;
     }
 
     const visibleText = cleanText(anchor.textContent);
 
-    // This excludes the display-name link, for example "Richard Bell".
-    return visibleText === `@${handle}`;
+    /*
+     * This deliberately excludes display-name links such as:
+     *
+     *   Richard Bell
+     *
+     * and accepts handle links such as:
+     *
+     *   @richard-bell.wsocial.eu
+     *   @scoiattolo.mountainherder.xyz
+     */
+    if (!/^@[^@\s]+$/u.test(visibleText)) {
+      return null;
+    }
+
+    const visibleHandle = visibleText.slice(1);
+    const isWsocial = window.location.hostname === 'wsocial.eu';
+
+    /*
+     * wsocial.eu puts the actual handle in the profile URL.
+     *
+     * Deer uses a DID in the profile URL, for example:
+     *
+     *   /profile/did:plc:uyqnubfj3qlho6psy6uvvt6u
+     *
+     * Therefore Deer and the other clients use the visible handle.
+     */
+    const fullHandle = isWsocial
+      ? repository
+      : visibleHandle;
+
+    return {
+      repository,
+      visibleHandle,
+      fullHandle,
+      displayHandle: `@${visibleHandle}`,
+      isWsocial
+    };
+  }
+
+  async function copyText(text) {
+    if (navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch (error) {
+        console.warn(
+          'AT Protocol Handler: Clipboard API failed; trying fallback.',
+          error
+        );
+      }
+    }
+
+    const textarea = document.createElement('textarea');
+
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    textarea.style.top = '0';
+    textarea.style.opacity = '0';
+
+    document.body.appendChild(textarea);
+
+    textarea.focus();
+    textarea.select();
+    textarea.setSelectionRange(0, textarea.value.length);
+
+    let copied = false;
+
+    try {
+      copied = document.execCommand('copy');
+    } catch (error) {
+      console.error(
+        'AT Protocol Handler: clipboard fallback failed.',
+        error
+      );
+    }
+
+    textarea.remove();
+
+    return copied;
+  }
+
+  function getExistingCopyButton(parent, fullHandle) {
+    return Array.from(
+      parent.querySelectorAll(`.${HANDLE_BUTTON_CLASS}`)
+    ).find(button => button.dataset.handle === fullHandle) || null;
+  }
+
+  function showCopySuccess(button) {
+    const originalText = button.textContent;
+    const originalLabel = button.getAttribute('aria-label');
+
+    button.textContent = '✓';
+    button.setAttribute('aria-label', 'Handle copied');
+
+    window.setTimeout(() => {
+      if (!button.isConnected) {
+        return;
+      }
+
+      button.textContent = originalText;
+      button.setAttribute('aria-label', originalLabel);
+    }, 1000);
   }
 
   function getOrCreateCopyButton(anchor, fullHandle) {
     const parent = anchor.parentElement;
-    if (!parent) return null;
 
-    let button = parent.querySelector(
-      `.${HANDLE_BUTTON_CLASS}[data-handle="${CSS.escape(fullHandle)}"]`
-    );
-
-    if (button) {
-      return button;
+    if (!parent) {
+      return null;
     }
 
-    button = document.createElement('button');
+    const existingButton = getExistingCopyButton(parent, fullHandle);
+
+    if (existingButton) {
+      return existingButton;
+    }
+
+    const button = document.createElement('button');
+
     button.type = 'button';
     button.className = HANDLE_BUTTON_CLASS;
     button.dataset.handle = fullHandle;
@@ -511,70 +644,63 @@ document.addEventListener('keydown', async function(e) {
       event.stopPropagation();
 
       const value = `@${fullHandle}`;
+      const copied = await copyText(value);
 
-      try {
-        await navigator.clipboard.writeText(value);
-
-        const oldText = button.textContent;
-        const oldLabel = button.getAttribute('aria-label');
-
-        button.textContent = '✓';
-        button.setAttribute('aria-label', 'Handle copied');
-
-        setTimeout(() => {
-          if (!button.isConnected) return;
-          button.textContent = oldText;
-          button.setAttribute('aria-label', oldLabel);
-        }, 1000);
-      } catch (error) {
-        console.error('AT Protocol Handler: unable to copy handle', error);
+      if (copied) {
+        showCopySuccess(button);
+      } else {
+        console.error(
+          'AT Protocol Handler: unable to copy handle.',
+          value
+        );
       }
     });
 
-    // Insert directly after the handle anchor, not around the entire post.
+    /*
+     * Insert only beside the handle anchor.
+     * Nothing around the complete post header is wrapped or changed.
+     */
     anchor.insertAdjacentElement('afterend', button);
 
     return button;
   }
 
   function processHandleAnchor(anchor) {
-    if (!isHandleAnchor(anchor)) {
+    const info = getHandleInfo(anchor);
+
+    if (!info) {
       return;
     }
 
-    const fullHandle = getProfileHandleFromHref(anchor);
-    if (!fullHandle) {
-      return;
-    }
-
-    const fullDisplayHandle = `@${fullHandle}`;
-    const isWsocial = window.location.hostname === 'wsocial.eu';
-
-    /*
-     * React clients can reuse an existing anchor and change its text.
-     * Therefore, a processed marker prevents duplicate buttons, but does
-     * not prevent us from correcting the visible text again.
-     */
-    const alreadyProcessed =
-      anchor.getAttribute(HANDLE_PROCESSED_ATTR) === 'true';
+    const {
+      fullHandle,
+      isWsocial
+    } = info;
 
     anchor.setAttribute(HANDLE_PROCESSED_ATTR, 'true');
-    anchor.setAttribute(HANDLE_VALUE_ATTR, fullDisplayHandle);
-    anchor.title = fullDisplayHandle;
-    anchor.dataset.fullHandle = fullDisplayHandle;
+    anchor.setAttribute(HANDLE_VALUE_ATTR, `@${fullHandle}`);
+    anchor.dataset.fullHandle = `@${fullHandle}`;
+    anchor.title = `@${fullHandle}`;
 
     if (isWsocial) {
-      const shortened = fullHandle.replace(/\.wsocial\.eu$/i, '');
-      const shortenedDisplay = `@${shortened}`;
+      const shortenedHandle = fullHandle.replace(
+        /\.wsocial\.eu$/i,
+        ''
+      );
+
+      const shortenedDisplay = `@${shortenedHandle}`;
 
       if (cleanText(anchor.textContent) !== shortenedDisplay) {
         anchor.textContent = shortenedDisplay;
       }
     }
 
-    if (!alreadyProcessed) {
-      getOrCreateCopyButton(anchor, fullHandle);
-    }
+    /*
+     * This is intentionally called on every scan.
+     * The helper returns the existing button when one is already present,
+     * but recreates it if React has replaced or removed it.
+     */
+    getOrCreateCopyButton(anchor, fullHandle);
   }
 
   function scanForHandles(root = document) {
@@ -591,17 +717,18 @@ document.addEventListener('keydown', async function(e) {
     }
 
     root
-      .querySelectorAll('a[href^="/profile/"]')
+      .querySelectorAll('a[href*="/profile/"]')
       .forEach(processHandleAnchor);
   }
 
   function injectHandleStyles() {
-    if (document.getElementById('atproto-handle-copy-style')) {
+    if (document.getElementById(HANDLE_STYLE_ID)) {
       return;
     }
 
     const style = document.createElement('style');
-    style.id = 'atproto-handle-copy-style';
+
+    style.id = HANDLE_STYLE_ID;
 
     style.textContent = `
       .${HANDLE_BUTTON_CLASS} {
@@ -613,6 +740,7 @@ document.addEventListener('keydown', async function(e) {
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        flex: 0 0 auto;
         font: inherit;
         line-height: 1;
         opacity: 0.65;
@@ -644,23 +772,24 @@ document.addEventListener('keydown', async function(e) {
 
     const observer = new MutationObserver(mutations => {
       for (const mutation of mutations) {
-        for (const node of mutation.addedNodes) {
-          if (node.nodeType === Node.ELEMENT_NODE) {
+        if (mutation.type === 'childList') {
+          for (const node of mutation.addedNodes) {
+            if (node.nodeType !== Node.ELEMENT_NODE) {
+              continue;
+            }
+
             scanForHandles(node);
           }
         }
 
-        /*
-         * If React changes the text inside an existing anchor, the anchor
-         * itself may not appear in addedNodes. Recheck changed elements.
-         */
-        if (
-          mutation.type === 'characterData' &&
-          mutation.target.parentElement
-        ) {
-          const anchor = mutation.target.parentElement.closest(
-            'a[href^="/profile/"]'
-          );
+        if (mutation.type === 'characterData') {
+          const parent = mutation.target.parentElement;
+
+          if (!parent) {
+            continue;
+          }
+
+          const anchor = parent.closest('a[href*="/profile/"]');
 
           if (anchor) {
             processHandleAnchor(anchor);
@@ -676,7 +805,19 @@ document.addEventListener('keydown', async function(e) {
     });
   }
 
-  injectHandleStyles();
-  scanForHandles();
-  startHandleObserver();
+  function initialiseHandleControls() {
+    injectHandleStyles();
+    scanForHandles();
+    startHandleObserver();
+  }
+
+  if (document.body) {
+    initialiseHandleControls();
+  } else {
+    window.addEventListener(
+      'DOMContentLoaded',
+      initialiseHandleControls,
+      { once: true }
+    );
+  }
 })();
