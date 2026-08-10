@@ -537,9 +537,13 @@ document.addEventListener('keydown', async function(e) {
      *
      * Therefore Deer and the other clients use the visible handle.
      */
-    const fullHandle = isWsocial
-      ? repository
-      : visibleHandle;
+const repositoryIsWsocialHandle =
+  /\.wsocial\.eu$/i.test(repository);
+
+const fullHandle =
+  isWsocial && repositoryIsWsocialHandle
+    ? repository
+    : visibleHandle;
 
     return {
       repository,
@@ -682,7 +686,7 @@ document.addEventListener('keydown', async function(e) {
     anchor.dataset.fullHandle = `@${fullHandle}`;
     anchor.title = `@${fullHandle}`;
 
-    if (isWsocial) {
+    if (isWsocial && /\.wsocial\.eu$/i.test(fullHandle)) {
       const shortenedHandle = fullHandle.replace(
         /\.wsocial\.eu$/i,
         ''
