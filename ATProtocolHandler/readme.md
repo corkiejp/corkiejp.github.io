@@ -1,11 +1,17 @@
 # AT Protocol Handler ~ Extension to open at did urls
-## Now available on Chrome Webstore/FireFox ADDon.
+## NEW: - Support for wsocial.eu
 
-[AT Protocol Handler - Chrome Webstore](https://chromewebstore.google.com/detail/at-protocol-handler/foippfcmhngnjdlfhgaifppajnhlmafk)
+[AT Protocol Handler - Chrome Webstore](https://chromewebstore.google.com/detail/at-protocol-handler/foippfcmhngnjdlfhgaifppajnhlmafk) ~ Waiting for review.
 
-[AT Protocol Handler - FireFox ADDon](https://addons.mozilla.org/en-US/firefox/addon/at-protocol-handler/) 
+[AT Protocol Handler - FireFox ADDon](https://addons.mozilla.org/en-US/firefox/addon/at-protocol-handler/) ~ Live
 
 The [webpage](https://corkiejp.github.io/ATProtocolHandler/index.html), has a input field to test primary function of it
+
+## Manual Install
+
+[Chrome zip](https://corkiejp.github.io/ATProtocolHandler/ATProtocolHandler-chrome.zip)
+
+[Firefox xpi](https://corkiejp.github.io/ATProtocolHandler/ATProtocolHandler.xpi)
 
 ## Overview
 
@@ -58,9 +64,13 @@ Use: - 'at' as the keyword to put in the browser url, press space/tab to activat
 
 [Live example output with 'aturl' parameter passed to it](https://corkiejp.github.io/ATProtocolHandler/list.html?aturl=at://did:plc:vovinwhtulbsx4mwfw26r5ni/app.bsky.feed.post/3lssubf2d6b2c)
 
-This is a quick temporary readme!
 
-**Manual Install:** To install take the six files in this folder background.js, content.js, list.html, inst.html, list.js and manifest.json. Then place them in a folder on your computer, and load unpack with 'chrome://extensions/'.
+
+**Manual Install:** 
+
+See zips/xpi at top of page!
+
+To install take the six files in this folder background.js, content.js, list.html, inst.html, list.js and manifest.json. Then place them in a folder on your computer, and load unpack with 'chrome://extensions/'.
 You can also manage your own set of links by making similar additions to list.js. Downside you would need to manually update the extension.
 
 Or alternatively download the .src file, un zip it to a folder, then unpack it.
