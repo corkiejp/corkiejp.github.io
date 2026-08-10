@@ -431,3 +431,252 @@ document.addEventListener('keydown', async function(e) {
     return;
   }
 });
+
+// -----------------------------------------------------------------------------
+// Profile-handle display and copy controls
+// -----------------------------------------------------------------------------
+
+(() => {
+  const HANDLE_BUTTON_CLASS = 'atproto-handle-copy-button';
+  const HANDLE_PROCESSED_ATTR = 'data-atproto-handle-processed';
+  const HANDLE_VALUE_ATTR = 'data-atproto-full-handle';
+
+  const SUPPORTED_CLIENTS = new Set([
+    'wsocial.eu',
+    'bsky.app',
+    'deer.social'
+  ]);
+
+  const BIDI_MARKS_RE = /[\u200B-\u200F\u202A-\u202E\u2066-\u2069]/g;
+
+  function isSupportedClient() {
+    return SUPPORTED_CLIENTS.has(window.location.hostname);
+  }
+
+  function cleanText(value) {
+    return String(value || '')
+      .replace(BIDI_MARKS_RE, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function getProfileHandleFromHref(anchor) {
+    const href = anchor.getAttribute('href') || '';
+
+    // Match only /profile/<handle>.
+    // This deliberately excludes /profile/<handle>/post/<rkey>.
+    const match = href.match(/^\/profile\/([^/?#]+)\/?$/);
+
+    return match ? decodeURIComponent(match[1]) : null;
+  }
+
+  function isHandleAnchor(anchor) {
+    if (!(anchor instanceof HTMLAnchorElement)) {
+      return false;
+    }
+
+    const handle = getProfileHandleFromHref(anchor);
+    if (!handle) {
+      return false;
+    }
+
+    const visibleText = cleanText(anchor.textContent);
+
+    // This excludes the display-name link, for example "Richard Bell".
+    return visibleText === `@${handle}`;
+  }
+
+  function getOrCreateCopyButton(anchor, fullHandle) {
+    const parent = anchor.parentElement;
+    if (!parent) return null;
+
+    let button = parent.querySelector(
+      `.${HANDLE_BUTTON_CLASS}[data-handle="${CSS.escape(fullHandle)}"]`
+    );
+
+    if (button) {
+      return button;
+    }
+
+    button = document.createElement('button');
+    button.type = 'button';
+    button.className = HANDLE_BUTTON_CLASS;
+    button.dataset.handle = fullHandle;
+    button.textContent = '⧉';
+    button.title = `Copy @${fullHandle}`;
+    button.setAttribute('aria-label', `Copy @${fullHandle}`);
+
+    button.addEventListener('click', async event => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const value = `@${fullHandle}`;
+
+      try {
+        await navigator.clipboard.writeText(value);
+
+        const oldText = button.textContent;
+        const oldLabel = button.getAttribute('aria-label');
+
+        button.textContent = '✓';
+        button.setAttribute('aria-label', 'Handle copied');
+
+        setTimeout(() => {
+          if (!button.isConnected) return;
+          button.textContent = oldText;
+          button.setAttribute('aria-label', oldLabel);
+        }, 1000);
+      } catch (error) {
+        console.error('AT Protocol Handler: unable to copy handle', error);
+      }
+    });
+
+    // Insert directly after the handle anchor, not around the entire post.
+    anchor.insertAdjacentElement('afterend', button);
+
+    return button;
+  }
+
+  function processHandleAnchor(anchor) {
+    if (!isHandleAnchor(anchor)) {
+      return;
+    }
+
+    const fullHandle = getProfileHandleFromHref(anchor);
+    if (!fullHandle) {
+      return;
+    }
+
+    const fullDisplayHandle = `@${fullHandle}`;
+    const isWsocial = window.location.hostname === 'wsocial.eu';
+
+    /*
+     * React clients can reuse an existing anchor and change its text.
+     * Therefore, a processed marker prevents duplicate buttons, but does
+     * not prevent us from correcting the visible text again.
+     */
+    const alreadyProcessed =
+      anchor.getAttribute(HANDLE_PROCESSED_ATTR) === 'true';
+
+    anchor.setAttribute(HANDLE_PROCESSED_ATTR, 'true');
+    anchor.setAttribute(HANDLE_VALUE_ATTR, fullDisplayHandle);
+    anchor.title = fullDisplayHandle;
+    anchor.dataset.fullHandle = fullDisplayHandle;
+
+    if (isWsocial) {
+      const shortened = fullHandle.replace(/\.wsocial\.eu$/i, '');
+      const shortenedDisplay = `@${shortened}`;
+
+      if (cleanText(anchor.textContent) !== shortenedDisplay) {
+        anchor.textContent = shortenedDisplay;
+      }
+    }
+
+    if (!alreadyProcessed) {
+      getOrCreateCopyButton(anchor, fullHandle);
+    }
+  }
+
+  function scanForHandles(root = document) {
+    if (!isSupportedClient()) {
+      return;
+    }
+
+    if (root instanceof HTMLAnchorElement) {
+      processHandleAnchor(root);
+    }
+
+    if (!root.querySelectorAll) {
+      return;
+    }
+
+    root
+      .querySelectorAll('a[href^="/profile/"]')
+      .forEach(processHandleAnchor);
+  }
+
+  function injectHandleStyles() {
+    if (document.getElementById('atproto-handle-copy-style')) {
+      return;
+    }
+
+    const style = document.createElement('style');
+    style.id = 'atproto-handle-copy-style';
+
+    style.textContent = `
+      .${HANDLE_BUTTON_CLASS} {
+        appearance: none;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font: inherit;
+        line-height: 1;
+        opacity: 0.65;
+        padding: 2px 3px;
+        margin-left: 2px;
+        vertical-align: middle;
+      }
+
+      .${HANDLE_BUTTON_CLASS}:hover,
+      .${HANDLE_BUTTON_CLASS}:focus-visible {
+        color: #11e8b2;
+        opacity: 1;
+      }
+
+      .${HANDLE_BUTTON_CLASS}:focus-visible {
+        outline: 2px solid currentColor;
+        outline-offset: 2px;
+        border-radius: 3px;
+      }
+    `;
+
+    document.head.appendChild(style);
+  }
+
+  function startHandleObserver() {
+    if (!document.body) {
+      return;
+    }
+
+    const observer = new MutationObserver(mutations => {
+      for (const mutation of mutations) {
+        for (const node of mutation.addedNodes) {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            scanForHandles(node);
+          }
+        }
+
+        /*
+         * If React changes the text inside an existing anchor, the anchor
+         * itself may not appear in addedNodes. Recheck changed elements.
+         */
+        if (
+          mutation.type === 'characterData' &&
+          mutation.target.parentElement
+        ) {
+          const anchor = mutation.target.parentElement.closest(
+            'a[href^="/profile/"]'
+          );
+
+          if (anchor) {
+            processHandleAnchor(anchor);
+          }
+        }
+      }
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      characterData: true
+    });
+  }
+
+  injectHandleStyles();
+  scanForHandles();
+  startHandleObserver();
+})();
