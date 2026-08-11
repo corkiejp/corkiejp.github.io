@@ -13,7 +13,7 @@ The [webpage](https://corkiejp.github.io/ATProtocolHandler/index.html), has a in
 
 [Firefox xpi](https://corkiejp.github.io/ATProtocolHandler/ATProtocolHandler.xpi)
 
-[WIP Builds](/wip)
+[WIP Builds](./wip)
 
 ## Overview
 
