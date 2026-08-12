@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AT Protocol Handler Settings</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f5f7fb;
+      --surface: #ffffff;
+      --surface-2: #eef3f8;
+      --text: #1f2937;
+      --muted: #5f6b7a;
+      --border: #d7dee7;
+      --primary: #0b57d0;
+      --primary-2: #e8f0fe;
+      --danger: #b42318;
+      --success: #146c2e;
+      --success-bg: #ecfdf3;
+      --success-border: #b7e4c7;
+      --shadow: 0 8px 24px rgba(16, 24, 40, 0.08);
+      --radius: 12px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111827;
+        --surface: #1f2937;
+        --surface-2: #111827;
+        --text: #f3f4f6;
+        --muted: #c0c7d1;
+        --border: #374151;
+        --primary: #7db1ff;
+        --primary-2: #163252;
+        --danger: #ffb3b3;
+        --success: #9ae6b4;
+        --success-bg: #1f3527;
+        --success-border: #3d6b4a;
+        --shadow: none;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    h1, h2, h3 {
+      margin: 0 0 .75rem;
+    }
+
+    h1 { font-size: 1.65rem; }
+    h2 { font-size: 1.1rem; }
+    p { margin: .4rem 0 .8rem; }
+
+    .muted { color: var(--muted); }
+    .grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    @media (min-width: 900px) {
+      .grid.two { grid-template-columns: 1fr 1fr; }
+    }
+
+    .section {
+      display: grid;
+      gap: .75rem;
+      padding: .9rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-2);
+    }
+
+    .option-row {
+      display: flex;
+      align-items: flex-start;
+      gap: .75rem;
+      padding: .45rem 0;
+    }
+
+    .option-row input[type="checkbox"] {
+      width: 1.1rem;
+      height: 1.1rem;
+      margin-top: .2rem;
+      flex: 0 0 auto;
+    }
+
+    .option-text {
+      display: grid;
+      gap: .15rem;
+    }
+
+    .option-text strong {
+      font-weight: 700;
+    }
+
+    .option-text span {
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .actions {
+      display: flex;
+      gap: .75rem;
+      flex-wrap: wrap;
+      margin-top: .5rem;
+    }
+
+    button, .link-btn {
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: .75rem 1rem;
+      cursor: pointer;
+      font: inherit;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .primary-btn {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .secondary-btn {
+      background: var(--surface-2);
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .notice {
+      padding: .85rem 1rem;
+      border-radius: 10px;
+      border: 1px solid var(--success-border);
+      background: var(--success-bg);
+      color: var(--success);
+      margin-top: .75rem;
+      min-height: 1.25rem;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: .1rem .35rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>AT Protocol Handler Settings</h1>
+      <p class="muted">Configure post hiding, wsocial handle abbreviation, and copy button behaviour.</p>
+      <div class="actions">
+        <a class="link-btn secondary-btn" href="inst.html">Open extension popup</a>
+      </div>
+      <div id="status" class="notice" aria-live="polite">Settings have not been changed.</div>
+    </div>
+
+    <div class="grid two">
+      <div class="card">
+        <h2>wsocial.eu</h2>
+        <div class="section">
+          <label class="option-row">
+            <input type="checkbox" id="wsocialHideBsky">
+            <span class="option-text">
+              <strong>Hide posts and replies from *.bsky.social</strong>
+              <span>Hides the whole post or reply when the author handle ends with <code>.bsky.social</code>.</span>
+            </span>
+          </label>
+          <label class="option-row">
+            <input type="checkbox" id="wsocialHideEurosky">
+            <span class="option-text">
+              <strong>Hide posts and replies from *.eurosky.social</strong>
+              <span>Hides the whole post or reply when the author handle ends with <code>.eurosky.social</code>.</span>
+            </span>
+          </label>
+		  <label class="option-row">
+  <input type="checkbox" id="wsocialHideWsocial">
+  <span class="option-text">
+    <strong>Hide posts and replies from *.wsocial.eu</strong>
+    <span>Normally off. Hides wsocial accounts when enabled.</span>
+  </span>
+</label>
+          <label class="option-row">
+            <input type="checkbox" id="wsocialShortenHandles">
+            <span class="option-text">
+              <strong>Shorten wsocial handles</strong>
+              <span>Shows <code>@username</code> instead of <code>@username.wsocial.eu</code> on wsocial.eu only.</span>
+            </span>
+          </label>
+          <label class="option-row">
+            <input type="checkbox" id="wsocialShowCopyButtons">
+            <span class="option-text">
+              <strong>Show wsocial copy buttons</strong>
+              <span>Adds a copy button beside wsocial handles.</span>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>bsky.app & mu.social</h2>
+        <div class="section">
+          <label class="option-row">
+            <input type="checkbox" id="bskyHideWsocial">
+            <span class="option-text">
+              <strong>Hide posts and replies from *.wsocial.eu</strong>
+              <span>Hides the whole post or reply when the author handle ends with <code>.wsocial.eu</code>.</span>
+            </span>
+          </label>
+          <label class="option-row">
+            <input type="checkbox" id="bskyHideEurosky">
+            <span class="option-text">
+              <strong>Hide posts and replies from *.eurosky.social</strong>
+              <span>Hides the whole post or reply when the author handle ends with <code>.eurosky.social</code>.</span>
+            </span>
+          </label>
+		  <label class="option-row">
+  <input type="checkbox" id="bskyHideBsky">
+  <span class="option-text">
+    <strong>Hide posts and replies from *.bsky.social</strong>
+    <span>Usually off. Hides primary Bluesky accounts when enabled.</span>
+  </span>
+</label>
+          <label class="option-row">
+            <input type="checkbox" id="bskyShowCopyButtons">
+            <span class="option-text">
+              <strong>Show copy buttons</strong>
+              <span>Adds a copy button beside profile handles on Bluesky.</span>
+            </span>
+          </label>
+
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>deer.social</h2>
+        <div class="section">
+          <label class="option-row">
+            <input type="checkbox" id="deerHideWsocial">
+            <span class="option-text">
+              <strong>Hide posts and replies from *.wsocial.eu</strong>
+              <span>Hides the whole post or reply when the author handle ends with <code>.wsocial.eu</code>.</span>
+            </span>
+          </label>
+          <label class="option-row">
+            <input type="checkbox" id="deerHideEurosky">
+            <span class="option-text">
+              <strong>Hide posts and replies from *.eurosky.social</strong>
+              <span>Hides the whole post or reply when the author handle ends with <code>.eurosky.social</code>.</span>
+            </span>
+          </label>
+		  <label class="option-row">
+  <input type="checkbox" id="deerHideBsky">
+  <span class="option-text">
+    <strong>Hide posts and replies from *.bsky.social</strong>
+    <span>Hides Bluesky accounts when enabled.</span>
+  </span>
+</label>
+          <label class="option-row">
+            <input type="checkbox" id="deerShowCopyButtons">
+            <span class="option-text">
+              <strong>Show copy buttons</strong>
+              <span>Adds a copy button beside profile handles on Deer.</span>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Notes</h2>
+        <p class="muted">These options only affect visible posts and replies. Quoted content is left alone unless it is itself a separate post/reply item.</p>
+        <p class="muted">All options are opt-in and disabled by default.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="actions">
+        <button id="saveBtn" class="primary-btn" type="button">Save settings</button>
+        <button id="resetBtn" class="secondary-btn" type="button">Reset to defaults</button>
+      </div>
+    </div>
+  </div>
+  <script src="options.js"></script>
+</body>
+</html>

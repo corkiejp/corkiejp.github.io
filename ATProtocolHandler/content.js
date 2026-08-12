@@ -441,11 +441,75 @@ document.addEventListener('keydown', async function(e) {
   const HANDLE_PROCESSED_ATTR = 'data-atproto-handle-processed';
   const HANDLE_VALUE_ATTR = 'data-atproto-full-handle';
   const HANDLE_STYLE_ID = 'atproto-handle-copy-style';
+  
+    const DEFAULT_HANDLE_SETTINGS = {
+    wsocialShortenHandles: true,
+    wsocialShowCopyButtons: true,
+    bskyShowCopyButtons: true,
+    deerShowCopyButtons: true
+  };
+
+  let handleSettings = { ...DEFAULT_HANDLE_SETTINGS };
+
+  function getExtensionStorage() {
+    if (typeof browser !== 'undefined' && browser.storage?.local) {
+      return browser.storage.local;
+    }
+
+    if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+      return chrome.storage.local;
+    }
+
+    return null;
+  }
+
+  function loadHandleSettings() {
+    const storage = getExtensionStorage();
+
+    if (!storage) {
+      return Promise.resolve({ ...DEFAULT_HANDLE_SETTINGS });
+    }
+
+    return new Promise(resolve => {
+      storage.get(DEFAULT_HANDLE_SETTINGS, result => {
+        resolve({
+          ...DEFAULT_HANDLE_SETTINGS,
+          ...(result || {})
+        });
+      });
+    });
+  }
+
+  function copyButtonsEnabled() {
+    if (window.location.hostname === 'wsocial.eu') {
+      return !!handleSettings.wsocialShowCopyButtons;
+    }
+
+    if (window.location.hostname === 'bsky.app' || window.location.hostname === 'mu.social') {
+      return !!handleSettings.bskyShowCopyButtons;
+    }
+
+    if (window.location.hostname === 'deer.social') {
+      return !!handleSettings.deerShowCopyButtons;
+    }
+
+    return false;
+  }
+
+  function removeCopyButtons(anchor) {
+    const parent = anchor.parentElement;
+    if (!parent) return;
+
+    parent
+      .querySelectorAll(`.${HANDLE_BUTTON_CLASS}`)
+      .forEach(button => button.remove());
+  }
 
   const SUPPORTED_CLIENTS = new Set([
     'wsocial.eu',
     'bsky.app',
-    'deer.social'
+    'deer.social',
+    'mu.social'
   ]);
 
   const BIDI_MARKS_RE = /[\u200B-\u200F\u202A-\u202E\u2066-\u2069]/g;
@@ -460,6 +524,16 @@ document.addEventListener('keydown', async function(e) {
       .replace(/\s+/g, ' ')
       .trim();
   }
+
+  function cleanHandle(value) {
+    return String(value || '')
+      .replace(/[\u200B-\u200F\u202A-\u202E\u2066-\u2069]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .replace(/^@/, '')
+      .toLowerCase();
+  }
+
 
   function getProfileRepository(anchor) {
     const rawHref = anchor.getAttribute('href') || '';
@@ -668,6 +742,115 @@ const fullHandle =
 
     return button;
   }
+  
+    function isCustomDomainHandle(fullHandle) {
+    const value = cleanHandle(fullHandle);
+    if (!value.includes('.')) return false;
+
+    // Skip the “stock” handle domains you already treat specially
+    if (value.endsWith('.bsky.social')) return false;
+    if (value.endsWith('.eurosky.social')) return false;
+    if (value.endsWith('.wsocial.eu')) return false;
+
+    return true;
+  }
+
+function addPdsCheckButton(anchor, fullHandle) {
+  if (window.location.hostname !== 'wsocial.eu') return;
+
+  const parent = anchor.parentElement;
+  if (!parent) return;
+
+  if (!isCustomDomainHandle(fullHandle)) return;
+
+  if (parent.querySelector('.atproto-pds-check')) return;
+
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'atproto-pds-check';
+  btn.textContent = '?';
+  btn.title = 'Check which PDS hosts this handle';
+  btn.setAttribute('aria-label', `Check PDS for @${fullHandle}`);
+
+  // 1) Try to load cached result immediately
+  (chrome.runtime || browser.runtime).sendMessage(
+    { type: 'pdsLookupCached', handle: fullHandle },
+    res => {
+      if (res && res.fromCache) {
+        // We have a valid cached result: render it immediately
+        if (res.error) {
+          btn.textContent = '!';
+          btn.title = 'Could not check PDS';
+          btn.classList.add('pds-error');
+          return;
+        }
+
+        if (res.isWsocial) {
+          btn.textContent = 'W';
+          btn.title = 'Hosted on wsocial PDS (confirmed by PLC)';
+          btn.classList.add('pds-wsocial');
+        } else if (res.isEurosky) {
+          btn.textContent = 'E';
+          btn.title = 'Hosted on Eurosky PDS (confirmed by PLC)';
+          btn.classList.add('pds-eurosky');
+} else if (res.endpoint) {
+  btn.textContent = 'P';
+  btn.title = `Hosted on ${res.endpoint} (confirmed by PLC)`;
+  btn.classList.add('pds-other');
+} else {
+          btn.textContent = 'Ø';
+          btn.title = 'PDS not confirmed by PLC';
+          btn.classList.add('pds-unknown');
+        }
+      }
+      // If no cache, leave as '?' and wait for click
+    }
+  );
+
+  // 2) On click, always do a fresh lookup and update cache
+  btn.addEventListener('click', event => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    btn.disabled = true;
+    btn.textContent = '…';
+    btn.title = 'Checking PDS…';
+
+    (chrome.runtime || browser.runtime).sendMessage(
+      { type: 'pdsLookup', handle: fullHandle },
+      res => {
+        btn.disabled = false;
+
+        if (!res || res.error) {
+          btn.textContent = '!';
+          btn.title = 'Could not check PDS';
+          btn.classList.add('pds-error');
+          return;
+        }
+
+        if (res.isWsocial) {
+          btn.textContent = 'W';
+          btn.title = 'Hosted on wsocial PDS (confirmed by PLC)';
+          btn.classList.add('pds-wsocial');
+        } else if (res.isEurosky) {
+          btn.textContent = 'E';
+          btn.title = 'Hosted on Eurosky PDS (confirmed by PLC)';
+          btn.classList.add('pds-eurosky');
+        } else if (res.endpoint) {
+          btn.textContent = '·';
+          btn.title = `Hosted on ${res.endpoint} (confirmed by PLC)`;
+          btn.classList.add('pds-other');
+        } else {
+          btn.textContent = 'Ø';
+          btn.title = 'PDS not confirmed by PLC';
+          btn.classList.add('pds-unknown');
+        }
+      }
+    );
+  });
+
+  anchor.insertAdjacentElement('afterend', btn);
+}
 
   function processHandleAnchor(anchor) {
     const info = getHandleInfo(anchor);
@@ -692,11 +875,22 @@ const fullHandle =
         ''
       );
 
-      const shortenedDisplay = `@${shortenedHandle}`;
+      const displayText = handleSettings.wsocialShortenHandles
+        ? `@${shortenedHandle}`
+        : `@${fullHandle}`;
 
-      if (cleanText(anchor.textContent) !== shortenedDisplay) {
-        anchor.textContent = shortenedDisplay;
+      if (cleanText(anchor.textContent) !== displayText) {
+        anchor.textContent = displayText;
       }
+    }
+	
+	    anchor.setAttribute(HANDLE_PROCESSED_ATTR, 'true');
+    anchor.setAttribute(HANDLE_VALUE_ATTR, `@${fullHandle}`);
+    anchor.dataset.fullHandle = `@${fullHandle}`;
+    anchor.title = `@${fullHandle}`;
+
+    if (window.location.hostname === 'wsocial.eu') {
+      addPdsCheckButton(anchor, fullHandle);
     }
 
     /*
@@ -704,7 +898,11 @@ const fullHandle =
      * The helper returns the existing button when one is already present,
      * but recreates it if React has replaced or removed it.
      */
-    getOrCreateCopyButton(anchor, fullHandle);
+        if (copyButtonsEnabled()) {
+      getOrCreateCopyButton(anchor, fullHandle);
+    } else {
+      removeCopyButtons(anchor);
+    }
   }
 
   function scanForHandles(root = document) {
@@ -725,49 +923,81 @@ const fullHandle =
       .forEach(processHandleAnchor);
   }
 
-  function injectHandleStyles() {
-    if (document.getElementById(HANDLE_STYLE_ID)) {
-      return;
+function injectHandleStyles() {
+  if (document.getElementById(HANDLE_STYLE_ID)) {
+    return;
+  }
+
+  const style = document.createElement('style');
+
+  style.id = HANDLE_STYLE_ID;
+
+  style.textContent = `
+    .${HANDLE_BUTTON_CLASS} {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      font: inherit;
+      line-height: 1;
+      opacity: 0.65;
+      padding: 2px 3px;
+      margin-left: 2px;
+      vertical-align: middle;
     }
 
-    const style = document.createElement('style');
+    .${HANDLE_BUTTON_CLASS}:hover,
+    .${HANDLE_BUTTON_CLASS}:focus-visible {
+      color: #11e8b2;
+      opacity: 1;
+    }
 
-    style.id = HANDLE_STYLE_ID;
+    .${HANDLE_BUTTON_CLASS}:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: 2px;
+      border-radius: 3px;
+    }
 
-    style.textContent = `
-      .${HANDLE_BUTTON_CLASS} {
-        appearance: none;
-        border: 0;
-        background: transparent;
-        color: inherit;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        flex: 0 0 auto;
-        font: inherit;
-        line-height: 1;
-        opacity: 0.65;
-        padding: 2px 3px;
-        margin-left: 2px;
-        vertical-align: middle;
-      }
+    .atproto-pds-check {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      font: inherit;
+      line-height: 1;
+      opacity: 0.7;
+      padding: 4px 6px;
+      margin-left: 4px;
+      vertical-align: middle;
+      min-width: 22px;
+      min-height: 22px;
+      border-radius: 4px;
+    }
 
-      .${HANDLE_BUTTON_CLASS}:hover,
-      .${HANDLE_BUTTON_CLASS}:focus-visible {
-        color: #11e8b2;
-        opacity: 1;
-      }
+    .atproto-pds-check:hover,
+    .atproto-pds-check:focus-visible {
+      opacity: 1;
+      background: rgba(0,0,0,0.06);
+    }
 
-      .${HANDLE_BUTTON_CLASS}:focus-visible {
-        outline: 2px solid currentColor;
-        outline-offset: 2px;
-        border-radius: 3px;
-      }
-    `;
+    .atproto-pds-check:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: 2px;
+    }
+  `;
 
-    document.head.appendChild(style);
-  }
+  document.head.appendChild(style);
+}
 
   function startHandleObserver() {
     if (!document.body) {
@@ -809,7 +1039,8 @@ const fullHandle =
     });
   }
 
-  function initialiseHandleControls() {
+  async function initialiseHandleControls() {
+    handleSettings = await loadHandleSettings();
     injectHandleStyles();
     scanForHandles();
     startHandleObserver();
@@ -821,6 +1052,410 @@ const fullHandle =
     window.addEventListener(
       'DOMContentLoaded',
       initialiseHandleControls,
+      { once: true }
+    );
+  }
+  const storage = getExtensionStorage();
+
+  if (storage?.onChanged?.addListener) {
+    storage.onChanged.addListener((changes, areaName) => {
+      if (areaName !== 'local') return;
+
+      let changed = false;
+
+      for (const [key, change] of Object.entries(changes)) {
+        if (key in DEFAULT_HANDLE_SETTINGS) {
+          handleSettings[key] = change.newValue;
+          changed = true;
+        }
+      }
+
+      if (changed) {
+        scanForHandles();
+      }
+    });
+  }  
+})();
+
+// -----------------------------------------------------------------------------
+// Opt-in post/reply hiding
+// -----------------------------------------------------------------------------
+
+(() => {
+  const HIDDEN_ATTR = 'data-atproto-post-hidden';
+  const HIDDEN_CLASS = 'atproto-hidden-post-placeholder';
+
+  const DEFAULT_FILTER_SETTINGS = {
+    wsocialHideBsky: false,
+    wsocialHideEurosky: false,
+    bskyHideWsocial: false,
+    bskyHideEurosky: false,
+    deerHideWsocial: false,
+    deerHideEurosky: false
+  };
+
+  let filterSettings = { ...DEFAULT_FILTER_SETTINGS };
+  const savedPostMarkup = new WeakMap();
+
+  function getStorage() {
+    if (typeof browser !== 'undefined' && browser.storage?.local) {
+      return browser.storage.local;
+    }
+
+    if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+      return chrome.storage.local;
+    }
+
+    return null;
+  }
+
+  function loadFilterSettings() {
+    const storage = getStorage();
+
+    if (!storage) {
+      return Promise.resolve({ ...DEFAULT_FILTER_SETTINGS });
+    }
+
+    return new Promise(resolve => {
+      storage.get(DEFAULT_FILTER_SETTINGS, result => {
+        resolve({
+          ...DEFAULT_FILTER_SETTINGS,
+          ...(result || {})
+        });
+      });
+    });
+  }
+
+  function cleanHandle(value) {
+    return String(value || '')
+      .replace(/[\u200B-\u200F\u202A-\u202E\u2066-\u2069]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .replace(/^@/, '')
+      .toLowerCase();
+  }
+  
+    function scanWsocialSearch() {
+    if (window.location.hostname !== 'wsocial.eu') return;
+
+    // The search suggestion container uses the dark card layout.
+    // We only want actual profile rows, not the “Search for …” header.
+    const rows = document.querySelectorAll(
+      'a[role="link"][href^="/profile/"]'
+    );
+
+    for (const row of rows) {
+      if (!row.isConnected) continue;
+
+      // Skip the small embedded posts or other profile links we don't want;
+      // confine this to the search suggestion dropdown by checking its ancestor.
+      const parentCard = row.closest(
+        '.css-g5y9jx.r-kdyh1x.r-rs99b7.r-eqz5dr.r-156q2ks.r-13qz1uu'
+      );
+      if (!parentCard) continue;
+
+      // Find the line that contains @handle.
+      const handleEl = Array.from(
+        row.querySelectorAll('.css-146c3p1')
+      ).find(el => el.textContent.includes('@'));
+
+      if (!handleEl) continue;
+
+      const handleText = cleanHandle(handleEl.textContent);
+      if (!handleText.includes('.')) continue;
+
+      const bareHandle = handleText.replace(/^@/, '');
+
+      if (shouldHideHandle(bareHandle)) {
+        row.style.display = 'none';
+      } else {
+        row.style.display = '';
+      }
+    }
+  }
+
+  function getThreadHandle(item) {
+    const testId = item.getAttribute('data-testid') || '';
+    const prefix = 'postThreadItem-by-';
+
+    if (testId.startsWith(prefix)) {
+      const fromTestId = cleanHandle(testId.slice(prefix.length));
+      if (fromTestId && !fromTestId.startsWith('did:')) {
+        return fromTestId;
+      }
+    }
+
+    const nodeList = item.querySelectorAll('a[href*="/profile/"], [aria-label], [data-atproto-full-handle], [data-full-handle]');
+
+    for (const node of nodeList) {
+      const direct = cleanHandle(node.getAttribute('data-atproto-full-handle') || node.getAttribute('data-full-handle'));
+      if (direct && !direct.startsWith('did:')) {
+        return direct;
+      }
+
+      const text = cleanHandle(node.textContent);
+      if (text && text.includes('.') && !text.startsWith('did:')) {
+        return text;
+      }
+
+      const aria = cleanHandle(node.getAttribute('aria-label'));
+      if (
+        aria &&
+        aria.includes('.') &&
+        !aria.includes('avatar') &&
+        !aria.startsWith('follow ') &&
+        !aria.startsWith('view profile') &&
+        !aria.startsWith('post by ')
+      ) {
+        return aria;
+      }
+    }
+
+    return null;
+  }
+
+  function getPostContainerFromContent(content) {
+    let current = content;
+
+    while (current && current !== document.body) {
+      if (
+        current.querySelector('[data-testid="postDropdownBtn"]') &&
+        current.querySelector('a[href*="/profile/"]')
+      ) {
+        return current;
+      }
+
+      current = current.parentElement;
+    }
+
+    return null;
+  }
+
+  function getPostCandidates() {
+    const candidates = new Set();
+    const host = window.location.hostname;
+
+    // Thread/post pages and replies.
+    document
+      .querySelectorAll('[data-testid^="postThreadItem-by-"]')
+      .forEach(item => candidates.add(item));
+
+    // Feed cards on clients using contentHider-post.
+if (
+  host === 'wsocial.eu' ||
+  host === 'bsky.app' ||
+  host === 'deer.social' ||
+  host === 'mu.social'
+) {
+  document
+    .querySelectorAll('[data-testid="contentHider-post"]')
+    .forEach(content => {
+      const container = getPostContainerFromContent(content);
+      if (container) candidates.add(container);
+    });
+}
+
+    return [...candidates];
+  }
+
+function shouldHideHandle(handle) {
+  const value = cleanHandle(handle);
+  if (!value) return false;
+
+  const host = window.location.hostname;
+
+  if (host === 'wsocial.eu') {
+    return (
+      (filterSettings.wsocialHideBsky && value.endsWith('.bsky.social')) ||
+      (filterSettings.wsocialHideEurosky && value.endsWith('.eurosky.social')) ||
+      (filterSettings.wsocialHideWsocial && value.endsWith('.wsocial.eu'))
+    );
+  }
+
+  if (host === 'bsky.app' || host === 'mu.social') {
+    // mu.social reuses bsky settings
+    return (
+      (filterSettings.bskyHideWsocial && value.endsWith('.wsocial.eu')) ||
+      (filterSettings.bskyHideEurosky && value.endsWith('.eurosky.social')) ||
+      (filterSettings.bskyHideBsky && value.endsWith('.bsky.social'))
+    );
+  }
+
+  if (host === 'deer.social') {
+    return (
+      (filterSettings.deerHideWsocial && value.endsWith('.wsocial.eu')) ||
+      (filterSettings.deerHideEurosky && value.endsWith('.eurosky.social')) ||
+      (filterSettings.deerHideBsky && value.endsWith('.bsky.social'))
+    );
+  }
+
+  return false;
+}
+
+  function injectHiddenStyles() {
+    if (document.getElementById('atproto-hidden-post-style')) return;
+
+    const style = document.createElement('style');
+    style.id = 'atproto-hidden-post-style';
+    style.textContent = `
+      .${HIDDEN_CLASS} {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 12px !important;
+        min-height: 54px !important;
+        padding: 14px 16px !important;
+        border: 1px solid currentColor !important;
+        border-radius: 10px !important;
+        opacity: .85 !important;
+        font: inherit !important;
+      }
+
+      .${HIDDEN_CLASS} button {
+        appearance: none !important;
+        border: 1px solid currentColor !important;
+        background: transparent !important;
+        color: inherit !important;
+        border-radius: 7px !important;
+        padding: 5px 9px !important;
+        cursor: pointer !important;
+        font: inherit !important;
+        white-space: nowrap !important;
+      }
+    `;
+
+    document.head.appendChild(style);
+  }
+
+  function showPost(item, placeholder) {
+    const original = savedPostMarkup.get(item);
+
+    if (original === undefined) {
+      return;
+    }
+
+    item.innerHTML = original;
+    item.removeAttribute(HIDDEN_ATTR);
+    savedPostMarkup.delete(item);
+    scanPosts();
+  }
+
+  function hidePost(item, handle) {
+    if (item.getAttribute(HIDDEN_ATTR) === 'true') return;
+
+    // A user has explicitly chosen to show this item during this session.
+    if (item.getAttribute('data-atproto-post-shown') === 'true') return;
+    if (item.getAttribute(HIDDEN_ATTR) === 'true') return;
+
+    const wrapper = document.createElement('div');
+    wrapper.className = HIDDEN_CLASS;
+    wrapper.setAttribute('role', 'status');
+    wrapper.dataset.hiddenHandle = handle;
+
+    const message = document.createElement('span');
+    message.textContent = 'Posts from @' + handle + ' are hidden.';
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = 'Show';
+    button.setAttribute('aria-label', `Show post from @${handle}`);
+
+    button.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      showPost(item);
+    });
+
+    wrapper.append(message, button);
+
+    item.dataset.atprotoOriginalHtml = item.innerHTML;
+    item.setAttribute(HIDDEN_ATTR, 'true');
+    item.innerHTML = '';
+    item.appendChild(wrapper);
+	    item.removeAttribute('data-atproto-post-shown');
+  }
+
+  function showPost(item) {
+    const original = item.dataset.atprotoOriginalHtml;
+
+    if (typeof original !== 'string') {
+      console.warn('AT Protocol Handler: no saved markup for hidden post');
+      return;
+    }
+
+    item.innerHTML = original;
+    delete item.dataset.atprotoOriginalHtml;
+    item.removeAttribute(HIDDEN_ATTR);
+
+    // Keep this item visible for the rest of this page session.
+    // Otherwise the observer immediately hides it again.
+    item.setAttribute('data-atproto-post-shown', 'true');
+  }
+
+  function scanPosts() {
+    const candidates = getPostCandidates();
+
+    for (const item of candidates) {
+      if (!item.isConnected) continue;
+      if (item.getAttribute(HIDDEN_ATTR) === 'true') continue;
+
+      const handle = getThreadHandle(item);
+      if (handle && shouldHideHandle(handle)) {
+        hidePost(item, handle);
+      }
+    }
+  }
+
+  async function initialisePostFiltering() {
+    filterSettings = await loadFilterSettings();
+    injectHiddenStyles();
+    scanPosts();
+	    scanWsocialSearch();
+	
+    console.log('AT Protocol Handler post filtering active on', window.location.hostname);
+    setTimeout(scanPosts, 300);
+    setTimeout(scanPosts, 1000);
+    setTimeout(scanPosts, 2500);
+
+    if (!document.body) return;
+
+    const observer = new MutationObserver(() => {
+      scanPosts();
+	        scanWsocialSearch();
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  }
+
+  const storage = getStorage();
+
+  if (storage?.onChanged?.addListener) {
+    storage.onChanged.addListener((changes, areaName) => {
+      if (areaName !== 'local') return;
+
+      let changed = false;
+
+      for (const [key, change] of Object.entries(changes)) {
+        if (key in DEFAULT_FILTER_SETTINGS) {
+          filterSettings[key] = change.newValue;
+          changed = true;
+        }
+      }
+
+      if (changed) scanPosts();
+    });
+  }
+
+  if (document.body) {
+    initialisePostFiltering();
+  } else {
+    window.addEventListener(
+      'DOMContentLoaded',
+      initialisePostFiltering,
       { once: true }
     );
   }
