@@ -223,12 +223,14 @@ else if (value.startsWith('https://mu.social/profile/')) {
 
     if (did && rkey) {
       output += `<a href="https://blueviewer.pages.dev/view?actor=${did}&rkey=${rkey}" target="_blank">blueviewer.pages.dev</a>`;
-      output += "<div class=\"center-note\">AppViews</div>";
+      output += "<div class=\"center-note\">AppViews/Clients</div>";
       output += `<a href="https://azsky.app/profile/${did}/post/${rkey}" target="_blank">Azsky</a>`;
+	  output += `<a href="https://blacksky.community/profile/${did}/post/${rkey}" target="_blank">Blacksky</a>`;
       output += `<a href="https://bsky.app/profile/${did}/post/${rkey}" target="_blank">Bluesky</a>`;
       output += `<a href="https://deer.social/profile/${did}/post/${rkey}" target="_blank">Deer Social</a>`;
       output += `<a href="https://klearsky.pages.dev/#/post?uri=at://${did}/app.bsky.feed.post/${rkey}" target="_blank">Klearsky</a>`;
       output += `<a href="https://reddwarf.whey.party/profile/${did}/post/${rkey}" target="_blank">Red Dwarf Lite ~ (direct PDS queries)</a>`;
+	  output += `<a href="https://northsky.app/profile/${did}/post/${rkey}" target="_blank">Northsky</a>`;
 	  output += `<a href="https://mu.social/profile/${did}/post/${rkey}" target="_blank">mu.social</a>`;
       output += `<a href="https://wsocial.eu/profile/${did}/post/${rkey}" target="_blank">WSOCIAL.EU</a>`;	  
       output += `<span id="blueskytomp4-link-${rkey}"></span>`;
