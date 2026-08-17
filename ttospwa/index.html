@@ -199,6 +199,26 @@ else if (value.startsWith('https://mu.social/profile/')) {
     isBlueskyPostUrl = true;
   }
 }
+
+else if (value.startsWith('https://blacksky.community/profile/')) {
+  const urlParts = value.split('/');
+  if (urlParts.length >= 7 && urlParts[5] === 'post') {
+    did = urlParts[4];
+    rkey = urlParts[6];
+    atUri = `at://${did}/app.bsky.feed.post/${rkey}`;
+    isBlueskyPostUrl = true;
+  }
+}
+
+else if (value.startsWith('https://northsky.app/profile/')) {
+  const urlParts = value.split('/');
+  if (urlParts.length >= 7 && urlParts[5] === 'post') {
+    did = urlParts[4];
+    rkey = urlParts[6];
+    atUri = `at://${did}/app.bsky.feed.post/${rkey}`;
+    isBlueskyPostUrl = true;
+  }
+}
     // at:// URI
     else if (value.startsWith('at://')) {
       const match = value.match(/^at:\/\/([^/]+)\/app\.bsky\.feed\.post\/([^/]+)/);
