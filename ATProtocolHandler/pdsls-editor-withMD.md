@@ -8,7 +8,7 @@ Above screenshots show the contect button and resulting popup.
 
 ## Note
 
-Before editing save your existing record to a text editor incase the process corrupts the record or edits don't result in expected outcoms.
+Before editing save your existing record to a text editor incase the process corrupts the record or edits don't result in expected outcomes.
 
 ## Getting to specific posts to edit.
 
