@@ -9,9 +9,9 @@ The [webpage](https://corkiejp.github.io/ATProtocolHandler/index.html), has a in
 
 ## Manual Install
 
-[Chrome zip](https://corkiejp.github.io/ATProtocolHandler/ATProtocolHandler-chrome.zip)
+[Chrome zip](https://corkiejp.github.io/ATProtocolHandler/ATProtocolHandler-chrome-1.14.zip)
 
-[Firefox xpi](https://corkiejp.github.io/ATProtocolHandler/ATProtocolHandler.xpi)
+[Firefox xpi](https://corkiejp.github.io/ATProtocolHandler/ATProtocolHandler-1.14.xpi)
 
 [WIP Builds](./wip)
 
