@@ -26,6 +26,9 @@ Hit the recompute button and it will provide feedback if the json is valid. You 
 
 Hit the copy json button and paste over the record with the sites editor.
 
+Click the advance button and recreate record and validate.
+
+
 ## Unexpected outcomes
 
 Complicated records with existing facets may not update nicely, you did take a backup? Overwrite the record with it and edit the created at date so it does not give warning for old posts.
