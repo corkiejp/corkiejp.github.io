@@ -26,10 +26,10 @@ Hit the recompute button and it will provide feedback if the json is valid. You 
 
 Hit the copy json button and paste over the record with the sites editor.
 
-## Un expected outcomes
+## Unexpected outcomes
 
 Complicated records with existing facets may not update nicely, you did take a backup? Overwrite the record with it and edit the created at date so it does not give warning for old posts.
 
 ## Creating brand new posts
 
-Pdsls lets you create a post record, create on and follow the same process of editing the record.
+Pdsls lets you create a post record, create one and follow the same process of editing the record.
