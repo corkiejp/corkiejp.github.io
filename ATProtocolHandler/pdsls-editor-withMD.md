@@ -14,7 +14,7 @@ Before editing save your existing record to a text editor incase the process cor
 
 Open one of your own post you want to edit in one of the Extension supported clients.
 
-On desktop press the shortcut 'alt+l' and choose the PDSLS.DEV option. Login if you haven't already. Repeat the same process if you are not, if needed.
+On desktop press the shortcut 'alt+L' and choose the PDSLS.DEV option. Login if you haven't already. Repeat the same process if you are not, if needed.
 
 Mobile at the time of drafting this haven't tested, but probably very hard to edit on that.
 
