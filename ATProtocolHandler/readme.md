@@ -1,7 +1,12 @@
 # AT Protocol Handler ~ Extension to open at did urls
-## NEW: - Support for wsocial.eu
+NEW: - Support for wsocial.eu
+- Dismissible popup on invalid handle found!
+- An editor for pdsls.dev records that preserves facets are re index them on edits.
+- Include is a method to write markdown text for links in the editor that are converted to facets.
 
-[AT Protocol Handler - Chrome Webstore](https://chromewebstore.google.com/detail/at-protocol-handler/foippfcmhngnjdlfhgaifppajnhlmafk) ~ Approved 13:00 on 13th.
+
+
+[AT Protocol Handler - Chrome Webstore](https://chromewebstore.google.com/detail/at-protocol-handler/foippfcmhngnjdlfhgaifppajnhlmafk) ~ Waiting on review v1.14!
 
 [AT Protocol Handler - FireFox ADDon](https://addons.mozilla.org/en-US/firefox/addon/at-protocol-handler/) ~ Live
 
@@ -9,9 +14,9 @@ The [webpage](https://corkiejp.github.io/ATProtocolHandler/index.html), has a in
 
 ## Manual Install
 
-[Chrome zip](https://corkiejp.github.io/ATProtocolHandler/ATProtocolHandler-chrome.zip)
+[Chrome zip](https://corkiejp.github.io/ATProtocolHandler/ATProtocolHandler-chrome-1.14.zip)
 
-[Firefox xpi](https://corkiejp.github.io/ATProtocolHandler/ATProtocolHandler.xpi)
+[Firefox xpi](https://corkiejp.github.io/ATProtocolHandler/ATProtocolHandler-1.14.xpi)
 
 [WIP Builds](./wip)
 
