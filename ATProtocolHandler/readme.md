@@ -6,7 +6,7 @@ NEW: - Support for wsocial.eu
 - [Readme for pdsls editor](pdsls-editor-withMD.md)
 
 
-[AT Protocol Handler - Chrome Webstore](https://chromewebstore.google.com/detail/at-protocol-handler/foippfcmhngnjdlfhgaifppajnhlmafk) ~ Waiting on review v1.14!
+[AT Protocol Handler - Chrome Webstore](https://chromewebstore.google.com/detail/at-protocol-handler/foippfcmhngnjdlfhgaifppajnhlmafk) ~ v1.14!
 
 [AT Protocol Handler - FireFox ADDon](https://addons.mozilla.org/en-US/firefox/addon/at-protocol-handler/) ~ Live
 
