@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "AT Protocol Handler",
-  "version": "1.1.2",
-  "description": "Brings an Android-style share-to-PWA workflow for AT links onto desktop.",
+  "version": "1.1.4",
+  "description": "AT Protocol utilities: handle tools, post filtering, PDS info.",
   "action": {
     "default_popup": "inst.html"
   },
@@ -20,7 +20,9 @@
     "https://deer.social/*",
     "https://klearsky.pages.dev/*",
     "https://wsocial.eu/*",
-	"https://mu.social/*"
+	"https://mu.social/*",
+	"https://blacksky.community/*",
+    "https://northsky.app/*"
   ],
   "omnibox": {
     "keyword": "at"
@@ -31,13 +33,22 @@
   "content_scripts": [
     {
       "matches": [
-        "https://bsky.app/*",
-        "https://deer.social/*",
-        "https://klearsky.pages.dev/*",
         "https://wsocial.eu/*",
-		"https://mu.social/*"
+        "https://bsky.app/*",
+        "https://mu.social/*",
+        "https://deer.social/*",
+        "https://blacksky.community/*",
+        "https://northsky.app/*"
       ],
-      "js": ["content.js"]
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://pdsls.dev/*"
+      ],
+      "js": ["pdsls-editor.js"],
+      "run_at": "document_idle"
     }
   ],
   "browser_specific_settings": {

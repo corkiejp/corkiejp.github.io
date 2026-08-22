@@ -1,17 +1,21 @@
 const DEFAULT_SETTINGS = {
-  wsocialHideBsky: false,
-  wsocialHideEurosky: false,
-  wsocialShortenHandles: true,
-  wsocialShowCopyButtons: true,
-  bskyHideWsocial: false,
-  bskyHideEurosky: false,
-  bskyShowCopyButtons: true,
-  deerHideWsocial: false,
-  deerHideEurosky: false,
-  deerShowCopyButtons: true,
-  wsocialHideWsocial: false,        // probably unused / stays off
-  bskyHideBsky: false,
-  deerHideBsky: false,
+  showCopyButtons: true,
+
+  hideHandles: {
+    bskySocial: false,
+    euroskySocial: false,
+    wsocialEu: false,
+    blackskyApp: false,
+    northskySocial: false
+  },
+
+  shortenHandles: {
+    bskySocial: false,
+    euroskySocial: false,
+    wsocialEu: true,
+    blackskyApp: false,
+    northskySocial: false
+  }
 };
 
 const $ = id => document.getElementById(id);
@@ -57,31 +61,56 @@ function setStatus(text, kind = 'success') {
 
 function readUiSettings() {
   return {
-    wsocialHideBsky: $('wsocialHideBsky').checked,
-    wsocialHideEurosky: $('wsocialHideEurosky').checked,
-    wsocialHideWsocial: $('wsocialHideWsocial').checked,
+    showCopyButtons: $('showCopyButtons').checked,
 
-    wsocialShortenHandles: $('wsocialShortenHandles').checked,
-    wsocialShowCopyButtons: $('wsocialShowCopyButtons').checked,
+    hideHandles: {
+      bskySocial: $('hide_bskySocial').checked,
+      euroskySocial: $('hide_euroskySocial').checked,
+      wsocialEu: $('hide_wsocialEu').checked,
+      blackskyApp: $('hide_blackskyApp').checked,
+      northskySocial: $('hide_northskySocial').checked
+    },
 
-    bskyHideWsocial: $('bskyHideWsocial').checked,
-    bskyHideEurosky: $('bskyHideEurosky').checked,
-    bskyHideBsky: $('bskyHideBsky').checked,
-    bskyShowCopyButtons: $('bskyShowCopyButtons').checked,
-
-    deerHideWsocial: $('deerHideWsocial').checked,
-    deerHideEurosky: $('deerHideEurosky').checked,
-    deerHideBsky: $('deerHideBsky').checked,
-    deerShowCopyButtons: $('deerShowCopyButtons').checked
+    shortenHandles: {
+      bskySocial: $('shorten_bskySocial').checked,
+      euroskySocial: $('shorten_euroskySocial').checked,
+      wsocialEu: $('shorten_wsocialEu').checked,
+      blackskyApp: $('shorten_blackskyApp').checked,
+      northskySocial: $('shorten_northskySocial').checked
+    }
   };
 }
 
 function applyUiSettings(settings) {
-  const merged = { ...DEFAULT_SETTINGS, ...(settings || {}) };
-  Object.entries(merged).forEach(([key, value]) => {
-    const el = $(key);
-    if (el) el.checked = !!value;
-  });
+  const merged = {
+    showCopyButtons:
+      settings?.showCopyButtons ??
+      DEFAULT_SETTINGS.showCopyButtons,
+
+    hideHandles: {
+      ...DEFAULT_SETTINGS.hideHandles,
+      ...(settings?.hideHandles || {})
+    },
+
+    shortenHandles: {
+      ...DEFAULT_SETTINGS.shortenHandles,
+      ...(settings?.shortenHandles || {})
+    }
+  };
+
+  $('showCopyButtons').checked = !!merged.showCopyButtons;
+
+  $('hide_bskySocial').checked      = !!merged.hideHandles.bskySocial;
+  $('hide_euroskySocial').checked   = !!merged.hideHandles.euroskySocial;
+  $('hide_wsocialEu').checked       = !!merged.hideHandles.wsocialEu;
+  $('hide_blackskyApp').checked     = !!merged.hideHandles.blackskyApp;
+  $('hide_northskySocial').checked  = !!merged.hideHandles.northskySocial;
+
+  $('shorten_bskySocial').checked     = !!merged.shortenHandles.bskySocial;
+  $('shorten_euroskySocial').checked  = !!merged.shortenHandles.euroskySocial;
+  $('shorten_wsocialEu').checked      = !!merged.shortenHandles.wsocialEu;
+  $('shorten_blackskyApp').checked    = !!merged.shortenHandles.blackskyApp;
+  $('shorten_northskySocial').checked = !!merged.shortenHandles.northskySocial;
 }
 
 async function loadSettings() {

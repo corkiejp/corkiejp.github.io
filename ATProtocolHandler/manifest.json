@@ -1,44 +1,41 @@
 {
   "manifest_version": 3,
   "name": "AT Protocol Handler",
-  "version": "1.12",
-  "description": "Brings an Android style share to PWA workflow for AT links onto desktop.",
-  "omnibox": { "keyword": "at" },
-
+  "version": "1.14",
+  "description": "AT Protocol utilities: handle tools, post filtering, PDS info.",
+  "permissions": [
+    "storage",
+    "omnibox"
+  ],
   "background": {
     "service_worker": "background.js"
   },
-  
-    "action": {
-    "default_popup": "inst.html"
-  },
-"permissions": [
-  "storage"
-],
-"options_ui": {
-  "page": "options.html",
-  "open_in_tab": true
-},  
-
-
-  "host_permissions": [
-    "https://bsky.app/*",
-    "https://deer.social/*",
-    "https://klearsky.pages.dev/*",
-    "https://wsocial.eu/*",
-    "https://mu.social/*"
-  ],
-
   "content_scripts": [
     {
       "matches": [
+        "https://wsocial.eu/*",
         "https://bsky.app/*",
+        "https://mu.social/*",
         "https://deer.social/*",
-        "https://klearsky.pages.dev/*",
-		"https://wsocial.eu/*",
-		"https://mu.social/*"
+        "https://blacksky.community/*",
+        "https://northsky.app/*"
       ],
-      "js": ["content.js"]
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://pdsls.dev/*"
+      ],
+      "js": ["pdsls-editor.js"],
+      "run_at": "document_idle"
     }
-  ]
+  ],
+  "options_page": "options.html",
+  "action": {
+    "default_popup": "inst.html"
+  },
+  "omnibox": {
+    "keyword": "at"
+  }
 }

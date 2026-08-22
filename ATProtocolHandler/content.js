@@ -442,12 +442,25 @@ document.addEventListener('keydown', async function(e) {
   const HANDLE_VALUE_ATTR = 'data-atproto-full-handle';
   const HANDLE_STYLE_ID = 'atproto-handle-copy-style';
   
-    const DEFAULT_HANDLE_SETTINGS = {
-    wsocialShortenHandles: true,
-    wsocialShowCopyButtons: true,
-    bskyShowCopyButtons: true,
-    deerShowCopyButtons: true
-  };
+const DEFAULT_HANDLE_SETTINGS = {
+  showCopyButtons: true,
+
+  hideHandles: {
+    bskySocial: false,
+    euroskySocial: false,
+    wsocialEu: false,
+    blackskyApp: false,
+    northskySocial: false
+  },
+
+  shortenHandles: {
+    bskySocial: false,
+    euroskySocial: false,
+    wsocialEu: true,
+    blackskyApp: false,
+    northskySocial: false
+  }
+};
 
   let handleSettings = { ...DEFAULT_HANDLE_SETTINGS };
 
@@ -463,38 +476,41 @@ document.addEventListener('keydown', async function(e) {
     return null;
   }
 
-  function loadHandleSettings() {
-    const storage = getExtensionStorage();
+function loadHandleSettings() {
+  const storage = getExtensionStorage();
 
-    if (!storage) {
-      return Promise.resolve({ ...DEFAULT_HANDLE_SETTINGS });
-    }
-
-    return new Promise(resolve => {
-      storage.get(DEFAULT_HANDLE_SETTINGS, result => {
-        resolve({
-          ...DEFAULT_HANDLE_SETTINGS,
-          ...(result || {})
-        });
-      });
+  if (!storage) {
+    return Promise.resolve({
+      showCopyButtons: DEFAULT_HANDLE_SETTINGS.showCopyButtons,
+      hideHandles: { ...DEFAULT_HANDLE_SETTINGS.hideHandles },
+      shortenHandles: { ...DEFAULT_HANDLE_SETTINGS.shortenHandles }
     });
   }
 
-  function copyButtonsEnabled() {
-    if (window.location.hostname === 'wsocial.eu') {
-      return !!handleSettings.wsocialShowCopyButtons;
-    }
+  return new Promise(resolve => {
+    storage.get(DEFAULT_HANDLE_SETTINGS, result => {
+      resolve({
+        showCopyButtons:
+          result?.showCopyButtons ??
+          DEFAULT_HANDLE_SETTINGS.showCopyButtons,
 
-    if (window.location.hostname === 'bsky.app' || window.location.hostname === 'mu.social') {
-      return !!handleSettings.bskyShowCopyButtons;
-    }
+        hideHandles: {
+          ...DEFAULT_HANDLE_SETTINGS.hideHandles,
+          ...(result?.hideHandles || {})
+        },
 
-    if (window.location.hostname === 'deer.social') {
-      return !!handleSettings.deerShowCopyButtons;
-    }
+        shortenHandles: {
+          ...DEFAULT_HANDLE_SETTINGS.shortenHandles,
+          ...(result?.shortenHandles || {})
+        }
+      });
+    });
+  });
+}
 
-    return false;
-  }
+function copyButtonsEnabled() {
+  return !!handleSettings.showCopyButtons;
+}
 
   function removeCopyButtons(anchor) {
     const parent = anchor.parentElement;
@@ -505,12 +521,14 @@ document.addEventListener('keydown', async function(e) {
       .forEach(button => button.remove());
   }
 
-  const SUPPORTED_CLIENTS = new Set([
-    'wsocial.eu',
-    'bsky.app',
-    'deer.social',
-    'mu.social'
-  ]);
+const SUPPORTED_CLIENTS = new Set([
+  'wsocial.eu',
+  'bsky.app',
+  'mu.social',
+  'deer.social',
+  'blacksky.community',
+  'northsky.app'
+]);
 
   const BIDI_MARKS_RE = /[\u200B-\u200F\u202A-\u202E\u2066-\u2069]/g;
 
@@ -524,6 +542,33 @@ document.addEventListener('keydown', async function(e) {
       .replace(/\s+/g, ' ')
       .trim();
   }
+  
+  function getShortenedHandle(fullHandle) {
+  const value = cleanHandle(fullHandle);
+  const shorten = handleSettings.shortenHandles || {};
+
+  if (shorten.bskySocial && value.endsWith('.bsky.social')) {
+    return fullHandle.replace(/\.bsky\.social$/i, '');
+  }
+
+  if (shorten.euroskySocial && value.endsWith('.eurosky.social')) {
+    return fullHandle.replace(/\.eurosky\.social$/i, '');
+  }
+
+  if (shorten.wsocialEu && value.endsWith('.wsocial.eu')) {
+    return fullHandle.replace(/\.wsocial\.eu$/i, '');
+  }
+
+  if (shorten.blackskyApp && value.endsWith('.blacksky.app')) {
+    return fullHandle.replace(/\.blacksky\.app$/i, '');
+  }
+
+  if (shorten.northskySocial && value.endsWith('.northsky.social')) {
+    return fullHandle.replace(/\.northsky\.social$/i, '');
+  }
+
+  return fullHandle;
+}
 
   function cleanHandle(value) {
     return String(value || '')
@@ -756,7 +801,7 @@ const fullHandle =
   }
 
 function addPdsCheckButton(anchor, fullHandle) {
-  if (window.location.hostname !== 'wsocial.eu') return;
+  if (!isSupportedClient()) return;
 
   const parent = anchor.parentElement;
   if (!parent) return;
@@ -837,7 +882,7 @@ function addPdsCheckButton(anchor, fullHandle) {
           btn.title = 'Hosted on Eurosky PDS (confirmed by PLC)';
           btn.classList.add('pds-eurosky');
         } else if (res.endpoint) {
-          btn.textContent = '·';
+          btn.textContent = 'P';
           btn.title = `Hosted on ${res.endpoint} (confirmed by PLC)`;
           btn.classList.add('pds-other');
         } else {
@@ -852,58 +897,46 @@ function addPdsCheckButton(anchor, fullHandle) {
   anchor.insertAdjacentElement('afterend', btn);
 }
 
-  function processHandleAnchor(anchor) {
-    const info = getHandleInfo(anchor);
+function processHandleAnchor(anchor) {
+  const info = getHandleInfo(anchor);
 
-    if (!info) {
-      return;
-    }
-
-    const {
-      fullHandle,
-      isWsocial
-    } = info;
-
-    anchor.setAttribute(HANDLE_PROCESSED_ATTR, 'true');
-    anchor.setAttribute(HANDLE_VALUE_ATTR, `@${fullHandle}`);
-    anchor.dataset.fullHandle = `@${fullHandle}`;
-    anchor.title = `@${fullHandle}`;
-
-    if (isWsocial && /\.wsocial\.eu$/i.test(fullHandle)) {
-      const shortenedHandle = fullHandle.replace(
-        /\.wsocial\.eu$/i,
-        ''
-      );
-
-      const displayText = handleSettings.wsocialShortenHandles
-        ? `@${shortenedHandle}`
-        : `@${fullHandle}`;
-
-      if (cleanText(anchor.textContent) !== displayText) {
-        anchor.textContent = displayText;
-      }
-    }
-	
-	    anchor.setAttribute(HANDLE_PROCESSED_ATTR, 'true');
-    anchor.setAttribute(HANDLE_VALUE_ATTR, `@${fullHandle}`);
-    anchor.dataset.fullHandle = `@${fullHandle}`;
-    anchor.title = `@${fullHandle}`;
-
-    if (window.location.hostname === 'wsocial.eu') {
-      addPdsCheckButton(anchor, fullHandle);
-    }
-
-    /*
-     * This is intentionally called on every scan.
-     * The helper returns the existing button when one is already present,
-     * but recreates it if React has replaced or removed it.
-     */
-        if (copyButtonsEnabled()) {
-      getOrCreateCopyButton(anchor, fullHandle);
-    } else {
-      removeCopyButtons(anchor);
-    }
+  if (!info) {
+    return;
   }
+
+  const {
+    fullHandle,
+    isWsocial
+  } = info;
+
+  anchor.setAttribute(HANDLE_PROCESSED_ATTR, 'true');
+  anchor.setAttribute(HANDLE_VALUE_ATTR, `@${fullHandle}`);
+  anchor.dataset.fullHandle = `@${fullHandle}`;
+  anchor.title = `@${fullHandle}`;
+
+  const displayHandle = getShortenedHandle(fullHandle);
+  const displayText = `@${displayHandle}`;
+
+  if (cleanText(anchor.textContent) !== displayText) {
+    anchor.textContent = displayText;
+  }
+
+  if (isSupportedClient()) {
+    addPdsCheckButton(anchor, fullHandle);
+  }
+
+  /*
+   * This is intentionally called on every scan.
+   * The helper returns the existing button when one is already present,
+   * but recreates it if React has replaced or removed it.
+   */
+  if (copyButtonsEnabled()) {
+    getOrCreateCopyButton(anchor, fullHandle);
+  } else {
+    removeCopyButtons(anchor);
+  }
+}
+
 
   function scanForHandles(root = document) {
     if (!isSupportedClient()) {
@@ -1075,6 +1108,23 @@ function injectHandleStyles() {
       }
     });
   }  
+  // Expose helpers for post filtering
+window.ATProtoHandler = {
+  shouldHideHandle(handle) {
+    const value = cleanHandle(handle);
+    if (!value) return false;
+
+    const hide = handleSettings.hideHandles || {};
+
+    return (
+      (hide.bskySocial && value.endsWith('.bsky.social')) ||
+      (hide.euroskySocial && value.endsWith('.eurosky.social')) ||
+      (hide.wsocialEu && value.endsWith('.wsocial.eu')) ||
+      (hide.blackskyApp && value.endsWith('.blacksky.app')) ||
+      (hide.northskySocial && value.endsWith('.northsky.social'))
+    );
+  }
+};
 })();
 
 // -----------------------------------------------------------------------------
@@ -1084,49 +1134,35 @@ function injectHandleStyles() {
 (() => {
   const HIDDEN_ATTR = 'data-atproto-post-hidden';
   const HIDDEN_CLASS = 'atproto-hidden-post-placeholder';
-
-  const DEFAULT_FILTER_SETTINGS = {
-    wsocialHideBsky: false,
-    wsocialHideEurosky: false,
-    bskyHideWsocial: false,
-    bskyHideEurosky: false,
-    deerHideWsocial: false,
-    deerHideEurosky: false
-  };
-
-  let filterSettings = { ...DEFAULT_FILTER_SETTINGS };
-  const savedPostMarkup = new WeakMap();
-
-  function getStorage() {
-    if (typeof browser !== 'undefined' && browser.storage?.local) {
-      return browser.storage.local;
+  
+    // Invalid handle popup (session‑scoped)
+    const INVALID_HANDLE_MESSAGE =
+	'Everything is gonna be alright!\n\n' +
+    'Invalid handle detected in your feed.\n\n' +
+    'This is usually a temporary issue with the client or PDS and often resolves itself quickly.\n\n' +
+    '• If this is your own handle and you’re using a custom domain, check your DNS/domain setup.\n' +
+    '• If it persists for specific accounts, contact support for that client/PDS.';
+  let invalidHandlePopupShown = false;
+  let invalidHandlePopupEl = null;
+  
+    // Persistent "never show again" flag
+	// localStorage.setItem('atproto_never_show_invalid_handle_popup', 'false');
+	// or localStorage.removeItem('atproto_never_show_invalid_handle_popup');
+  const NEVER_SHOW_INVALID_HANDLE_KEY = 'atproto_never_show_invalid_handle_popup'
+  
+    function shouldShowInvalidHandlePopup() {
+    if (localStorage.getItem(NEVER_SHOW_INVALID_HANDLE_KEY) === 'true') {
+      return false;
     }
-
-    if (typeof chrome !== 'undefined' && chrome.storage?.local) {
-      return chrome.storage.local;
+    if (invalidHandlePopupShown) {
+      return false;
     }
-
-    return null;
+    return true;
   }
-
-  function loadFilterSettings() {
-    const storage = getStorage();
-
-    if (!storage) {
-      return Promise.resolve({ ...DEFAULT_FILTER_SETTINGS });
-    }
-
-    return new Promise(resolve => {
-      storage.get(DEFAULT_FILTER_SETTINGS, result => {
-        resolve({
-          ...DEFAULT_FILTER_SETTINGS,
-          ...(result || {})
-        });
-      });
-    });
-  }
-
-  function cleanHandle(value) {
+  
+  
+  
+    function cleanHandle(value) {
     return String(value || '')
       .replace(/[\u200B-\u200F\u202A-\u202E\u2066-\u2069]/g, '')
       .replace(/\s+/g, ' ')
@@ -1135,43 +1171,8 @@ function injectHandleStyles() {
       .toLowerCase();
   }
   
-    function scanWsocialSearch() {
-    if (window.location.hostname !== 'wsocial.eu') return;
-
-    // The search suggestion container uses the dark card layout.
-    // We only want actual profile rows, not the “Search for …” header.
-    const rows = document.querySelectorAll(
-      'a[role="link"][href^="/profile/"]'
-    );
-
-    for (const row of rows) {
-      if (!row.isConnected) continue;
-
-      // Skip the small embedded posts or other profile links we don't want;
-      // confine this to the search suggestion dropdown by checking its ancestor.
-      const parentCard = row.closest(
-        '.css-g5y9jx.r-kdyh1x.r-rs99b7.r-eqz5dr.r-156q2ks.r-13qz1uu'
-      );
-      if (!parentCard) continue;
-
-      // Find the line that contains @handle.
-      const handleEl = Array.from(
-        row.querySelectorAll('.css-146c3p1')
-      ).find(el => el.textContent.includes('@'));
-
-      if (!handleEl) continue;
-
-      const handleText = cleanHandle(handleEl.textContent);
-      if (!handleText.includes('.')) continue;
-
-      const bareHandle = handleText.replace(/^@/, '');
-
-      if (shouldHideHandle(bareHandle)) {
-        row.style.display = 'none';
-      } else {
-        row.style.display = '';
-      }
-    }
+    function shouldHideHandle(handle) {
+    return window.ATProtoHandler?.shouldHideHandle(handle) || false;
   }
 
   function getThreadHandle(item) {
@@ -1230,68 +1231,132 @@ function injectHandleStyles() {
 
     return null;
   }
+  
+  function findInvalidHandlePost() {
+    // Find any link that shows "⚠Invalid Handle" or "Invalid Handle"
+    const invalidLinks = document.querySelectorAll('a[aria-label="View profile"]');
+
+    for (const link of invalidLinks) {
+      const text = link.textContent || '';
+      if (text.includes('⚠Invalid Handle') || text.includes('Invalid Handle')) {
+        // Walk up to find the post container
+        let node = link;
+        while (node && node !== document.body) {
+          if (
+            node.getAttribute?.('data-testid')?.startsWith('postThreadItem-by-') ||
+            node.getAttribute?.('data-testid') === 'contentHider-post' ||
+            node.matches?.('article[data-testid]') ||
+            node.matches?.('[data-testid*="postThreadItem"]')
+          ) {
+            return node;
+          }
+          node = node.parentElement;
+        }
+        // If no specific post container, the link itself is enough to trigger
+        return link;
+      }
+    }
+
+    return null;
+  }
+  
+    function scanForInvalidHandleLabels() {
+    const post = findInvalidHandlePost();
+    if (post) {
+      maybeShowInvalidHandlePopup();
+    }
+  }
 
   function getPostCandidates() {
     const candidates = new Set();
     const host = window.location.hostname;
 
-    // Thread/post pages and replies.
+    // 1) Thread/post pages and replies (all clients)
     document
       .querySelectorAll('[data-testid^="postThreadItem-by-"]')
       .forEach(item => candidates.add(item));
 
-    // Feed cards on clients using contentHider-post.
-if (
-  host === 'wsocial.eu' ||
-  host === 'bsky.app' ||
-  host === 'deer.social' ||
-  host === 'mu.social'
-) {
-  document
-    .querySelectorAll('[data-testid="contentHider-post"]')
-    .forEach(content => {
-      const container = getPostContainerFromContent(content);
-      if (container) candidates.add(container);
-    });
-}
+    // 2) Feed cards that use contentHider-post (all major clients)
+    if (
+      host === 'wsocial.eu' ||
+      host === 'bsky.app' ||
+      host === 'deer.social' ||
+      host === 'mu.social' ||
+      host === 'blacksky.community' ||
+      host === 'northsky.app'
+    ) {
+      document
+        .querySelectorAll('[data-testid="contentHider-post"]')
+        .forEach(content => {
+          const container = getPostContainerFromContent(content);
+          if (container) candidates.add(container);
+        });
+    }
+
+    // 3) Search results and generic article/post containers (all clients)
+    //    This covers search pages and any other listing views.
+    document
+      .querySelectorAll(
+        'article[data-testid], ' +
+        '[data-testid*="postThreadItem"], ' +
+        '[data-testid="feedItem"]'
+      )
+      .forEach(item => {
+        // Avoid duplicating items already captured by (1)
+        if (!item.getAttribute('data-testid')?.startsWith('postThreadItem-by-')) {
+          candidates.add(item);
+        }
+      });
 
     return [...candidates];
   }
 
-function shouldHideHandle(handle) {
-  const value = cleanHandle(handle);
-  if (!value) return false;
+  function scanPosts() {
+    const candidates = getPostCandidates();
 
-  const host = window.location.hostname;
+    for (const item of candidates) {
+      if (!item.isConnected) continue;
+      if (item.getAttribute(HIDDEN_ATTR) === 'true') continue;
 
-  if (host === 'wsocial.eu') {
-    return (
-      (filterSettings.wsocialHideBsky && value.endsWith('.bsky.social')) ||
-      (filterSettings.wsocialHideEurosky && value.endsWith('.eurosky.social')) ||
-      (filterSettings.wsocialHideWsocial && value.endsWith('.wsocial.eu'))
-    );
+      const handle = getThreadHandle(item);
+      if (handle && window.ATProtoHandler?.shouldHideHandle(handle)) {
+        hidePost(item, handle);
+      }
+    }
   }
+  
+  
 
-  if (host === 'bsky.app' || host === 'mu.social') {
-    // mu.social reuses bsky settings
-    return (
-      (filterSettings.bskyHideWsocial && value.endsWith('.wsocial.eu')) ||
-      (filterSettings.bskyHideEurosky && value.endsWith('.eurosky.social')) ||
-      (filterSettings.bskyHideBsky && value.endsWith('.bsky.social'))
-    );
+  function initialisePostFiltering() {
+    injectHiddenStyles();
+    scanPosts();
+	scanForInvalidHandleLabels();
+	scanSearchAutocomplete();
+
+    console.log('AT Protocol Handler post filtering active on', window.location.hostname);
+
+    setTimeout(scanPosts, 300);
+    setTimeout(scanPosts, 1000);
+    setTimeout(scanPosts, 2500);
+	setTimeout(scanSearchAutocomplete, 300);
+    setTimeout(scanSearchAutocomplete, 1000);
+    setTimeout(scanSearchAutocomplete, 2500);
+
+    if (!document.body) return;
+
+    const observer = new MutationObserver(() => {
+      scanPosts();
+	  scanForInvalidHandleLabels();
+	  scanSearchAutocomplete();
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
   }
-
-  if (host === 'deer.social') {
-    return (
-      (filterSettings.deerHideWsocial && value.endsWith('.wsocial.eu')) ||
-      (filterSettings.deerHideEurosky && value.endsWith('.eurosky.social')) ||
-      (filterSettings.deerHideBsky && value.endsWith('.bsky.social'))
-    );
-  }
-
-  return false;
-}
-
+  
+  
   function injectHiddenStyles() {
     if (document.getElementById('atproto-hidden-post-style')) return;
 
@@ -1327,25 +1392,47 @@ function shouldHideHandle(handle) {
     document.head.appendChild(style);
   }
 
-  function showPost(item, placeholder) {
-    const original = savedPostMarkup.get(item);
+  function scanSearchAutocomplete() {
+    // Pattern 1: wsocial / deer.social style
+    // <a data-testid="searchAutoCompleteResult-{handle}">
+    const byTestId = document.querySelectorAll('a[data-testid^="searchAutoCompleteResult-"]');
+    for (const item of byTestId) {
+      if (!item.isConnected) continue;
+      if (item.dataset.atprotoHiddenAutocomplete === 'true') continue;
 
-    if (original === undefined) {
-      return;
+      const testId = item.getAttribute('data-testid') || '';
+      const handle = cleanHandle(testId.replace('searchAutoCompleteResult-', ''));
+
+      if (handle && shouldHideHandle(handle)) {
+        item.style.display = 'none';
+        item.dataset.atprotoHiddenAutocomplete = 'true';
+      }
     }
 
-    item.innerHTML = original;
-    item.removeAttribute(HIDDEN_ATTR);
-    savedPostMarkup.delete(item);
-    scanPosts();
+    // Pattern 2: blacksky / northsky / bsky.app style
+    // [role="listbox"] [role="option"] with "@handle" text
+    const byRole = document.querySelectorAll('[role="listbox"] [role="option"]');
+    for (const item of byRole) {
+      if (!item.isConnected) continue;
+      if (item.dataset.atprotoHiddenAutocomplete === 'true') continue;
+
+      const text = (item.textContent || '').trim();
+      const match = text.match(/@([^\s\u200B-\u200F\u202A-\u202E\u2066-\u2069]+)/);
+      if (!match) continue;
+
+      const handle = cleanHandle(match[1]);
+      if (!handle) continue;
+
+      if (shouldHideHandle(handle)) {
+        item.style.display = 'none';
+        item.dataset.atprotoHiddenAutocomplete = 'true';
+      }
+    }
   }
 
   function hidePost(item, handle) {
     if (item.getAttribute(HIDDEN_ATTR) === 'true') return;
-
-    // A user has explicitly chosen to show this item during this session.
     if (item.getAttribute('data-atproto-post-shown') === 'true') return;
-    if (item.getAttribute(HIDDEN_ATTR) === 'true') return;
 
     const wrapper = document.createElement('div');
     wrapper.className = HIDDEN_CLASS;
@@ -1373,7 +1460,7 @@ function shouldHideHandle(handle) {
     item.setAttribute(HIDDEN_ATTR, 'true');
     item.innerHTML = '';
     item.appendChild(wrapper);
-	    item.removeAttribute('data-atproto-post-shown');
+    item.removeAttribute('data-atproto-post-shown');
   }
 
   function showPost(item) {
@@ -1388,67 +1475,100 @@ function shouldHideHandle(handle) {
     delete item.dataset.atprotoOriginalHtml;
     item.removeAttribute(HIDDEN_ATTR);
 
-    // Keep this item visible for the rest of this page session.
-    // Otherwise the observer immediately hides it again.
     item.setAttribute('data-atproto-post-shown', 'true');
   }
+  
+  function createInvalidHandlePopup() {
+    if (invalidHandlePopupEl) return invalidHandlePopupEl;
 
-  function scanPosts() {
-    const candidates = getPostCandidates();
+    const popup = document.createElement('div');
+    popup.id = 'atproto-invalid-handle-popup';
+    popup.style.cssText = `
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 999999;
+      max-width: 320px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: #111827;
+      color: #f9fafb;
+      font: 13.5px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      white-space: pre-wrap;
+      line-height: 1.45;
+    `;
 
-    for (const item of candidates) {
-      if (!item.isConnected) continue;
-      if (item.getAttribute(HIDDEN_ATTR) === 'true') continue;
+    const message = document.createElement('div');
+    message.textContent = INVALID_HANDLE_MESSAGE;
 
-      const handle = getThreadHandle(item);
-      if (handle && shouldHideHandle(handle)) {
-        hidePost(item, handle);
-      }
-    }
+    const buttons = document.createElement('div');
+    buttons.style.cssText = `
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 2px;
+    `;
+
+    const neverBtn = document.createElement('button');
+    neverBtn.type = 'button';
+    neverBtn.textContent = 'Never show again';
+    neverBtn.style.cssText = `
+      appearance: none;
+      border: 1px solid #374151;
+      background: #1f2937;
+      color: #e5e7eb;
+      border-radius: 6px;
+      padding: 5px 10px;
+      cursor: pointer;
+      font: inherit;
+    `;
+
+    neverBtn.addEventListener('click', () => {
+      localStorage.setItem(NEVER_SHOW_INVALID_HANDLE_KEY, 'true');
+      popup.remove();
+      invalidHandlePopupEl = null;
+      invalidHandlePopupShown = true;
+    });
+
+    const dismissBtn = document.createElement('button');
+    dismissBtn.type = 'button';
+    dismissBtn.textContent = 'Dismiss';
+    dismissBtn.style.cssText = `
+      appearance: none;
+      border: 1px solid #374151;
+      background: #1f2937;
+      color: #e5e7eb;
+      border-radius: 6px;
+      padding: 5px 10px;
+      cursor: pointer;
+      font: inherit;
+    `;
+
+    dismissBtn.addEventListener('click', () => {
+      popup.remove();
+      invalidHandlePopupEl = null;
+      invalidHandlePopupShown = true;
+    });
+
+    buttons.append(neverBtn, dismissBtn);
+    popup.append(message, buttons);
+    document.body.appendChild(popup);
+    invalidHandlePopupEl = popup;
+    return popup;
   }
+  
 
-  async function initialisePostFiltering() {
-    filterSettings = await loadFilterSettings();
-    injectHiddenStyles();
-    scanPosts();
-	    scanWsocialSearch();
-	
-    console.log('AT Protocol Handler post filtering active on', window.location.hostname);
-    setTimeout(scanPosts, 300);
-    setTimeout(scanPosts, 1000);
-    setTimeout(scanPosts, 2500);
-
+  
+  function maybeShowInvalidHandlePopup() {
+    if (!shouldShowInvalidHandlePopup()) return;
     if (!document.body) return;
-
-    const observer = new MutationObserver(() => {
-      scanPosts();
-	        scanWsocialSearch();
-    });
-
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
+    createInvalidHandlePopup();
   }
 
-  const storage = getStorage();
-
-  if (storage?.onChanged?.addListener) {
-    storage.onChanged.addListener((changes, areaName) => {
-      if (areaName !== 'local') return;
-
-      let changed = false;
-
-      for (const [key, change] of Object.entries(changes)) {
-        if (key in DEFAULT_FILTER_SETTINGS) {
-          filterSettings[key] = change.newValue;
-          changed = true;
-        }
-      }
-
-      if (changed) scanPosts();
-    });
-  }
 
   if (document.body) {
     initialisePostFiltering();
@@ -1459,4 +1579,21 @@ function shouldHideHandle(handle) {
       { once: true }
     );
   }
+  
+    // Debug helper: force-show the invalid-handle popup
+  window.__triggerInvalidHandlePopup = function () {
+    invalidHandlePopupShown = false;
+    maybeShowInvalidHandlePopup();
+  };
+  
+    // Bridge: allow page to trigger the invalid-handle popup via postMessage
+	// window.postMessage({ type: 'ATPROTO_TRIGGER_INVALID_HANDLE' }, '*');
+  window.addEventListener('message', (event) => {
+    if (event.source !== window) return;
+    if (!event.data || event.data.type !== 'ATPROTO_TRIGGER_INVALID_HANDLE') return;
+
+    invalidHandlePopupShown = false;
+    maybeShowInvalidHandlePopup();
+  });
+  
 })();

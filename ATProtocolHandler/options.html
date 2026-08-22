@@ -173,119 +173,106 @@
   <div class="wrap">
     <div class="card">
       <h1>AT Protocol Handler Settings</h1>
-      <p class="muted">Configure post hiding, wsocial handle abbreviation, and copy button behaviour.</p>
+      <p class="muted">Configure post hiding, handle abbreviation, and copy button behaviour across all supported clients.</p>
       <div class="actions">
         <a class="link-btn secondary-btn" href="inst.html">Open extension popup</a>
       </div>
       <div id="status" class="notice" aria-live="polite">Settings have not been changed.</div>
     </div>
 
-    <div class="grid two">
+
+
       <div class="card">
-        <h2>wsocial.eu</h2>
+        <h2>Hide handles (applies on all supported clients)</h2>
         <div class="section">
           <label class="option-row">
-            <input type="checkbox" id="wsocialHideBsky">
+            <input type="checkbox" id="hide_bskySocial">
             <span class="option-text">
-              <strong>Hide posts and replies from *.bsky.social</strong>
-              <span>Hides the whole post or reply when the author handle ends with <code>.bsky.social</code>.</span>
+              <strong>Hide .bsky.social handles</strong>
+              <span>Hides posts and replies when the author handle ends with <code>.bsky.social</code>.</span>
             </span>
           </label>
           <label class="option-row">
-            <input type="checkbox" id="wsocialHideEurosky">
+            <input type="checkbox" id="hide_euroskySocial">
             <span class="option-text">
-              <strong>Hide posts and replies from *.eurosky.social</strong>
-              <span>Hides the whole post or reply when the author handle ends with <code>.eurosky.social</code>.</span>
-            </span>
-          </label>
-		  <label class="option-row">
-  <input type="checkbox" id="wsocialHideWsocial">
-  <span class="option-text">
-    <strong>Hide posts and replies from *.wsocial.eu</strong>
-    <span>Normally off. Hides wsocial accounts when enabled.</span>
-  </span>
-</label>
-          <label class="option-row">
-            <input type="checkbox" id="wsocialShortenHandles">
-            <span class="option-text">
-              <strong>Shorten wsocial handles</strong>
-              <span>Shows <code>@username</code> instead of <code>@username.wsocial.eu</code> on wsocial.eu only.</span>
+              <strong>Hide .eurosky.social handles</strong>
+              <span>Hides posts and replies when the author handle ends with <code>.eurosky.social</code>.</span>
             </span>
           </label>
           <label class="option-row">
-            <input type="checkbox" id="wsocialShowCopyButtons">
+            <input type="checkbox" id="hide_wsocialEu">
             <span class="option-text">
-              <strong>Show wsocial copy buttons</strong>
-              <span>Adds a copy button beside wsocial handles.</span>
+              <strong>Hide .wsocial.eu handles</strong>
+              <span>Hides posts and replies when the author handle ends with <code>.wsocial.eu</code>.</span>
+            </span>
+          </label>
+          <label class="option-row">
+            <input type="checkbox" id="hide_blackskyApp">
+            <span class="option-text">
+              <strong>Hide .blacksky.app handles</strong>
+              <span>Hides posts and replies when the author handle ends with <code>.blacksky.app</code>.</span>
+            </span>
+          </label>
+          <label class="option-row">
+            <input type="checkbox" id="hide_northskySocial">
+            <span class="option-text">
+              <strong>Hide .northsky.social handles</strong>
+              <span>Hides posts and replies when the author handle ends with <code>.northsky.social</code>.</span>
             </span>
           </label>
         </div>
       </div>
 
       <div class="card">
-        <h2>bsky.app & mu.social</h2>
+        <h2>Shorten handles (applies on all supported clients)</h2>
         <div class="section">
           <label class="option-row">
-            <input type="checkbox" id="bskyHideWsocial">
+            <input type="checkbox" id="shorten_bskySocial">
             <span class="option-text">
-              <strong>Hide posts and replies from *.wsocial.eu</strong>
-              <span>Hides the whole post or reply when the author handle ends with <code>.wsocial.eu</code>.</span>
+              <strong>Shorten .bsky.social handles</strong>
+              <span>Shows <code>@username</code> instead of <code>@username.bsky.social</code>.</span>
             </span>
           </label>
           <label class="option-row">
-            <input type="checkbox" id="bskyHideEurosky">
+            <input type="checkbox" id="shorten_euroskySocial">
             <span class="option-text">
-              <strong>Hide posts and replies from *.eurosky.social</strong>
-              <span>Hides the whole post or reply when the author handle ends with <code>.eurosky.social</code>.</span>
+              <strong>Shorten .eurosky.social handles</strong>
+              <span>Shows <code>@username</code> instead of <code>@username.eurosky.social</code>.</span>
             </span>
           </label>
-		  <label class="option-row">
-  <input type="checkbox" id="bskyHideBsky">
-  <span class="option-text">
-    <strong>Hide posts and replies from *.bsky.social</strong>
-    <span>Usually off. Hides primary Bluesky accounts when enabled.</span>
-  </span>
-</label>
           <label class="option-row">
-            <input type="checkbox" id="bskyShowCopyButtons">
+            <input type="checkbox" id="shorten_wsocialEu">
             <span class="option-text">
-              <strong>Show copy buttons</strong>
-              <span>Adds a copy button beside profile handles on Bluesky.</span>
+              <strong>Shorten .wsocial.eu handles</strong>
+              <span>Shows <code>@username</code> instead of <code>@username.wsocial.eu</code>.</span>
             </span>
           </label>
-
+          <label class="option-row">
+            <input type="checkbox" id="shorten_blackskyApp">
+            <span class="option-text">
+              <strong>Shorten .blacksky.app handles</strong>
+              <span>Shows <code>@username</code> instead of <code>@username.blacksky.app</code>.</span>
+            </span>
+          </label>
+          <label class="option-row">
+            <input type="checkbox" id="shorten_northskySocial">
+            <span class="option-text">
+              <strong>Shorten .northsky.social handles</strong>
+              <span>Shows <code>@username</code> instead of <code>@username.northsky.social</code>.</span>
+            </span>
+          </label>
         </div>
       </div>
-
+	  
+	      <div class="grid two">
       <div class="card">
-        <h2>deer.social</h2>
+        <h2>General</h2>
         <div class="section">
           <label class="option-row">
-            <input type="checkbox" id="deerHideWsocial">
+            <input type="checkbox" id="showCopyButtons">
             <span class="option-text">
-              <strong>Hide posts and replies from *.wsocial.eu</strong>
-              <span>Hides the whole post or reply when the author handle ends with <code>.wsocial.eu</code>.</span>
-            </span>
-          </label>
-          <label class="option-row">
-            <input type="checkbox" id="deerHideEurosky">
-            <span class="option-text">
-              <strong>Hide posts and replies from *.eurosky.social</strong>
-              <span>Hides the whole post or reply when the author handle ends with <code>.eurosky.social</code>.</span>
-            </span>
-          </label>
-		  <label class="option-row">
-  <input type="checkbox" id="deerHideBsky">
-  <span class="option-text">
-    <strong>Hide posts and replies from *.bsky.social</strong>
-    <span>Hides Bluesky accounts when enabled.</span>
-  </span>
-</label>
-          <label class="option-row">
-            <input type="checkbox" id="deerShowCopyButtons">
-            <span class="option-text">
-              <strong>Show copy buttons</strong>
-              <span>Adds a copy button beside profile handles on Deer.</span>
+              <strong>Show copy buttons next to handles</strong>
+              <span>Adds a copy button beside profile handles on all supported clients.</span>
             </span>
           </label>
         </div>
@@ -294,7 +281,16 @@
       <div class="card">
         <h2>Notes</h2>
         <p class="muted">These options only affect visible posts and replies. Quoted content is left alone unless it is itself a separate post/reply item.</p>
-        <p class="muted">All options are opt-in and disabled by default.</p>
+        <p class="muted">All options are opt-in and disabled by default, except “Shorten .wsocial.eu handles” which is enabled by default for existing users.</p>
+		<p class="muted">
+		Supported clients: - 
+  'wsocial.eu',
+  'bsky.app',
+  'mu.social',
+  'deer.social',
+  'blacksky.community',
+  'northsky.app'
+		</p>
       </div>
     </div>
 
@@ -304,6 +300,7 @@
         <button id="resetBtn" class="secondary-btn" type="button">Reset to defaults</button>
       </div>
     </div>
+	
   </div>
   <script src="options.js"></script>
 </body>
