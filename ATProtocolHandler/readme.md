@@ -3,7 +3,7 @@ NEW: - Support for wsocial.eu
 - Dismissible popup on invalid handle found!
 - An editor for pdsls.dev records that preserves facets are re index them on edits.
 - Include is a method to write markdown text for links in the editor that are converted to facets.
-
+- [Readme for pdsls editor](pdsls-editor-withMD.md)
 
 
 [AT Protocol Handler - Chrome Webstore](https://chromewebstore.google.com/detail/at-protocol-handler/foippfcmhngnjdlfhgaifppajnhlmafk) ~ Waiting on review v1.14!
