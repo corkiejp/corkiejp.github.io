@@ -1,1 +1,1 @@
-See [Readmeonbuilds](ATProtocolHandler/wip/readmeonbuilds.md)
+See [Readmeonbuilds](/readmeonbuilds.md)
