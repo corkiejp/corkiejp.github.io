@@ -3,6 +3,8 @@ Things new users to the 'AT Protocol' should know like the below and any other s
 
 [Myths About W Social: Vol 1](https://denys.dev/w-mythology-vol1/) by [Denys Vuika](https://wsocial.eu/profile/denysvuika.wsocial.eu)
 
+[Myths About W Social: Vol 2](https://denys.dev/w-mythology-vol2/) by ^^^
+
 [AT Protocol Privacy](https://mackuba.eu/2024/02/21/bluesky-guide/#privacy) by [MacKuba](https://wsocial.eu/profile/mackuba.eu)
 
 [Markdown Links like this post, how to's](https://github.com/corkiejp/Corkiejp-notes-on-awesome-bluesky/blob/main/morepages/markdownforbsky.md)
