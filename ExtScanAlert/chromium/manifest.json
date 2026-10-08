@@ -21,39 +21,44 @@
       "matches": ["<all_urls>"],
       "js": ["content.js"],
       "run_at": "document_start"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["page-hook.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
     }
   ],
   "options_page": "options.html",
   "web_accessible_resources": [
     {
       "resources": [
-        "page-hook.js",
         "slow-rules.json",
-		"providers.json",
-		"whitelist.json",
-		"noise-domains-curated.json",
-		"icons/icon-128.png",
-		"icons/icon-48.png",
-		"icons/icon-32.png",
-		"icons/icon-16.png"
+        "providers.json",
+        "whitelist.json",
+        "noise-domains-curated.json",
+        "icons/icon-128.png",
+        "icons/icon-48.png",
+        "icons/icon-32.png",
+        "icons/icon-16.png"
       ],
       "matches": ["<all_urls>"]
     }
   ],
   "icons": {
-  "16": "icons/icon-16.png",
-  "32": "icons/icon-32.png",
-  "48": "icons/icon-48.png",
-  "128": "icons/icon-128.png"
-},
-  "action": {
-    "default_title": "ExtScanAlert",
-    "default_popup": "popup.html",
-	  "default_icon": {
-        "16": "icons/icon-16.png",
+    "16": "icons/icon-16.png",
     "32": "icons/icon-32.png",
     "48": "icons/icon-48.png",
     "128": "icons/icon-128.png"
-  }
+  },
+  "action": {
+    "default_title": "ExtScanAlert",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
   }
 }

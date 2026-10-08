@@ -2100,7 +2100,7 @@ if (msg?.type === 'setDangerousCopyBlockMode') {
 
 
 // find this again.
-    if (msg?.source === 'extscanalert' && msg.kind === 'extension-probe') {
+    if (msg?.source === 'extscanalert' && (msg.kind === 'extension-probe' || msg.kind === 'probe')) {
       const state = await getState();
       const host = safeHost(msg.page);
 

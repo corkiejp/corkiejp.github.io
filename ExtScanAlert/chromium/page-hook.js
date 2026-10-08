@@ -1,13 +1,19 @@
-  // At top of page-hook.js
-window.__extScanAlertDangerousCopyBlock =
-  document.documentElement.getAttribute('data-extscanalert-copy-block') === 'true';
+window.__extScanAlertDangerousCopyBlock = false;
+let __hooksDisabled = false;
+let __blockedDomainsCache = new Set();
 
-// Optionally still listen for dynamic updates (if you later re-send config)
 window.addEventListener('message', (event) => {
   const msg = event.data;
   if (!msg || msg.source !== 'extscanalert-config') return;
-  if (msg.kind === 'dangerous-copy-config') {
-    window.__extScanAlertDangerousCopyBlock = !!msg.blockMode;
+  
+  if (msg.disabled) {
+    __hooksDisabled = true;
+    return;
+  }
+  window.__extScanAlertDangerousCopyBlock = !!msg.blockMode;
+
+  if (Array.isArray(msg.blockedDomains)) {
+    __blockedDomainsCache = new Set(msg.blockedDomains.map(d => d.toLowerCase()));
   }
 });
 
@@ -18,164 +24,74 @@ window.addEventListener('message', (event) => {
   let seq = 0;
   const SOURCE = 'extscanalert';
 
-  function now() {
-    return Date.now();
+  function now() { return Date.now(); }
+
+  function isSuspicious(url) {
+    if (__hooksDisabled || !url || typeof url !== 'string') return false;
+    if (suspiciousSchemes.some((prefix) => url.startsWith(prefix))) return true;
+
+    try {
+      const hostname = new URL(url, document.baseURI).hostname.toLowerCase();
+      const normalizedHost = hostname.replace(/^www\./, '');
+
+      if (__blockedDomainsCache.has(normalizedHost)) return true;
+
+      for (let domain of __blockedDomainsCache) {
+        if (normalizedHost.endsWith('.' + domain)) return true;
+      }
+    } catch (e) {}
+
+    return false;
   }
 
-  function isSuspicious(value) {
-    return typeof value === 'string' && suspiciousSchemes.some((prefix) => value.startsWith(prefix));
-  }
-  
+  function looksLikeDangerousCommand(text) {
+    if (__hooksDisabled || !text || typeof text !== 'string') return false;
+    const trimmed = text.trim();
+    if (trimmed.length < 10) return false;
+    const lower = trimmed.toLowerCase();
 
-  
-  // NEW: basic matcher for dangerous-looking commands
-function looksLikeDangerousCommand(text) {
-  if (!text || typeof text !== 'string') return false;
-
-  const trimmed = text.trim();
-  if (trimmed.length < 10) return false;
-
-  const lower = trimmed.toLowerCase();
-
-  const directPatterns = [
-    // PowerShell / cmd
-    'powershell -command',
-    'powershell.exe',
-    'pwsh ',
-    'cmd.exe /c',
-    'start-process powershell',
-    'invoke-webrequest',
-    'invoke-expression',
-    'iex ',
-    'iex(',
-    'frombase64string',
-    '-encodedcommand',
-    ' -enc ',
-    ' -nop',
-    ' -noni',
-    ' -w hidden',
-    '-windowstyle hidden',
-    '-executionpolicy bypass',
-    ' -ep bypass',
-    'start-bitstransfer',
-    'downloadfile(',
-    'reg add ',
-    'reg delete ',
-    'schtasks /create',
-    'wmic process call',
-    'rundll32 ',
-    'regsvr32 ',
-    'mshta ',
-    'certutil -urlcache',
-    'bitsadmin /transfer',
-
-    // Cross-platform / downloader-exec
-    'curl ',
-    'wget ',
-    'bash -c',
-    'sh -c',
-    '| bash',
-    '| sh',
-
-    // Explicitly destructive / high-risk
-    'sudo rm -rf /',
-    'sudo rm -rf --no-preserve-root /',
-    'sudo curl ',
-    'sudo wget ',
-    'sudo bash -c',
-    'sudo sh -c'
-  ];
-
-  if (directPatterns.some((p) => lower.includes(p))) {
-    return true;
-  }
-
-  // ClickFix-style "download + execute" combos
-  const hasDownloader =
-    lower.includes('invoke-webrequest') ||
-    lower.includes('curl ') ||
-    lower.includes('wget ') ||
-    lower.includes('downloadfile(') ||
-    lower.includes('start-bitstransfer') ||
-    lower.includes('certutil -urlcache');
-
-  const hasExecution =
-    lower.includes('powershell') ||
-    lower.includes('pwsh ') ||
-    lower.includes('cmd.exe') ||
-    lower.includes('start-process') ||
-    lower.includes('iex ') ||
-    lower.includes('iex(') ||
-    lower.includes('bash -c') ||
-    lower.includes('sh -c') ||
-    lower.includes('rundll32 ') ||
-    lower.includes('regsvr32 ') ||
-    lower.includes('mshta ');
-
-  const hasEncodedOrHidden =
-    lower.includes('-encodedcommand') ||
-    lower.includes('frombase64string') ||
-    lower.includes(' -enc ') ||
-    lower.includes('-windowstyle hidden') ||
-    lower.includes(' -w hidden') ||
-    lower.includes('-executionpolicy bypass') ||
-    lower.includes(' -ep bypass') ||
-    lower.includes(' -nop') ||
-    lower.includes(' -noni');
-
-  if ((hasDownloader && hasExecution) || (hasExecution && hasEncodedOrHidden)) {
-    return true;
-  }
-
-  return false;
-}
-
-function getClickFixSignals() {
-  try {
-    const text = (document.body?.innerText || '').toLowerCase().slice(0, 50000);
-
-    const patterns = [
-      'press windows+r',
-      'press win+r',
-      'windows + r',
-      'win + r',
-      'open the run dialog',
-      'paste the command',
-      'copy this command',
-      'copy and paste',
-      'run this command',
-      'run in powershell',
-      'run in terminal',
-      'open powershell',
-      'open terminal',
-      'verification step',
-      'complete verification',
-      'verify you are human',
-      'i am not a robot',
-      'fix the error',
-      'security check'
+    const directPatterns = [
+      'powershell -command', 'powershell.exe', 'pwsh ', 'cmd.exe /c',
+      'start-process powershell', 'invoke-webrequest', 'invoke-expression',
+      'iex ', 'iex(', 'frombase64string', '-encodedcommand', ' -enc ', ' -nop',
+      ' -noni', ' -w hidden', '-windowstyle hidden', '-executionpolicy bypass',
+      ' -ep bypass', 'start-bitstransfer', 'downloadfile(', 'reg add ',
+      'reg delete ', 'schtasks /create', 'wmic process call', 'rundll32 ',
+      'regsvr32 ', 'mshta ', 'certutil -urlcache', 'bitsadmin /transfer',
+      'curl ', 'wget ', 'bash -c', 'sh -c', '| bash', '| sh', 'sudo rm -rf /',
+      'sudo rm -rf --no-preserve-root /', 'sudo curl ', 'sudo wget ',
+      'sudo bash -c', 'sudo sh -c'
     ];
 
-    const matched = patterns.filter((p) => text.includes(p));
+    if (directPatterns.some((p) => lower.includes(p))) return true;
 
-    return {
-      matched,
-      score: matched.length,
-      hasHints: matched.length > 0
-    };
-  } catch {
-    return {
-      matched: [],
-      score: 0,
-      hasHints: false
-    };
+    const hasDownloader = lower.includes('invoke-webrequest') || lower.includes('curl ') || lower.includes('wget ') || lower.includes('downloadfile(') || lower.includes('start-bitstransfer') || lower.includes('certutil -urlcache');
+    const hasExecution = lower.includes('powershell') || lower.includes('pwsh ') || lower.includes('cmd.exe') || lower.includes('start-process') || lower.includes('iex ') || lower.includes('iex(') || lower.includes('bash -c') || lower.includes('sh -c') || lower.includes('rundll32 ') || lower.includes('regsvr32 ') || lower.includes('mshta ');
+    const hasEncodedOrHidden = lower.includes('-encodedcommand') || lower.includes('frombase64string') || lower.includes(' -enc ') || lower.includes('-windowstyle hidden') || lower.includes(' -w hidden') || lower.includes('-executionpolicy bypass') || lower.includes(' -ep bypass') || lower.includes(' -nop') || lower.includes(' -noni');
+
+    if ((hasDownloader && hasExecution) || (hasExecution && hasEncodedOrHidden)) return true;
+    return false;
   }
-}
 
-
-
+  function getClickFixSignals() {
+    try {
+      const text = (document.body?.innerText || '').toLowerCase().slice(0, 50000);
+      const patterns = [
+        'press windows+r', 'press win+r', 'windows + r', 'win + r', 'open the run dialog',
+        'paste the command', 'copy this command', 'copy and paste', 'run this command',
+        'run in powershell', 'run in terminal', 'open powershell', 'open terminal',
+        'verification step', 'complete verification', 'verify you are human',
+        'i am not a robot', 'fix the error', 'security check'
+      ];
+      const matched = patterns.filter((p) => text.includes(p));
+      return { matched, score: matched.length, hasHints: matched.length > 0 };
+    } catch {
+      return { matched: [], score: 0, hasHints: false };
+    }
+  }
 
   function postObserve(kind, subtype, details = {}) {
+    if (__hooksDisabled) return;
     window.postMessage({
       source: SOURCE,
       kind,
@@ -188,18 +104,21 @@ function getClickFixSignals() {
   }
 
   function askExtension(url, method) {
+    if (__hooksDisabled) return Promise.resolve('allow');
+    
+    if (isSuspicious(url)) {
+      return Promise.resolve('block');
+    }
+
     return new Promise((resolve) => {
       const requestId = `req-${Date.now()}-${++seq}`;
-
       const onMessage = (event) => {
         if (event.source !== window || !event.data || event.data.source !== `${SOURCE}-response`) return;
         if (event.data.requestId !== requestId) return;
         window.removeEventListener('message', onMessage);
         resolve(event.data.action || 'allow');
       };
-
       window.addEventListener('message', onMessage);
-
       window.postMessage({
         source: SOURCE,
         kind: 'extension-probe',
@@ -208,7 +127,6 @@ function getClickFixSignals() {
         subtype: method,
         page: location.href
       }, '*');
-
       setTimeout(() => {
         window.removeEventListener('message', onMessage);
         resolve('allow');
@@ -219,17 +137,12 @@ function getClickFixSignals() {
   function wrapFetch() {
     const orig = window.fetch;
     if (typeof orig !== 'function') return;
-
     window.fetch = async function(input, init) {
       const url = typeof input === 'string' ? input : input?.url;
-
       if (isSuspicious(url)) {
-        const action = await askExtension(url, 'fetch');
-        if (action === 'block') {
-          return Promise.reject(new DOMException('Blocked possible extension probe', 'SecurityError'));
-        }
+        postObserve('probe', 'fetch', { url, action: 'block' });
+        return Promise.reject(new DOMException('Blocked possible extension probe via sync cache', 'SecurityError'));
       }
-
       return orig.apply(this, arguments);
     };
   }
@@ -237,59 +150,49 @@ function getClickFixSignals() {
   function wrapXHR() {
     const open = XMLHttpRequest.prototype.open;
     const send = XMLHttpRequest.prototype.send;
-
     XMLHttpRequest.prototype.open = function(method, url) {
-      this.__extScanPending = isSuspicious(url) ? askExtension(url, 'xhr') : null;
+      if (isSuspicious(url)) {
+        this.__extScanSyncBlock = true;
+        this.__extScanPending = Promise.resolve('block');
+      } else {
+        this.__extScanSyncBlock = false;
+        this.__extScanPending = null;
+      }
       return open.apply(this, arguments);
     };
-
     XMLHttpRequest.prototype.send = async function() {
-      if (this.__extScanPending) {
-        const action = await this.__extScanPending;
-        if (action === 'block') {
-          throw new DOMException('Blocked possible extension probe', 'SecurityError');
-        }
+      if (this.__extScanSyncBlock) {
+        throw new DOMException('Blocked possible extension probe via sync cache', 'SecurityError');
       }
-
       return send.apply(this, arguments);
     };
   }
-
   function wrapBeacon() {
     if (typeof navigator.sendBeacon !== 'function') return;
     const orig = navigator.sendBeacon.bind(navigator);
-
     navigator.sendBeacon = function(url, data) {
-      if (!isSuspicious(url)) return orig(url, data);
-
-      askExtension(url, 'beacon').then((action) => {
-        if (action !== 'block') orig(url, data);
-      });
-
-      return true;
+      if (isSuspicious(url)) {
+        postObserve('probe', 'beacon', { url, action: 'block' });
+        return true; 
+      }
+      return orig(url, data);
     };
   }
 
   function wrapCanvasElement() {
     const canvasProto = HTMLCanvasElement?.prototype;
     if (!canvasProto) return;
-
     const wrapMethod = (name) => {
       const orig = canvasProto[name];
       if (typeof orig !== 'function') return;
-
       canvasProto[name] = function(...args) {
         postObserve('fingerprint-api', `canvas.${name}`, {
           target: 'HTMLCanvasElement',
-          meta: {
-            width: this.width,
-            height: this.height
-          }
+          meta: { width: this.width, height: this.height }
         });
         return orig.apply(this, args);
       };
     };
-
     wrapMethod('toDataURL');
     wrapMethod('toBlob');
 
@@ -310,16 +213,12 @@ function getClickFixSignals() {
   function wrapCanvasContext2D() {
     const proto = CanvasRenderingContext2D?.prototype;
     if (!proto) return;
-
     const orig = proto.getImageData;
     if (typeof orig !== 'function') return;
-
     proto.getImageData = function(...args) {
       postObserve('fingerprint-api', 'canvas.getImageData', {
         target: 'CanvasRenderingContext2D',
-        meta: {
-          args: args.slice(0, 4)
-        }
+        meta: { args: args.slice(0, 4) }
       });
       return orig.apply(this, args);
     };
@@ -328,7 +227,6 @@ function getClickFixSignals() {
   function wrapOffscreenCanvas() {
     const proto = window.OffscreenCanvas?.prototype;
     if (!proto) return;
-
     const origGetContext = proto.getContext;
     if (typeof origGetContext === 'function') {
       proto.getContext = function(type, ...rest) {
@@ -341,14 +239,10 @@ function getClickFixSignals() {
         return origGetContext.call(this, type, ...rest);
       };
     }
-
     const origConvertToBlob = proto.convertToBlob;
     if (typeof origConvertToBlob === 'function') {
       proto.convertToBlob = function(...args) {
-        postObserve('fingerprint-api', 'offscreen.convertToBlob', {
-          target: 'OffscreenCanvas',
-          meta: {}
-        });
+        postObserve('fingerprint-api', 'offscreen.convertToBlob', { target: 'OffscreenCanvas', meta: {} });
         return origConvertToBlob.apply(this, args);
       };
     }
@@ -359,26 +253,13 @@ function getClickFixSignals() {
       if (!proto) return;
       const orig = proto.getParameter;
       if (typeof orig !== 'function') return;
-
       proto.getParameter = function(param) {
-        if (
-          param === 37445 ||
-          param === 37446 ||
-          param === this.VENDOR ||
-          param === this.RENDERER ||
-          param === this.VERSION ||
-          param === this.SHADING_LANGUAGE_VERSION
-        ) {
-          postObserve('fingerprint-api', 'webgl.getParameter', {
-            target: label,
-            meta: { param }
-          });
+        if (param === 37445 || param === 37446 || param === this.VENDOR || param === this.RENDERER || param === this.VERSION || param === this.SHADING_LANGUAGE_VERSION) {
+          postObserve('fingerprint-api', 'webgl.getParameter', { target: label, meta: { param } });
         }
-
         return orig.apply(this, arguments);
       };
     };
-
     wrapProto(window.WebGLRenderingContext?.prototype, 'WebGLRenderingContext');
     wrapProto(window.WebGL2RenderingContext?.prototype, 'WebGL2RenderingContext');
   }
@@ -386,268 +267,137 @@ function getClickFixSignals() {
   function wrapSetter(Ctor, prop, label) {
     const desc = Object.getOwnPropertyDescriptor(Ctor?.prototype, prop);
     if (!desc?.set) return;
-
     Object.defineProperty(Ctor.prototype, prop, {
       configurable: true,
       enumerable: desc.enumerable,
       get: desc.get,
       set(value) {
         if (!isSuspicious(value)) return desc.set.call(this, value);
-
-        askExtension(value, label).then((action) => {
-          if (action !== 'block') desc.set.call(this, value);
-        });
-
+        postObserve('probe', label, { url: value, action: 'block' });
         return value;
       }
     });
   }
-  
-function wrapCopyProtection() {
-  document.addEventListener(
-    'copy',
-    (event) => {
+
+  function wrapCopyProtection() {
+    document.addEventListener('copy', (event) => {
       try {
         const selection = window.getSelection();
         const text = selection ? selection.toString() : '';
-
         if (!looksLikeDangerousCommand(text)) return;
 
-        // Always notify background for logging + notification
-const signals = getClickFixSignals();
+        const signals = getClickFixSignals();
+        postObserve('dangerous-copy', 'command', {
+          target: 'clipboard',
+          clickFixHints: signals.matched,
+          clickFixHintScore: signals.score,
+          meta: { preview: text.slice(0, 160), length: text.length }
+        });
 
-postObserve('dangerous-copy', 'command', {
-  target: 'clipboard',
-  preview: text.slice(0, 160),
-  length: text.length,
-  clickFixHints: signals.matched,
-  clickFixHintScore: signals.score,
-  meta: {
-    preview: text.slice(0, 160),
-    length: text.length,
-    clickFixHints: signals.matched,
-    clickFixHintScore: signals.score
-  }
-});
-
-        // Block locally when advanced mode is enabled
         if (window.__extScanAlertDangerousCopyBlock) {
           event.preventDefault();
         }
       } catch (err) {
         console.warn('[ExtScanAlert] copy handler error', err);
       }
-    },
-    true
-  );
-}
-
-function wrapClipboardAPI() {
-  if (!navigator.clipboard) return;
-
-  // Intercept writeText
-  const origWriteText = navigator.clipboard.writeText;
-  if (typeof origWriteText === 'function') {
-    navigator.clipboard.writeText = async function(text) {
-      if (looksLikeDangerousCommand(text)) {
-const signals = getClickFixSignals();
-
-postObserve('dangerous-copy', 'command', {
-  target: 'clipboard',
-  preview: text.slice(0, 160),
-  length: text.length,
-  clickFixHints: signals.matched,
-  clickFixHintScore: signals.score,
-  meta: {
-    preview: text.slice(0, 160),
-    length: text.length,
-    clickFixHints: signals.matched,
-    clickFixHintScore: signals.score
-  }
-});
-
-        if (window.__extScanAlertDangerousCopyBlock) {
-          throw new DOMException('Clipboard write blocked by ExtScanAlert', 'SecurityError');
-        }
-      }
-      return origWriteText.apply(this, arguments);
-    };
+    }, true);
   }
 
-  // Intercept write (ClipboardItem[])
-  const origWrite = navigator.clipboard.write;
-  if (typeof origWrite === 'function') {
-    navigator.clipboard.write = async function(data) {
-      try {
-        let hasDangerous = false;
-        let text = '';
-        for (const item of data) {
-          if (item.types.includes('text/plain')) {
-            const blob = await item.getType('text/plain');
-            text = await blob.text();
-            if (looksLikeDangerousCommand(text)) {
-              hasDangerous = true;
-              break;
-            }
-          }
-        }
-
-        if (hasDangerous) {
-const signals = getClickFixSignals();
-
-postObserve('dangerous-copy', 'command', {
-  target: 'clipboard',
-  preview: text.slice(0, 160),
-  length: text.length,
-  clickFixHints: signals.matched,
-  clickFixHintScore: signals.score,
-  meta: {
-    preview: text.slice(0, 160),
-    length: text.length,
-    clickFixHints: signals.matched,
-    clickFixHintScore: signals.score
-  }
-});
-
+  function wrapClipboardAPI() {
+    if (!navigator.clipboard) return;
+    const origWriteText = navigator.clipboard.writeText;
+    if (typeof origWriteText === 'function') {
+      navigator.clipboard.writeText = async function(text) {
+        if (looksLikeDangerousCommand(text)) {
+          const signals = getClickFixSignals();
+          postObserve('dangerous-copy', 'command', {
+            target: 'clipboard',
+            clickFixHints: signals.matched,
+            clickFixHintScore: signals.score,
+            meta: { preview: text.slice(0, 160), length: text.length }
+          });
           if (window.__extScanAlertDangerousCopyBlock) {
             throw new DOMException('Clipboard write blocked by ExtScanAlert', 'SecurityError');
           }
         }
-      } catch (e) {
-        console.warn('[ExtScanAlert] failed to check clipboard write', e);
-      }
-
-      return origWrite.apply(this, arguments);
-    };
+        return origWriteText.apply(this, arguments);
+      };
+    }
   }
-}
 
-
-function wrapNavigatorHardware() {
-  try {
-    const nav = navigator;
-
-    // Read-only properties — log once when accessed
-    const logHardware = () => {
-      window.postMessage({
-        source: SOURCE,
-        kind: 'fingerprint-api',
-        subtype: 'navigator.hardware',
-        page: location.href,
-        time: now(),
-        stack: new Error().stack || '',
-        meta: {
-          hardwareConcurrency: nav.hardwareConcurrency,
-          deviceMemory: nav.deviceMemory,
-          maxTouchPoints: nav.maxTouchPoints
-        }
-      }, '*');
-    };
-
-    // Hook a common access path: Object.keys(navigator), etc. is too broad;
-    // instead, log the first time code reads any of these fields.
-    let logged = false;
-    const props = ['hardwareConcurrency', 'deviceMemory', 'maxTouchPoints'];
-
-    props.forEach((prop) => {
-      const desc = Object.getOwnPropertyDescriptor(nav, prop);
-      if (!desc || !desc.get) return;
-      Object.defineProperty(nav, prop, {
-        configurable: true,
-        enumerable: desc.enumerable,
-        get() {
-          if (!logged) {
-            logged = true;
-            logHardware();
+  function wrapNavigatorHardware() {
+    try {
+      const nav = navigator;
+      const logHardware = () => {
+        postObserve('fingerprint-api', 'navigator.hardware', {
+          meta: {
+            hardwareConcurrency: nav.hardwareConcurrency,
+            deviceMemory: nav.deviceMemory,
+            maxTouchPoints: nav.maxTouchPoints
           }
-          return desc.get.call(nav);
-        }
+        });
+      };
+      let logged = false;
+      const props = ['hardwareConcurrency', 'deviceMemory', 'maxTouchPoints'];
+      props.forEach((prop) => {
+        const desc = Object.getOwnPropertyDescriptor(nav, prop);
+        if (!desc || !desc.get) return;
+        Object.defineProperty(nav, prop, {
+          configurable: true,
+          enumerable: desc.enumerable,
+          get() {
+            if (!logged) { logged = true; logHardware(); }
+            return desc.get.call(nav);
+          }
+        });
       });
-    });
-  } catch (e) {
-    console.warn('[ExtScanAlert] navigator hardware hook failed', e);
-  }
-}
-
-function wrapWebStorage() {
-  try {
-    const origLocalSet = localStorage?.setItem;
-    if (typeof origLocalSet === 'function') {
-      localStorage.setItem = function(key, value) {
-        window.postMessage({
-          source: SOURCE,
-          kind: 'fingerprint-api',
-          subtype: 'storage.localStorage.setItem',
-          page: location.href,
-          time: now(),
-          stack: new Error().stack || '',
-          meta: { key }
-        }, '*');
-        return origLocalSet.apply(this, arguments);
-      };
+    } catch (e) {
+      console.warn('[ExtScanAlert] navigator hardware hook failed', e);
     }
-
-    const origSessionSet = sessionStorage?.setItem;
-    if (typeof origSessionSet === 'function') {
-      sessionStorage.setItem = function(key, value) {
-        window.postMessage({
-          source: SOURCE,
-          kind: 'fingerprint-api',
-          subtype: 'storage.sessionStorage.setItem',
-          page: location.href,
-          time: now(),
-          stack: new Error().stack || '',
-          meta: { key }
-        }, '*');
-        return origSessionSet.apply(this, arguments);
-      };
-    }
-  } catch (e) {
-    console.warn('[ExtScanAlert] storage hook failed', e);
   }
-}
 
-function wrapGeolocation() {
-  try {
-    const geo = navigator.geolocation;
-    if (!geo) return;
-
-    const origGetCurrentPosition = geo.getCurrentPosition;
-    if (typeof origGetCurrentPosition === 'function') {
-      geo.getCurrentPosition = function(success, error, options) {
-        window.postMessage({
-          source: SOURCE,
-          kind: 'fingerprint-api',
-          subtype: 'geolocation.getCurrentPosition',
-          page: location.href,
-          time: now(),
-          stack: new Error().stack || '',
-          meta: {}
-        }, '*');
-        return origGetCurrentPosition.call(this, success, error, options);
-      };
+  function wrapWebStorage() {
+    try {
+      const origLocalSet = localStorage?.setItem;
+      if (typeof origLocalSet === 'function') {
+        localStorage.setItem = function(key, value) {
+          postObserve('fingerprint-api', 'storage.localStorage.setItem', { meta: { key } });
+          return origLocalSet.apply(this, arguments);
+        };
+      }
+      const origSessionSet = sessionStorage?.setItem;
+      if (typeof origSessionSet === 'function') {
+        sessionStorage.setItem = function(key, value) {
+          postObserve('fingerprint-api', 'storage.sessionStorage.setItem', { meta: { key } });
+          return origSessionSet.apply(this, arguments);
+        };
+      }
+    } catch (e) {
+      console.warn('[ExtScanAlert] storage hook failed', e);
     }
-  } catch (e) {
-    console.warn('[ExtScanAlert] geolocation hook failed', e);
   }
-}
 
+  function wrapGeolocation() {
+    try {
+      const geo = navigator.geolocation;
+      if (!geo) return;
+      const origGetCurrentPosition = geo.getCurrentPosition;
+      if (typeof origGetCurrentPosition === 'function') {
+        geo.getCurrentPosition = function(success, error, options) {
+          postObserve('fingerprint-api', 'geolocation.getCurrentPosition');
+          return origGetCurrentPosition.call(this, success, error, options);
+        };
+      }
+    } catch (e) {
+      console.warn('[ExtScanAlert] geolocation hook failed', e);
+    }
+  }
 
-
-  wrapFetch();
-  wrapXHR();
-  wrapBeacon();
+  wrapFetch(); wrapXHR(); wrapBeacon();
   wrapSetter(HTMLImageElement, 'src', 'img.src');
   wrapSetter(HTMLScriptElement, 'src', 'script.src');
   wrapSetter(HTMLIFrameElement, 'src', 'iframe.src');
   wrapSetter(HTMLLinkElement, 'href', 'link.href');
-  wrapCanvasElement();
-  wrapCanvasContext2D();
-  wrapOffscreenCanvas();
-  wrapWebGL();
-  wrapCopyProtection();
-  wrapClipboardAPI();
-  wrapNavigatorHardware();
-  wrapWebStorage();
-  wrapGeolocation();
+  wrapCanvasElement(); wrapCanvasContext2D(); wrapOffscreenCanvas(); wrapWebGL();
+  wrapCopyProtection(); wrapClipboardAPI(); wrapNavigatorHardware(); wrapWebStorage(); wrapGeolocation();
 })();

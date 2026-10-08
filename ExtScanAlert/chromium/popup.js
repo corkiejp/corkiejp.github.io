@@ -147,9 +147,12 @@ function renderEntry(log, settings) {
 
   if (log.type === 'fingerprint') {
     body += `<div class="muted">${escapeHtml(log.classification || 'Fingerprint activity')}</div>`;
-    if (log.summary) {
-      body += `<div class="tiny">${escapeHtml(log.summary)}</div>`;
-    }
+// Locate this block inside renderEntry() in popup.js:
+if (log.summary) {
+  // Option: Wrap the long raw summary in an inline pre-wrapped code class
+  body += `<div class="tiny text-wrap-break" style="word-break: break-all; white-space: pre-wrap;">${escapeHtml(log.summary)}</div>`;
+}
+
     if (typeof log.score === 'number') {
       body += `<div class="tiny">Score: ${escapeHtml(log.score)}</div>`;
     }

@@ -201,6 +201,70 @@
       color: var(--accent);
       min-height: 16px;
     }
+	/* Add or update these layout selectors inside your popup stylesheet */
+
+.entry {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden; /* Prevents card columns from bleeding sideways */
+}
+
+/* Forces long, continuous stack strings and URLs to wrap natively */
+.entry div, 
+.entry span,
+.entry pre {
+  white-space: pre-wrap;       /* Respects line breaks while forcing wrapping */
+  word-wrap: break-word;       /* Legacy fallback support */
+  break-word: break-all;       /* Forces strict inline wrapping bounds */
+  word-break: break-all;       /* Splits ultra-long block text mid-character */
+}
+
+/* Keeps recent scripts list entries wrapping properly */
+ul.tiny, 
+ul.tiny li {
+  word-break: break-all;
+  white-space: pre-wrap;
+  padding-left: 14px;          /* Clean indentation for smaller bullet sizes */
+}
+/* Update your summary and script styles to contain vertical overflows */
+
+.entry div, 
+.entry span,
+.entry pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  word-break: break-all;
+  
+  /* Restricts raw logs from stretching endlessly down your window */
+  max-height: 120px;            
+  overflow-y: auto;             /* Adds a tiny inside scrollbar when text overflows */
+  padding-right: 4px;
+}
+
+/* Restricts the recent scripts block list container */
+ul.tiny {
+  word-break: break-all;
+  white-space: pre-wrap;
+  padding-left: 14px;
+  
+  /* Sets a clean barrier for long third-party arrays */
+  max-height: 80px;             
+  overflow-y: auto;             /* Inside scrollbar for script lists */
+  margin-top: 4px;
+}
+
+/* Custom styling to make the inside scrollbars look slim and clean */
+.entry div::-webkit-scrollbar,
+ul.tiny::-webkit-scrollbar {
+  width: 4px;
+}
+.entry div::-webkit-scrollbar-thumb,
+ul.tiny::-webkit-scrollbar-thumb {
+  background: var(--color-neutral-border, #444);
+  border-radius: 2px;
+}
+
   </style>
 </head>
 <body class="theme-dark">
