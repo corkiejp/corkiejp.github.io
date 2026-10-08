@@ -18,6 +18,13 @@ ExtScanAlert is a work-in-progress Chrome/Chromium extension focused on two thin
 
 This build grows out of an earlier manually installed extension and adds a stronger privacy and visibility layer around extension enumeration and vendor-linked fingerprint activity.
 
+## 🚀 ExtScanAlert Re-Architecture (8 October 2026 Patches)
+- Migrated the script core injection pattern to a native Manifest V3 `world: "MAIN"` declaration inside `manifest.json`.
+- Defeated the asynchronous execution race condition completely, enabling all browser API hooks to execute synchronously at line 1 of page-load context (`document_start`).
+- Eliminated performance delays by replacing asynchronous, cross-boundary fence Promise lookups with an O(1) synchronous Main World blocklist domain memory cache.
+- Hardened extension logging systems against modern obfuscation attempts by correctly aligning multi-world event relay messaging pipelines.
+- Enhanced popup UI layout box metrics with responsive CSS word-breaking bounds and maximum overflow scroll boundaries to display heavy, stacked third-party chunk paths gracefully.
+
 ## Why it is manual-install only for now
 
 The current build is distributed as a manual-install ZIP so the project can stay easy to inspect and modify while the provider model is still evolving.
