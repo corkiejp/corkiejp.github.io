@@ -7,7 +7,7 @@ This repository is meant for discussion, local testing, and forum follow-up. It 
 
 ExtScanAlert is a small proof-of-concept extension project for **Chromium** and **Firefox** that explores a specific privacy question: can a browser extension notice or interfere with websites that try to probe for installed browser extensions.[^1][^2]
 
-## Latest WIP Build (June 2026).
+## Latest WIP Build (October 2026).
 
 [Extension-probe detection + fingerprint vendor monitoring.](./extscanalert_repo_intro.md)
 
