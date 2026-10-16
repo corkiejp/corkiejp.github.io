@@ -1,3 +1,25 @@
+// Add this to the very top of background.js
+let STATIC_WHITELIST_CACHE = [];
+
+async function initializeWhitelistCache() {
+  try {
+    const url = chrome.runtime.getURL('whitelist.json');
+    const res = await fetch(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        STATIC_WHITELIST_CACHE = data;
+      }
+    }
+  } catch (err) {
+    console.error('Failed to fill static whitelist cache', err);
+  }
+}
+
+// Run it immediately on service worker startup loop
+initializeWhitelistCache();
+
+
 let SLOW_PAGE_RULES = [];
 let SITE_WHITELIST_RULES = [];
 const DEBUG_DNR_KEEP = true;
@@ -405,9 +427,16 @@ function hasFingerprintProtectionBypass(host) {
 
   return SITE_WHITELIST_RULES.some((entry) => {
     const entryHost = normalizeHost(entry.host || '');
-    return entryHost === normalized && !!entry.fingerprintProtectionBypass;
+    if (!entryHost) return false;
+
+    // Check for exact match OR if the current host is a subdomain of the whitelisted host
+    const match = normalized === entryHost || 
+                  normalized.endsWith('.' + entryHost);
+                  
+    return match && !!entry.fingerprintProtectionBypass;
   });
 }
+
 
 function getSiteWhitelistAssociatedDomains(host) {
   if (!host) return [];
@@ -604,6 +633,17 @@ async function applyFingerprintProtectionRules(enabled, families = ['anti-bot / 
         providerId,
         families: [provider.family]
       });
+	  
+	    // CRITICAL ADDITION: Synchronously inject hosts from our static whitelist cache
+  for (const entry of STATIC_WHITELIST_CACHE) {
+    if (entry && entry.host && entry.fingerprintProtectionBypass) {
+      const normalizedBypassHost = entry.host.trim().toLowerCase().replace(/^www\./, '');
+      if (normalizedBypassHost) {
+        exemptHosts.push(normalizedBypassHost);
+        exemptHosts.push(`www.${normalizedBypassHost}`);
+      }
+    }
+  }
 
       const interestingDomains = domains.filter((domain) =>
         domain.includes('googleapis.com') ||
@@ -1283,12 +1323,12 @@ chrome.runtime.onStartup?.addListener(async () => {
   await applyDnrSlowPageRules(!!state.slowPageProtection);
 });
 
-chrome.tabs.onActivated.addListener(async (activeInfo) => {
-  try {
-    const tab = await chrome.tabs.get(activeInfo.tabId);
-    await updateBadgeForTab(activeInfo.tabId, tab.url);
+// Add this to background.js, replacing the old chrome.tabs.onActivated block
+chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
+  if (details.frameId !== 0) return; 
 
-    const host = safeHost(tab.url);
+  try {
+    const host = safeHost(details.url);
     const normalizedHost = normalizeHost(host);
 
     if (hasFingerprintProtectionBypass(normalizedHost)) {
@@ -1312,27 +1352,28 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
         };
 
         await savePartial({ sitePolicies: newSitePolicies });
-
+        
+        // Force the network layer to drop blocks instantly for this tab session
         await applyFingerprintProtectionRules(
           !!state.fingerprintProtectionEnabled,
           state.fingerprintProtectionFamilies || ['anti-bot / fraud']
         );
-
-        await appendLog({
-          type: 'policy',
-          action: 'auto-set-site-policy',
-          host: normalizedHost,
-          mode,
-          families,
-          message: `Auto-set site policy for ${normalizedHost}: ${mode} (${families.join(', ')})`,
-          time: Date.now()
-        });
       }
+    } else {
+      // CRITICAL NEW TAB FIX: If navigating to a non-bypassed site, 
+      // re-verify normal state configurations normally.
+      const state = await getState();
+      await applyFingerprintProtectionRules(
+        !!state.fingerprintProtectionEnabled,
+        state.fingerprintProtectionFamilies || ['anti-bot / fraud']
+      );
     }
   } catch (err) {
-    console.warn('tabs.onActivated failed', err);
+    console.warn('webNavigation.onBeforeNavigate rules sync failed', err);
   }
 });
+
+
 
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status === 'complete' || changeInfo.url) {

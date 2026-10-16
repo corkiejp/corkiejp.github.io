@@ -9,7 +9,8 @@
     "tabs",
     "notifications",
     "declarativeNetRequest",
-    "webRequest"
+    "webRequest",
+    "webNavigation"
   ],
   "host_permissions": ["<all_urls>"],
   "background": {
@@ -24,15 +25,17 @@
     },
     {
       "matches": ["<all_urls>"],
-      "js": ["page-hook.js"],
+      "js": ["shim-core.js", "page-hook.js"],
       "run_at": "document_start",
       "world": "MAIN"
     }
   ],
+
   "options_page": "options.html",
   "web_accessible_resources": [
     {
       "resources": [
+	    "shim-core.js",
         "slow-rules.json",
         "providers.json",
         "whitelist.json",

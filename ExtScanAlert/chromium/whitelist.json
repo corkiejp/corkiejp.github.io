@@ -25,5 +25,11 @@
   "host": "corkiejp.github.io",
   "fingerprintProtectionBypass": true,
   "_note": "GitHub Pages site uses third-party embeds (Bluesky/Modernizr); observe only."
+  },
+  {
+    "host": "bbc.com",
+    "fingerprintProtectionBypass": true,
+    "contentHooksBypass": true,
+    "_note": "Bypass parsing hooks on BBC to avoid breaking Next.js hydration cycles."
   }
 ]

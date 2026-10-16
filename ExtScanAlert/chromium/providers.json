@@ -1,51 +1,50 @@
 [
-{
-  "id": "recaptcha",
-  "name": "Google reCAPTCHA",
-  "family": "anti-bot / fraud",
-  "category": "anti-bot / captcha",
-  "patterns": [
-    "recaptcha",
-    "grecaptcha",
-    "g-recaptcha",
-    "gstatic.com/recaptcha",
-    "google.com/recaptcha",
-    "www.google.com/recaptcha",
-    "www.google.com/verify"
-  ],
-  "domains": [
-    "gstatic.com",
-    
-    "www.gstatic.com",
-  "www.google.com"
-  ],
-  "scoreBoost": 4,
-  "uiNote": "Google reCAPTCHA (v2/v3) and related verification endpoints used to protect sites from spam, abuse, and automated traffic.",
-  "_note": "Google reCAPTCHA provides human-verification challenges and behavioral analysis to protect websites from bots and abuse. It is often detected via global grecaptcha objects, g-recaptcha DOM classes, and scripts or verification endpoints under www.google.com/recaptcha and related /verify URLs. This definition is partially informed by vendor signals similar to those used in Scrapfly's open-source Antibot Detector."
-},
-{
-  "id": "cloudflare",
-  "name": "Cloudflare security / Turnstile",
-  "family": "anti-bot / fraud",
-  "category": "anti-bot / bot management / captcha",
-  "patterns": [
-    "cloudflare",
-    "turnstile",
-    "_cf_chl_opt",
-    "__cf_bm",
-    "challenges.cloudflare.com",
-    "cf_chl_jschl_tk_",
-    "cf_chl_rc_ni"
-  ],
-  "domains": [
-    "challenges.cloudflare.com",
-    "cf-ipfs.com",
-    "cloudflareinsights.com"
-  ],
-  "scoreBoost": 3,
-  "uiNote": "Cloudflare Turnstile and Bot Management challenges used for anti-bot checks, browser integrity tests, and CAPTCHA flows.",
-  "_note": "Cloudflare's security stack includes Turnstile (CAPTCHA-like challenges) and Bot Management features that inspect browser behavior and block suspected automation. It is often detected via challenge options objects like _cf_chl_opt, bot-management cookies such as __cf_bm, and challenge scripts from challenges.cloudflare.com. This provider definition is partially informed by patterns similar to those surfaced by Scrapfly's Antibot Detector, which identifies Cloudflare bot management via window objects, challenge URLs, and bot-management cookies."
-},
+  {
+    "id": "recaptcha",
+    "name": "Google reCAPTCHA",
+    "family": "anti-bot / fraud",
+    "category": "anti-bot / captcha",
+    "patterns": [
+      "recaptcha",
+      "grecaptcha",
+      "g-recaptcha",
+      "gstatic.com/recaptcha",
+      "google.com/recaptcha",
+      "www.google.com/recaptcha",
+      "www.google.com/verify"
+    ],
+    "domains": [
+      "gstatic.com",
+      "www.gstatic.com",
+      "www.google.com"
+    ],
+    "scoreBoost": 4,
+    "uiNote": "Google reCAPTCHA (v2/v3) and related verification endpoints used to protect sites from spam, abuse, and automated traffic.",
+    "_note": "Google reCAPTCHA provides human-verification challenges and behavioral analysis to protect websites from bots and abuse. It is often detected via global grecaptcha objects, g-recaptcha DOM classes, and scripts or verification endpoints under www.google.com/recaptcha and related /verify URLs. This definition is partially informed by vendor signals similar to those used in Scrapfly's open-source Antibot Detector."
+  },
+  {
+    "id": "cloudflare",
+    "name": "Cloudflare security / Turnstile",
+    "family": "anti-bot / fraud",
+    "category": "anti-bot / bot management / captcha",
+    "patterns": [
+      "cloudflare",
+      "turnstile",
+      "_cf_chl_opt",
+      "__cf_bm",
+      "challenges.cloudflare.com",
+      "cf_chl_jschl_tk_",
+      "cf_chl_rc_ni"
+    ],
+    "domains": [
+      "challenges.cloudflare.com",
+      "cf-ipfs.com",
+      "cloudflareinsights.com"
+    ],
+    "scoreBoost": 3,
+    "uiNote": "Cloudflare Turnstile and Bot Management challenges used for anti-bot checks, browser integrity tests, and CAPTCHA flows.",
+    "_note": "Cloudflare's security stack includes Turnstile (CAPTCHA-like challenges) and Bot Management features that inspect browser behavior and block suspected automation. It is often detected via challenge options objects like _cf_chl_opt, bot-management cookies such as __cf_bm, and challenge scripts from challenges.cloudflare.com. This provider definition is partially informed by patterns similar to those surfaced by Scrapfly's Antibot Detector, which identifies Cloudflare bot management via window objects, challenge URLs, and bot-management cookies."
+  },
   {
     "id": "hcaptcha",
     "name": "hCaptcha",
@@ -61,21 +60,21 @@
     "family": "anti-bot / fraud",
     "category": "anti-bot / device fingerprinting",
     "patterns": ["castle.io", "ondemand.castle.io"],
-	"_note": "Do NOT add abs.twimg.com as a domain; it hosts X front-end assets.",
+    "_note": "Do NOT add abs.twimg.com as a domain; it hosts X front-end assets.",
     "domains": ["castle.io", "ondemand.castle.io"],
     "scoreBoost": 4
   },
   {
-  "id": "castle-bundled",
-  "name": "Castle (bundled)",
-  "family": "anti-bot / fraud",
-  "category": "anti-bot / device fingerprinting",
-  "patterns": ["castle.umd"],
-  "domains": [],
-  "scoreBoost": 4,
-  "actionMode": "observe-only",
-  "uiNote": "Detected from bundled first-party script. No provider-domain blocking is configured."
-},
+    "id": "castle-bundled",
+    "name": "Castle (bundled)",
+    "family": "anti-bot / fraud",
+    "category": "anti-bot / device fingerprinting",
+    "patterns": ["castle.umd"],
+    "domains": [],
+    "scoreBoost": 4,
+    "actionMode": "observe-only",
+    "uiNote": "Detected from bundled first-party script. No provider-domain blocking is configured."
+  },
   {
     "id": "datadome",
     "name": "DataDome",
@@ -220,332 +219,127 @@
     "domains": ["jumio.com"],
     "scoreBoost": 2
   },
-{
-  "id": "geetest",
-  "name": "GeeTest",
-  "family": "anti-bot / fraud",
-  "category": "anti-bot / captcha",
-  "patterns": [
-    "geetest",
-    "gt.js",
-    "api.geetest.com"
-  ],
-  "domains": [
-    "geetest.com",
-    "api.geetest.com"
-  ],
-  "scoreBoost": 3,
-  "uiNote": "GeeTest CAPTCHA challenges used for anti-bot verification and abuse protection.",
-  "_note": "GeeTest provides interactive CAPTCHA challenges and anti-bot verification. This provider entry is partially informed by vendor signals similar to those surfaced by Scrapfly's Antibot Detector, which identifies GeeTest via content patterns and script URLs."
-},
+  {
+    "id": "geetest",
+    "name": "GeeTest",
+    "family": "anti-bot / fraud",
+    "category": "anti-bot / captcha",
+    "patterns": [
+      "geetest",
+      "gt.js",
+      "api.geetest.com"
+    ],
+    "domains": [
+      "geetest.com",
+      "api.geetest.com"
+    ],
+    "scoreBoost": 3,
+    "uiNote": "GeeTest CAPTCHA challenges used for anti-bot verification and abuse protection.",
+    "_note": "GeeTest provides interactive CAPTCHA challenges and anti-bot verification. This provider entry is partially informed by vendor signals similar to those surfaced by Scrapfly's Antibot Detector, which identifies GeeTest via content patterns and script URLs."
+  },
   {
     "id": "smartcaptcha",
     "name": "Yandex SmartCaptcha",
     "family": "anti-bot / fraud",
     "category": "anti-bot / captcha",
-    "patterns": ["smartcaptcha", "yandex"],
-    "domains": ["smartcaptcha.yandexcloud.net"],
+    "patterns": ["smartcaptcha"],
+    "domains": ["captcha-delivery.com"],
     "scoreBoost": 3
   },
   {
-    "id": "logrocket",
-    "name": "LogRocket",
-    "family": "analytics / UX",
-    "category": "session replay / product analytics",
-    "patterns": ["logrocket"],
-    "domains": ["logrocket.com"],
-    "scoreBoost": 1
+    "id": "f5-bot-defense",
+    "name": "F5 Distributed Cloud Bot Defense",
+    "family": "anti-bot / fraud",
+    "category": "anti-bot / behavioral detection",
+    "patterns": ["shape-security", "protectedbyf5.com", "f5_cspm", "f5_cloud_services"],
+    "domains": ["protectedbyf5.com"],
+    "scoreBoost": 4,
+    "uiNote": "F5 / Shape Security bot mitigation utilizing advanced telemetry and browser behavioral monitoring."
   },
   {
-    "id": "posthog",
-    "name": "PostHog",
-    "family": "analytics / UX",
-    "category": "product analytics",
-    "patterns": ["posthog"],
-    "domains": ["posthog.com"],
-    "scoreBoost": 1
+    "id": "cequence",
+    "name": "Cequence Security",
+    "family": "anti-bot / fraud",
+    "category": "anti-bot / bot management",
+    "patterns": ["cequence", "cequence.ai"],
+    "domains": ["cequence.ai"],
+    "scoreBoost": 4
   },
   {
-    "id": "heap",
-    "name": "Heap",
-    "family": "analytics / UX",
-    "category": "product analytics",
-    "patterns": ["heap"],
-    "domains": ["heap.io"],
-    "scoreBoost": 1
+    "id": "friendly-captcha",
+    "name": "Friendly Captcha",
+    "family": "anti-bot / fraud",
+    "category": "anti-bot / captcha",
+    "patterns": ["friendlycaptcha", "friendlycaptcha.com", "friendly-captcha"],
+    "domains": ["friendlycaptcha.com"],
+    "scoreBoost": 3,
+    "uiNote": "Privacy-focused, proof-of-work cryptographic challenge that operates without tracking cookies."
   },
   {
-    "id": "amplitude",
-    "name": "Amplitude",
-    "family": "analytics / UX",
-    "category": "product analytics",
-    "patterns": ["amplitude"],
-    "domains": ["amplitude.com"],
-    "scoreBoost": 1
+    "id": "forter",
+    "name": "Forter",
+    "family": "anti-bot / fraud",
+    "category": "fraud decisioning",
+    "patterns": ["forter", "forter.com", "://forter.com"],
+    "domains": ["forter.com"],
+    "scoreBoost": 3
   },
   {
-    "id": "mixpanel",
-    "name": "Mixpanel",
-    "family": "analytics / UX",
-    "category": "product analytics",
-    "patterns": ["mixpanel"],
-    "domains": ["mixpanel.com"],
-    "scoreBoost": 1
+    "id": "discovertech-adfection",
+    "name": "DiscoverTech (AdFection Infrastructure)",
+    "family": "anti-bot / fraud",
+    "category": "malvertising / ad-injection vectors",
+    "patterns": [
+      "discover-tech.io",
+      "adtimizer.co",
+      "impchkdsp.com",
+      "trakking.co",
+      "mtrtb.com",
+      "tekma-dmp.ai",
+      "controlium.net",
+      "mydsp.io",
+      "tracookiepixel.xyz",
+      "cookie-sync.xyz",
+      "ads-monitor.xyz",
+      "cookiesurfer.com"
+    ],
+    "domains": [
+      "discover-tech.io",
+      "adtimizer.co",
+      "impchkdsp.com",
+      "trakking.co",
+      "mtrtb.com",
+      "tekma-dmp.ai",
+      "controlium.net",
+      "mydsp.io",
+      "tracookiepixel.xyz",
+      "cookie-sync.xyz",
+      "ads-monitor.xyz",
+      "cookiesurfer.com"
+    ],
+    "scoreBoost": 5,
+    "uiNote": "High-risk front-end block. Uncovered by Citizen Lab and Confiant for executing client-side device fingerprinting, tracking synchronization, and exploit-delivery scripts.",
+    "_note": "Blocks the user-facing ad-delivery mechanics (NOAS/getAd scripts, Controlium target vectors, cookie syncs) utilized in the Discover-Tech dynamic cloaking loop."
   },
   {
-  "id": "zendesk",
-  "name": "Zendesk",
-  "family": "analytics / UX",
-  "category": "support widget / session interaction",
-  "patterns": ["zdassets", "zendesk", "static.zdassets.com"],
-  "domains": ["static.zdassets.com"],
-  "scoreBoost": 1
-},
-{
-  "id": "google-tag-manager",
-  "name": "Google Tag Manager / gtag.js",
-  "family": "analytics / measurement",
-  "category": "tracking / tag orchestration",
-  "patterns": ["googletagmanager.com", "gtag/js", "google tag"],
-  "domains": ["googletagmanager.com"],
-  "scoreBoost": 1,
-  
-  "uiNote": "Detected via Google Tag Manager / gtag.js in the script chain. Observe-only by default; no provider-domain blocking is recommended.",
-  "_note": "Use for attribution/logging when fingerprint calls occur with gtag.js in the chain. This is not a dedicated fingerprint vendor."
-},
-{
-  "id": "html-load",
-  "name": "HTML-Load ad/fingerprinting canary / Content Loader",
-  "family": "ad-tech / anti-adblock / content delivery",
-  "category": "content / ad loader / anti-adblock / fingerprinting",
-  "patterns": [
-    "content-loader.com",
-    "fb.content-loader.com",
-    "html-load.com", "html-load.cc", "fb.html-load.com"
-  ],
-  "domains": [
-    "html-load.com",
-    "2.html-load.com",
-    "4.html-load.com",
-    "7.html-load.com",
-	"html-load.cc",
-	"fb.html-load.com",
-	"content-loader.com",
-	"fb.content-loader.com"
-  ],
-  "scoreBoost": 3,
-  "uiNote": "Ad reinsertion / content loader used by some sites to inject ads and sometimes bypass ad blockers.",
-  "_note": "html-load.com and content-loader.com are part of the same ad recovery infrastructure. content-loader.com can redirect to html-load.com, and both are used to serve ads and detect/counter ad blockers. fb.* subdomains are Meta‑branded variants used in some publisher stacks."
-},
-{
-  "id": "meta-consent-loader",
-  "name": "Meta Consent Loader",
-  "family": "consent management",
-  "category": "consent / privacy UI",
-  "patterns": [
-    "Meta consent",
-    "fb.content-loader.com",
-    "fbq('consent'"
-  ],
-  "domains": [
-    "fb.content-loader.com"
-  ],
-  "scriptOrigins": [
-    "fb.content-loader.com"
-  ],
-  "scoreBoost": 1,
-  "uiNote": "Meta‑related consent loader used by some publishers to gate Meta Pixel and other data collection until consent is given.",
-  "_note": "Publisher consent setups often integrate Meta Pixel consent handling via fb.content-loader.com. Meta’s docs describe gating Pixel with fbq('consent', 'revoke'/'grant'). Blocking this may prevent Meta Pixel from firing or change how consent is handled on the site."
-},
-{
-  "id": "sourcepoint-cmp",
-  "name": "Sourcepoint CMP",
-  "family": "consent management",
-  "category": "consent / privacy UI",
-  "patterns": [
-    "Sourcepoint",
-    "_sp_queue",
-    "cdn.privacy-mgmt.com",
-    "wrapperMessagingWithoutDetection.js"
-  ],
-  "domains": [
-    "cdn.privacy-mgmt.com"
-  ],
-  "scriptOrigins": [
-    "cdn.privacy-mgmt.com"
-  ],
-  "scoreBoost": 1,
-  "uiNote": "Sourcepoint Consent Management Platform (CMP) – shows cookie/privacy banners and manages consent for downstream ads and analytics.",
-  "_note": "Sourcepoint’s GDPR/consent implementation uses cdn.privacy-mgmt.com (baseEndpoint) and loads wrapperMessagingWithoutDetection.js from that domain. Blocking may break or alter consent banners and how other trackers are enabled."
-},
-{
-  "id": "scorecardresearch",
-  "name": "Comscore ScorecardResearch",
-  "family": "analytics / measurement",
-  "category": "audience measurement / advertising analytics",
-  "patterns": [
-    "scorecardresearch",
-    "sb.scorecardresearch.com"
-  ],
-  "domains": [
-    "scorecardresearch.com",
-    "sb.scorecardresearch.com"
-  ],
-  "scoreBoost": 2,
-  "uiNote": "Audience and advertising measurement beacon from Comscore. Often loaded via third-party tags alongside ads and analytics.",
-  "_note": "ScorecardResearch is a Comscore measurement tag used to collect page-view and visitor behavior data for audience and advertising analytics. Treat as a tracking/measurement vendor; not a dedicated fingerprint vendor, but may appear in the chain when fingerprint-like events occur."
-},
-{
-  "id": "fastclick",
-  "name": "Fastclick / Epsilon",
-  "family": "advertising / tracking",
-  "category": "canvas fingerprinting / tracking",
-  "patterns": [
-    "secure.cdn.fastclick.net",
-    "fastclick.net"
-  ],
-  "domains": [
-    "secure.cdn.fastclick.net",
-    "cdn.fastclick.net",
-    "fastclick.net"
-  ],
-  "scoreBoost": 3,
-  "_note": "The hostname belongs to the fastclick.net domain, associated with Epsilon and typically fronted by Akamai."
-},
-{
-  "id": "doubleverify",
-  "name": "DoubleVerify",
-  "family": "ad verification / measurement",
-  "category": "advertising measurement / brand safety",
-  "patterns": [
-    "doubleverify",
-    "dv.tech",
-    "vtrk.dv.tech",
-    "vast.doubleverify.com"
-  ],
-  "domains": [
-    "vtrk.dv.tech",
-    "vast.doubleverify.com"
-  ],
-  "scoreBoost": 2,
-  "uiNote": "Ad verification and measurement tags from DoubleVerify. Commonly used to track ad impressions, viewability, and fraud across video and display inventory.",
-  "_note": "DoubleVerify provides ad verification, fraud detection, and campaign measurement services. Domains such as vtrk.dv.tech and vast.doubleverify.com are used as tracking/measurement endpoints (for impression tags and VAST creatives) and will often fire alongside ad calls and other ad-tech vendors. Treat as an ad-tech measurement provider rather than a dedicated fingerprint vendor, but it may appear in chains that include fingerprint-like or profiling activity."
-},
-{
-  "id": "cxense",
-  "name": "Cxense",
-  "family": "content personalization / analytics",
-  "category": "behavioral analytics / personalization",
-  "patterns": [
-    "cxense",
-    "cdn.cxense.com",
-    "scdn.cxense.com"
-  ],
-  "domains": [
-    "cdn.cxense.com",
-    "scdn.cxense.com"
-  ],
-  "scoreBoost": 2,
-  "uiNote": "Content personalization and analytics tags from Cxense. Used to track page interactions and build profiles for recommendations and audience targeting.",
-  "_note": "Cxense is a personalization and analytics platform that tracks user interactions, browser information, and other signals to build behavioral profiles and deliver targeted content or ads. Hostnames like cdn.cxense.com and scdn.cxense.com are commonly loaded as part of site analytics/personalization stacks. Treat as a tracking/personalization vendor; not a pure fingerprint provider, but it may co-occur with vendors that perform fingerprinting or more advanced profiling."
-},
-{
-  "id": "aws-waf",
-  "name": "AWS WAF Bot Control",
-  "family": "anti-bot / bot management",
-  "category": "application firewall / bot control",
-  "patterns": [
-    "awswaf",
-    "token.awswaf.com",
-    "/verify",
-    "amazonaws.com/waf"
-  ],
-  "domains": [
-    "token.awswaf.com",
-    "waf.amazonaws.com"
-  ],
-  "scoreBoost": 3,
-  "uiNote": "Amazon Web Services Web Application Firewall (WAF) with bot control features, including browser challenges and integrity checks.",
-  "_note": "AWS WAF Bot Control uses browser-based challenges and fingerprint-style checks (such as canvas/WebGL, script and header inspection) to distinguish bots from human traffic. URLs like token.awswaf.com and WAF-related /verify endpoints can indicate WAF challenges in progress. This provider definition is partially informed by Scrapfly's Antibot Detector, which flags AWS WAF via characteristic verification URLs and challenge resources."
-},
-{
-  "id": "cheq",
-  "name": "CHEQ",
-  "family": "anti-bot / fraud",
-  "category": "anti-bot / bot management",
-  "patterns": [
-    "cheq",
-    "cheqzone",
-    "cheq.ai"
-  ],
-  "domains": [
-    "cheqzone.com",
-    "cheq.ai"
-  ],
-  "scoreBoost": 3,
-  "uiNote": "CHEQ bot management and security scripts used to detect automated traffic and protect sites from fraud.",
-  "_note": "CHEQ provides bot detection and fraud prevention using browser fingerprinting and behavioral analysis. This provider entry is informed in part by Scrapfly's Antibot Detector, which identifies CHEQ as an anti-bot vendor via script content and network signatures."
-},
-{
-  "id": "bombora-ml314",
-  "name": "Bombora Visitor Insights",
-  "family": "intent / identity tracking",
-  "category": "analytics / profiling",
-  "patterns": [
-    "Bombora Visitor Insights",
-    "vi.ml314.com",
-    "ml314.com"
-  ],
-  "domains": [
-    "ml314.com",
-    "vi.ml314.com"
-  ],
-  "scoreBoost": 3,
-  "uiNote": "Bombora Visitor Insights tags identify and enrich website visitors in real time using cookies, IP, user-agent and engagement metrics to build marketing and intent profiles.",
-  "_note": "Bombora's Visitor Insights JavaScript tag is deployed across brand sites and ads. Docs show preconnect/dns-prefetch hints to https://vi.ml314.com and a real-time tag that returns segment IDs for account-based marketing and personalization, indicating cross-site tracking and profiling behavior informed by Bombora’s own implementation guides and third-party tracker listings."
-},
-{
-  "id": "meta-pixel",
-  "name": "Meta Pixel",
-  "family": "advertising / profiling",
-  "category": "tracking pixel / ad attribution",
-  "patterns": [
-    "Meta Pixel",
-    "Facebook Pixel",
-    "fbq(",
-    "fbevents.js",
-    "connect.facebook.net"
-  ],
-  "domains": [
-    "connect.facebook.net"
-  ],
-  "relatedDomains": [
-    "facebook.com",
-    "www.facebook.com",
-    "static.xx.fbcdn.net"
-  ],
-  "scoreBoost": 4,
-  "uiNote": "Meta Pixel tracks website activity and sends events to Meta for ad targeting, audience building, conversion measurement, and profiling.",
-  "_note": "Meta documents that the pixel tracks website activity via code commonly loaded from connect.facebook.net, especially fbevents.js. Related Meta-owned domains may appear in stacks or supporting script loads, but blocking should target the pixel delivery domain rather than blanket-blocking facebook.com."
-},
-{
-  "id": "linkedin-insight",
-  "name": "LinkedIn Insight Tag",
-  "family": "advertising / profiling",
-  "category": "tracking pixel / ad attribution",
-  "patterns": [
-    "LinkedIn Insight Tag",
-    "linkedin pixel",
-    "li_insight",
-    "px.ads.linkedin.com",
-    "snap.licdn.com"
-  ],
-  "domains": [
-    "px.ads.linkedin.com",
-    "snap.licdn.com"
-  ],
-  "scoreBoost": 4,
-  "uiNote": "LinkedIn Insight Tag tracks website conversions and visitor behavior for LinkedIn Ads, enabling retargeting and audience insights.",
-  "_note": "LinkedIn documents the Insight Tag as a JavaScript-based tracking tag used to measure conversions, retarget visitors, and learn aggregate insights about LinkedIn members visiting a site. Requests are sent to px.ads.linkedin.com and related LinkedIn tracking endpoints."
-}
+    "id": "candiru-validator-c2",
+    "name": "Candiru Mercenary C2 / Validation Core",
+    "family": "anti-bot / fraud",
+    "category": "command-and-control / zero-click validation",
+    "patterns": [
+      "fearevolve.com",
+      "insightenterprisells.com",
+      "jobmarcher.com",
+      "plasticbells.com"
+    ],
+    "domains": [
+      "fearevolve.com",
+      "insightenterprisells.com",
+      "jobmarcher.com",
+      "plasticbells.com"
+    ],
+    "scoreBoost": 5,
+    "uiNote": "Critical structural block. Dedicated threat infrastructure confirmed by Citizen Lab tracking as the C&C validator payload endpoint for mercenary browser exploits.",
+    "_note": "These represent the underlying infrastructure (Fingerprint C1/V1 validator domains) that the client browser interacts with to verify vulnerabilities and finalize malware installations."
+  }
 ]

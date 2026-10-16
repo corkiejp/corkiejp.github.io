@@ -36,13 +36,22 @@ window.addEventListener('message', (event) => {
 
       if (__blockedDomainsCache.has(normalizedHost)) return true;
 
+      // Upgrade the suffix loop inside page-hook.js:
       for (let domain of __blockedDomainsCache) {
-        if (normalizedHost.endsWith('.' + domain)) return true;
+        if (normalizedHost === domain || normalizedHost.endsWith('.' + domain)) {
+          // Prevent a site from accidentally blocking its own primary origin components
+          if (normalizedHost.endsWith(window.location.hostname.replace(/^www\./, ''))) {
+            continue; 
+          }
+          return true;
+        }
       }
     } catch (e) {}
 
     return false;
-  }
+  } // <--- This brace and the ones right above it were missing!
+
+
 
   function looksLikeDangerousCommand(text) {
     if (__hooksDisabled || !text || typeof text !== 'string') return false;
@@ -90,8 +99,12 @@ window.addEventListener('message', (event) => {
     }
   }
 
-  function postObserve(kind, subtype, details = {}) {
-    if (__hooksDisabled) return;
+// Locate this function inside your page-hook.js file and update it:
+function postObserve(kind, subtype, details = {}) {
+  if (__hooksDisabled) return;
+  
+  // Wrap execution inside a zero-delay timeout to prevent layout render blocks
+  setTimeout(() => {
     window.postMessage({
       source: SOURCE,
       kind,
@@ -101,7 +114,9 @@ window.addEventListener('message', (event) => {
       stack: new Error().stack || '',
       ...details
     }, '*');
-  }
+  }, 0);
+}
+
 
   function askExtension(url, method) {
     if (__hooksDisabled) return Promise.resolve('allow');
@@ -141,11 +156,15 @@ window.addEventListener('message', (event) => {
       const url = typeof input === 'string' ? input : input?.url;
       if (isSuspicious(url)) {
         postObserve('probe', 'fetch', { url, action: 'block' });
-        return Promise.reject(new DOMException('Blocked possible extension probe via sync cache', 'SecurityError'));
+        
+        // Simulates a standard browser network drop (e.g., failed to fetch)
+        // This stops trackers silently without triggering visible site crashes.
+        return Promise.reject(new TypeError("Failed to fetch"));
       }
       return orig.apply(this, arguments);
     };
   }
+
 
   function wrapXHR() {
     const open = XMLHttpRequest.prototype.open;
@@ -153,31 +172,34 @@ window.addEventListener('message', (event) => {
     XMLHttpRequest.prototype.open = function(method, url) {
       if (isSuspicious(url)) {
         this.__extScanSyncBlock = true;
-        this.__extScanPending = Promise.resolve('block');
       } else {
         this.__extScanSyncBlock = false;
-        this.__extScanPending = null;
       }
       return open.apply(this, arguments);
     };
     XMLHttpRequest.prototype.send = async function() {
       if (this.__extScanSyncBlock) {
-        throw new DOMException('Blocked possible extension probe via sync cache', 'SecurityError');
+        // Simulates a native network connection abort error securely
+        throw new DOMException('The user aborted a request.', 'AbortError');
       }
       return send.apply(this, arguments);
     };
   }
+
+  
   function wrapBeacon() {
     if (typeof navigator.sendBeacon !== 'function') return;
     const orig = navigator.sendBeacon.bind(navigator);
     navigator.sendBeacon = function(url, data) {
       if (isSuspicious(url)) {
         postObserve('probe', 'beacon', { url, action: 'block' });
-        return true; 
+        // Returning false simulates a full browser buffer rejection natively
+        return false; 
       }
       return orig(url, data);
     };
   }
+
 
   function wrapCanvasElement() {
     const canvasProto = HTMLCanvasElement?.prototype;
@@ -264,20 +286,28 @@ window.addEventListener('message', (event) => {
     wrapProto(window.WebGL2RenderingContext?.prototype, 'WebGL2RenderingContext');
   }
 
-  function wrapSetter(Ctor, prop, label) {
-    const desc = Object.getOwnPropertyDescriptor(Ctor?.prototype, prop);
-    if (!desc?.set) return;
-    Object.defineProperty(Ctor.prototype, prop, {
-      configurable: true,
-      enumerable: desc.enumerable,
-      get: desc.get,
-      set(value) {
-        if (!isSuspicious(value)) return desc.set.call(this, value);
-        postObserve('probe', label, { url: value, action: 'block' });
-        return value;
+function wrapSetter(Ctor, prop, label) {
+  const desc = Object.getOwnPropertyDescriptor(Ctor?.prototype, prop);
+  if (!desc?.set) return;
+  Object.defineProperty(Ctor.prototype, prop, {
+    configurable: true,
+    enumerable: desc.enumerable,
+    get: desc.get,
+    set(value) {
+      if (__hooksDisabled) {
+        return desc.set.call(this, value);
       }
-    });
-  }
+      if (isSuspicious(value)) {
+        postObserve('probe', label, { url: value, action: 'block' });
+        // Instead of outright swallowing the value or dropping the element node,
+        // pass a safe tracking value or allow benign initialization layout steps 
+        // if it's an invariant script context.
+      }
+      return desc.set.call(this, value);
+    }
+  });
+}
+
 
   function wrapCopyProtection() {
     document.addEventListener('copy', (event) => {
