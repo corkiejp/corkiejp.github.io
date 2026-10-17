@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>My Browser Extensions & some social posts of interest!</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 1.5rem;
+      background: #0b0f19;
+      color: #e5e7eb;
+    }
+    h1 { margin-bottom: 1rem; }
+    .grid { display: flex; flex-wrap: wrap; gap: 1.5rem; }
+    .card {
+      background: #111827;
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.6);
+      max-width: 450px;
+      width: 100%;
+      flex: 1 1 260px;
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      box-sizing: border-box;
+    }
+    .card h2 { margin: 0 0 0.25rem; font-size: 1.1rem; }
+    .card p { margin: 0 0 0.5rem; font-size: 0.9rem; line-height: 1.4; width: 100%; }
+
+    /* Custom Decoupled Presentation Card Styles */
+    .atproto-generated-card {
+        background: #151515;
+        border: 1px solid #333;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 15px 0;
+        width: 100%;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+        box-sizing: border-box;
+        text-align: left;
+    }
+    .atproto-author-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .atproto-avatar { width: 48px; height: 48px; border-radius: 50%; background: #2a2a2a; border: 1px solid #444; }
+    .atproto-names { display: flex; flex-direction: column; }
+    .atproto-display-name { color: #fff; font-weight: bold; font-size: 15px; }
+    .atproto-handle { color: #00adb5; font-size: 13px; text-decoration: none; }
+    .atproto-post-body { font-size: 14px; line-height: 1.5; color: #e0e0e0; white-space: pre-wrap; word-break: break-word; }
+    .atproto-post-body a { color: #00adb5; text-decoration: none; }
+    .atproto-post-body a:hover { text-decoration: underline; }
+    .atproto-footer-meta { font-size: 11px; color: #666; margin-top: 15px; border-top: 1px solid #222; padding-top: 10px; }
+    .atproto-action-links { margin-top: 12px; display: flex; gap: 15px; font-size: 12px; }
+    .atproto-action-links a { color: #00adb5; text-decoration: none; font-weight: bold; }
+    .atproto-action-links a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <h1>My Browser Extensions & some social posts of interest!</h1>
+
+  <div class="grid">
+
+    <!-- Boards.ie Cleaner -->
+    <article class="card">
+      <img src="https://corkiejp.github.io/myviewers/BoardsieCleaner/assets/icon128.png" alt="Boards.ie Cleaner icon">
+      <div>
+        <h2>Boards.ie Cleaner with Theme Engine</h2>
+        <p>
+Since changes to Boards.ie on 14/07, extension needs patching, theme engine only triggering on legacy pages.
+        </p>
+        <div class="links">
+          <a href="https://github.com/corkiejp/corkiejp.github.io/blob/well-known/myviewers/BoardsieCleaner/README.md">
+            View README
+          </a><br>
+		  <b>Install :-</b> 
+		  <a href="https://chromewebstore.google.com/detail/boardsie-cleaner-v2/dfpolphhjaahfbbeagglbjckkbegnjln">
+            Chrome Webstore
+          </a>,
+		  <a href="https://addons.mozilla.org/en-US/firefox/addon/boards-ie-cleaner/">
+            Firefox Addon
+          </a>,
+		  		  <a href="https://github.com/corkiejp/corkiejp.github.io/issues/26">
+            WIP Builds Manual Install.
+          </a>
+        </div>
+      </div>
+    </article>
+
+    <!-- Entertainment.ie TV Viewer -->
+    <article class="card">
+      <!-- If you later host an icon, update the src below -->
+      <!-- img src="https://corkiejp.github.io/myviewers/ETV/icon128.png" alt="Entertainment.ie TV Viewer icon" onerror="this.style.display='none'" -->
+      <div>
+        <h2>Entertainment.ie TV Viewer</h2>
+        <p>
+          Prototype overlay viewer for Entertainment.ie TV listings that shows
+          multiple channels side‑by‑side in scrollable columns.
+        </p>
+        <div class="links">
+          <a href="https://github.com/corkiejp/corkiejp.github.io/blob/well-known/myviewers/ETV/README.md">
+            View README
+          </a><br>Manual Install as working Prototype!
+        </div>
+      </div>
+    </article>
+	
+	    <!-- Telly Bingo Column Viewer -->
+    <article class="card">
+      <!-- If you later host an icon, update the src below -->
+      <!-- img src="https://corkiejp.github.io/myviewers/ETV/icon128.png" alt="Entertainment.ie TV Viewer icon" onerror="this.style.display='none'" -->
+      <div>
+        <h2>Telly Bingo Column Viewer</h2>
+        <p>
+          Prototype viewer for https://www.lottery.ie/results/telly-bingo/history that shows the numbers in columns and the ability to step through possible winning stages. 
+        </p>
+        <div class="links">
+          <a href="https://github.com/corkiejp/corkiejp.github.io/blob/well-known/myviewers/Telly Bingo Viewer/">
+            View source and get builds.
+          </a><br>Manual Install as working Prototype!
+        </div>
+      </div>
+    </article>
+
+    <!-- SuperValu Leaflet Viewer -->
+    <article class="card">
+      <img src="https://corkiejp.github.io/myviewers/SuperValu-Leaflet-Viewer/icons/svlv-128.png" alt="SuperValu Leaflet Viewer icon">
+      <div>
+        <h2>SuperValu Leaflet Viewer</h2>
+        <p>
+          Replaces the default SuperValu PDF2Web leaflet viewer with a simpler
+          page‑by‑page overlay, including jump‑to‑page and image download.
+        </p>
+        <div class="links">
+          <a href="https://github.com/corkiejp/corkiejp.github.io/blob/well-known/myviewers/SuperValu-Leaflet-Viewer/README.md">
+            View README
+          </a><br>Manual Install Only at present.
+        </div>
+      </div>
+    </article>
+	
+
+	
+			    <!-- test card -->
+    <article class="card">
+<p>!wsocialembed:at://did:plc:zmrh6quxm3nd43y4zokmea36/app.bsky.feed.post/3mtoh47qhtz23 ~</p>
+    </article>
+	
+	    <!--Chrome | Tab Context Menu Copy Url -->
+    <article class="card">
+      <img src="https://corkiejp.github.io/myviewers/Copy-URL-From-Context-Menu/icons/icon128.png" alt="Tab Context Menu Copy Url">
+      <div>
+        <h2>Chrome | Tab Context Menu Copy Url</h2>
+        <p>
+         “Copy tab URL,” at least in Chrome versions that support the new "tab" context. When that item is clicked, Chrome passes the right-clicked tab and its URL to the extension via contextMenus.onClicked, and the pageUrl field is populated from the tab’s last committed URL.
+
+Needs chrome canary or version 150 of chrome. Fallback for prior version, right click anywhere on a tab page.
+        </p>
+        <div class="links">
+          <a href="https://github.com/corkiejp/corkiejp.github.io/blob/well-known/myviewers/Copy-URL-From-Context-Menu/README.md">
+            View README
+          </a>
+		  <br>
+		  <b>Install :-</b> 
+		  <a href="https://chromewebstore.google.com/detail/copy-url-from-context-men/fpmgjbjomhlhhdlegeeedokehabaihbc">
+            Chrome Webstore
+          </a>
+        </div>
+      </div>
+    </article>
+		
+			    <!-- test card -->
+    <article class="card">
+<p>!wsocialembed:at://did:plc:zmrh6quxm3nd43y4zokmea36/app.bsky.feed.post/3mtmi3kn5c723 ~</p>
+    </article>
+	
+				    <!-- test card -->
+    <article class="card">
+<p>!wsocialembed:at://did:plc:zmrh6quxm3nd43y4zokmea36/app.bsky.feed.post/3mteacnb6ph23 ~</p>
+    </article>
+	
+	    <article class="card">
+<p>!blueskyembed:at://did:plc:qxlh6bohvep3taqhmtpipx4b/app.bsky.feed.post/3luybyzxhukqu ~</p>
+    </article>
+	
+    <article class="card">
+<p>!wsocialembed:at://did:plc:qxlh6bohvep3taqhmtpipx4b/app.bsky.feed.post/3mxtqnc6ehs2l ~</p>
+    </article>
+	
+    <article class="card">
+<p>!wsocialembed:at://did:plc:zmrh6quxm3nd43y4zokmea36/app.bsky.feed.post/3mv7b4d5fb22o ~</p>
+    </article>
+	
+	
+
+  </div>
+<script>
+// 1. Framework-free rich text facet mapping utility
+function compileFacetsToHTML(text, facets) {
+    if (!facets || facets.length === 0) return cleanEscapeHTML(text);
+
+    var rawTextBytes = new TextEncoder().encode(text);
+    var builtHTML = "";
+    var currentByteMarker = 0;
+
+    var sortedFacets = facets.slice().sort(function(x, y) { 
+        return x.index.byteStart - y.index.byteStart; 
+    });
+
+    for (var i = 0; i < sortedFacets.length; i++) {
+        var facetItem = sortedFacets[i];
+        var byteStart = facetItem.index.byteStart;
+        var byteEnd = facetItem.index.byteEnd;
+
+        if (byteStart > currentByteMarker) {
+            builtHTML += cleanEscapeHTML(new TextDecoder().decode(rawTextBytes.slice(currentByteMarker, byteStart)));
+        }
+
+        var decoratedWord = new TextDecoder().decode(rawTextBytes.slice(byteStart, byteEnd));
+        var featuresArray = facetItem.features || [];
+        var activeFeature = featuresArray.length > 0 ? featuresArray.slice(0).shift() : null;
+
+        if (activeFeature) {
+            var schemaType = activeFeature["$type"] || "";
+            if (schemaType.indexOf("facet#link") !== -1) {
+                builtHTML += '<a href="' + cleanEscapeHTML(activeFeature.uri) + '" target="_blank">' + cleanEscapeHTML(decoratedWord) + '</a>';
+            } else if (schemaType.indexOf("facet#mention") !== -1) {
+                builtHTML += '<a href="https://bsky.app/profile/' + cleanEscapeHTML(activeFeature.did) + '" target="_blank">' + cleanEscapeHTML(decoratedWord) + '</a>';
+            } else if (schemaType.indexOf("facet#tag") !== -1) {
+                builtHTML += '<a href="https://bsky.app/hashtag/' + encodeURIComponent(activeFeature.tag) + '" target="_blank">' + cleanEscapeHTML(decoratedWord) + '</a>';
+            } else {
+                builtHTML += cleanEscapeHTML(decoratedWord);
+            }
+        } else {
+            builtHTML += cleanEscapeHTML(decoratedWord);
+        }
+        currentByteMarker = byteEnd;
+    }
+
+    if (currentByteMarker < rawTextBytes.length) {
+        builtHTML += cleanEscapeHTML(new TextDecoder().decode(rawTextBytes.slice(currentByteMarker)));
+    }
+    return builtHTML;
+}
+
+function cleanEscapeHTML(str) {
+    return (str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+// 2. Main Background Scanner & Injector Engine
+async function autoScanAndInjectEmbeds() {
+    var paragraphs = document.querySelectorAll('p');
+    var tagRegex = /!(wsocialembed|blueskyembed):(?:at:\/\/|https?:\/\/(?:bsky\.app|wsocial\.eu)\/profile\/)([^/]+)(?:\/app\.bsky\.feed\.post\/|\/post\/)([^\s~<?]+)\s*~<?/;
+
+    for (var i = 0; i < paragraphs.length; i++) {
+        var p = paragraphs[i];
+        var match = p.textContent.trim().match(tagRegex);
+        if (!match) continue;
+
+        var embedType = match[1];
+        var repo = match[2];
+        var recordKey = match[3];
+        var postUri = 'at://' + repo + '/app.bsky.feed.post/' + recordKey;
+
+        var cardPlaceholder = document.createElement('div');
+        cardPlaceholder.className = 'atproto-generated-card';
+        cardPlaceholder.innerHTML = '<span>⏳ Loading embed...</span>';
+        p.parentNode.replaceChild(cardPlaceholder, p);
+
+        try {
+            var response = await fetch('https://public.api.bsky.app/xrpc/app.bsky.feed.getPostThread?uri=' + encodeURIComponent(postUri));
+            if (!response.ok) throw new Error('API error ' + response.status);
+
+            var data = await response.json();
+            var postData = data.thread && data.thread.post;
+            if (!postData) throw new Error('Post not found');
+
+            var profileData = postData.author || {};
+            var postRecord = postData.record || {};
+            var avatarSrc = profileData.avatar || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23888"><circle cx="12" cy="8" r="4"/><path d="M12 14c-5 0-8 3-8 6v1h16v-1c0-3-3-6-8-6z"/></svg>';
+
+            cardPlaceholder.innerHTML = 
+                '<div class="atproto-author-row">' +
+                    '<img class="atproto-avatar" src="' + avatarSrc + '" alt="avatar">' +
+                    '<div class="atproto-names">' +
+                        '<span class="atproto-display-name">' + cleanEscapeHTML(profileData.displayName || profileData.handle) + '</span>' +
+                        '<a class="atproto-handle" href="https://bsky.app/profile/' + profileData.handle + '" target="_blank">@' + cleanEscapeHTML(profileData.handle) + '</a>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="atproto-post-body">' + compileFacetsToHTML(postRecord.text || '', postRecord.facets) + '</div>' +
+                '<div class="atproto-footer-meta">' +
+                    '<div>' + (postRecord.createdAt ? new Date(postRecord.createdAt).toLocaleString() : '') + '</div>' +
+                    '<div class="atproto-action-links">' +
+                        '<a href="https://bsky.app/profile/' + profileData.handle + '/post/' + recordKey + '" target="_blank">🦋 View on Bluesky</a>' +
+                        '<a href="https://wsocial.eu/profile/' + profileData.handle + '/post/' + recordKey + '" target="_blank">🌐 View on WSocial</a>' +
+                    '</div>' +
+                '</div>';
+        } catch(err) {
+            cardPlaceholder.innerHTML = '<span style="color: #ff3333;">⚠️ Could not resolve post: ' + cleanEscapeHTML(err.message) + '</span>';
+        }
+    }
+}
+
+// 3. Execution Loader Hook
+window.addEventListener('load', function() {
+    autoScanAndInjectEmbeds();
+});
+</script>
+
+
+
+</body>
+</html>
+
