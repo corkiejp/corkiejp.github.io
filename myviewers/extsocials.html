@@ -51,9 +51,10 @@
     .atproto-post-body a { color: #00adb5; text-decoration: none; }
     .atproto-post-body a:hover { text-decoration: underline; }
     .atproto-footer-meta { font-size: 11px; color: #666; margin-top: 15px; border-top: 1px solid #222; padding-top: 10px; }
-    .atproto-action-links { margin-top: 12px; display: flex; gap: 15px; font-size: 12px; }
-    .atproto-action-links a { color: #00adb5; text-decoration: none; font-weight: bold; }
-    .atproto-action-links a:hover { text-decoration: underline; }
+    .atproto-action-links { margin-top: 12px; display: flex; align-items: center; gap: 8px; font-size: 12px; }
+    .atproto-action-links .view-label { color: #888; font-size: 11px; margin-right: 2px; }
+    .atproto-action-links a { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 6px; background: #222; border: 1px solid #333; color: #00adb5; text-decoration: none; font-size: 13px; transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease; }
+    .atproto-action-links a:hover { background: #2e2e2e; border-color: #00adb5; transform: translateY(-1px); }
   </style>
 </head>
 <body>
@@ -191,6 +192,10 @@ Needs chrome canary or version 150 of chrome. Fallback for prior version, right 
 <p>!wsocialembed:at://did:plc:zmrh6quxm3nd43y4zokmea36/app.bsky.feed.post/3mv7b4d5fb22o ~</p>
     </article>
 	
+    <article class="card">
+<p>!wsocialembed:at://did:plc:qxlh6bohvep3taqhmtpipx4b/app.bsky.feed.post/3mxwopotmvs2x ~</p>
+    </article>
+	
 	
 
   </div>
@@ -291,8 +296,11 @@ async function autoScanAndInjectEmbeds() {
                 '<div class="atproto-footer-meta">' +
                     '<div>' + (postRecord.createdAt ? new Date(postRecord.createdAt).toLocaleString() : '') + '</div>' +
                     '<div class="atproto-action-links">' +
-                        '<a href="https://bsky.app/profile/' + profileData.handle + '/post/' + recordKey + '" target="_blank">🦋 View on Bluesky</a>' +
-                        '<a href="https://wsocial.eu/profile/' + profileData.handle + '/post/' + recordKey + '" target="_blank">🌐 View on WSocial</a>' +
+                        '<span class="view-label">View on:</span>' +
+                        '<a href="https://bsky.app/profile/' + profileData.handle + '/post/' + recordKey + '" target="_blank" title="View on Bluesky" aria-label="View on Bluesky">🦋</a>' +
+                        '<a href="https://wsocial.eu/profile/' + profileData.handle + '/post/' + recordKey + '" target="_blank" title="View on WSocial" aria-label="View on WSocial">🌐</a>' +
+                        '<a href="https://deer.social/profile/' + profileData.handle + '/post/' + recordKey + '" target="_blank" title="View on Deer.social" aria-label="View on Deer.social">🦌</a>' +
+                        '<a href="https://reddwarf.app/profile/' + profileData.handle + '/post/' + recordKey + '" target="_blank" title="View on Red Dwarf" aria-label="View on Red Dwarf">🔴</a>' +
                     '</div>' +
                 '</div>';
         } catch(err) {
