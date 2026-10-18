@@ -678,7 +678,7 @@ var masterEngineTemplate = `<style>
     initMasterEmbedEngine();
   }
 })();
-<\\/script>`;
+` + '</' + `script>`;
 
 // Helper: Normalize user inputs (at://, https://bsky.app/..., https://wsocial.eu/..., or legacy tags)
 function parseAndNormalizeUri(input) {
