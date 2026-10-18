@@ -225,6 +225,11 @@ I temporarily renamed myself to @nicolo-ribaudo.github.io :)<br><br><a href="htt
 						<h3>Note:- The below javascript pulling content from Bluesky, happens to breakdown or limited by Bluesky!</h3><br><br>
 						<div><center>
 						<b>Interesting Bluesky post, I will manually switch to interesting posts, I find!</b><br><br>
+						
+						<div class="at-post-target" data-uri="at://did:plc:3iz5mj44nbkcdg6mv6tvbpeb/app.bsky.feed.post/3my5xap44uk2y">Loading Post...</div>
+						<br>
+						
+						
 						-- <b><a href="./embedwriter.html?url=./bskyvideoex.html">Interesting Bsky Video examples</a></b> -- Link<br>
 
 <blockquote class="bluesky-embed" data-bluesky-uri="at://did:plc:3l74xs7iozt2myjyupseqhmt/app.bsky.feed.post/3ln34vp455c2n" data-bluesky-cid="bafyreiei65yihrnvmwhblgink2hieypzexz2mcemtflo6oxgguneftq4um" data-bluesky-embed-color-mode="system"><p lang="en"><br><br><a href="https://bsky.app/profile/did:plc:3l74xs7iozt2myjyupseqhmt/post/3ln34vp455c2n?ref_src=embed">[image or embed]</a></p>&mdash; Mr. Spock 🖖 (<a href="https://bsky.app/profile/did:plc:3l74xs7iozt2myjyupseqhmt?ref_src=embed">@spockresists.bsky.social</a>) <a href="https://bsky.app/profile/did:plc:3l74xs7iozt2myjyupseqhmt/post/3ln34vp455c2n?ref_src=embed">18 April 2025 at 08:46</a></blockquote><script async src="https://embed.bsky.app/static/embed.js" charset="utf-8"></script>
@@ -342,6 +347,163 @@ which I mainly follow bluesky developer accounts and post feedback to them, plus
         
         <!--Custom JS-->
         <script src="assets/js/custom.js"></script>
+		
+		<style>
+/* Decoupled ATProto Card Styles */
+.atproto-generated-card {
+  background: #151515;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin: 15px 0;
+  width: 100%;
+  max-width: 600px;
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #e5e7eb;
+  text-align: left;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.atproto-author-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.atproto-avatar { width: 44px; height: 44px; border-radius: 50%; background: #2a2a2a; border: 1px solid #444; object-fit: cover; flex-shrink: 0; }
+.atproto-names { display: flex; flex-direction: column; min-width: 0; }
+.atproto-display-name { color: #fff; font-weight: 700; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.atproto-handle { color: #00adb5; font-size: 13px; text-decoration: none; }
+.atproto-handle:hover { text-decoration: underline; }
+.atproto-post-body { font-size: 14.5px; line-height: 1.55; color: #e0e0e0; white-space: pre-wrap; word-break: break-word; }
+.atproto-post-body a { color: #00adb5; text-decoration: none; }
+.atproto-post-body a:hover { text-decoration: underline; }
+.atproto-footer-meta { font-size: 11.5px; color: #777; margin-top: 14px; border-top: 1px solid #242424; padding-top: 10px; }
+.atproto-action-links { margin-top: 12px; display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.atproto-action-links .view-label { color: #888; font-size: 11px; margin-right: 2px; }
+.atproto-action-links a { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 6px; background: #222; border: 1px solid #333; color: #00adb5; text-decoration: none; font-size: 13px; transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease; }
+.atproto-action-links a:hover { background: #2e2e2e; border-color: #00adb5; transform: translateY(-1px); }
+.at-loading-slot { padding: 15px; color: #888; font-style: italic; font-size: 13px; }
+.at-error-slot { padding: 15px; color: #ff5555; font-size: 13px; }
+</style>
+
+<script>
+(function() {
+  function cleanEscapeHTML(str) {
+    return (str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+
+  function compileFacetsToHTML(text, facets) {
+    if (!facets || facets.length === 0) return cleanEscapeHTML(text);
+
+    var rawTextBytes = new TextEncoder().encode(text);
+    var builtHTML = "";
+    var currentByteMarker = 0;
+
+    var sortedFacets = facets.slice().sort(function(x, y) {
+      return x.index.byteStart - y.index.byteStart;
+    });
+
+    for (var i = 0; i < sortedFacets.length; i++) {
+      var facetItem = sortedFacets[i];
+      var byteStart = facetItem.index.byteStart;
+      var byteEnd = facetItem.index.byteEnd;
+
+      if (byteStart > currentByteMarker) {
+        builtHTML += cleanEscapeHTML(new TextDecoder().decode(rawTextBytes.slice(currentByteMarker, byteStart)));
+      }
+
+      var decoratedWord = new TextDecoder().decode(rawTextBytes.slice(byteStart, byteEnd));
+      var featuresArray = facetItem.features || [];
+      var activeFeature = featuresArray.length > 0 ? featuresArray[0] : null;
+
+      if (activeFeature) {
+        var schemaType = activeFeature["$type"] || "";
+        if (schemaType.indexOf("facet#link") !== -1) {
+          builtHTML += '<a href="' + cleanEscapeHTML(activeFeature.uri) + '" target="_blank" rel="noopener noreferrer">' + cleanEscapeHTML(decoratedWord) + '</a>';
+        } else if (schemaType.indexOf("facet#mention") !== -1) {
+          builtHTML += '<a href="https://bsky.app/profile/' + cleanEscapeHTML(activeFeature.did) + '" target="_blank" rel="noopener noreferrer">' + cleanEscapeHTML(decoratedWord) + '</a>';
+        } else if (schemaType.indexOf("facet#tag") !== -1) {
+          builtHTML += '<a href="https://bsky.app/hashtag/' + encodeURIComponent(activeFeature.tag) + '" target="_blank" rel="noopener noreferrer">' + cleanEscapeHTML(decoratedWord) + '</a>';
+        } else {
+          builtHTML += cleanEscapeHTML(decoratedWord);
+        }
+      } else {
+        builtHTML += cleanEscapeHTML(decoratedWord);
+      }
+      currentByteMarker = byteEnd;
+    }
+
+    if (currentByteMarker < rawTextBytes.length) {
+      builtHTML += cleanEscapeHTML(new TextDecoder().decode(rawTextBytes.slice(currentByteMarker)));
+    }
+    return builtHTML;
+  }
+
+  async function loadAtProtoSlot(slot) {
+    var rawUri = slot.getAttribute('data-uri');
+    if (!rawUri) return;
+
+    var match = rawUri.match(/^at:\/\/([^/]+)\/app\.bsky\.feed\.post\/([^/?#\s]+)/);
+    if (!match) {
+      slot.innerHTML = '<div class="at-error-slot">⚠️ Invalid AT Protocol URI: ' + cleanEscapeHTML(rawUri) + '</div>';
+      return;
+    }
+
+    var actor = match[1];
+    var rkey = match[2];
+
+    try {
+      var endpoint = 'https://public.api.bsky.app/xrpc/app.bsky.feed.getPostThread?uri=' + encodeURIComponent(rawUri);
+      var res = await fetch(endpoint);
+      if (!res.ok) throw new Error('Gateway response: HTTP ' + res.status);
+
+      var payload = await res.json();
+      var postData = payload.thread && payload.thread.post;
+      if (!postData) throw new Error('Post record was not found or has been deleted');
+
+      var author = postData.author || {};
+      var record = postData.record || {};
+      var handle = cleanEscapeHTML(author.handle || actor);
+      var displayName = cleanEscapeHTML(author.displayName || author.handle || actor);
+      var avatarSrc = author.avatar || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23888"><circle cx="12" cy="8" r="4"/><path d="M12 14c-5 0-8 3-8 6v1h16v-1c0-3-3-6-8-6z"/></svg>';
+      var postDate = record.createdAt ? new Date(record.createdAt).toLocaleString() : '';
+
+      slot.innerHTML = 
+        '<div class="atproto-generated-card">' +
+          '<div class="atproto-author-row">' +
+            '<img class="atproto-avatar" src="' + avatarSrc + '" alt="Avatar">' +
+            '<div class="atproto-names">' +
+              '<span class="atproto-display-name">' + displayName + '</span>' +
+              '<a class="atproto-handle" href="https://bsky.app/profile/' + handle + '" target="_blank" rel="noopener noreferrer">@' + handle + '</a>' +
+            '</div>' +
+          '</div>' +
+          '<div class="atproto-post-body">' + compileFacetsToHTML(record.text || '', record.facets) + '</div>' +
+          '<div class="atproto-footer-meta">' +
+            (postDate ? '<div>' + postDate + '</div>' : '') +
+            '<div class="atproto-action-links">' +
+              '<span class="view-label">View on:</span>' +
+              '<a href="https://bsky.app/profile/' + handle + '/post/' + rkey + '" target="_blank" rel="noopener noreferrer" title="View on Bluesky" aria-label="View on Bluesky">🦋</a>' +
+              '<a href="https://wsocial.eu/profile/' + handle + '/post/' + rkey + '" target="_blank" rel="noopener noreferrer" title="View on WSocial" aria-label="View on WSocial">🌐</a>' +
+              '<a href="https://deer.social/profile/' + handle + '/post/' + rkey + '" target="_blank" rel="noopener noreferrer" title="View on Deer.social" aria-label="View on Deer.social">🦌</a>' +
+              '<a href="https://reddwarf.app/profile/' + handle + '/post/' + rkey + '" target="_blank" rel="noopener noreferrer" title="View on Red Dwarf" aria-label="View on Red Dwarf">🔴</a>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    } catch(err) {
+      slot.innerHTML = '<div class="at-error-slot">⚠️ Could not load post: ' + cleanEscapeHTML(err.message) + '</div>';
+    }
+  }
+
+  async function initMasterEmbedEngine() {
+    var targets = document.querySelectorAll('.at-post-target');
+    for (var i = 0; i < targets.length; i++) {
+      loadAtProtoSlot(targets[i]);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', initMasterEmbedEngine);
+  } else {
+    initMasterEmbedEngine();
+  }
+})();
+<\/script>
         
     </body>
 	
