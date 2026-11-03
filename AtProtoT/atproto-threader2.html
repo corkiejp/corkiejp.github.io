@@ -1,0 +1,3016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ATProto Threader & Record Editor</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #111827;
+      --surface: #1a2234;
+      --surface-hover: #232e46;
+      --border: #2d3748;
+      --border-focus: #00adb5;
+      --accent: #00adb5;
+      --accent-hover: #00c9d2;
+      --accent-glow: rgba(0, 173, 181, 0.25);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --danger: #f87171;
+      --danger-bg: rgba(248, 113, 113, 0.12);
+      --warning: #fbbf24;
+      --warning-bg: rgba(251, 191, 36, 0.12);
+      --success: #22c55e;
+      --success-bg: rgba(34, 197, 94, 0.12);
+      --code-bg: #070a10;
+      --thread-line: #374151;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 2rem 1.5rem 4rem;
+      background-color: var(--bg);
+      color: var(--text-main);
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.5rem;
+    }
+
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .back-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: color 0.15s;
+    }
+
+    .back-link:hover {
+      color: var(--accent-hover);
+      text-decoration: underline;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.65rem;
+      background: var(--surface);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0 0 0.5rem;
+      font-size: 2rem;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    p.subtitle {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      max-width: 820px;
+    }
+
+    /* Cards & Layout */
+    .dashboard-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.75rem;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.45);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.75rem;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0;
+    }
+
+    /* Account Manager Styles */
+    .profile-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 0.85rem 1.25rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .active-account-info {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .account-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--card-bg);
+      border: 2px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .account-meta h4 {
+      margin: 0;
+      font-size: 0.95rem;
+      color: #fff;
+    }
+
+    .account-meta p {
+      margin: 0;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-family: ui-monospace, SFMono-Regular, monospace;
+    }
+
+    .profile-controls {
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+    }
+
+    select, input[type="text"], input[type="password"], textarea {
+      padding: 0.75rem 0.9rem;
+      border-radius: 8px;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      color: #fff;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    select:focus, input[type="text"]:focus, input[type="password"]:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .form-group label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 0.75rem 1.25rem;
+      background: var(--accent);
+      color: #0b0f19;
+      font-weight: 700;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: var(--accent-hover);
+      box-shadow: 0 0 12px var(--accent-glow);
+      transform: translateY(-1px);
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: var(--surface-hover);
+      border-color: var(--text-muted);
+      color: #fff;
+      box-shadow: none;
+    }
+
+    .btn-danger {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid var(--danger);
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .btn-sm {
+      padding: 0.4rem 0.75rem;
+      font-size: 0.8rem;
+      border-radius: 6px;
+    }
+
+    /* Fetch & Edit Strip */
+    .fetch-strip {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .fetch-strip input {
+      flex: 1;
+      font-family: ui-monospace, SFMono-Regular, monospace;
+    }
+
+    /* Overwrite / Edit Banner */
+    .edit-banner {
+      display: none;
+      margin-top: 1rem;
+      padding: 1rem 1.25rem;
+      background: rgba(0, 173, 181, 0.08);
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+    }
+
+    .edit-banner.active {
+      display: block;
+    }
+
+    .banner-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .banner-title {
+      font-weight: 700;
+      color: var(--accent);
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .banner-details {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .timestamp-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      width: fit-content;
+      margin-top: 0.35rem;
+    }
+
+    .timestamp-badge.preserve {
+      background: var(--success-bg);
+      color: var(--success);
+      border: 1px solid var(--success);
+    }
+
+    .timestamp-badge.update {
+      background: var(--warning-bg);
+      color: var(--warning);
+      border: 1px solid var(--warning);
+    }
+
+    /* Thread Builder Layout */
+    .thread-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      position: relative;
+    }
+
+    .thread-post-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      position: relative;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .thread-post-card:focus-within {
+      border-color: var(--accent);
+    }
+
+    .thread-post-card.drag-over {
+      border-color: var(--accent) !important;
+      background: rgba(0, 173, 181, 0.05);
+      box-shadow: 0 0 0 2px var(--accent);
+    }
+
+    .thread-post-card.error-limit {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 1px var(--danger);
+    }
+
+    .post-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .post-index-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--accent);
+      background: var(--card-bg);
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .post-actions {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .textarea-wrapper {
+      position: relative;
+      margin-bottom: 0.65rem;
+    }
+
+    .post-textarea {
+      width: 100%;
+      min-height: 120px;
+      resize: vertical;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.95rem;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+
+    /* Character & Byte Counter Bar */
+    .counter-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .facet-tags {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .facet-pill {
+      font-size: 0.72rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      color: var(--accent);
+      font-family: ui-monospace, SFMono-Regular, monospace;
+    }
+
+    .byte-counter {
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      font-weight: 600;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      transition: color 0.15s, background 0.15s;
+    }
+
+    .byte-counter.normal {
+      color: var(--text-muted);
+    }
+
+    .byte-counter.warning {
+      color: var(--warning);
+      background: var(--warning-bg);
+    }
+
+    .byte-counter.danger {
+      color: var(--danger);
+      background: var(--danger-bg);
+      font-weight: 700;
+    }
+
+    /* Image Attachment & Blob Section */
+    .images-section {
+      margin-top: 0.85rem;
+      border-top: 1px dashed var(--border);
+      padding-top: 0.85rem;
+    }
+
+    .images-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.65rem;
+    }
+
+    .images-header-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .image-controls-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .paste-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .image-item-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .image-thumb-wrap {
+      position: relative;
+      width: 100%;
+      height: 120px;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .image-thumb-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .image-remove-btn {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.75);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: bold;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .image-remove-btn:hover {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .image-meta-info {
+      padding: 0.5rem 0.65rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .image-size-badge {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .image-alt-input {
+      font-size: 0.78rem;
+      padding: 0.35rem 0.5rem;
+      border-radius: 4px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: #fff;
+      width: 100%;
+    }
+
+    .image-url-import-row {
+      display: none;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .image-url-import-row.open {
+      display: flex;
+    }
+
+    /* External Link Card Attachment */
+    .card-embed-accordion {
+      margin-top: 0.85rem;
+      border-top: 1px dashed var(--border);
+      padding-top: 0.85rem;
+    }
+
+    .accordion-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0.35rem 0;
+    }
+
+    .accordion-toggle:hover {
+      color: var(--accent);
+    }
+
+    .card-embed-form {
+      display: none;
+      margin-top: 0.75rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      gap: 0.75rem;
+      flex-direction: column;
+    }
+
+    .card-embed-form.open {
+      display: flex;
+    }
+
+    .card-preview {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 0.5rem;
+      display: none;
+    }
+
+    .card-preview.visible {
+      display: block;
+    }
+
+    .card-preview-thumb {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      background: #000;
+      display: block;
+    }
+
+    .card-preview-body {
+      padding: 0.75rem 1rem;
+    }
+
+    .card-preview-domain {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .card-preview-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #fff;
+      margin: 0.2rem 0;
+    }
+
+    .card-preview-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin: 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Actions Strip */
+    .thread-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .status-alert {
+      padding: 0.85rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      margin-top: 1rem;
+      display: none;
+    }
+
+    .status-alert.error {
+      display: block;
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid var(--danger);
+    }
+
+    .status-alert.success {
+      display: block;
+      background: var(--success-bg);
+      color: var(--success);
+      border: 1px solid var(--success);
+    }
+
+    .status-alert.info {
+      display: block;
+      background: rgba(0, 173, 181, 0.1);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+    }
+
+    /* JSON Inspector Panel */
+    .json-inspector {
+      margin-top: 1.5rem;
+    }
+
+    .json-output {
+      width: 100%;
+      min-height: 180px;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: #e5e7eb;
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      font-size: 0.82rem;
+      padding: 0.85rem;
+      white-space: pre;
+      overflow: auto;
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(4px);
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 580px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 1.5rem;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    }
+
+    .account-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+    }
+
+    .account-item.active {
+      border-color: var(--accent);
+    }
+
+    /* Spinner */
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: currentColor;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="top-nav">
+    <a href="index.html" class="back-link">← Back to Dashboard</a>
+    <span class="badge">AT Protocol Threader & Overwrite</span>
+  </div>
+
+  <header>
+    <h1>🦋 ATProto Threader & Editor</h1>
+    <p class="subtitle">Securely manage multi-account drafts, post threads with photos/blobs or link cards within protocol limits, and pull existing records to seamlessly edit and overwrite timestamps and rkeys without warning labels.</p>
+  </header>
+
+  <!-- 1. Account Profile Manager Panel -->
+  <section class="dashboard-card" id="accountSection">
+    <div class="card-header">
+      <h2 class="card-title">👤 Account Profile Manager</h2>
+      <button class="btn btn-secondary btn-sm" id="toggleAccountModalBtn">⚙️ Manage Profiles (<span id="profileCountSpan">0</span>)</button>
+    </div>
+
+    <div class="profile-strip" id="activeProfileStrip">
+      <div class="active-account-info">
+        <div class="account-avatar" id="avatarDisplay">🔑</div>
+        <div class="account-meta">
+          <h4 id="activeProfileLabel">No Active Profile</h4>
+          <p id="activeProfileHandle">Please add an ATProto account below to publish</p>
+        </div>
+      </div>
+      <div class="profile-controls">
+        <select id="profileSelect" title="Switch Active Profile">
+          <option value="">-- Select Profile --</option>
+        </select>
+        <button class="btn btn-secondary btn-sm" id="quickAddAccountBtn">+ Add Account</button>
+      </div>
+    </div>
+
+    <!-- Quick Add Form (collapsible) -->
+    <div id="accountFormCollapse" style="display: none; margin-top: 1rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+      <h3 style="font-size: 0.95rem; margin: 0 0 0.75rem; color: #fff;">Add New Profile</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Profile Label</label>
+          <input type="text" id="newAccLabel" placeholder="e.g. Personal Main, WSocial Alt">
+        </div>
+        <div class="form-group">
+          <label>Handle or DID</label>
+          <input type="text" id="newAccHandle" placeholder="alice.bsky.social or did:plc:...">
+        </div>
+        <div class="form-group">
+          <label>App Password</label>
+          <input type="password" id="newAccPassword" placeholder="xxxx-xxxx-xxxx-xxxx">
+        </div>
+        <div class="form-group">
+          <label>PDS Endpoint</label>
+          <input type="text" id="newAccPds" value="https://bsky.social" placeholder="https://bsky.social">
+        </div>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;">
+        <button class="btn btn-secondary btn-sm" id="cancelAccFormBtn">Cancel</button>
+        <button class="btn btn-sm" id="saveAccountBtn">Save Account to localStorage</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. The Fetch & Edit Control Strip -->
+  <section class="dashboard-card" id="fetchSection">
+    <div class="card-header">
+      <h2 class="card-title">🔍 Fetch Existing Post to Edit & Overwrite</h2>
+      <span class="badge" style="font-size: 0.7rem;">XRPC getRecord</span>
+    </div>
+
+    <div class="fetch-strip">
+      <input type="text" id="fetchUrlInput" placeholder="Paste full link (https://bsky.app/profile/.../post/...) or at:// URI (at://did:plc:.../app.bsky.feed.post/...)">
+      <button class="btn" id="fetchPostBtn">
+        <span id="fetchBtnSpinner" class="spinner" style="display:none;"></span>
+        <span id="fetchBtnText">Fetch Post for Editing</span>
+      </button>
+    </div>
+
+    <!-- Edit & Overwrite Banner -->
+    <div class="edit-banner" id="editModeBanner">
+      <div class="banner-top">
+        <div class="banner-title">
+          <span>🔄 Overwrite Mode Active</span>
+          <span style="font-size: 0.75rem; font-family: ui-monospace, monospace; color: var(--text-muted);" id="editBannerRkey"></span>
+        </div>
+        <button class="btn btn-danger btn-sm" id="cancelEditModeBtn">✕ Exit Edit Mode</button>
+      </div>
+      <div class="banner-details">
+        <div><strong>Original Author / Repo:</strong> <span id="editBannerRepo" style="font-family: ui-monospace, monospace;"></span></div>
+        <div><strong>Original Timestamp:</strong> <span id="editBannerCreatedAt" style="font-family: ui-monospace, monospace;"></span></div>
+        <div id="timestampDecisionBadge" class="timestamp-badge"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Dynamic Thread Builder Layout -->
+  <section class="dashboard-card" id="threadBuilderSection">
+    <div class="card-header">
+      <h2 class="card-title">📝 Dynamic Thread Builder</h2>
+      <div style="display: flex; gap: 0.5rem;">
+        <button class="btn btn-secondary btn-sm" id="saveDraftBtn">💾 Save Draft</button>
+        <button class="btn btn-secondary btn-sm" id="loadDraftBtn">📂 Load Draft</button>
+        <button class="btn btn-secondary btn-sm" id="clearThreadBtn">🗑️ Clear</button>
+      </div>
+    </div>
+
+    <!-- Container for dynamic post list -->
+    <div class="thread-stack" id="threadStack">
+      <!-- Generated thread posts will appear here -->
+    </div>
+
+    <div class="thread-actions">
+      <button class="btn btn-secondary" id="addPostBtn">+ Add Thread Post</button>
+      <div style="display: flex; gap: 0.75rem; align-items: center;">
+        <button class="btn btn-secondary" id="toggleJsonBtn">Inspect JSON Payload</button>
+        <button class="btn" id="publishBtn">🚀 Publish Thread</button>
+      </div>
+    </div>
+
+    <div id="statusAlert" class="status-alert"></div>
+
+    <!-- Collapsible JSON Inspector -->
+    <div id="jsonInspectorWrapper" class="json-inspector" style="display: none;">
+      <div class="card-header" style="margin-bottom: 0.5rem;">
+        <h4 style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">Current Generated ATProto Payload(s)</h4>
+        <button class="btn btn-secondary btn-sm" id="copyJsonBtn">Copy JSON</button>
+      </div>
+      <textarea id="jsonOutputArea" class="json-output" readonly></textarea>
+    </div>
+  </section>
+</div>
+
+<!-- Modal: Account Profiles Manager -->
+<div class="modal-backdrop" id="accountsModal">
+  <div class="modal-box">
+    <div class="card-header">
+      <h3 class="card-title">Manage Stored Profiles</h3>
+      <button class="btn btn-secondary btn-sm" id="closeAccountsModalBtn">✕</button>
+    </div>
+    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0;">Profiles are securely stored in your browser's <code>localStorage</code>. App passwords are never shared externally.</p>
+    
+    <div id="accountsListContainer" style="margin-bottom: 1.5rem;">
+      <!-- Account items rendered here -->
+    </div>
+
+    <button class="btn btn-secondary btn-sm" id="openAddAccountInModalBtn" style="width: 100%;">+ Add Another Account</button>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ==========================================
+  // Core Architectural Constants & State
+  // (Structural patterns from pdsls-editor.js)
+  // ==========================================
+  const POST_TEXT_LIMIT = 300; // UTF-8 bytes limit
+  const STORAGE_KEY_PROFILES = 'atproto_threader_profiles';
+  const STORAGE_KEY_ACTIVE_ID = 'atproto_threader_active_id';
+  const STORAGE_KEY_DRAFT = 'atproto_threader_draft';
+
+  // Global thread state
+  let postsState = [
+    {
+      id: 'post-' + Date.now(),
+      rawText: '',
+      processedText: '',
+      byteCount: 0,
+      facets: [],
+      images: [], // array of { id, file, dataUrl, alt, width, height, blobRef }
+      embedCard: {
+        enabled: false,
+        uri: '',
+        title: '',
+        description: '',
+        thumbUrl: '',
+        thumbBlob: null,
+        stripFromText: false
+      }
+    }
+  ];
+
+  // Edit / Overwrite Mode background variables
+  let editModeActive = false;
+  let targetEditRkey = null;
+  let targetEditRepo = null;
+  let targetEditCreatedAt = null;
+  let targetEditOriginalRecord = null;
+
+  // Active PDS Session Token Cache
+  let currentSession = null;
+
+  // ==========================================
+  // Helper Utilities (Matching pdsls-editor.js)
+  // ==========================================
+  function byteLength(str) {
+    return new TextEncoder().encode(str || '').length;
+  }
+
+  function shouldUpdateCreatedAt(isoString) {
+    if (!isoString) return true;
+    const original = new Date(isoString).getTime();
+    const hoursOld = (Date.now() - original) / (1000 * 60 * 60);
+    return hoursOld > 24;
+  }
+
+  function nowIso() {
+    return new Date().toISOString();
+  }
+
+  function escapeHTML(str) {
+    return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function parseMarkdownLinks(text) {
+    const links = [];
+    const re = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+    let m;
+    while ((m = re.exec(text)) !== null) {
+      links.push({
+        full: m[0],
+        label: m[1],
+        url: m[2],
+        index: m.index
+      });
+    }
+    return links;
+  }
+
+  function findSubstring(str, sub, fromIndex = 0) {
+    return str.indexOf(sub, fromIndex);
+  }
+
+  // ==========================================
+  // Rich Facet & Text Parsing Engine
+  // (Natively calculates UTF-8 byte offsets)
+  // ==========================================
+  function processTextAndFacets(text, cardSettings) {
+    const mdLinks = parseMarkdownLinks(text);
+    let workingText = text;
+    const facets = [];
+
+    // 1. Process Markdown links: convert [Label](URL) to plain text Label + link facet
+    if (mdLinks.length > 0) {
+      let newText = text;
+      mdLinks
+        .slice()
+        .sort((a, b) => b.index - a.index)
+        .forEach(link => {
+          const before = newText.slice(0, link.index);
+          const after = newText.slice(link.index + link.full.length);
+          newText = before + link.label + after;
+        });
+
+      workingText = newText;
+
+      let offset = 0;
+      mdLinks.forEach(link => {
+        const labelPos = findSubstring(workingText, link.label, offset);
+        if (labelPos === -1) return;
+        const start = labelPos;
+        const end = start + link.label.length;
+
+        facets.push({
+          $type: 'app.bsky.richtext.facet',
+          index: {
+            byteStart: byteLength(workingText.slice(0, start)),
+            byteEnd: byteLength(workingText.slice(0, end))
+          },
+          features: [{
+            $type: 'app.bsky.richtext.facet#link',
+            uri: link.url
+          }]
+        });
+        offset = end;
+      });
+    }
+
+    // Optional: If Card Embed is configured with stripFromText, remove the primary URL if present
+    if (cardSettings && cardSettings.enabled && cardSettings.stripFromText && cardSettings.uri) {
+      const urlToRemove = cardSettings.uri.trim();
+      if (workingText.includes(urlToRemove)) {
+        workingText = workingText.replace(urlToRemove, '').replace(/\s{2,}/g, ' ').trim();
+      }
+    }
+
+    // 2. Mentions: @handle
+    const mentionRe = /(^|[\s(])@([a-zA-Z0-9.-]+)/g;
+    let m;
+    while ((m = mentionRe.exec(workingText)) !== null) {
+      const prefix = m[1];
+      const handleStr = m[2];
+      const fullToken = '@' + handleStr;
+      const start = m.index + prefix.length;
+      const end = start + fullToken.length;
+
+      facets.push({
+        $type: 'app.bsky.richtext.facet',
+        index: {
+          byteStart: byteLength(workingText.slice(0, start)),
+          byteEnd: byteLength(workingText.slice(0, end))
+        },
+        features: [{
+          $type: 'app.bsky.richtext.facet#mention',
+          did: 'did:plc:placeholder', // resolved at publish time
+          handle: handleStr
+        }]
+      });
+    }
+
+    // 3. Tags: #hashtag
+    const tagRe = /(^|[\s(])#([a-zA-Z0-9_]+)/g;
+    let t;
+    while ((t = tagRe.exec(workingText)) !== null) {
+      const prefix = t[1];
+      const tagStr = t[2];
+      const fullToken = '#' + tagStr;
+      const start = t.index + prefix.length;
+      const end = start + fullToken.length;
+
+      facets.push({
+        $type: 'app.bsky.richtext.facet',
+        index: {
+          byteStart: byteLength(workingText.slice(0, start)),
+          byteEnd: byteLength(workingText.slice(0, end))
+        },
+        features: [{
+          $type: 'app.bsky.richtext.facet#tag',
+          tag: tagStr
+        }]
+      });
+    }
+
+    // 4. Plain URLs: auto-extract http/https links
+    const urlRe = /\bhttps?:\/\/[^\s"'<>]+/g;
+    let u;
+    while ((u = urlRe.exec(workingText)) !== null) {
+      const start = u.index;
+      const end = start + u[0].length;
+      const uriStr = u[0];
+
+      // Avoid duplicating facets if link already captured via Markdown
+      const alreadyExists = facets.some(f =>
+        f.features?.[0]?.$type === 'app.bsky.richtext.facet#link' &&
+        f.features[0].uri === uriStr
+      );
+      if (alreadyExists) continue;
+
+      facets.push({
+        $type: 'app.bsky.richtext.facet',
+        index: {
+          byteStart: byteLength(workingText.slice(0, start)),
+          byteEnd: byteLength(workingText.slice(0, end))
+        },
+        features: [{
+          $type: 'app.bsky.richtext.facet#link',
+          uri: uriStr
+        }]
+      });
+    }
+
+    // Sort facets by byteStart as required by AT Protocol
+    facets.sort((a, b) => a.index.byteStart - b.index.byteStart);
+
+    return {
+      processedText: workingText,
+      facets: facets,
+      byteCount: byteLength(workingText)
+    };
+  }
+
+  // ==========================================
+  // Post Record Validation (pdsls-editor.js)
+  // ==========================================
+  function validateRecord(record) {
+    const textBytes = byteLength(record.text || '');
+    const errors = [];
+
+    if (textBytes > POST_TEXT_LIMIT) {
+      errors.push(`Text exceeds limit: ${textBytes} / ${POST_TEXT_LIMIT} bytes`);
+    }
+    if (!record.$type || record.$type !== 'app.bsky.feed.post') {
+      errors.push('Missing or invalid $type');
+    }
+    if (typeof record.text !== 'string' || record.text.trim() === '') {
+      errors.push('Post text cannot be empty');
+    }
+    if (!Array.isArray(record.facets)) {
+      errors.push('facets must be an array');
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors
+    };
+  }
+
+  // ==========================================
+  // Link & AT-URI Token Parsing
+  // ==========================================
+  function parseLinkTokens(rawInput) {
+    const str = (rawInput || '').trim();
+    if (!str) return null;
+
+    // Pattern 1: at:// URI
+    if (str.startsWith('at://')) {
+      const marker = 'app.bsky.feed.post/';
+      const idx = str.indexOf(marker);
+      if (idx !== -1) {
+        const actor = str.substring(5, idx - 1);
+        const rkey = str.substring(idx + marker.length).split('/')[0].split('?')[0];
+        return { actor, rkey };
+      }
+      const parts = str.substring(5).split('/');
+      if (parts.length >= 3) {
+        return { actor: parts[0], rkey: parts[2].split('?')[0] };
+      }
+    }
+
+    // Pattern 2: Web link (bsky.app or wsocial.eu /profile/[actor]/post/[rkey])
+    const profMarker = '/profile/';
+    const postMarker = '/post/';
+    const profIdx = str.indexOf(profMarker);
+    const postIdx = str.indexOf(postMarker);
+
+    if (profIdx !== -1 && postIdx !== -1 && postIdx > profIdx) {
+      const actor = str.substring(profIdx + profMarker.length, postIdx);
+      let rkeyPart = str.substring(postIdx + postMarker.length);
+      const qIdx = rkeyPart.indexOf('?');
+      const hIdx = rkeyPart.indexOf('#');
+      let endIdx = rkeyPart.length;
+      if (qIdx !== -1 && qIdx < endIdx) endIdx = qIdx;
+      if (hIdx !== -1 && hIdx < endIdx) endIdx = hIdx;
+      const rkey = rkeyPart.substring(0, endIdx);
+      return { actor, rkey };
+    }
+
+    // Pattern 3: Direct actor and rkey space-separated or comma-separated
+    const tokens = str.split(/[\s,]+/);
+    if (tokens.length === 2) {
+      return { actor: tokens[0], rkey: tokens[1] };
+    }
+
+    return null;
+  }
+
+  // ==========================================
+  // Account Profiles LocalStorage Manager
+  // ==========================================
+  function getStoredProfiles() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY_PROFILES);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      console.error('Failed to read profiles from localStorage', e);
+      return [];
+    }
+  }
+
+  function saveStoredProfiles(profiles) {
+    try {
+      localStorage.setItem(STORAGE_KEY_PROFILES, JSON.stringify(profiles));
+    } catch (e) {
+      console.error('Failed to write profiles to localStorage', e);
+    }
+  }
+
+  function getActiveProfileId() {
+    return localStorage.getItem(STORAGE_KEY_ACTIVE_ID) || '';
+  }
+
+  function setActiveProfileId(id) {
+    localStorage.setItem(STORAGE_KEY_ACTIVE_ID, id);
+    currentSession = null;
+    renderAccountManager();
+  }
+
+  function getActiveProfile() {
+    const profiles = getStoredProfiles();
+    const activeId = getActiveProfileId();
+    return profiles.find(p => p.id === activeId) || profiles[0] || null;
+  }
+
+  function renderAccountManager() {
+    const profiles = getStoredProfiles();
+    const active = getActiveProfile();
+
+    document.getElementById('profileCountSpan').textContent = profiles.length;
+
+    // Populate dropdown
+    const select = document.getElementById('profileSelect');
+    select.innerHTML = '<option value="">-- Select Profile --</option>';
+    profiles.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = `${p.label} (@${p.identifier})`;
+      if (active && p.id === active.id) {
+        opt.selected = true;
+      }
+      select.appendChild(opt);
+    });
+
+    // Update active strip display
+    if (active) {
+      document.getElementById('activeProfileLabel').textContent = active.label || 'Unnamed Account';
+      document.getElementById('activeProfileHandle').textContent = `@${active.identifier} • ${active.pdsEndpoint || 'https://bsky.social'}`;
+      document.getElementById('avatarDisplay').textContent = (active.label || active.identifier).charAt(0).toUpperCase();
+    } else {
+      document.getElementById('activeProfileLabel').textContent = 'No Active Profile';
+      document.getElementById('activeProfileHandle').textContent = 'Please add an ATProto account below to publish';
+      document.getElementById('avatarDisplay').textContent = '🔑';
+    }
+
+    // Render accounts in modal
+    const modalList = document.getElementById('accountsListContainer');
+    modalList.innerHTML = '';
+    if (profiles.length === 0) {
+      modalList.innerHTML = '<div style="color: var(--text-muted); font-size: 0.9rem; padding: 1rem 0; text-align: center;">No stored profiles. Add one below.</div>';
+    } else {
+      profiles.forEach(p => {
+        const item = document.createElement('div');
+        const isActive = active && p.id === active.id;
+        item.className = 'account-item' + (isActive ? ' active' : '');
+        item.innerHTML = `
+          <div>
+            <div style="font-weight: 700; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
+              ${escapeHTML(p.label)}
+              ${isActive ? '<span class="badge" style="font-size:0.65rem;">ACTIVE</span>' : ''}
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); font-family: ui-monospace, monospace;">
+              @${escapeHTML(p.identifier)} • ${escapeHTML(p.pdsEndpoint || 'https://bsky.social')}
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.4rem;">
+            ${!isActive ? `<button class="btn btn-secondary btn-sm select-acc-btn" data-id="${p.id}">Set Active</button>` : ''}
+            <button class="btn btn-danger btn-sm del-acc-btn" data-id="${p.id}">Delete</button>
+          </div>
+        `;
+        modalList.appendChild(item);
+      });
+    }
+  }
+
+  // ==========================================
+  // PDS Session Handshake & Auth
+  // ==========================================
+  async function ensureSession() {
+    const profile = getActiveProfile();
+    if (!profile) {
+      throw new Error('No active account selected. Please configure a profile first.');
+    }
+    if (!profile.identifier || !profile.appPassword) {
+      throw new Error('Account profile is missing Handle/DID or App Password.');
+    }
+
+    if (currentSession && currentSession.did && currentSession.accessJwt) {
+      return currentSession;
+    }
+
+    let pds = (profile.pdsEndpoint || 'https://bsky.social').replace(/\/+$/, '');
+    const handshakeUrl = `${pds}/xrpc/com.atproto.server.createSession`;
+
+    showAlert(`Connecting to PDS handshake at ${pds}...`, 'info');
+
+    const res = await fetch(handshakeUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        identifier: profile.identifier.trim(),
+        password: profile.appPassword.trim()
+      })
+    });
+
+    if (!res.ok) {
+      let errMsg = `PDS Session creation failed (HTTP ${res.status})`;
+      try {
+        const errJson = await res.json();
+        if (errJson.message) errMsg += `: ${errJson.message}`;
+      } catch (e) {}
+      throw new Error(errMsg);
+    }
+
+    const sessionData = await res.json();
+    currentSession = {
+      pds,
+      did: sessionData.did,
+      handle: sessionData.handle,
+      accessJwt: sessionData.accessJwt,
+      refreshJwt: sessionData.refreshJwt
+    };
+    showAlert(`Logged in successfully as @${sessionData.handle}`, 'success');
+    return currentSession;
+  }
+
+  // ==========================================
+  // Mention Resolution (Handle to DID)
+  // ==========================================
+  async function resolveHandle(handle, pdsEndpoint) {
+    const pds = (pdsEndpoint || 'https://bsky.social').replace(/\/+$/, '');
+    try {
+      let res = await fetch(`${pds}/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(handle)}`);
+      if (res.ok) {
+        const data = await res.json();
+        return data.did;
+      }
+    } catch (e) {}
+
+    try {
+      let res = await fetch(`https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(handle)}`);
+      if (res.ok) {
+        const data = await res.json();
+        return data.did;
+      }
+    } catch (e) {}
+
+    return null;
+  }
+
+  // ==========================================
+  // Image Processing & Compression Helpers
+  // ==========================================
+  function compressImage(dataUrl, width, height, maxDimension = 2000, quality = 0.85) {
+    return new Promise((resolve) => {
+      let targetW = width;
+      let targetH = height;
+      if (targetW > maxDimension || targetH > maxDimension) {
+        if (targetW > targetH) {
+          targetH = Math.round((targetH * maxDimension) / targetW);
+          targetW = maxDimension;
+        } else {
+          targetW = Math.round((targetW * maxDimension) / targetH);
+          targetH = maxDimension;
+        }
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = targetW;
+      canvas.height = targetH;
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0, targetW, targetH);
+        canvas.toBlob((blob) => {
+          resolve(new File([blob], 'compressed.jpg', { type: 'image/jpeg' }));
+        }, 'image/jpeg', quality);
+      };
+      img.src = dataUrl;
+    });
+  }
+
+function addImageFileToPost(postIndex, file, customAlt = '') {
+  const post = postsState[postIndex];
+  if (!post) return;
+
+  if (post.images.length >= 4) {
+    showAlert('AT Protocol allows a maximum of 4 images per post.', 'error');
+    return;
+  }
+
+  // DETECT ANIMATION: If it's a GIF or a video, mark the post's global media track structure
+  const isAnimation = file.type === 'image/gif' || file.type.startsWith('video/');
+  if (isAnimation) {
+    post.mediaType = 'video';
+    // Clear out any old images so it starts clean for this looping post
+    post.images = []; 
+    post.embedCard = null;
+  } else {
+    // If a static image is added to a post that was previously flagged as a video, reset it
+    if (post.mediaType === 'video') {
+      post.mediaType = 'images';
+      post.images = [];
+    }
+  }
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const dataUrl = e.target.result;
+
+    // Use a simplified object generation syntax that won't lock up on complex MIME types
+    const imgId = 'img-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6);
+    const newAsset = {
+      id: imgId,
+      file: file,
+      dataUrl: dataUrl,
+      alt: customAlt,
+      width: 1200, // Safe fallbacks to prevent onload asset locking
+      height: 800,
+      blobRef: null
+    };
+
+    // Store it in the standard array so your renderThreadStack() displays it instantly
+    post.images.push(newAsset);
+
+    // If it's an animation, mirror it to the video tracker properties for your publish step
+    if (isAnimation) {
+      post.video = {
+        id: imgId,
+        file: file,
+        dataUrl: dataUrl,
+        alt: customAlt,
+        width: 1200,
+        height: 800,
+        blobRef: null
+      };
+    }
+
+    // Fire your native UI rendering hooks
+    renderThreadStack();
+    updateJsonInspector();
+    showAlert('Asset attached successfully! (Tip: You can add accessibility Alt Text below)', 'success');
+  };
+  reader.readAsDataURL(file);
+}
+
+
+ async function importImageFromUrl(postIndex, url) {
+  const cleanUrl = (url || '').trim();
+  if (!cleanUrl) return;
+
+  showAlert('Fetching online image...', 'info');
+  try {
+    let res;
+    try {
+      res = await fetch(cleanUrl);
+    } catch (corsErr) {
+      res = await fetch('https://allorigins.win' + encodeURIComponent(cleanUrl));
+    }
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const blob = await res.blob();
+    const mime = blob.type || 'image/jpeg';
+    const ext = mime.split('/')[1] || 'jpg';
+    const file = new File([blob], `imported-image.${ext}`, { type: mime });
+
+    // Send it directly to your main attachment routine
+    addImageFileToPost(postIndex, file);
+  } catch (err) {
+    console.error(err);
+    showAlert('Failed to fetch image from URL.', 'error');
+  }
+}
+
+
+  
+  function addMediaFileToPost(postIndex, file, customAlt = '') {
+  const post = postsState[postIndex];
+  if (!post) return;
+
+  // Clear any existing assets since Bluesky restricts posts to either images OR a video
+  post.images = [];
+  post.embedCard = null;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const dataUrl = e.target.result;
+    
+    // Create an invisible asset element to scrape original video/animation dimension bounds
+    const mediaEl = file.type.startsWith('video/') ? document.createElement('video') : new Image();
+    
+    mediaEl.onload = mediaEl.onloadedmetadata = () => {
+      // 1. Assign properties into the unified video tracking layout
+      post.mediaType = 'video';
+      post.video = {
+        id: 'vid-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+        file: file,
+        dataUrl: dataUrl,
+        alt: customAlt,
+        width: mediaEl.videoWidth || mediaEl.naturalWidth || 1200,
+        height: mediaEl.videoHeight || mediaEl.naturalHeight || 800,
+        blobRef: null
+      };
+
+      // 2. Fallback: Also mirror it to post.images so your current renderThreadStack() 
+      // UI script can visually draw the preview thumbnail and provide an alt-text textbox!
+      post.images.push({
+        id: post.video.id,
+        file: file,
+        dataUrl: dataUrl,
+        alt: customAlt,
+        width: post.video.width,
+        height: post.video.height,
+        blobRef: null
+      });
+
+      renderThreadStack();
+      updateJsonInspector();
+      showAlert('Looping media attached! (Tip: You can add accessibility Alt Text below)', 'success');
+    };
+
+    if (file.type.startsWith('video/')) {
+      mediaEl.src = dataUrl;
+    } else {
+      mediaEl.src = dataUrl;
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+
+  // ==========================================
+  // Step 1: Fetch Post for Editing
+  // ==========================================
+  async function fetchPostForEditing() {
+    const rawInput = document.getElementById('fetchUrlInput').value;
+    const tokens = parseLinkTokens(rawInput);
+
+    if (!tokens) {
+      showAlert('Could not parse target post. Please enter a valid bsky.app link or at:// URI.', 'error');
+      return;
+    }
+
+    const fetchBtn = document.getElementById('fetchPostBtn');
+    const spinner = document.getElementById('fetchBtnSpinner');
+    const btnText = document.getElementById('fetchBtnText');
+    fetchBtn.disabled = true;
+    spinner.style.display = 'inline-block';
+    btnText.textContent = 'Fetching...';
+
+    const activeProfile = getActiveProfile();
+    const pds = (activeProfile ? activeProfile.pdsEndpoint : 'https://bsky.social').replace(/\/+$/, '');
+
+    try {
+      let actor = tokens.actor;
+      const rkey = tokens.rkey;
+
+      let getRecordUrl = `${pds}/xrpc/com.atproto.repo.getRecord?repo=${encodeURIComponent(actor)}&collection=app.bsky.feed.post&rkey=${encodeURIComponent(rkey)}`;
+      let res = await fetch(getRecordUrl);
+
+      if (!res.ok && !actor.startsWith('did:')) {
+        const resolvedDid = await resolveHandle(actor, pds);
+        if (resolvedDid) {
+          actor = resolvedDid;
+          getRecordUrl = `${pds}/xrpc/com.atproto.repo.getRecord?repo=${encodeURIComponent(actor)}&collection=app.bsky.feed.post&rkey=${encodeURIComponent(rkey)}`;
+          res = await fetch(getRecordUrl);
+        }
+      }
+
+      if (!res.ok) {
+        const publicUrl = `https://public.api.bsky.app/xrpc/com.atproto.repo.getRecord?repo=${encodeURIComponent(actor)}&collection=app.bsky.feed.post&rkey=${encodeURIComponent(rkey)}`;
+        res = await fetch(publicUrl);
+      }
+
+      if (!res.ok) {
+        throw new Error(`Record not found on PDS or public network (HTTP ${res.status})`);
+      }
+
+      const data = await res.json();
+      const record = data.value || {};
+
+      if (!record.text && record.text !== '') {
+        throw new Error('Fetched record is missing text payload or is not a valid post');
+      }
+
+      // Preserve Overwrite Metadata State
+      editModeActive = true;
+      targetEditRkey = rkey;
+      targetEditRepo = actor;
+      targetEditCreatedAt = record.createdAt || nowIso();
+      targetEditOriginalRecord = record;
+
+      // Map text updates
+      postsState[0].rawText = record.text || '';
+      postsState[0].processedText = record.text || '';
+      
+      // Calculate ATProto compliant byte count (UTF-8)
+      postsState[0].byteCount = new TextEncoder().encode(record.text || '').length;
+
+      // FIX: Safely preserve existing rich text facets from the record
+      postsState[0].facets = record.facets || [];
+
+      // If existing post had images:
+      postsState[0].images = [];
+      if (record.embed && record.embed.$type === 'app.bsky.embed.images' && Array.isArray(record.embed.images)) {
+        record.embed.images.forEach(img => {
+          postsState[0].images.push({
+            id: 'img-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+            file: null,
+            dataUrl: '', // existing blob on PDS
+            alt: img.alt || '',
+            width: img.aspectRatio?.width || 1200,
+            height: img.aspectRatio?.height || 800,
+            blobRef: img.image
+          });
+        });
+      }
+
+      // If existing post had external link card embed
+      if (record.embed && record.embed.$type === 'app.bsky.embed.external' && record.embed.external) {
+        const ext = record.embed.external;
+        postsState[0].embedCard = {
+          enabled: true,
+          uri: ext.uri || '',
+          title: ext.title || '',
+          description: ext.description || '',
+          thumbUrl: '',
+          thumbBlob: ext.thumb || null,
+          stripFromText: false
+        };
+      }
+
+      if (postsState.length > 1) {
+        postsState = [postsState[0]];
+      }
+
+      renderThreadStack();
+      updateEditBanner();
+      updateJsonInspector();
+
+      showAlert(`Post fetched successfully! Facets preserved and ready to recreate rkey: ${rkey}`, 'success');
+    } catch (err) {
+      console.error(err);
+      showAlert(`Error fetching post: ${err.message}`, 'error');
+    } finally {
+      fetchBtn.disabled = false;
+      spinner.style.display = 'none';
+      btnText.textContent = 'Fetch Post for Editing';
+    }
+  }
+
+
+  function updateEditBanner() {
+    const banner = document.getElementById('editModeBanner');
+    if (!editModeActive) {
+      banner.classList.remove('active');
+      return;
+    }
+
+    banner.classList.add('active');
+    document.getElementById('editBannerRkey').textContent = `rkey: ${targetEditRkey}`;
+    document.getElementById('editBannerRepo').textContent = targetEditRepo;
+    document.getElementById('editBannerCreatedAt').textContent = targetEditCreatedAt;
+
+    const badge = document.getElementById('timestampDecisionBadge');
+    const isOld = shouldUpdateCreatedAt(targetEditCreatedAt);
+    const hours = Math.round((Date.now() - new Date(targetEditCreatedAt).getTime()) / (1000 * 60 * 60));
+
+    if (isOld) {
+      badge.className = 'timestamp-badge update';
+      badge.innerHTML = `⚠️ Post is ${hours}h old (>24h). <strong>Generating fresh createdAt timestamp on publish.</strong>`;
+    } else {
+      badge.className = 'timestamp-badge preserve';
+      badge.innerHTML = `✅ Post is ${hours}h old (&le;24h). <strong>Preserving original createdAt string on publish.</strong>`;
+    }
+
+    const publishBtn = document.getElementById('publishBtn');
+    publishBtn.textContent = `🔄 Overwrite & Recreate Record (${targetEditRkey})`;
+  }
+
+  function exitEditMode() {
+    editModeActive = false;
+    targetEditRkey = null;
+    targetEditRepo = null;
+    targetEditCreatedAt = null;
+    targetEditOriginalRecord = null;
+    updateEditBanner();
+    document.getElementById('publishBtn').textContent = '🚀 Publish Thread';
+    showAlert('Exited Edit Mode. Thread Builder is now drafting fresh posts.', 'info');
+    updateJsonInspector();
+  }
+
+  // ==========================================
+  // Dynamic Thread Builder UI & Rendering
+  // ==========================================
+  function renderThreadStack() {
+    const stack = document.getElementById('threadStack');
+    stack.innerHTML = '';
+
+    let anyExceededLimit = false;
+
+    postsState.forEach((post, index) => {
+      const parsed = processTextAndFacets(post.rawText, post.embedCard);
+      post.processedText = parsed.processedText;
+      post.byteCount = parsed.byteCount;
+      post.facets = parsed.facets;
+
+      const isOver = post.byteCount > POST_TEXT_LIMIT;
+      if (isOver) anyExceededLimit = true;
+
+      const card = document.createElement('div');
+      card.className = 'thread-post-card' + (isOver ? ' error-limit' : '');
+      card.id = `card-${post.id}`;
+      card.dataset.index = index;
+
+      let counterClass = 'normal';
+      if (isOver) {
+        counterClass = 'danger';
+      } else if (post.byteCount > POST_TEXT_LIMIT - 20) {
+        counterClass = 'warning';
+      }
+
+      let facetPillsHTML = '';
+      const linkCount = post.facets.filter(f => f.features?.[0]?.$type === 'app.bsky.richtext.facet#link').length;
+      const mentionCount = post.facets.filter(f => f.features?.[0]?.$type === 'app.bsky.richtext.facet#mention').length;
+      const tagCount = post.facets.filter(f => f.features?.[0]?.$type === 'app.bsky.richtext.facet#tag').length;
+
+      if (linkCount > 0) facetPillsHTML += `<span class="facet-pill">🔗 ${linkCount} link(s)</span>`;
+      if (mentionCount > 0) facetPillsHTML += `<span class="facet-pill">👤 ${mentionCount} mention(s)</span>`;
+      if (tagCount > 0) facetPillsHTML += `<span class="facet-pill">#️⃣ ${tagCount} tag(s)</span>`;
+      if (post.images && post.images.length > 0) {
+        facetPillsHTML += `<span class="facet-pill" style="color:var(--accent);">🖼️ ${post.images.length}/4 image(s)</span>`;
+      }
+      if (post.rawText !== post.processedText) {
+        const diff = byteLength(post.rawText) - post.byteCount;
+        facetPillsHTML += `<span class="facet-pill" style="color:var(--success);">✨ Markdown reduced (-${diff}B)</span>`;
+      }
+
+      const isRoot = index === 0;
+      const titleLabel = editModeActive && isRoot
+        ? `Target Post (Overwrite rkey: ${targetEditRkey})`
+        : (isRoot ? 'Root Post (#1)' : `Thread Reply (#${index + 1})`);
+
+      // Build images list HTML
+      let imagesListHTML = '';
+      if (post.images && post.images.length > 0) {
+        imagesListHTML = post.images.map((img, imgIdx) => {
+          const sizeKb = img.file ? Math.round(img.file.size / 1024) + ' KB' : 'Existing PDS Blob';
+          const src = img.dataUrl || 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\' viewBox=\'0 0 100 100\'%3E%3Crect fill=\'%231a2234\' width=\'100\' height=\'100\'/%3E%3Ctext fill=\'%2300adb5\' font-size=\'12\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\'%3EExisting Blob%3C/text%3E%3C/svg%3E';
+          return `
+            <div class="image-item-card">
+              <div class="image-thumb-wrap">
+                <img src="${src}" alt="Thumb">
+                <button type="button" class="image-remove-btn" data-post="${index}" data-img="${imgIdx}" title="Remove image">✕</button>
+              </div>
+              <div class="image-meta-info">
+                <div class="image-size-badge">
+                  <span>${img.width}x${img.height}</span>
+                  <span>${sizeKb}</span>
+                </div>
+                <input type="text" class="image-alt-input" data-post="${index}" data-img="${imgIdx}" value="${escapeHTML(img.alt)}" placeholder="Alt text (accessibility)...">
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      card.innerHTML = `
+        <div class="post-header">
+          <span class="post-index-badge">${titleLabel}</span>
+          <div class="post-actions">
+            ${index > 0 ? `<button class="btn btn-secondary btn-sm move-up-btn" data-index="${index}" title="Move Up">↑</button>` : ''}
+            ${index < postsState.length - 1 ? `<button class="btn btn-secondary btn-sm move-down-btn" data-index="${index}" title="Move Down">↓</button>` : ''}
+            ${postsState.length > 1 ? `<button class="btn btn-danger btn-sm remove-post-btn" data-index="${index}" title="Remove Post">✕</button>` : ''}
+          </div>
+        </div>
+
+        <div class="textarea-wrapper">
+          <textarea class="post-textarea" data-index="${index}" placeholder="${isRoot ? "What's happening? Type your post or use markdown links like [Title](https://...)... You can also paste images with Ctrl+V!" : "Add reply to thread... (Paste images with Ctrl+V)"}">${escapeHTML(post.rawText)}</textarea>
+        </div>
+
+        <div class="counter-bar">
+          <div class="facet-tags">${facetPillsHTML}</div>
+          <div class="byte-counter ${counterClass}">
+            ${post.byteCount} / ${POST_TEXT_LIMIT} bytes
+          </div>
+        </div>
+
+        <!-- Image & Blob Attachments (Upload, Clipboard Paste, URL Fetch) -->
+        <div class="images-section">
+          <div class="images-header">
+            <span class="images-header-title">
+              <span>🖼️ Images & Blobs (${post.images.length}/4)</span>
+            </span>
+            <div class="image-controls-row">
+              <span class="paste-hint">💡 Paste screenshot with <strong>Ctrl+V</strong> or drag & drop</span>
+              <label class="btn btn-secondary btn-sm" style="cursor: pointer; margin: 0;">
+                📁 Choose File
+               <!-- Added video formats to the accept attribute -->
+<input type="file" class="post-img-file-input" data-index="0" accept="image/*,video/mp4,video/quicktime,video/webm" multiple="" style="display: none;">
+              </label>
+              <button type="button" class="btn btn-secondary btn-sm toggle-url-import-btn" data-index="${index}">🌐 Load from URL</button>
+            </div>
+          </div>
+
+          <!-- URL Import Input Row -->
+          <div class="image-url-import-row" id="url-import-row-${index}">
+            <input type="text" class="import-img-url-input" data-index="${index}" placeholder="Paste online image URL (e.g. https://.../photo.jpg)" style="flex:1;">
+            <button type="button" class="btn btn-secondary btn-sm execute-import-url-btn" data-index="${index}">Import & Stage</button>
+          </div>
+
+          <!-- Images Thumbnail Grid -->
+          ${post.images.length > 0 ? `<div class="image-grid">${imagesListHTML}</div>` : ''}
+        </div>
+
+        <!-- External Link Card Embed Section (app.bsky.embed.external) -->
+        <div class="card-embed-accordion">
+          <button type="button" class="accordion-toggle" data-index="${index}">
+            <span>${post.embedCard.enabled ? '🔗 Link Card Attached (Click to Edit)' : '＋ Attach Website Link Preview Card (app.bsky.embed.external)'}</span>
+            <span>${post.embedCard.enabled ? '▼' : '►'}</span>
+          </button>
+          <div class="card-embed-form ${post.embedCard.enabled ? 'open' : ''}" id="card-form-${index}">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <label style="font-size: 0.8rem; font-weight: 700; color: #fff;">External Website Card Parameters</label>
+              <div style="display: flex; gap: 0.5rem;">
+                <button type="button" class="btn btn-secondary btn-sm autofill-card-btn" data-index="${index}">⚡ Extract Link from Text</button>
+                <button type="button" class="btn btn-danger btn-sm remove-card-btn" data-index="${index}">Remove Card</button>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label>Target Website URL (Required)</label>
+              <input type="text" class="card-uri-input" data-index="${index}" value="${escapeHTML(post.embedCard.uri)}" placeholder="https://example.com/article">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+              <div class="form-group">
+                <label>Card Title</label>
+                <input type="text" class="card-title-input" data-index="${index}" value="${escapeHTML(post.embedCard.title)}" placeholder="Page or article title">
+              </div>
+              <div class="form-group">
+                <label>Description (Optional)</label>
+                <input type="text" class="card-desc-input" data-index="${index}" value="${escapeHTML(post.embedCard.description)}" placeholder="Summary snippet">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Thumbnail Image (Upload file or paste image URL)</label>
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="file" class="card-thumb-file" data-index="${index}" accept="image/*" style="font-size: 0.8rem;">
+                <input type="text" class="card-thumb-url" data-index="${index}" value="${escapeHTML(post.embedCard.thumbUrl)}" placeholder="Or thumbnail image URL..." style="flex:1;">
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.25rem;">
+              <input type="checkbox" id="strip-url-${index}" class="strip-url-check" data-index="${index}" ${post.embedCard.stripFromText ? 'checked' : ''}>
+              <label for="strip-url-${index}" style="font-size: 0.8rem; color: var(--text-muted); cursor: pointer;">
+                Clean post: Remove card URL from main post text
+              </label>
+            </div>
+
+            <!-- Card Live Preview -->
+            <div class="card-preview ${post.embedCard.uri ? 'visible' : ''}" id="preview-${index}">
+              <img class="card-preview-thumb" id="preview-img-${index}" src="${escapeHTML(post.embedCard.thumbUrl) || 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'150\' viewBox=\'0 0 300 150\'%3E%3Crect fill=\'%23111827\' width=\'300\' height=\'150\'/%3E%3Ctext fill=\'%2300adb5\' font-family=\'sans-serif\' font-size=\'14\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\'%3ELink Card Preview%3C/text%3E%3C/svg%3E'}" alt="Card Thumbnail">
+              <div class="card-preview-body">
+                <div class="card-preview-domain" id="preview-domain-${index}">${getDomain(post.embedCard.uri)}</div>
+                <div class="card-preview-title" id="preview-title-${index}">${escapeHTML(post.embedCard.title || post.embedCard.uri || 'Untitled Card')}</div>
+                <p class="card-preview-desc" id="preview-desc-${index}">${escapeHTML(post.embedCard.description || 'No description provided')}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      stack.appendChild(card);
+    });
+
+    const publishBtn = document.getElementById('publishBtn');
+    if (anyExceededLimit) {
+      publishBtn.disabled = true;
+      publishBtn.title = 'Cannot publish: One or more posts exceed the 300-byte limit.';
+    } else {
+      publishBtn.disabled = false;
+      publishBtn.title = '';
+    }
+
+    attachPostEvents();
+  }
+
+  function getDomain(urlStr) {
+    try {
+      if (!urlStr) return 'LINK CARD';
+      return new URL(urlStr).hostname.toUpperCase();
+    } catch (e) {
+      return 'EXTERNAL LINK';
+    }
+  }
+
+  function attachPostEvents() {
+    // Textarea input handlers & Clipboard Paste (Ctrl+V) for Images
+    document.querySelectorAll('.post-textarea').forEach(textarea => {
+      textarea.addEventListener('input', (e) => {
+        const idx = parseInt(e.target.dataset.index, 10);
+        postsState[idx].rawText = e.target.value;
+
+        const parsed = processTextAndFacets(postsState[idx].rawText, postsState[idx].embedCard);
+        postsState[idx].processedText = parsed.processedText;
+        postsState[idx].byteCount = parsed.byteCount;
+        postsState[idx].facets = parsed.facets;
+
+        const cardEl = document.getElementById(`card-${postsState[idx].id}`);
+        const counterEl = cardEl.querySelector('.byte-counter');
+        const isOver = parsed.byteCount > POST_TEXT_LIMIT;
+
+        counterEl.textContent = `${parsed.byteCount} / ${POST_TEXT_LIMIT} bytes`;
+        counterEl.className = 'byte-counter ' + (isOver ? 'danger' : (parsed.byteCount > POST_TEXT_LIMIT - 20 ? 'warning' : 'normal'));
+        if (isOver) {
+          cardEl.classList.add('error-limit');
+        } else {
+          cardEl.classList.remove('error-limit');
+        }
+
+        const anyOver = postsState.some(p => p.byteCount > POST_TEXT_LIMIT);
+        document.getElementById('publishBtn').disabled = anyOver;
+
+        updateJsonInspector();
+      });
+
+      // Direct Clipboard Image Paste handler (Ctrl+V)
+textarea.addEventListener('paste', (e) => {
+  const clipboard = e.clipboardData || window.clipboardData;
+  if (!clipboard) return;
+
+  const items = clipboard.items;
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    if (item.type && (item.type.startsWith('image/') || item.type.startsWith('video/'))) {
+      const file = item.getAsFile();
+      if (file) {
+        const idx = parseInt(e.target.dataset.index, 10);
+        
+        // Directly invoke the function; it will auto-detect the GIF formatting internally
+        addImageFileToPost(idx, file);
+        
+        e.preventDefault();
+        break;
+      }
+    }
+  }
+});
+
+
+    }); // This matches your outer block wrapper footprint perfectly
+
+
+    // Drag and Drop support on post cards
+    document.querySelectorAll('.thread-post-card').forEach(card => {
+      card.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        card.classList.add('drag-over');
+      });
+      card.addEventListener('dragleave', () => {
+        card.classList.remove('drag-over');
+      });
+      card.addEventListener('drop', (e) => {
+        e.preventDefault();
+        card.classList.remove('drag-over');
+        const idx = parseInt(card.dataset.index, 10);
+        if (e.dataTransfer && e.dataTransfer.files) {
+          const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+          files.forEach(file => addImageFileToPost(idx, file));
+        }
+      });
+    });
+
+// Updated file inputs to handle static images and animated/video formats separately
+document.querySelectorAll('.post-img-file-input').forEach(input => {
+  input.addEventListener('change', (e) => {
+    const idx = parseInt(e.target.dataset.index, 10);
+    const files = Array.from(e.target.files || []);
+    
+    // Everything routes safely through the main asset pipeline now
+    files.forEach(file => addImageFileToPost(idx, file));
+    
+    e.target.value = ''; // Reset input cache safely
+  });
+});
+
+
+// New function to register looping media assets on the post tracking array
+function addMediaFileToPost(postIndex, file) {
+  // Use whatever variable tracks your current post item (e.g., activePost, postsArray[postIndex])
+  const postItem = typeof postsArray !== 'undefined' ? postsArray[postIndex] : (typeof allPosts !== 'undefined' ? allPosts[postIndex] : null);
+  
+  if (!postItem) {
+    console.error(`Post context missing at index ${postIndex}`);
+    return;
+  }
+
+  // Set up the proper video/animation metadata
+  postItem.mediaType = 'video';
+  postItem.video = {
+    file: file,
+    blobRef: null
+  };
+  
+  // Clear standard static frames array to prevent Bluesky from rejecting the post
+  postItem.images = [];
+
+  // Call your existing visual rendering function to display the file in the workspace
+  if (typeof renderPostPreview === 'function') {
+    renderPostPreview(postIndex);
+  } else if (typeof updateUI === 'function') {
+    updateUI(postIndex);
+  }
+}
+
+
+
+    // Toggle URL Import row
+    document.querySelectorAll('.toggle-url-import-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.index, 10);
+        const row = document.getElementById(`url-import-row-${idx}`);
+        row.classList.toggle('open');
+      });
+    });
+
+    // Execute URL Import
+    document.querySelectorAll('.execute-import-url-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.index, 10);
+        const input = document.querySelector(`.import-img-url-input[data-index="${idx}"]`);
+        if (input && input.value) {
+          importImageFromUrl(idx, input.value);
+        }
+      });
+    });
+
+    // Alt text inputs for images
+    document.querySelectorAll('.image-alt-input').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const postIdx = parseInt(e.target.dataset.post, 10);
+        const imgIdx = parseInt(e.target.dataset.img, 10);
+        if (postsState[postIdx]?.images[imgIdx]) {
+          postsState[postIdx].images[imgIdx].alt = e.target.value;
+          updateJsonInspector();
+        }
+      });
+    });
+
+    // Remove single image
+    document.querySelectorAll('.image-remove-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const postIdx = parseInt(btn.dataset.post, 10);
+        const imgIdx = parseInt(btn.dataset.img, 10);
+        if (postsState[postIdx]?.images) {
+          postsState[postIdx].images.splice(imgIdx, 1);
+          renderThreadStack();
+          updateJsonInspector();
+        }
+      });
+    });
+
+    // Reorder & Remove post buttons
+    document.querySelectorAll('.move-up-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.index, 10);
+        if (idx > 0) {
+          const temp = postsState[idx];
+          postsState[idx] = postsState[idx - 1];
+          postsState[idx - 1] = temp;
+          renderThreadStack();
+          updateJsonInspector();
+        }
+      });
+    });
+
+    document.querySelectorAll('.move-down-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.index, 10);
+        if (idx < postsState.length - 1) {
+          const temp = postsState[idx];
+          postsState[idx] = postsState[idx + 1];
+          postsState[idx + 1] = temp;
+          renderThreadStack();
+          updateJsonInspector();
+        }
+      });
+    });
+
+    document.querySelectorAll('.remove-post-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.index, 10);
+        if (postsState.length > 1) {
+          postsState.splice(idx, 1);
+          renderThreadStack();
+          updateJsonInspector();
+        }
+      });
+    });
+
+    // Card Accordion Toggles
+    document.querySelectorAll('.accordion-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.index, 10);
+        const form = document.getElementById(`card-form-${idx}`);
+        const isOpen = form.classList.toggle('open');
+        postsState[idx].embedCard.enabled = isOpen;
+        btn.querySelector('span:last-child').textContent = isOpen ? '▼' : '►';
+        updateJsonInspector();
+      });
+    });
+
+    // Card Inputs
+    document.querySelectorAll('.card-uri-input').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const idx = parseInt(e.target.dataset.index, 10);
+        postsState[idx].embedCard.uri = e.target.value.trim();
+        postsState[idx].embedCard.enabled = true;
+        updateCardPreview(idx);
+        updateJsonInspector();
+      });
+    });
+
+    document.querySelectorAll('.card-title-input').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const idx = parseInt(e.target.dataset.index, 10);
+        postsState[idx].embedCard.title = e.target.value;
+        updateCardPreview(idx);
+        updateJsonInspector();
+      });
+    });
+
+    document.querySelectorAll('.card-desc-input').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const idx = parseInt(e.target.dataset.index, 10);
+        postsState[idx].embedCard.description = e.target.value;
+        updateCardPreview(idx);
+        updateJsonInspector();
+      });
+    });
+
+    document.querySelectorAll('.card-thumb-url').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const idx = parseInt(e.target.dataset.index, 10);
+        postsState[idx].embedCard.thumbUrl = e.target.value.trim();
+        updateCardPreview(idx);
+        updateJsonInspector();
+      });
+    });
+
+    document.querySelectorAll('.card-thumb-file').forEach(input => {
+      input.addEventListener('change', (e) => {
+        const idx = parseInt(e.target.dataset.index, 10);
+        const file = e.target.files[0];
+        if (file) {
+          postsState[idx].embedCard.fileUpload = file;
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            postsState[idx].embedCard.thumbUrl = ev.target.result;
+            updateCardPreview(idx);
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    });
+
+    document.querySelectorAll('.strip-url-check').forEach(check => {
+      check.addEventListener('change', (e) => {
+        const idx = parseInt(e.target.dataset.index, 10);
+        postsState[idx].embedCard.stripFromText = e.target.checked;
+        renderThreadStack();
+        updateJsonInspector();
+      });
+    });
+
+    // Auto-fill Link Card from Text
+    document.querySelectorAll('.autofill-card-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.index, 10);
+        const post = postsState[idx];
+        const mdLinks = parseMarkdownLinks(post.rawText);
+        let extractedUrl = '';
+        let extractedTitle = '';
+
+        if (mdLinks.length > 0) {
+          extractedUrl = mdLinks[0].url;
+          extractedTitle = mdLinks[0].label;
+        } else {
+          const match = post.rawText.match(/\bhttps?:\/\/[^\s"'<>]+/);
+          if (match) {
+            extractedUrl = match[0];
+          }
+        }
+
+        if (extractedUrl) {
+          post.embedCard.enabled = true;
+          post.embedCard.uri = extractedUrl;
+          if (extractedTitle) post.embedCard.title = extractedTitle;
+          renderThreadStack();
+          updateJsonInspector();
+          showAlert(`Extracted URL "${extractedUrl}" to Link Card!`, 'success');
+        } else {
+          showAlert('No web URLs found in this post to extract.', 'info');
+        }
+      });
+    });
+
+    // Remove Card
+    document.querySelectorAll('.remove-card-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.index, 10);
+        postsState[idx].embedCard = {
+          enabled: false,
+          uri: '',
+          title: '',
+          description: '',
+          thumbUrl: '',
+          thumbBlob: null,
+          stripFromText: false
+        };
+        renderThreadStack();
+        updateJsonInspector();
+      });
+    });
+  }
+
+  function updateCardPreview(index) {
+    const card = postsState[index].embedCard;
+    const previewEl = document.getElementById(`preview-${index}`);
+    if (!previewEl) return;
+
+    if (card.uri) {
+      previewEl.classList.add('visible');
+      document.getElementById(`preview-domain-${index}`).textContent = getDomain(card.uri);
+      document.getElementById(`preview-title-${index}`).textContent = card.title || card.uri;
+      document.getElementById(`preview-desc-${index}`).textContent = card.description || 'No description provided';
+      if (card.thumbUrl) {
+        document.getElementById(`preview-img-${index}`).src = card.thumbUrl;
+      }
+    } else {
+      previewEl.classList.remove('visible');
+    }
+  }
+
+  function addThreadPost() {
+    postsState.push({
+      id: 'post-' + Date.now(),
+      rawText: '',
+      processedText: '',
+      byteCount: 0,
+      facets: [],
+      images: [],
+      embedCard: {
+        enabled: false,
+        uri: '',
+        title: '',
+        description: '',
+        thumbUrl: '',
+        thumbBlob: null,
+        stripFromText: false
+      }
+    });
+    renderThreadStack();
+    updateJsonInspector();
+    const lastCard = document.querySelector('.thread-post-card:last-child textarea');
+    if (lastCard) lastCard.focus();
+  }
+
+  // ==========================================
+  // Blob Upload Helper for Images & Thumbnails
+  // ==========================================
+  async function uploadImageBlob(pds, accessJwt, fileOrBlob) {
+    const uploadUrl = `${pds}/xrpc/com.atproto.repo.uploadBlob`;
+    const mimeType = fileOrBlob.type || 'image/jpeg';
+
+    const res = await fetch(uploadUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessJwt}`,
+        'Content-Type': mimeType
+      },
+      body: fileOrBlob
+    });
+
+    if (!res.ok) {
+      let errDetail = `status ${res.status}`;
+      try {
+        const errJson = await res.json();
+        if (errJson.message) errDetail += `: ${errJson.message}`;
+      } catch (e) {}
+      throw new Error(`Blob upload failed (${errDetail})`);
+    }
+
+    const data = await res.json();
+    return data.blob;
+  }
+  
+  
+  
+  
+  // pasted in here
+  
+// Helper to handle record overwrite/recreation via Atomic batch writes
+async function executeOverwrite(session, postItem) {
+  const pds = session.pds;
+  const repoDid = session.did;
+  const accessJwt = session.accessJwt;
+  const collection = 'app.bsky.feed.post';
+
+  // 1. Resolve mentions safely inside preserved facets payload
+  const facetsPayload = postItem.facets ? JSON.parse(JSON.stringify(postItem.facets)) : [];
+  for (const facet of facetsPayload) {
+    const mentionFeature = facet.features?.find(f => f.$type === 'app.bsky.richtext.facet#mention');
+    if (mentionFeature && mentionFeature.handle) {
+      const resolved = await resolveHandle(mentionFeature.handle, pds);
+      mentionFeature.did = resolved || repoDid;
+      delete mentionFeature.handle;
+    }
+  }
+
+  // 2. Assemble Overwrite Embed Payloads
+  let embedPayload = undefined;
+  if (postItem.images && postItem.images.length > 0) {
+    const uploadedImagesList = [];
+    for (let imgIdx = 0; imgIdx < postItem.images.length; imgIdx++) {
+      const imgObj = postItem.images[imgIdx];
+      let blobRef = imgObj.blobRef;
+
+      if (!blobRef && imgObj.file) {
+        showAlert(`Uploading replacement image ${imgIdx + 1}...`, 'info');
+        let fileToUpload = imgObj.file;
+        if (fileToUpload.size > 950000 && imgObj.dataUrl) {
+          fileToUpload = await compressImage(imgObj.dataUrl, imgObj.width, imgObj.height);
+        }
+        blobRef = await uploadImageBlob(pds, accessJwt, fileToUpload);
+        imgObj.blobRef = blobRef;
+      }
+
+      if (blobRef) {
+        uploadedImagesList.push({
+          image: blobRef.ref ? blobRef : { $type: 'blob', ref: blobRef.$link ? blobRef : blobRef.ref || blobRef },
+          alt: imgObj.alt || '',
+          aspectRatio: { width: imgObj.width || 1200, height: imgObj.height || 800 }
+        });
+      }
+    }
+    if (uploadedImagesList.length > 0) {
+      embedPayload = { $type: 'app.bsky.embed.images', images: uploadedImagesList };
+    }
+  } 
+  // Modified Link Card section to scrape and upload remote OpenGraph thumbnails
+  else if (postItem.embedCard && postItem.embedCard.enabled && postItem.embedCard.uri) {
+    let thumbBlobRef = postItem.embedCard.thumbBlob || undefined;
+    
+    // Check if a local replacement image was uploaded manually
+    if (postItem.embedCard.fileUpload) {
+      try {
+        showAlert('Uploading manually chosen link card thumbnail...', 'info');
+        thumbBlobRef = await uploadImageBlob(pds, accessJwt, postItem.embedCard.fileUpload);
+      } catch (err) {
+        console.warn('Manual thumbnail blob upload failed', err);
+      }
+    } 
+    // NEW FEATURE: If no local image exists but a card URL is set, fetch and ingest the remote OpenGraph image
+    else if (!thumbBlobRef && postItem.embedCard.uri) {
+      try {
+        showAlert('Scraping remote link metadata and downloading thumbnail...', 'info');
+        
+        // FIX: Added missing path components and structural dollar symbols for variables
+        const targetApiUrl = `https://dub.co{encodeURIComponent(postItem.embedCard.uri)}`;
+        const proxiedApiUrl = `https://corsproxy.io{encodeURIComponent(targetApiUrl)}`;
+        
+        const metaRes = await fetch(proxiedApiUrl);
+        if (metaRes.ok) {
+          const metadata = await metaRes.json();
+          if (metadata && metadata.image) {
+            // FIX: Added correct structural proxy address parameters to avoid asset downloading cross-origin faults
+            const proxiedImageUrl = `https://corsproxy.io{encodeURIComponent(metadata.image)}`;
+            const imageBlob = await fetch(proxiedImageUrl).then(r => r.blob());
+            
+            // Convert image content type to file structure for your upload function
+            const remoteFile = new File([imageBlob], "thumbnail.jpg", { type: imageBlob.type || "image/jpeg" });
+            
+            // Upload to your Personal Data Server
+            thumbBlobRef = await uploadImageBlob(pds, accessJwt, remoteFile);
+          }
+          
+          // Fill in fallback title/description if missing in editor
+          if (!postItem.embedCard.title && metadata.title) postItem.embedCard.title = metadata.title;
+          if (!postItem.embedCard.description && metadata.description) postItem.embedCard.description = metadata.description;
+        }
+      } catch (scrapeErr) {
+        console.error('Automated OpenGraph metadata card generation failed:', scrapeErr);
+      }
+    }
+
+    embedPayload = {
+      $type: 'app.bsky.embed.external',
+      external: {
+        uri: postItem.embedCard.uri,
+        title: postItem.embedCard.title || postItem.embedCard.uri,
+        description: postItem.embedCard.description || ''
+      }
+    };
+    if (thumbBlobRef) {
+      embedPayload.external.thumb = thumbBlobRef.ref ? thumbBlobRef : { $type: 'blob', ref: thumbBlobRef.$link ? thumbBlobRef : thumbBlobRef.ref || thumbBlobRef };
+    }
+  }
+
+  // Assemble ultimate record structure
+  const finalRecord = {
+    $type: collection,
+    text: postItem.processedText || postItem.rawText || '',
+    createdAt: targetEditCreatedAt || new Date().toISOString(),
+    facets: facetsPayload.length > 0 ? facetsPayload : undefined,
+    embed: embedPayload
+  };
+
+  if (targetEditOriginalRecord) {
+    if (targetEditOriginalRecord.reply) finalRecord.reply = targetEditOriginalRecord.reply;
+    if (targetEditOriginalRecord.langs) finalRecord.langs = targetEditOriginalRecord.langs;
+    if (targetEditOriginalRecord.tags) finalRecord.tags = targetEditOriginalRecord.tags;
+    if (targetEditOriginalRecord.labels) finalRecord.labels = targetEditOriginalRecord.labels;
+  }
+
+  // ATOMIC APPLYWRITES TRANSACTION
+  showAlert('Executing atomic cache purge and update transaction...', 'info');
+
+  const batchPayload = {
+    repo: repoDid,
+    validate: false,
+    writes: [
+      { $type: 'com.atproto.repo.applyWrites#delete', collection: collection, rkey: targetEditRkey },
+      { $type: 'com.atproto.repo.applyWrites#create', collection: collection, rkey: targetEditRkey, value: finalRecord }
+    ]
+  };
+
+  const batchResponse = await fetch(`${pds}/xrpc/com.atproto.repo.applyWrites`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessJwt}`
+    },
+    body: JSON.stringify(batchPayload)
+  });
+
+  if (!batchResponse.ok) {
+    const errData = await batchResponse.json().catch(() => ({}));
+    throw new Error(errData.message || `Batch update rejected (HTTP ${batchResponse.status})`);
+  }
+}
+
+
+
+
+
+
+// end of paste?
+
+
+  // ==========================================
+  // Step 2 & 3: The Publish & Recreate Logic
+  // ==========================================
+  async function executePublish() {
+    const publishBtn = document.getElementById('publishBtn');
+
+    if (postsState.length === 0) {
+      showAlert('Thread is empty. Write at least one post.', 'error');
+      return;
+    }
+
+    for (let i = 0; i < postsState.length; i++) {
+      const p = postsState[i];
+      if (!p.processedText || p.processedText.trim() === '') {
+        showAlert(`Post #${i + 1} cannot be empty.`, 'error');
+        return;
+      }
+      if (p.byteCount > POST_TEXT_LIMIT) {
+        showAlert(`Post #${i + 1} exceeds protocol limit (${p.byteCount}/${POST_TEXT_LIMIT} bytes).`, 'error');
+        return;
+      }
+    }
+
+    publishBtn.disabled = true;
+    showAlert('Initiating PDS session handshake...', 'info');
+
+    try {
+      const session = await ensureSession();
+      const pds = session.pds;
+      const repoDid = session.did;
+      const accessJwt = session.accessJwt;
+
+      // Check if we are overwriting an existing record
+      if (typeof editModeActive !== 'undefined' && editModeActive) {
+        showAlert(`Initiating overwrite re-creation for rkey: ${targetEditRkey}...`, 'info');
+        await executeOverwrite(session, postsState[0]);
+        showAlert(`Success! Record '${targetEditRkey}' completely overwritten and updated!`, 'success');
+        
+        editModeActive = false;
+        if (typeof updateEditBanner === 'function') updateEditBanner();
+        return;
+      }
+
+      // Standard Thread Creation
+      let rootUri = null, rootCid = null, parentUri = null, parentCid = null;
+
+      for (let i = 0; i < postsState.length; i++) {
+        const postItem = postsState[i];
+        showAlert(`Preparing post #${i + 1} of ${postsState.length}...`, 'info');
+
+        const facetsPayload = postItem.facets ? JSON.parse(JSON.stringify(postItem.facets)) : [];
+        for (const facet of facetsPayload) {
+          const mentionFeature = facet.features?.find(f => f.$type === 'app.bsky.richtext.facet#mention');
+          if (mentionFeature && mentionFeature.handle) {
+            const resolved = await resolveHandle(mentionFeature.handle, pds);
+            mentionFeature.did = resolved || repoDid;
+            delete mentionFeature.handle;
+          }
+        }
+
+        let embedPayload = undefined;
+        if (postItem.images && postItem.images.length > 0) {
+          const uploadedImagesList = [];
+          for (let imgIdx = 0; imgIdx < postItem.images.length; imgIdx++) {
+            const imgObj = postItem.images[imgIdx];
+            let blobRef = imgObj.blobRef;
+            if (!blobRef && imgObj.file) {
+              let fileToUpload = imgObj.file;
+              if (fileToUpload.size > 950000 && imgObj.dataUrl) {
+                fileToUpload = await compressImage(imgObj.dataUrl, imgObj.width, imgObj.height);
+              }
+              blobRef = await uploadImageBlob(pds, accessJwt, fileToUpload);
+              imgObj.blobRef = blobRef;
+            }
+            if (blobRef) {
+              uploadedImagesList.push({
+                image: blobRef,
+                alt: imgObj.alt || '',
+                aspectRatio: { width: imgObj.width || 1200, height: imgObj.height || 800 }
+              });
+            }
+          }
+          if (uploadedImagesList.length > 0) {
+            embedPayload = { $type: 'app.bsky.embed.images', images: uploadedImagesList };
+          }
+        }     else if (postItem.embedCard && postItem.embedCard.enabled && postItem.embedCard.uri) {
+    let thumbBlobRef = postItem.embedCard.thumbBlob || undefined;
+    
+    // 1. If user uploaded a local file from their computer
+    if (postItem.embedCard.fileUpload) {
+      try {
+        showAlert('Uploading local link card thumbnail...', 'info');
+        thumbBlobRef = await uploadImageBlob(pds, accessJwt, postItem.embedCard.fileUpload);
+      } catch (err) {
+        console.warn('Manual thumbnail blob upload failed', err);
+      }
+    } 
+    // 2. NEW FEATURE: If user pasted a thumbnail image URL into the input field
+    else if (!thumbBlobRef && postItem.embedCard.thumbUrl) {
+            try {
+              showAlert('Downloading image from thumbnail URL via proxy...', 'info');
+              // CORS Proxy prevents foreign websites from blocking the image download
+              const proxiedUrl = `https://corsproxy.io{encodeURIComponent(postItem.embedCard.thumbUrl)}`;
+              const imgRes = await fetch(proxiedUrl);
+              if (!imgRes.ok) throw new Error(`HTTP ${imgRes.status}`);
+              
+              const imageBlob = await imgRes.blob();
+              const remoteFile = new File([imageBlob], "thumbnail.jpg", { type: imageBlob.type || "image/jpeg" });
+              
+              showAlert('Uploading converted thumbnail to your PDS...', 'info');
+              thumbBlobRef = await uploadImageBlob(pds, accessJwt, remoteFile);
+            } catch (urlErr) {
+              console.error('Failed to process pasted thumbnail URL:', urlErr);
+              showAlert('Could not download image URL due to cross-origin security blocks.', 'warning');
+            }
+    }
+
+    embedPayload = {
+      $type: 'app.bsky.embed.external',
+      external: {
+        uri: postItem.embedCard.uri,
+        title: postItem.embedCard.title || postItem.embedCard.uri,
+        description: postItem.embedCard.description || ''
+      }
+    };
+    if (thumbBlobRef) {
+      embedPayload.external.thumb = thumbBlobRef.ref ? thumbBlobRef : { $type: 'blob', ref: thumbBlobRef.$link ? thumbBlobRef : thumbBlobRef.ref || thumbBlobRef };
+    }
+  }
+
+
+
+        const recordPayload = {
+          $type: 'app.bsky.feed.post',
+          text: postItem.processedText || postItem.rawText || '',
+          createdAt: new Date().toISOString(),
+          facets: facetsPayload.length > 0 ? facetsPayload : undefined,
+          embed: embedPayload
+        };
+
+        if (i > 0 && parentUri && parentCid && rootUri && rootCid) {
+          recordPayload.reply = {
+            root: { uri: rootUri, cid: rootCid },
+            parent: { uri: parentUri, cid: parentCid }
+          };
+        }
+
+        const postRes = await fetch(`${pds}/xrpc/com.atproto.repo.createRecord`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessJwt}`
+          },
+          body: JSON.stringify({
+            repo: repoDid,
+            collection: 'app.bsky.feed.post',
+            record: recordPayload
+          })
+        });
+
+        if (!postRes.ok) {
+          const errData = await postRes.json().catch(() => ({}));
+          throw new Error(errData.message || `Failed on post #${i + 1}`);
+        }
+
+        const resData = await postRes.json();
+        if (i === 0) {
+          rootUri = resData.uri;
+          rootCid = resData.cid;
+        }
+        parentUri = resData.uri;
+        parentCid = resData.cid;
+      }
+
+      showAlert(`Thread with ${postsState.length} post(s) successfully created!`, 'success');
+      if (typeof clearThreadStack === 'function') clearThreadStack();
+
+    } catch (err) {
+      console.error(err);
+      showAlert(`Publish failed: ${err.message}`, 'error');
+    } finally {
+      publishBtn.disabled = false;
+    }
+  }
+
+
+  // ==========================================
+  // JSON Inspector / Validator (pdsls-editor)
+  // ==========================================
+  function updateJsonInspector() {
+    const area = document.getElementById('jsonOutputArea');
+    if (!area) return;
+
+    const previewPayloads = postsState.map((post, idx) => {
+      const isEditTarget = (editModeActive && idx === 0);
+      let postCreatedAt = nowIso();
+      if (isEditTarget && targetEditCreatedAt) {
+        postCreatedAt = shouldUpdateCreatedAt(targetEditCreatedAt) ? nowIso() : targetEditCreatedAt;
+      }
+
+      const rec = {
+        $type: 'app.bsky.feed.post',
+        text: post.processedText,
+        facets: post.facets,
+        createdAt: postCreatedAt
+      };
+
+      if (post.images && post.images.length > 0) {
+        rec.embed = {
+          $type: 'app.bsky.embed.images',
+          images: post.images.map(img => ({
+            image: img.blobRef || { $type: 'blob', ref: { $link: 'bafkrei... (staged for upload)' }, mimeType: 'image/jpeg' },
+            alt: img.alt || '',
+            aspectRatio: { width: img.width, height: img.height }
+          }))
+        };
+      } else if (post.embedCard && post.embedCard.enabled && post.embedCard.uri) {
+        rec.embed = {
+          $type: 'app.bsky.embed.external',
+          external: {
+            uri: post.embedCard.uri,
+            title: post.embedCard.title || post.embedCard.uri,
+            description: post.embedCard.description || ''
+          }
+        };
+      }
+
+      if (idx > 0) {
+        rec.reply = {
+          root: { uri: 'at://did:plc:.../app.bsky.feed.post/[ROOT_RKEY]', cid: 'bafy...' },
+          parent: { uri: 'at://did:plc:.../app.bsky.feed.post/[PARENT_RKEY]', cid: 'bafy...' }
+        };
+      }
+
+      const wrapper = {
+        action: isEditTarget ? 'OVERWRITE RECORD (createRecord with preserved rkey)' : 'CREATE NEW RECORD',
+        rkey: isEditTarget ? targetEditRkey : undefined,
+        record: rec,
+        validation: validateRecord(rec)
+      };
+
+      return wrapper;
+    });
+
+    area.value = JSON.stringify(previewPayloads.length === 1 ? previewPayloads[0] : previewPayloads, null, 2);
+  }
+
+  // ==========================================
+  // Status Alert Banner
+  // ==========================================
+  function showAlert(msg, type = 'info') {
+    const alert = document.getElementById('statusAlert');
+    alert.className = `status-alert ${type}`;
+    alert.innerHTML = msg;
+    alert.style.display = 'block';
+
+    if (type === 'success') {
+      alert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }
+
+  // ==========================================
+  // Drafts LocalStorage
+  // ==========================================
+  function saveDraft() {
+    try {
+      localStorage.setItem(STORAGE_KEY_DRAFT, JSON.stringify(postsState));
+      showAlert('Draft saved successfully to localStorage!', 'success');
+    } catch (e) {
+      showAlert('Failed to save draft to localStorage', 'error');
+    }
+  }
+
+  function loadDraft() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY_DRAFT);
+      if (!raw) {
+        showAlert('No saved draft found in localStorage.', 'info');
+        return;
+      }
+      postsState = JSON.parse(raw);
+      renderThreadStack();
+      updateJsonInspector();
+      showAlert('Draft loaded from localStorage!', 'success');
+    } catch (e) {
+      showAlert('Failed to load draft.', 'error');
+    }
+  }
+
+  function clearThread() {
+    if (confirm('Are you sure you want to clear this thread?')) {
+      postsState = [
+        {
+          id: 'post-' + Date.now(),
+          rawText: '',
+          processedText: '',
+          byteCount: 0,
+          facets: [],
+          images: [],
+          embedCard: {
+            enabled: false,
+            uri: '',
+            title: '',
+            description: '',
+            thumbUrl: '',
+            thumbBlob: null,
+            stripFromText: false
+          }
+        }
+      ];
+      exitEditMode();
+      renderThreadStack();
+      updateJsonInspector();
+    }
+  }
+
+  // ==========================================
+  // Global Event Initializers
+  // ==========================================
+  function initEvents() {
+    document.getElementById('toggleAccountModalBtn').addEventListener('click', () => {
+      document.getElementById('accountsModal').classList.add('open');
+      renderAccountManager();
+    });
+
+    document.getElementById('closeAccountsModalBtn').addEventListener('click', () => {
+      document.getElementById('accountsModal').classList.remove('open');
+    });
+
+    document.getElementById('accountsModal').addEventListener('click', (e) => {
+      if (e.target.id === 'accountsModal') {
+        document.getElementById('accountsModal').classList.remove('open');
+      }
+    });
+
+    document.getElementById('quickAddAccountBtn').addEventListener('click', () => {
+      const form = document.getElementById('accountFormCollapse');
+      form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    });
+
+    document.getElementById('openAddAccountInModalBtn').addEventListener('click', () => {
+      document.getElementById('accountsModal').classList.remove('open');
+      const form = document.getElementById('accountFormCollapse');
+      form.style.display = 'block';
+      form.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    document.getElementById('cancelAccFormBtn').addEventListener('click', () => {
+      document.getElementById('accountFormCollapse').style.display = 'none';
+    });
+
+    document.getElementById('saveAccountBtn').addEventListener('click', () => {
+      const label = document.getElementById('newAccLabel').value.trim();
+      const identifier = document.getElementById('newAccHandle').value.trim();
+      const appPassword = document.getElementById('newAccPassword').value.trim();
+      let pds = document.getElementById('newAccPds').value.trim() || 'https://bsky.social';
+
+      if (!identifier || !appPassword) {
+        alert('Handle/DID and App Password are required.');
+        return;
+      }
+
+      const profiles = getStoredProfiles();
+      const newProfile = {
+        id: 'acc-' + Date.now(),
+        label: label || identifier,
+        identifier,
+        appPassword,
+        pdsEndpoint: pds
+      };
+
+      profiles.push(newProfile);
+      saveStoredProfiles(profiles);
+      setActiveProfileId(newProfile.id);
+
+      document.getElementById('newAccLabel').value = '';
+      document.getElementById('newAccHandle').value = '';
+      document.getElementById('newAccPassword').value = '';
+      document.getElementById('accountFormCollapse').style.display = 'none';
+
+      showAlert(`Account "${newProfile.label}" added and set to active!`, 'success');
+    });
+
+    document.getElementById('profileSelect').addEventListener('change', (e) => {
+      if (e.target.value) {
+        setActiveProfileId(e.target.value);
+        showAlert('Active account switched.', 'info');
+      }
+    });
+
+    document.getElementById('accountsListContainer').addEventListener('click', (e) => {
+      if (e.target.classList.contains('select-acc-btn')) {
+        const id = e.target.dataset.id;
+        setActiveProfileId(id);
+      } else if (e.target.classList.contains('del-acc-btn')) {
+        const id = e.target.dataset.id;
+        if (confirm('Delete this account from localStorage?')) {
+          let profiles = getStoredProfiles().filter(p => p.id !== id);
+          saveStoredProfiles(profiles);
+          if (getActiveProfileId() === id) {
+            setActiveProfileId(profiles.length > 0 ? profiles[0].id : '');
+          } else {
+            renderAccountManager();
+          }
+        }
+      }
+    });
+
+    document.getElementById('fetchPostBtn').addEventListener('click', fetchPostForEditing);
+    document.getElementById('fetchUrlInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        fetchPostForEditing();
+      }
+    });
+    document.getElementById('cancelEditModeBtn').addEventListener('click', exitEditMode);
+
+    document.getElementById('addPostBtn').addEventListener('click', addThreadPost);
+    document.getElementById('publishBtn').addEventListener('click', executePublish);
+    document.getElementById('saveDraftBtn').addEventListener('click', saveDraft);
+    document.getElementById('loadDraftBtn').addEventListener('click', loadDraft);
+    document.getElementById('clearThreadBtn').addEventListener('click', clearThread);
+
+    document.getElementById('toggleJsonBtn').addEventListener('click', () => {
+      const wrapper = document.getElementById('jsonInspectorWrapper');
+      const isHidden = wrapper.style.display === 'none';
+      wrapper.style.display = isHidden ? 'block' : 'none';
+      if (isHidden) {
+        updateJsonInspector();
+        wrapper.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+
+    document.getElementById('copyJsonBtn').addEventListener('click', async () => {
+      const area = document.getElementById('jsonOutputArea');
+      try {
+        await navigator.clipboard.writeText(area.value);
+        document.getElementById('copyJsonBtn').textContent = 'Copied!';
+        setTimeout(() => {
+          document.getElementById('copyJsonBtn').textContent = 'Copy JSON';
+        }, 1500);
+      } catch (err) {
+        area.select();
+        document.execCommand('copy');
+      }
+    });
+  }
+
+  // ==========================================
+  // Initialization
+  // ==========================================
+  function init() {
+    renderAccountManager();
+    renderThreadStack();
+    updateJsonInspector();
+    initEvents();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>
