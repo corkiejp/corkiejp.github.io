@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sandbox Dashboard</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: #1e1e1e;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            box-sizing: border-box;
+        }
+        h1 { margin-top: 0; color: #fff; font-size: 28px; text-align: center; border-bottom: 2px solid #333; padding-bottom: 15px; }
+        p { color: #aaa; text-align: center; font-size: 16px; margin-bottom: 30px; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 20px;
+            text-decoration: none;
+            color: #fff;
+            transition: transform 0.2s, border-color 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            border-color: #00adb5;
+        }
+        .card h3 { margin: 0 0 10px 0; color: #00adb5; font-size: 18px; }
+        .card p { margin: 0; color: #bbb; text-align: left; font-size: 14px; line-height: 1.4; }
+        .status { font-size: 11px; margin-top: 15px; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
+        .active { color: #4caf50; }
+        .planned { color: #ff9800; }
+    </style>
+
+</head>
+<body>
+
+<div class="container">
+    <h1>Developer Sandbox</h1>
+    <p>Select a containerized web tool or local API experimental environment below:</p>
+    
+    <div class="grid">
+        <!-- YouTube Media Card -->
+        <a href="youtube.html" class="card">
+            <div>
+                <h3>📺 Media Player</h3>
+                <p>Bypass local browser security paths to embed and stream external videos cleanly.</p>
+            </div>
+            <div class="status active">● Running</div>
+        </a>
+		
+
+
+
+<!-- Activated Bluesky/WSocial Card -->
+<a href="wsocial.html" class="card">
+    <div>
+        <h3>🦋 ATProto Embedder</h3>
+        <p>Convert raw Bluesky, WSocial, or at:// protocol strings into native responsive posts.</p>
+    </div>
+    <div class="status active">● Running</div>
+</a>
+
+<!-- Activated ATProto Threader & Record Editor -->
+<a href="atproto-threader6.html" class="card">
+    <div>
+        <h3>🧵 ATProto Threader & Editor</h3>
+        <p>Manage multi-profile drafts, sequence threads, and overwrite existing posts seamlessly.</p>
+    </div>
+    <div class="status active">● Running</div>
+</a>
+
+
+        <!-- Embed Generator Card -->
+        <a href="embed-generator.html" class="card">
+            <div>
+                <h3>🔗 Embed Generator</h3>
+                <p>Generate and preview rich media embed codes for external integrations.</p>
+            </div>
+            <div class="status active">● Running</div>
+        </a>
+
+        <!-- Extended Socials Card -->
+        <a href="extsocials.html" class="card">
+            <div>
+                <h3>🌐 Extended Socials</h3>
+                <p>Micro-frontend layout configurations for multi-network social feeds.</p>
+            </div>
+            <div class="status active">● Running</div>
+        </a>
+
+    </div>
+</div>
+
+
+
+</body>
+</html>

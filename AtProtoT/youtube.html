@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local YouTube Embed Test</title>
+    <!-- Forces the browser to send security origins needed to prevent Error 153 -->
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: #1e1e1e;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            box-sizing: border-box;
+        }
+        h1 { margin-top: 0; color: #fff; font-size: 24px; text-align: center; }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        input {
+            flex: 1;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #333;
+            background: #2a2a2a;
+            color: #fff;
+            font-size: 16px;
+        }
+        input:focus { border-color: #ff0000; outline: none; }
+        button {
+            padding: 12px 24px;
+            background: #cc0000;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        button:hover { background: #ff0000; }
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .video-wrapper iframe, .placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #777;
+            font-size: 18px;
+            background: #151515;
+        }
+        .error { color: #ff3333; text-align: center; margin-top: 10px; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Local Embed Video Tester</h1>
+    
+    <div class="input-group">
+        <input type="text" id="videoInput" placeholder="Paste standard YouTube link here...">
+        <button onclick="loadVideo()">Load Video</button>
+    </div>
+    <div id="errorMsg" class="error">Invalid YouTube URL or ID format supplied</div>
+
+    <div class="video-wrapper" id="videoWrapper">
+        <div class="placeholder" id="placeholderText">No video loaded yet</div>
+    </div>
+</div>
+
+<script>
+function extractVideoId(url) {
+    url = url.trim();
+    
+    // Clear out full iframe elements if accidently pasted
+    if (url.includes('<iframe')) {
+        const match = url.match(/embed\/([^"/\s?]+)/);
+        return match ? match[1] : null;
+    }
+
+    // Standard YouTube URL parsing pattern matrix
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    
+    if (match && match[2].length === 11) {
+        return match[2];
+    }
+    
+    return url.length === 11 ? url : null;
+}
+
+function loadVideo() {
+    const input = document.getElementById('videoInput').value;
+    const videoId = extractVideoId(input);
+    const wrapper = document.getElementById('videoWrapper');
+    const errorMsg = document.getElementById('errorMsg');
+
+    if (videoId) {
+        errorMsg.style.display = 'none';
+        wrapper.innerHTML = '';
+        
+        const iframe = document.createElement('iframe');
+        // Switched to youtube-nocookie to maximize canvas playback compatibility
+        iframe.src = "https://www.youtube-nocookie.com/embed/" + videoId;
+        iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+        iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+        iframe.setAttribute('allowfullscreen', '');
+        
+        wrapper.appendChild(iframe);
+    } else {
+        errorMsg.style.display = 'block';
+    }
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATProto Post Card Sandbox</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: #1e1e1e;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            box-sizing: border-box;
+        }
+        h1 { margin-top: 0; color: #fff; font-size: 24px; text-align: center; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: #00adb5; text-decoration: none; font-size: 14px; }
+        .back-link:hover { text-decoration: underline; }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #333;
+            background: #2a2a2a;
+            color: #fff;
+            font-size: 15px;
+            box-sizing: border-box;
+        }
+        input:focus { border-color: #00adb5; outline: none; }
+        button {
+            padding: 12px 24px;
+            background: #00adb5;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+            align-self: flex-end;
+        }
+        button:hover { background: #008c95; }
+        .embed-output-area {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            min-height: 100px;
+            background: #151515;
+            border-radius: 8px;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .error { color: #ff3333; margin-bottom: 10px; display: none; text-align: center; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="index.html" class="back-link">← Back to Dashboard</a>
+    <h1>ATProto Post Builder</h1>
+    
+    <div class="input-group">
+        <input type="text" id="targetInput" placeholder="Paste at:// URI, bsky.app link, or wsocial.eu link here...">
+        <button onclick="renderPost()">Generate Dynamic Post</button>
+    </div>
+    
+    <div id="errorField" class="error">Unsupported URL or target AT-URI formatting template parsed.</div>
+
+    <div class="embed-output-area" id="renderZone">
+        <div style="color: #555; display: flex; align-items: center; justify-content: center; height: 80px;" id="statusText">
+            No active protocol target loaded yet.
+        </div>
+    </div>
+</div>
+
+<!-- Hooking the official dynamic scanner source code you provided -->
+<script src="https://embed.wsocial.eu/public/assets/js/embed.js" charset="utf-8"></script>
+
+<script>
+function processToWsocialUri(inputStr) {
+    inputStr = inputStr.trim();
+    
+    // 1. If it's already a clean at:// protocol string, convert it to a parsable data property format
+    if (inputStr.startsWith("at://")) {
+        return inputStr;
+    }
+    
+    // 2. Handle standard web links (both wsocial.eu and bsky.app web layouts)
+    if (inputStr.includes("/profile/") && inputStr.includes("/post/")) {
+        try {
+            const urlObj = new URL(inputStr);
+            const pathSegments = urlObj.pathname.split('/').filter(Boolean);
+            const profileIdx = pathSegments.indexOf('profile');
+            
+            if (profileIdx !== -1) {
+                const actorDid = pathSegments[profileIdx + 1];
+                const recordKey = pathSegments[profileIdx + 3];
+                
+                if (actorDid && recordKey) {
+                    // Normalize down to a standard structure the embed.js engine natively maps
+                    return `https://wsocial.eu{actorDid}/post/${recordKey}`;
+                }
+            }
+        } catch (e) {
+            return null;
+        }
+    }
+    return null;
+}
+
+function renderPost() {
+    const inputVal = document.getElementById("targetInput").value;
+    const renderZone = document.getElementById("renderZone");
+    const errorField = document.getElementById("errorField");
+    
+    const targetUri = processToWsocialUri(inputVal);
+    
+    if (targetUri) {
+        errorField.style.display = "none";
+        renderZone.innerHTML = ""; // Wipe area
+        
+        // Build the blockquote target container configuration exactly as required by scanner
+        const blockquote = document.createElement("blockquote");
+        blockquote.className = "wsocial-embed";
+        blockquote.setAttribute("data-wsocial-uri", targetUri);
+        blockquote.setAttribute("data-wsocial-embed-color-mode", "dark");
+        
+        // Add text fallback requirement wrapper logic
+        blockquote.innerHTML = `<p lang="en">Loading network content metadata connection... <a href="${targetUri}">View original reference link</a></p>`;
+        
+        renderZone.appendChild(blockquote);
+        
+        // Call the scanning logic directly out of your embed script payload file!
+        if (window.wsocial && typeof window.wsocial.scan === 'function') {
+            window.wsocial.scan(renderZone);
+        } else if (window.bluesky && typeof window.bluesky.scan === 'function') {
+            window.bluesky.scan(renderZone);
+        }
+    } else {
+        errorField.style.display = "block";
+    }
+}
+</script>
+
+</body>
+</html>
