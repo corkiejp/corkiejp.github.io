@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local LLM Hardware Limits</title>
+    <style>
+        /* Global Style Sheet from ~/.config/opencode/default-theme.css */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 30px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #0056b3;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #333;
+            margin-top: 25px;
+        }
+        .disclaimer {
+            font-size: 0.8em;
+            color: #888;
+            padding: 10px 0;
+            text-align: center;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        ul {
+            list-style-type: disc;
+            margin-left: 20px;
+        }
+        .highlight {
+            font-weight: bold;
+            color: #0056b3;
+        }
+        .warning-box {
+            border: 2px solid #cc0000;
+            background-color: #fff0f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            box-shadow: 0 2px 5px rgba(204, 0, 0, 0.1);
+        }
+        .warning-box h3 {
+            color: #cc0000;
+            margin-top: 0;
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+            color: #0056b3;
+            font-weight: 600;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- TOP DISCLAIMER BANNER -->
+        <div class="disclaimer">This page was created using 'opencode', using llama.cpp with Gemma 4 E4B on limited laptop 16gb RAM and vulkan enabled internal GPU (no VRAM)! Information/research for it pulled using my local SearXNG instance.</div>
+
+        <p><a href="index.html">← Back to Experiments</a></p>        <h1>Local LLM Performance & Hardware Limits</h1>
+
+        <div class="section">
+            <h2>Practical Headroom Warning</h2>
+            <div class="warning-box">
+                <h3>⚠️ System Headroom is Critical ⚠️</h3>
+                <p>While model file size is important, the real limiting factor is system memory headroom. The Operating System, browser, and the dynamic KV context cache all consume RAM. Running a model with a footprint that is "tight" (e.g., 14 GB on a 16 GB system) risks forcing the system to use swap memory. This leads to severe I/O bottlenecks, sluggish performance, and rendering the model ineffective. A comfortable fit ensures reliable, fast, and high-quality inference.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>16 GB RAM Compatible Model Comparison</h2>
+            <p>This table details top models suitable for systems with 16 GB of RAM, ordered by performance (Quality Score).</p>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Model</th>
+                            <th>Variant</th>
+                            <th>File Size</th>
+                            <th>RAM Footprint</th>
+                            <th>VRAM Needed</th>
+                            <th>Quality Score (English)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Gemma 4 12B</td>
+                            <td>Q4_0 QAT</td>
+                            <td>7.0 GB</td>
+                            <td>14 GB (Tight)</td>
+                            <td>10 GB</td>
+                            <td><span class="highlight">89.5</span></td>
+                        </tr>
+                        <tr>
+                            <td>Qwen3.5 9B</td>
+                            <td>UD-Q4_K_XL</td>
+                            <td>6.0 GB</td>
+                            <td>12 GB (Comfortable)</td>
+                            <td>8 GB</td>
+                            <td>86.1</td>
+                        </tr>
+                        <tr>
+                            <td>Gemma 4 E4B</td>
+                            <td>Q4_0 QAT</td>
+                            <td>5.2 GB</td>
+                            <td>12 GB (Comfortable)</td>
+                            <td>6 GB</td>
+                            <td><span class="highlight">82.9</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p><a href="https://hilbertraum.ai" target="_blank" rel="noopener">Source: HilbertRaum Local AI Benchmark</a></p>
+            </div>
+        </div>
+
+        <!-- BOTTOM DISCLAIMER BANNER -->
+        <div class="disclaimer">This page was created using 'opencode', using llama.cpp with Gemma 4 E4B on limited laptop 16gb RAM and vulkan enabled internal GPU (no VRAM)! Information/research for it pulled using my local SearXNG instance.</div>
+    </div>
+</body>
+</html>
