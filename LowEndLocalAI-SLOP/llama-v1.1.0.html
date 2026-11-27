@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>llama.cpp v1.1.0 Findings</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 30px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #0056b3;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #333;
+            margin-top: 25px;
+        }
+        .disclaimer {
+            font-size: 0.8em;
+            color: #888;
+            padding: 10px 0;
+            text-align: center;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        ul {
+            list-style-type: disc;
+            margin-left: 20px;
+        }
+        .highlight {
+            font-weight: bold;
+            color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="disclaimer">This page was created using 'opencode', using llama.cpp with Gemma 4 E4B on limited laptop 16gb RAM and vulkan enabled internal GPU (no VRAM)! Information/research for it pulled using my local SearXNG instance.</div>
+        <a href="index.html" style="display: block; text-align: center; margin-bottom: 20px; text-decoration: none;">← Back to Experiments</a>
+
+        <h1>llama.cpp v1.1.0 and Server Security Hardening Report</h1>
+        
+        <div class="section">
+            <h2>🚀 v1.1.0 Feature Highlights</h2>
+            <p>The v1.1.0 release brought several significant additions and optimizations to the inference capabilities:</p>
+            <ul>
+                <li><span class="highlight">New Model Families:</span> Introduction of Inkling 2 (base, Mini, and DSpark), Domyn Edge 4B, Zaya1 8B, RAON-1-mini, and Hy4 flash.</li>
+                <li><span class="highlight">Performance Improvements:</span> Splitting DFlash speculative decoding into separate draft methods.</li>
+                <li><span class="highlight">API Modernization:</span> Deprecation of the old <code>llama_batch</code> API in favor of <code>llama_batch_ext</code>.</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>🛡️ llama-server Security Hardening (v1.0.0+)</h2>
+            <p>The hardening efforts in <code>llama-server</code> are focused on making the local LLM runtime robust against external and internal threats. Key improvements include:</p>
+            <ul>
+                <li><span class="highlight">Mitigating SSRF:</span> Critical updates restricted the forwarding of authentication headers through the CORS proxy, eliminating a major path for Server-Side Request Forgery (SSRF) attacks.</li>
+                <li><span class="highlight">Access Control:</span> Modern deployments often require API keys to protect the server when exposed beyond the local machine.</li>
+                <li><span class="highlight">Runtime Safety:</span> Continuous patching addresses low-level issues like uninitialized heap memory disclosure in components like <code>ggml-rpc</code>.</li>
+            </ul>
+            <p><strong>Best Practice:</strong> Operators should run inference servers in a secure, isolated environment and use strong access control mechanisms.</p>
+        </div>
+
+        <div class="disclaimer">This page was created using 'opencode', using llama.cpp with Gemma 4 E4B on limited laptop 16gb RAM and vulkan enabled internal GPU (no VRAM)! Information/research for it pulled using my local SearXNG instance.</div>
+    </div>
+</body>
+</html>
